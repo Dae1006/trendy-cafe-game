@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Quán Trendy Café</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Header -->
+        <div id="header">
+            <div id="player-info">
+                <span id="player-name">👤 Người Chơi</span>
+                <span id="coins">💰 <span id="coin-amount">500</span></span>
+                <span id="daily-income">📊 <span id="income-amount">0</span>/ph</span>
+            </div>
+            <div id="level-info">
+                <span>⭐ Lv.<span id="player-level">1</span></span>
+                <span>🏆 <span id="xp-amount">0</span>/<span id="xp-needed">100</span> XP</span>
+            </div>
+        </div>
+
+        <!-- Location Selector -->
+        <div id="location-bar">
+            <button class="loc-btn active" data-loc="street">🚶 Vỉa hè</button>
+            <button class="loc-btn" data-loc="mall">🏬 Mall</button>
+            <button class="loc-btn" data-loc="garden">🌳 Sân vườn</button>
+            <button class="loc-btn" data-loc="rooftop">🌃 Rooftop</button>
+            <button class="loc-btn" data-loc="festival">🎪 Lễ hội</button>
+        </div>
+
+        <!-- Cafe Display -->
+        <div id="cafe-display">
+            <div id="cafe-scene">
+                <div id="cafe-bg"></div>
+                <div id="customers-container"></div>
+                <div id="decorations-container"></div>
+            </div>
+        </div>
+
+        <!-- Menu & Orders -->
+        <div id="orders-panel">
+            <h3>📋 Đơn hàng</h3>
+            <div id="orders-list"></div>
+        </div>
+
+        <div id="menu-panel">
+            <h3>☕ Menu</h3>
+            <div id="menu-list"></div>
+        </div>
+
+        <!-- Stats -->
+        <div id="stats-panel">
+            <h3>📊 Thống kê</h3>
+            <div id="stats-list">
+                <div>Khách phục vụ: <span id="served-count">0</span></div>
+                <div>Doanh thu hôm nay: <span id="today-revenue">0</span>₫</div>
+                <div>Tổng items: <span id="total-items">0</span></div>
+                <div>Items hiếm: <span id="rare-items">0</span></div>
+            </div>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div id="bottom-nav">
+            <button class="nav-btn active" data-tab="shop">🏪 Cửa hàng</button>
+            <button class="nav-btn" data-tab="items">🎒 Items</button>
+            <button class="nav-btn" data-tab="market">🔄 Chợ</button>
+            <button class="nav-btn" data-tab="quests">📜 Quest</button>
+            <button class="nav-btn" data-tab="upgrades">⬆️ Nâng cấp</button>
+        </div>
+
+        <!-- Panels -->
+        <div id="panels-container">
+            <!-- Shop Panel -->
+            <div id="shop-panel" class="panel active">
+                <h3>🏪 Cửa hàng menu</h3>
+                <div id="shop-menu-list"></div>
+            </div>
+
+            <!-- Items Panel -->
+            <div id="items-panel" class="panel">
+                <h3>🎒 Bộ sưu tập</h3>
+                <div id="items-filter">
+                    <button class="filter-btn active" data-filter="all">Tất cả</button>
+                    <button class="filter-btn" data-filter="decoration">Trang trí</button>
+                    <button class="filter-btn" data-filter="recipe">Công thức</button>
+                    <button class="filter-btn" data-filter="trendy">Trendy</button>
+                </div>
+                <div id="items-list"></div>
+            </div>
+
+            <!-- Market Panel -->
+            <div id="market-panel" class="panel">
+                <h3>🔄 Chợ giao dịch</h3>
+                <div id="market-tabs">
+                    <button class="market-tab active" data-market-tab="buy">Mua</button>
+                    <button class="market-tab" data-market-tab="sell">Bán</button>
+                    <button class="market-tab" data-market-tab="list">Đăng bán</button>
+                </div>
+                <div id="market-list"></div>
+            </div>
+
+            <!-- Quests Panel -->
+            <div id="quests-panel" class="panel">
+                <h3>📜 Quest</h3>
+                <div id="quest-trend-banner"></div>
+                <div id="quests-list"></div>
+            </div>
+
+            <!-- Upgrades Panel -->
+            <div id="upgrades-panel" class="panel">
+                <h3>⬆️ Nâng cấp quán</h3>
+                <div id="upgrades-list"></div>
+            </div>
+        </div>
+
+        <!-- Trend Banner -->
+        <div id="trend-banner">
+            <span>🔥 Trending:</span>
+            <span id="trend-text">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="hidden">
+        <div id="modal">
+            <div id="modal-header">
+                <span id="modal-title"></span>
+                <button id="modal-close" class="modal-close">×</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
