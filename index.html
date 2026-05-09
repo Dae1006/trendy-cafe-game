@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantrendy Cafe</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #0a0a1a; color: white; min-height: 100vh; }
+#app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #1a1a2e; }
+.header { display: flex; justify-content: space-between; padding: 12px; background: linear-gradient(90deg, #16213e, #0f3460); border-bottom: 2px solid #8B4513; font-size: 13px; }
+.header span { font-weight: bold; color: #FFD700; }
+.weather { padding: 8px; background: linear-gradient(90deg, #2196F3, #03A9F4); text-align: center; font-size: 12px; font-weight: bold; }
+.loc-tabs { display: flex; gap: 4px; padding: 8px; background: #0f0f1a; overflow-x: auto; }
+.loc-tab { flex: 1; min-width: 60px; padding: 8px 4px; border: none; border-radius: 6px; background: #0f3460; color: #a0a0b0; font-size: 11px; cursor: pointer; text-align: center; }
+.loc-tab.active { background: #8B4513; color: white; }
+.cafe-scene { position: relative; height: 200px; background: linear-gradient(to bottom, #87CEEB, #228B22 60%); overflow: hidden; }
+.cafe-customers { position: absolute; bottom: 20px; left: 0; width: 100%; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.cust { font-size: 32px; animation: bounce 1.5s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.orders { padding: 10px; border-bottom: 1px solid #8B4513; }
+.orders h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
+.order { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #FF6347; }
+.order .nm { font-weight: bold; }
+.order .pr { color: #FFD700; font-weight: bold; }
+.btn { padding: 6px 12px; border: none; border-radius: 6px; background: #FF6347; color: white; cursor: pointer; font-weight: bold; }
+.btn:active { transform: scale(0.95); }
+.menu { padding: 10px; border-bottom: 1px solid #8B4513; }
+.menu h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
+.mi { display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 4px; }
+.mi .pr { color: #FFD700; font-weight: bold; }
+.stats { padding: 10px; border-bottom: 1px solid #8B4513; }
+.stats h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
+.sr { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.sr .v { color: #FFD700; font-weight: bold; }
+.nav { display: flex; position: sticky; bottom: 0; background: #0f0f1a; border-top: 2px solid #8B4513; z-index: 100; }
+.nb { flex: 1; padding: 12px 4px; border: none; background: transparent; color: #a0a0b0; font-size: 11px; cursor: pointer; text-align: center; }
+.nb.active { color: #FFD700; background: rgba(255,215,0,0.1); }
+.panels { position: relative; min-height: 300px; max-height: 50vh; overflow-y: auto; }
+.pnl { display: none; padding: 12px; }
+.pnl.active { display: block; }
+.pnl h3 { font-size: 15px; margin-bottom: 10px; color: #FFD700; }
+.ic { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #b0b0b0; }
+.ic .inf { flex: 1; }
+.ic .t { font-weight: bold; font-size: 13px; }
+.ic .d { font-size: 11px; color: #a0a0b0; margin-top: 2px; }
+.ic .c { color: #FFD700; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+.bc { padding: 6px 14px; border: none; border-radius: 6px; background: #FF6347; color: white; cursor: pointer; font-size: 12px; }
+.bc:disabled { background: #555; cursor: not-allowed; }
+.sc { padding: 12px; background: #0f3460; border-radius: 8px; margin-bottom: 8px; }
+.sc .nm { font-weight: bold; font-size: 14px; }
+.sc .tier { font-size: 11px; color: #a0a0b0; }
+.sk { display: flex; gap: 10px; margin: 6px 0; font-size: 12px; }
+.sr2 { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.sr2 .l { color: #a0a0b0; }
+.sr2 .v { color: #FFD700; }
+.ba { padding: 4px 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; margin: 2px; }
+.bt { background: #FF9800; color: white; }
+.bf { background: #f44336; color: white; }
+.bh { background: #4CAF50; color: white; }
+.sr3 { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; font-size: 12px; flex-wrap: wrap; gap: 4px; }
+.sr3 .nm { font-weight: bold; }
+.sr3 .st { color: #FFD700; }
+.sr3 .co { color: #a0a0b0; font-size: 10px; }
+.bs { padding: 4px 10px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; font-size: 11px; }
+.bs:disabled { background: #555; cursor: not-allowed; }
+.pr2 { padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; }
+.pr2 .nm { font-weight: bold; font-size: 13px; margin-bottom: 4px; }
+.pr2 input[type=range] { width: 100%; accent-color: #8B4513; }
+.pr2 .pct { font-size: 12px; color: #FFD700; text-align: center; margin-top: 4px; }
+.trend { padding: 8px; background: linear-gradient(90deg, #FF6347, #FF8C00); text-align: center; font-size: 13px; font-weight: bold; }
+.nf { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #8B4513; color: white; padding: 10px 20px; border-radius: 8px; z-index: 9999; font-size: 13px; }
+.badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-top: 3px; }
+.badge.common { background: #b0b0b0; color: #333; }
+.badge.rare { background: #4169E1; color: white; }
+.badge.epic { background: #9932CC; color: white; }
+.badge.legend { background: #FFD700; color: #333; }
+.badge.locked { background: #f44336; color: white; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div><span id="coins">500</span> Stamina: <span id="stamina">50/50</span></div>
+    <div>Day <span id="day">1</span> Lv.<span id="lvl">1</span></div>
+  </div>
+  <div class="weather" id="weather">Sun</div>
+  <div class="loc-tabs" id="loc-tabs"></div>
+  <div class="cafe-scene">
+    <div class="cafe-customers" id="customers"></div>
+  </div>
+  <div class="orders">
+    <h3>Orders (<span id="oc">0</span>)</h3>
+    <div id="orders"></div>
+  </div>
+  <div class="menu">
+    <h3>Menu</h3>
+    <div id="menu-list"></div>
+  </div>
+  <div class="stats">
+    <h3>Statistics</h3>
+    <div id="stats-list"></div>
+  </div>
+  <div class="nav">
+    <button class="nb active" data-tab="shop">Shop</button>
+    <button class="nb" data-tab="items">Items</button>
+    <button class="nb" data-tab="staff">Staff</button>
+    <button class="nb" data-tab="supply">Supply</button>
+    <button class="nb" data-tab="price">Price</button>
+    <button class="nb" data-tab="mp">Multi</button>
+  </div>
+  <div class="panels">
+    <div id="p-shop" class="pnl active"><h3>Shop Items</h3><div id="shop-list"></div></div>
+    <div id="p-items" class="pnl"><h3>Collection</h3><div id="items-list"></div></div>
+    <div id="p-staff" class="pnl"><h3>Staff Management</h3><div id="staff-list"></div></div>
+    <div id="p-supply" class="pnl"><h3>Buy Supplies</h3><div id="supply-list"></div></div>
+    <div id="p-price" class="pnl"><h3>Set Prices</h3><div id="price-list"></div></div>
+    <div id="p-mp" class="pnl"><h3>Multiplayer</h3><div id="mp-list"></div></div>
+  </div>
+  <div class="trend">Trend: Organic Coffee is HOT!</div>
+</div>
+<script>
+// === DATA ===
+var LOCS = [
+  {id: "street", name: "Sidewalk", cost: 0, rm: 1, bc: 3, ms: 4},
+  {id: "mall", name: "Mall", cost: 5000, rm: 2.5, bc: 5, ms: 8},
+  {id: "garden", name: "Garden", cost: 15000, rm: 2, bc: 4, ms: 10},
+  {id: "rooftop", name: "Rooftop", cost: 50000, rm: 3.5, bc: 6, ms: 12},
+  {id: "festival", name: "Festival", cost: 100000, rm: 4, bc: 8, ms: 16}
+];
+
+var MENU_ITEMS = [
+  {id: "coffee", n: "Black Coffee", i: "A", p: 25, nl: ["beans", "ice", "cup"], lk: false},
+  {id: "milk_coffee", n: "Milk Coffee", i: "B", p: 30, nl: ["beans", "milk", "sugar", "ice", "cup"], lk: false},
+  {id: "espresso", n: "Espresso", i: "C", p: 35, nl: ["beans", "ice", "cup"], lk: true, uc: 500},
+  {id: "matcha", n: "Matcha Tea", i: "D", p: 40, nl: ["matcha", "milk", "sugar", "cup"], lk: true, uc: 3000},
+  {id: "smoothie", n: "Smoothie", i: "E", p: 45, nl: ["milk", "sugar", "ice", "cup"], lk: true, uc: 2000},
+  {id: "cake", n: "Banh Mi", i: "F", p: 35, nl: ["bread", "cheese", "cup"], lk: false},
+  {id: "ice_tea", n: "Iced Tea", i: "G", p: 15, nl: ["tea", "ice", "cup"], lk: false},
+  {id: "bubble_tea", n: "Bubble Tea", i: "H", p: 50, nl: ["tea", "milk", "tapioca", "sugar", "ice", "cup"], lk: true, uc: 4000},
+  {id: "tropical", n: "Coconut Juice", i: "I", p: 55, nl: ["milk", "ice", "cup"], lk: true, uc: 5000},
+  {id: "signature", n: "Signature Drink", i: "J", p: 80, nl: ["beans", "milk", "syrup", "topping", "ice", "cup"], lk: true, uc: 15000}
+];
+
+var TREND_ITEMS = [
+  {id: "t1", n: "Meme Dog", r: "common", ef: "revenue", v: 0.05, d: "+5% revenue", c: 200},
+  {id: "t2", n: "Wild Cat", r: "common", ef: "revenue", v: 0.03, d: "+3% revenue", c: 150},
+  {id: "t3", n: "MU Jersey", r: "common", ef: "customers", v: 1, d: "+1 customer", c: 300},
+  {id: "t4", n: "Girl Boy Style", r: "rare", ef: "revenue", v: 0.1, d: "+10% revenue", c: 1000},
+  {id: "t5", n: "Ba Tram", r: "rare", ef: "customers", v: 2, d: "+2 customers", c: 1500},
+  {id: "t6", n: "Tuyen Style", r: "rare", ef: "revenue", v: 0.15, d: "+15% revenue", c: 2000},
+  {id: "t7", n: "Lam Pham", r: "epic", ef: "revenue", v: 0.2, d: "+20% revenue", c: 5000},
+  {id: "t8", n: "Super Speed", r: "epic", ef: "customers", v: 5, d: "+5 customers", c: 8000},
+  {id: "t9", n: "Coffee King", r: "legend", ef: "revenue", v: 0.5, d: "+50% revenue", c: 20000},
+  {id: "t10", n: "Hoang Thu", r: "legend", ef: "revenue", v: 0.4, d: "+40% revenue", c: 25000},
+  {id: "t11", n: "Omega Plus", r: "legend", ef: "all", v: 0.3, d: "+30% everything", c: 50000}
+];
+
+var STAFF_TYPES = [
+  {id: "barista", n: "Barista", e: "A", salary: 300, skill: 0.6, desc: "Coffee maker - brews drinks"},
+  {id: "server", n: "Server", e: "B", salary: 200, skill: 0.5, desc: "Serves customers - faster speed"},
+  {id: "chef", n: "Chef", e: "C", salary: 350, skill: 0.7, desc: "Kitchen - improves food quality"},
+  {id: "manager", n: "Manager", e: "D", salary: 500, skill: 0.8, desc: "Auto-buys supplies, manages ops"},
+  {id: "senior_barista", n: "Senior Barista", e: "E", salary: 600, skill: 0.9, desc: "Expert coffee maker"},
+  {id: "senior_manager", n: "Senior Manager", e: "F", salary: 800, skill: 1.0, desc: "Full auto management"}
+];
+
+var SUPPLIERS = {
+  beans: [{n: "Robusta Regular", p: 50, q: 50}, {n: "Robusta Dalat", p: 80, q: 70}, {n: "Arabica", p: 120, q: 85}, {n: "Specialty", p: 200, q: 100}],
+  milk: [{n: "Condensed Milk", p: 800, q: 40}, {n: "Vinamilk", p: 1200, q: 70}, {n: "TH True", p: 1800, q: 85}, {n: "Fresh Cream", p: 2800, q: 100}],
+  sugar: [{n: "White Sugar", p: 1000, q: 80}, {n: "Coconut Sugar", p: 1500, q: 100}],
+  ice: [{n: "Ice Cubes", p: 200, q: 100}],
+  tea: [{n: "Regular Tea", p: 2000, q: 60}, {n: "Premium Tea", p: 4000, q: 90}],
+  matcha: [{n: "Regular Matcha", p: 4000, q: 60}, {n: "Japanese Matcha", p: 12000, q: 100}],
+  tapioca: [{n: "Tapioca Pearls", p: 1500, q: 80}],
+  syrup: [{n: "Vanilla Syrup", p: 2000, q: 90}, {n: "Caramel Syrup", p: 2000, q: 90}, {n: "Hazelnut Syrup", p: 2200, q: 100}],
+  topping: [{n: "Jelly Topping", p: 1500, q: 80}, {n: "Cheese Foam", p: 1800, q: 90}],
+  cup: [{n: "Paper Cup Std", p: 1500, q: 80}, {n: "Paper Cup Premium", p: 4000, q: 100}, {n: "Glass Cup", p: 20000, q: 100}],
+  bread: [{n: "Banh Mi Bread", p: 500, q: 70}, {n: "Premium Bread", p: 1000, q: 90}],
+  cheese: [{n: "Cheese", p: 800, q: 70}, {n: "Premium Cheese", p: 1500, q: 90}]
+};
+
+var WEATHERS = {
+  sunny: {e: "Sunny", m: 1.0},
+  cloudy: {e: "Cloudy", m: 1.05},
+  rainy: {e: "Rainy", m: 0.75},
+  hot: {e: "Hot", m: 1.15},
+  tet: {e: "Tet", m: 2.5}
+};
+
+var SEASONS = {
+  summer: {sunny: 0.35, cloudy: 0.25, rainy: 0.20, hot: 0.15, tet: 0},
+  rainy: {sunny: 0.10, cloudy: 0.15, rainy: 0.45, hot: 0.0, tet: 0.10},
+  cool: {sunny: 0.15, cloudy: 0.30, rainy: 0.15, hot: 0.0, tet: 0.35}
+};
+
+// === GAME STATE ===
+var G = {
+  coins: 500, level: 1, xp: 0, xpN: 100,
+  curLoc: "street", unlocked: ["street"],
+  ownedItems: {}, ownedRecipes: [], menuPrices: {},
+  staff: [], stock: {beans: 10, milk: 20, sugar: 30, ice: 100, tea: 20, matcha: 5, tapioca: 5, syrup: 5, topping: 5, cup: 200, bread: 10, cheese: 5},
+  stockNames: {beans: "Coffee", milk: "Milk", sugar: "Sugar", ice: "Ice", tea: "Tea", matcha: "Matcha", tapioca: "Tapioca", syrup: "Syrup", topping: "Topping", cup: "Cups", bread: "Bread", cheese: "Cheese"},
+  orders: [], gameDay: 1, lastDayTick: Date.now(),
+  totalRev: 0, totalServed: 0, dailyRev: 0, dailyCost: 0, autoPurchase: false
+};
+
+MENU_ITEMS.forEach(function(m) { G.menuPrices[m.id] = 1.0; });
+
+// === HELPERS ===
+function fmt(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+  return String(n);
+}
+
+function notify(text) {
+  var d = document.createElement("div");
+  d.className = "nf";
+  d.textContent = text;
+  document.body.appendChild(d);
+  setTimeout(function() { d.remove(); }, 2000);
+}
+
+function getWeather() {
+  var cycle = G.gameDay % 180;
+  var season = cycle < 60 ? "summer" : (cycle < 120 ? "rainy" : "cool");
+  var probs = SEASONS[season];
+  var rand = Math.random();
+  var cum = 0;
+  var keys = Object.keys(probs);
+  for (var i = 0; i < keys.length; i++) {
+    cum += probs[keys[i]];
+    if (rand <= cum) return WEATHERS[keys[i]];
+  }
+  return WEATHERS.sunny;
+}
+
+// === CORE ===
+function getRevMult() {
+  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
+  var m = loc.rm;
+  for (var id in G.ownedItems) {
+    var it = TREND_ITEMS.find(function(t) { return t.id === id; });
+    if (it && it.ef === "revenue") m += it.v * G.ownedItems[id];
+  }
+  var w = getWeather();
+  m *= w.m;
+  return m;
+}
+
+function getBaseCust() {
+  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
+  var c = loc.bc;
+  for (var id in G.ownedItems) {
+    var it = TREND_ITEMS.find(function(t) { return t.id === id; });
+    if (it && it.ef === "customers") c += it.v * G.ownedItems[id];
+  }
+  return c;
+}
+
+function addXP(a) {
+  G.xp += a;
+  while (G.xp >= G.xpN) {
+    G.xp -= G.xpN;
+    G.level++;
+    G.xpN = Math.floor(G.xpN * 1.5);
+    notify("Level " + G.level + "!");
+  }
+}
+
+// === ACTIONS ===
+function serveOrder(idx) {
+  if (!G.orders || idx < 0 || idx >= G.orders.length) return;
+  var order = G.orders[idx];
+  var item = MENU_ITEMS.find(function(m) { return m.id === order.id; });
+  if (!item) return;
+  for (var i = 0; i < item.nl.length; i++) {
+    if ((G.stock[item.nl[i]] || 0) <= 0) {
+      notify("Out of " + item.nl[i] + "!");
+      return;
+    }
+  }
+  for (var i = 0; i < item.nl.length; i++) {
+    G.stock[item.nl[i]]--;
+  }
+  var price = item.p * G.menuPrices[item.id];
+  for (var id in G.ownedItems) {
+    var it = TREND_ITEMS.find(function(t) { return t.id === id; });
+    if (it && it.ef === "revenue") price *= (1 + it.v * G.ownedItems[id]);
+  }
+  var w = getWeather();
+  price *= w.m;
+  var earned = Math.floor(price);
+  G.coins += earned;
+  G.dailyRev += earned;
+  G.totalRev += earned;
+  G.totalServed++;
+  notify("Served: " + item.n + "! +" + fmt(earned));
+  addXP(10);
+  G.orders.splice(idx, 1);
+  saveGame();
+  renderAll();
+}
+
+function buyItem(id) {
+  var it = TREND_ITEMS.find(function(t) { return t.id === id; });
+  if (!it) return;
+  if (G.coins < it.c) { notify("Not enough!"); return; }
+  G.coins -= it.c;
+  G.ownedItems[id] = (G.ownedItems[id] || 0) + 1;
+  notify("Bought: " + it.n);
+  saveGame();
+  renderAll();
+}
+
+function buyRecipe(id) {
+  var item = MENU_ITEMS.find(function(m) { return m.id === id; });
+  if (!item || !item.lk) return;
+  if (G.coins < item.uc) { notify("Not enough!"); return; }
+  G.coins -= item.uc;
+  G.ownedRecipes.push(id);
+  item.lk = false;
+  notify("Unlocked: " + item.n);
+  saveGame();
+  renderAll();
+}
+
+function hireStaff(tierId) {
+  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
+  if (G.staff.length >= loc.ms) { notify("Max staff!"); return; }
+  var tier = STAFF_TYPES.find(function(t) { return t.id === tierId; });
+  if (!tier) return;
+  var cost = tier.salary * 3;
+  if (G.coins < cost) { notify("Need " + fmt(cost) + "!"); return; }
+  G.staff.push({id: "s_" + Date.now(), name: "Staff " + (G.staff.length + 1), tier: tierId, skill: tier.skill, salary: tier.salary, mood: 80, loyalty: 70, days: 0, served: 0});
+  G.coins -= cost;
+  notify("Hired staff!");
+  saveGame();
+  renderAll();
+}
+
+function orderSupply(key, ti) {
+  var list = SUPPLIERS[key];
+  if (!list || !list[ti]) return;
+  var item = list[ti];
+  var cost = Math.ceil(item.p * 10);
+  if (G.coins < cost) { notify("Not enough!"); return; }
+  G.coins -= cost;
+  G.stock[key] += 10;
+  notify("Bought " + key + " x10!");
+  saveGame();
+  renderAll();
+}
+
+function setPrice(id, val) {
+  G.menuPrices[id] = val / 100;
+  renderAll();
+}
+
+function unlockLocation(id) {
+  var loc = LOCS.find(function(l) { return l.id === id; });
+  if (G.coins < loc.cost) { notify("Not enough!"); return; }
+  G.coins -= loc.cost;
+  G.unlocked.push(id);
+  G.curLoc = id;
+  notify("Unlocked: " + loc.name);
+  saveGame();
+  renderAll();
+}
+
+// === AUTO PURCHASE (Manager) ===
+function autoPurchaseFn() {
+  if (!G.autoPurchase) return;
+  if (G.stock.beans < 5) { orderSupply("beans", 0); }
+  if (G.stock.milk < 5) { orderSupply("milk", 0); }
+  if (G.stock.ice < 10) { orderSupply("ice", 0); }
+  if (G.stock.cup < 50) { orderSupply("cup", 0); }
+}
+
+// === SAVE/LOAD ===
+function saveGame() {
+  try { localStorage.setItem("tcSave", JSON.stringify(G)); } catch (e) {}
+}
+
+function loadGame() {
+  try {
+    var s = localStorage.getItem("tcSave");
+    if (s) {
+      var p = JSON.parse(s);
+      for (var k in p) {
+        if (G.hasOwnProperty(k)) G[k] = p[k];
+      }
+    }
+    MENU_ITEMS.forEach(function(m) { if (!G.menuPrices[m.id]) G.menuPrices[m.id] = 1.0; });
+  } catch (e) {}
+}
+
+// === RENDER ===
+function renderAll() {
+  renderHeader();
+  renderWeather();
+  renderLocs();
+  renderCustomers();
+  renderOrders();
+  renderMenu();
+  renderStats();
+  renderShop();
+  renderItems();
+  renderStaff();
+  renderSupply();
+  renderPrice();
+  renderMP();
+}
+
+function renderHeader() {
+  document.getElementById("coins").textContent = fmt(G.coins);
+  document.getElementById("day").textContent = G.gameDay;
+  document.getElementById("lvl").textContent = G.level;
+}
+
+function renderWeather() {
+  var w = getWeather();
+  document.getElementById("weather").textContent = w.e + " (x" + w.m + ")";
+}
+
+function renderLocs() {
+  var el = document.getElementById("loc-tabs");
+  el.innerHTML = "";
+  LOCS.forEach(function(loc) {
+    var btn = document.createElement("button");
+    btn.className = "loc-tab" + (G.curLoc === loc.id ? " active" : "");
+    var ok = G.unlocked.indexOf(loc.id) >= 0;
+    btn.disabled = !ok;
+    btn.innerHTML = loc.name + (ok ? "" : "<br><small>" + fmt(loc.cost) + "</small>");
+    btn.onclick = function() {
+      if (ok) { G.curLoc = loc.id; } else { unlockLocation(loc.id); }
+      renderAll();
+    };
+    el.appendChild(btn);
+  });
+}
+
+function renderCustomers() {
+  var el = document.getElementById("customers");
+  el.innerHTML = "";
+  var c = getBaseCust();
+  for (var i = 0; i < Math.min(c, 15); i++) {
+    var d = document.createElement("div");
+    d.className = "cust";
+    d.textContent = ["A", "B", "C", "D"][i % 4];
+    d.style.animationDelay = (i * 0.1) + "s";
+    el.appendChild(d);
+  }
+}
+
+function renderOrders() {
+  var el = document.getElementById("orders");
+  document.getElementById("oc").textContent = G.orders.length;
+  el.innerHTML = "";
+  if (!G.orders || G.orders.length === 0) {
+    el.innerHTML = '<div style="padding:10px;color:#a0a0b0;text-align:center">Waiting for customers...</div>';
+    return;
+  }
+  G.orders.forEach(function(order, idx) {
+    var item = MENU_ITEMS.find(function(m) { return m.id === order.id; });
+    if (!item) return;
+    var d = document.createElement("div");
+    d.className = "order";
+    d.innerHTML = '<div><div class="nm">' + item.i + " " + item.n + '</div><div class="pr">' + item.p + '</div></div><button class="btn" onclick="serveOrder(' + idx + ')">Serve</button>';
+    el.appendChild(d);
+  });
+}
+
+function renderMenu() {
+  var el = document.getElementById("menu-list");
+  el.innerHTML = "";
+  MENU_ITEMS.filter(function(m) { return G.unlocked.indexOf(m.id) >= 0 || !m.lk; }).forEach(function(item) {
+    var d = document.createElement("div");
+    d.className = "mi";
+    d.innerHTML = '<span>' + item.i + " " + item.n + '</span><span class="pr">' + item.p + '</span>';
+    el.appendChild(d);
+  });
+}
+
+function renderStats() {
+  var el = document.getElementById("stats-list");
+  el.innerHTML = "";
+  var profit = G.dailyRev - G.dailyCost;
+  var rows = [
+    ["Total served", G.totalServed],
+    ["Today revenue", fmt(G.dailyRev)],
+    ["Today cost", fmt(G.dailyCost)],
+    ["Profit today", fmt(profit)],
+    ["Items owned", Object.keys(G.ownedItems).length],
+    ["Staff", G.staff.length + "/" + LOCS.find(function(l) { return l.id === G.curLoc; }).ms],
+    ["Day", G.gameDay]
+  ];
+  rows.forEach(function(r) {
+    var d = document.createElement("div");
+    d.className = "sr";
+    d.innerHTML = '<span>' + r[0] + '</span><span class="v">' + r[1] + '</span>';
+    el.appendChild(d);
+  });
+}
+
+function renderShop() {
+  var el = document.getElementById("shop-list");
+  el.innerHTML = "";
+  var avail = TREND_ITEMS.filter(function(t) { return !G.ownedItems[t.id] || G.ownedItems[t.id] <= 0; });
+  if (avail.length === 0) {
+    el.innerHTML = '<div style="padding:10px;color:#a0a0b0;text-align:center">All owned!</div>';
+    return;
+  }
+  var rc = {common: "#b0b0b0", rare: "#4169E1", epic: "#9932CC", legend: "#FFD700"};
+  avail.forEach(function(item) {
+    var d = document.createElement("div");
+    d.className = "ic";
+    d.style.borderLeftColor = rc[item.r];
+    d.innerHTML = '<div class="inf"><div class="t">' + item.n + '</div><div class="d">' + item.d + '</div><span class="badge ' + item.r + '">' + item.r + '</span></div><div><div class="c">' + fmt(item.c) + '</div><button class="bc" onclick="buyItem('' + item.id + '')" ' + (G.coins < item.c ? "disabled" : "") + '>Buy</button></div>';
+    el.appendChild(d);
+  });
+}
+
+function renderItems() {
+  var el = document.getElementById("items-list");
+  el.innerHTML = "";
+  var owned = Object.entries(G.ownedItems).filter(function(e) { return e[1] > 0; });
+  if (owned.length === 0) {
+    el.innerHTML = '<div style="padding:10px;color:#a0a0b0">No items yet!</div>';
+    return;
+  }
+  owned.forEach(function(e) {
+    var item = TREND_ITEMS.find(function(t) { return t.id === e[0]; });
+    if (!item) return;
+    var d = document.createElement("div");
+    d.className = "ic";
+    d.innerHTML = '<div class="inf"><div class="t">' + item.n + '</div><div class="d">' + item.d + " x" + e[1] + '</div><span class="badge ' + item.r + '">' + item.r + '</span></div>';
+    el.appendChild(d);
+  });
+}
+
+function renderStaff() {
+  var el = document.getElementById("staff-list");
+  el.innerHTML = "";
+  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
+  el.innerHTML += '<div style="margin-bottom:8px;color:#a0a0b0;font-size:12px">Count: ' + G.staff.length + "/" + loc.ms + '</div>';
+  STAFF_TYPES.forEach(function(tier) {
+    var cost = tier.salary * 3;
+    var d = document.createElement("div");
+    d.className = "ic";
+    d.style.borderLeftColor = "#2196F4";
+    d.innerHTML = '<div class="inf"><div class="t">' + tier.e + " " + tier.n + '</div><div class="d">' + tier.desc + '</div><div class="d">Salary: ' + fmt(tier.salary) + '/day</div></div><div><div class="c">' + fmt(cost) + '</div><button class="bc bh" onclick="hireStaff('' + tier.id + '')" ' + (G.coins < cost || G.staff.length >= loc.ms ? "disabled" : "") + '>Hire</button></div>';
+    el.appendChild(d);
+  });
+  G.staff.forEach(function(s) {
+    var tier = STAFF_TYPES.find(function(t) { return t.id === s.tier; });
+    var mc = s.mood > 60 ? "#4CAF50" : (s.mood > 30 ? "#FF9800" : "#f44336");
+    var d = document.createElement("div");
+    d.className = "sc";
+    d.innerHTML = '<div class="nm">' + (tier ? tier.e : "") + " " + s.name + '</div><div class="tier">' + (tier ? tier.n : "?") + '</div><div class="sk"><span>Skill: ' + s.skill.toFixed(1) + '</span></div><div class="sr2"><span class="l">Mood</span><span class="v">' + s.mood.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Loyalty</span><span class="v">' + s.loyalty.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Days</span><span class="v">' + s.days + '</span></div><div class="sr2"><span class="l">Served</span><span class="v">' + s.served + '</span></div><div style="margin-top:6px"><button class="ba bt" onclick="trainStaff('' + s.id + '')">Train</button> <button class="ba bf" onclick="fireStaff('' + s.id + '')">Fire</button> <label style="font-size:11px;margin-left:8px"><input type="checkbox" ' + (G.autoPurchase ? "checked" : "") + ' onchange="toggleAutoPurchase()"> Auto Buy</label></div>';
+    el.appendChild(d);
+  });
+}
+
+function trainStaff(sid) {
+  var s = G.staff.find(function(x) { return x.id === sid; });
+  if (!s) return;
+  if (G.coins < 500) { notify("Need 500!"); return; }
+  G.coins -= 500;
+  s.skill = Math.min(1, s.skill + 0.1);
+  notify("Trained " + s.name + "!");
+  saveGame();
+  renderAll();
+}
+
+function fireStaff(sid) {
+  var i = G.staff.findIndex(function(x) { return x.id === sid; });
+  if (i < 0) return;
+  G.staff.splice(i, 1);
+  notify("Fired!");
+  saveGame();
+  renderAll();
+}
+
+function toggleAutoPurchase() {
+  G.autoPurchase = !G.autoPurchase;
+  notify("Auto purchase: " + (G.autoPurchase ? "ON" : "OFF"));
+  renderAll();
+}
+
+function renderSupply() {
+  var el = document.getElementById("supply-list");
+  el.innerHTML = "";
+  Object.entries(G.stock).forEach(function(e) {
+    var d = document.createElement("div");
+    d.className = "sr3";
+    d.innerHTML = '<span class="nm">' + G.stockNames[e[0]] + '</span><span class="st">' + e[1] + '</span>';
+    el.appendChild(d);
+  });
+  el.innerHTML += '<div style="margin-top:10px;font-size:13px;color:#FFD700">ORDER SUPPLIES:</div>';
+  Object.entries(SUPPLIERS).forEach(function(e) {
+    var key = e[0], list = e[1];
+    list.forEach(function(item, ti) {
+      var cost = Math.ceil(item.p * 10);
+      var d = document.createElement("div");
+      d.className = "sr3";
+      d.innerHTML = '<span class="nm">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="co">' + item.p + " / 10u</span><span class="st">x10</span><button class="bs" onclick="orderSupply('' + key + '',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
+      el.appendChild(d);
+    });
+  });
+}
+
+function renderPrice() {
+  var el = document.getElementById("price-list");
+  el.innerHTML = "";
+  MENU_ITEMS.forEach(function(item) {
+    var unlocked = G.unlocked.indexOf(item.id) >= 0 || G.ownedRecipes.indexOf(item.id) >= 0;
+    var pp = Math.round(G.menuPrices[item.id] * 100);
+    var d = document.createElement("div");
+    d.className = "pr2";
+    if (unlocked) {
+      d.innerHTML = '<div class="nm">' + item.i + " " + item.n + '</div><input type="range" min="70" max="130" value="' + pp + '" oninput="setPrice('' + item.id + '',this.value);this.nextElementSibling.textContent=this.value+'%'"><div class="pct">' + pp + '%</div>';
+    } else {
+      d.innerHTML = '<div class="nm">' + item.i + " " + item.n + ' <span class="badge locked">LOCKED</span></div><button class="bc" onclick="buyRecipe('' + item.id + '')" ' + (G.coins < item.uc ? "disabled" : "") + '>Unlock (' + fmt(item.uc) + ')</button>';
+    }
+    el.appendChild(d);
+  });
+}
+
+function renderMP() {
+  var el = document.getElementById("mp-list");
+  el.innerHTML = '<div style="padding:10px;background:#0f3460;border-radius:8px"><h4>Multiplayer</h4><div>Score: ' + fmt(G.totalRev) + '</div><div>Served: ' + G.totalServed + '</div></div>';
+}
+
+// === EVENT LISTENERS ===
+document.querySelectorAll(".nb").forEach(function(btn) {
+  btn.addEventListener("click", function() {
+    document.querySelectorAll(".nb").forEach(function(b) { b.classList.remove("active"); });
+    document.querySelectorAll(".pnl").forEach(function(p) { p.classList.remove("active"); });
+    btn.classList.add("active");
+    document.getElementById("p-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+// === GAME LOOP ===
+function startGameLoop() {
+  setInterval(function() {
+    var now = Date.now();
+    if (now - G.lastDayTick >= 60000) {
+      G.gameDay++;
+      G.lastDayTick = now;
+      G.dailyCost = G.staff.reduce(function(t, s) {
+        var tier = STAFF_TYPES.find(function(t2) { return t2.id === s.tier; });
+        return t + (tier ? tier.salary : 300);
+      }, 0);
+      G.dailyRev = 0;
+      autoPurchaseFn();
+      notify("Day " + G.gameDay + "!");
+      saveGame();
+      renderAll();
+    }
+  }, 1000);
+
+  setInterval(function() {
+    var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
+    var w = getWeather();
+    var exp = Math.floor(loc.bc * w.m);
+    if (G.orders.length < exp) {
+      var avail = MENU_ITEMS.filter(function(m) { return G.unlocked.indexOf(m.id) >= 0 || !m.lk; });
+      if (avail.length > 0) {
+        var item = avail[Math.floor(Math.random() * avail.length)];
+        G.orders.push({id: item.id});
+      }
+    }
+  }, 15000);
+
+  setInterval(saveGame, 30000);
+  setInterval(renderAll, 2000);
+}
+
+// === INIT ===
+function init() {
+  loadGame();
+  renderAll();
+  startGameLoop();
+  notify("Quan Trendy Cafe v4.2 - Ready!");
+}
+
+window.serveOrder = serveOrder;
+window.buyItem = buyItem;
+window.buyRecipe = buyRecipe;
+window.hireStaff = hireStaff;
+window.fireStaff = fireStaff;
+window.trainStaff = trainStaff;
+window.orderSupply = orderSupply;
+window.setPrice = setPrice;
+window.toggleAutoPurchase = toggleAutoPurchase;
+window.onload = init;
+</script>
+</body>
+</html>
