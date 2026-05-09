@@ -61,6 +61,30 @@ body {
     font-weight: bold;
 }
 
+/* ---- Weather Display ---- */
+#weather-display {
+    padding: 6px 15px;
+    background: linear-gradient(90deg, #FF6347, #FF8C00);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.weather-tip {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* Weather background classes */
+.weather-sunny { background: linear-gradient(to bottom, #87CEEB 0%, #8B7355 60%, #696969 100%); }
+.weather-cloudy { background: linear-gradient(to bottom, #708090 0%, #778899 60%, #2F4F4F 100%); }
+.weather-rainy { background: linear-gradient(to bottom, #4a4a5a 0%, #5a5a6a 60%, #3a3a4a 100%); }
+.weather-thunderstorm { background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 60%, #0a0a1a 100%); }
+.weather-hot { background: linear-gradient(to bottom, #FF4500 0%, #FF6347 60%, #FF8C00 100%); }
+.weather-tet { background: linear-gradient(to bottom, #FF0000 0%, #FFD700 50%, #FF0000 100%); }
+
 /* ---- Location Bar ---- */
 #location-bar {
     display: flex;
