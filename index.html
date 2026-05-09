@@ -21,6 +21,11 @@
             </div>
         </div>
 
+        <!-- Weather Display -->
+        <div id="weather-display">
+            <span>🌤️ Đang tải...</span>
+        </div>
+
         <!-- Location Selector -->
         <div id="location-bar">
             <button class="loc-btn active" data-loc="street">🚶 Vỉa hè</button>
@@ -56,8 +61,11 @@
             <div id="stats-list">
                 <div>Khách phục vụ: <span id="served-count">0</span></div>
                 <div>Doanh thu hôm nay: <span id="today-revenue">0</span>₫</div>
+                <div>Doanh thu thực: <span id="real-revenue">0</span>₫</div>
                 <div>Tổng items: <span id="total-items">0</span></div>
                 <div>Items hiếm: <span id="rare-items">0</span></div>
+                <div>Chi phí hôm nay: <span id="today-costs">0</span>₫</div>
+                <div>Profit hôm nay: <span id="today-profit">0</span>₫</div>
             </div>
         </div>
 
@@ -133,6 +141,11 @@
         </div>
     </div>
 
+    <script src="src/weather.js"></script>
+    <script src="src/suppliers.js"></script>
+    <script src="src/staff.js"></script>
+    <script src="src/feedback.js"></script>
+    <script src="src/ads.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
