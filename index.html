@@ -17,12 +17,9 @@ body{font-family:Arial,sans-serif;background:#111;color:#fff;min-height:100vh}
 .ors{padding:8px;border-bottom:1px solid #8B4513}
 .ors h3{font-size:13px;margin-bottom:6px;color:#FFD700}
 .ors .item{display:flex;justify-content:space-between;padding:6px;background:#0f3460;border-radius:6px;margin-bottom:4px;border-left:2px solid #FF6347;font-size:12px;align-items:center}
-.ors .item.auto-served{border-left-color:#4CAF50;background:#0f346080}
-.ors .item.auto-served::after{content:" AUTO";font-size:9px;color:#4CAF50;position:absolute;right:8px}
 .btn{padding:4px 10px;border:none;border-radius:4px;background:#FF6347;color:#fff;cursor:pointer;font-size:11px}
 .btn:active{transform:scale(.95)}
 .btn:disabled{background:#555;cursor:not-allowed}
-.btn:disabled:hover{opacity:.5}
 .navs{display:flex;position:sticky;bottom:0;background:#0f0f1a;border-top:2px solid #8B4513;flex-wrap:wrap}
 .nv{flex:1;min-width:45px;padding:8px 3px;border:none;background:transparent;color:#a0a0b0;font-size:10px;cursor:pointer;text-align:center}
 .nv.act{color:#FFD700;background:rgba(255,215,0,.1)}
@@ -54,11 +51,12 @@ body{font-family:Arial,sans-serif;background:#111;color:#fff;min-height:100vh}
 .price-box{padding:6px;background:#0f3460;border-radius:6px;margin-bottom:4px}
 .price-box input[type=range]{width:100%;accent-color:#8B4513}
 .price-box .lbl{font-size:11px;color:#FFD700;text-align:center;margin-top:2px}
-.cost-box{font-size:10px;color:#FF6347;margin-top:2px}
+.cost-box{font-size:10px;color:#4CAF50;margin-top:2px}
 .staff-status{padding:6px;background:#0f3460;border-radius:4px;margin-bottom:8px;font-size:11px;border-left:3px solid #2196F4}
 .staff-status .label{color:#a0a0b0}
 .staff-status .value{color:#FFD700;font-weight:bold}
-.auto-indicator{padding:4px 8px;background:#4CAF5020;border-radius:4px;font-size:10px;color:#4CAF50;margin:2px 0}
+.manager-buff{padding:6px;background:#4CAF5020;border-radius:4px;font-size:10px;color:#4CAF50;margin:2px 0}
+.free-tag{font-size:9px;background:#4CAF50;color:#fff;padding:1px 4px;border-radius:2px;margin-left:4px}
 </style>
 </head>
 <body>
@@ -85,120 +83,107 @@ body{font-family:Arial,sans-serif;background:#111;color:#fff;min-height:100vh}
     <div id="p-menu" class="pnl act"><h3>Menu Items</h3><div id="menu-list"></div></div>
     <div id="p-shop" class="pnl"><h3>Trend Shop</h3><div id="shop-list"></div></div>
     <div id="p-items" class="pnl"><h3>Collection</h3><div id="items-list"></div></div>
-    <div id="p-staff" class="pnl"><h3>Staff Management</h3><div id="staff-status-bar"></div><div id="staff-list"></div></div>
+    <div id="p-staff" class="pnl"><h3>Staff Management</h3><div id="staff-status-bar"></div><div id="manager-buff-bar"></div><div id="staff-list"></div></div>
     <div id="p-price" class="pnl"><h3>Set Prices</h3><div id="price-list"></div></div>
     <div id="p-stats" class="pnl"><h3>Statistics</h3><div id="stats-list"></div></div>
   </div>
 </div>
 <script>
-// ========== GAME DATA ==========
-var LOCS=[
-  {id:"street",nm:"Sidewalk",cst:0,rm:1,bc:3,ms:4},
-  {id:"mall",nm:"Mall",cst:50000000,rm:2.5,bc:5,ms:8},
-  {id:"garden",nm:"Garden",cst:150000000,rm:2,bc:4,ms:10}
-];
-var MENU=[
-  {id:"coffee",nm:"Black Coffee",ic:"C",pr:25000,nl:["beans","ice","cup"],lk:false},
-  {id:"milk_coffee",nm:"Milk Coffee",ic:"M",pr:30000,nl:["beans","milk","sugar","ice","cup"],lk:false},
-  {id:"espresso",nm:"Espresso",ic:"E",pr:35000,nl:["beans","ice","cup"],lk:true,uc:500000},
-  {id:"matcha",nm:"Matcha Tea",ic:"T",pr:40000,nl:["matcha","milk","sugar","cup"],lk:true,uc:3000000},
-  {id:"smoothie",nm:"Smoothie",ic:"S",pr:45000,nl:["milk","sugar","ice","cup"],lk:true,uc:2000000},
-  {id:"cake",nm:"Banh Mi",ic:"K",pr:35000,nl:["bread","cheese","cup"],lk:false},
-  {id:"ice_tea",nm:"Iced Tea",ic:"I",pr:15000,nl:["tea","ice","cup"],lk:false},
-  {id:"bubble_tea",nm:"Bubble Tea",ic:"B",pr:50000,nl:["tea","milk","tapioca","sugar","ice","cup"],lk:true,uc:4000000}
-];
-var TREND=[
-  {id:"t1",nm:"Meme Dog",rt:"cm",ef:"rev",vf:.05,ds:"+5% rev",cst:200000},
-  {id:"t2",nm:"Wild Cat",rt:"cm",ef:"rev",vf:.03,ds:"+3% rev",cst:150000},
-  {id:"t3",nm:"MU Jersey",rt:"cm",ef:"cust",vf:1,ds:"+1 cust",cst:300000},
-  {id:"t4",nm:"Trend Shirt",rt:"rm",ef:"rev",vf:.1,ds:"+10% rev",cst:1000000},
-  {id:"t5",nm:"Mystery Key",rt:"rm",ef:"cust",vf:2,ds:"+2 cust",cst:1500000},
-  {id:"t6",nm:"VIP Card",rt:"ep",ef:"rev",vf:.2,ds:"+20% rev",cst:5000000},
-  {id:"t7",nm:"Gold Cup",rt:"lg",ef:"rev",vf:.5,ds:"+50% rev",cst:20000000}
-];
+var LOCS=[{id:"street",nm:"Sidewalk",cst:0,rm:1,bc:3,ms:4},{id:"mall",nm:"Mall",cst:50000000,rm:2.5,bc:5,ms:8},{id:"garden",nm:"Garden",cst:150000000,rm:2,bc:4,ms:10}];
+var MENU=[{id:"coffee",nm:"Black Coffee",ic:"C",pr:25000,lk:false},{id:"milk_coffee",nm:"Milk Coffee",ic:"M",pr:30000,lk:false},{id:"espresso",nm:"Espresso",ic:"E",pr:35000,lk:true,uc:500000},{id:"matcha",nm:"Matcha Tea",ic:"T",pr:40000,lk:true,uc:3000000},{id:"smoothie",nm:"Smoothie",ic:"S",pr:45000,lk:true,uc:2000000},{id:"cake",nm:"Banh Mi",ic:"K",pr:35000,lk:false},{id:"ice_tea",nm:"Iced Tea",ic:"I",pr:15000,lk:false},{id:"bubble_tea",nm:"Bubble Tea",ic:"B",pr:50000,lk:true,uc:4000000}];
+var TREND=[{id:"t1",nm:"Meme Dog",rt:"cm",ef:"rev",vf:.05,ds:"+5% rev",cst:200000},{id:"t2",nm:"Wild Cat",rt:"cm",ef:"rev",vf:.03,ds:"+3% rev",cst:150000},{id:"t3",nm:"MU Jersey",rt:"cm",ef:"cust",vf:1,ds:"+1 cust",cst:300000},{id:"t4",nm:"Trend Shirt",rt:"rm",ef:"rev",vf:.1,ds:"+10% rev",cst:1000000},{id:"t5",nm:"Mystery Key",rt:"rm",ef:"cust",vf:2,ds:"+2 cust",cst:1500000},{id:"t6",nm:"VIP Card",rt:"ep",ef:"rev",vf:.2,ds:"+20% rev",cst:5000000},{id:"t7",nm:"Gold Cup",rt:"lg",ef:"rev",vf:.5,ds:"+50% rev",cst:20000000}];
 var STAFF_TYPES=[
-  {id:"barista",nm:"Barista",e:"A",sl:300000,sk:.6,ds:"Brews drinks",autoType:"serve",autoSpeed:8000},
-  {id:"server",nm:"Server",e:"B",sl:200000,sk:.5,ds:"Serves faster",autoType:"serve",autoSpeed:10000},
-  {id:"chef",nm:"Chef",e:"C",sl:350000,sk:.7,ds:"Improves food quality",autoType:"food",autoSpeed:12000},
-  {id:"manager",nm:"Manager",e:"D",sl:500000,sk:.8,ds:"Auto manages ops",autoType:"auto",autoSpeed:15000},
-  {id:"senior_barista",nm:"Senior Barista",e:"E",sl:600000,sk:.9,ds:"Expert brewer",autoType:"serve",autoSpeed:4000},
-  {id:"senior_manager",nm:"Senior Manager",e:"F",sl:800000,sk:1,ds:"Full auto management",autoType:"auto",autoSpeed:3000}
+  {id:"barista",nm:"Barista",e:"A",sl:300000,sk:.6,ds:"Brews drinks | auto-serve",buffType:"skill",buffVal:.05},
+  {id:"server",nm:"Server",e:"B",sl:200000,sk:.5,ds:"Serves faster | more customers",buffType:"speed_cust",buffVal:.15},
+  {id:"chef",nm:"Chef",e:"C",sl:350000,sk:.7,ds:"Increases profit margin",buffType:"profit",buffVal:.08},
+  {id:"manager",nm:"Manager",e:"D",sl:500000,sk:.8,ds:"BUFFS ALL other staff! +skill+mood+speed",buffType:"all",buffVal:.12},
+  {id:"senior_barista",nm:"Senior Barista",e:"E",sl:600000,sk:.9,ds:"Expert brewer | fast auto-serve",buffType:"skill",buffVal:.1},
+  {id:"senior_manager",nm:"Senior Manager",e:"F",sl:800000,sk:1,ds:"MAX buff to ALL staff! +skill+mood+speed+revenue",buffType:"all_max",buffVal:.2}
 ];
-var STK_NM={beans:"Coffee",milk:"Milk",sugar:"Sugar",ice:"Ice",tea:"Tea",matcha:"Matcha",tapioca:"Tapioca",cup:"Cups",bread:"Bread",cheese:"Cheese"};
 var WEATHERS={sunny:{e:"Sunny",m:1},cloudy:{e:"Cloudy",m:1.05},rainy:{e:"Rainy",m:.75},hot:{e:"Hot",m:1.15},tet:{e:"Tet",m:2.5}};
-var STAFF_NAMES=["Barista","Server","Chef","Manager","Senior Barista","Senior Manager"];
-
-// GAME STATE
 var G={
   coins:50000000,lv:1,xp:0,xpn:100,curLoc:"street",unlocked:["street"],
-  items:{},recipes:[],prices:{},staff:[],stk:{beans:10,milk:20,sugar:30,ice:100,tea:20,matcha:5,tapioca:5,cup:200,bread:10,cheese:5},
+  items:{},recipes:[],prices:{},staff:[],
   orders:[],day:1,drev:0,dcost:0,trev:0,tserved:0,auto:false,stam:50,maxstam:50,
-  autoServeCount:0,autoFireCount:0
+  autoServeCount:0,dayCost:0
 };
 MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});
 
-// ========== HELPERS ==========
 function fmt(n){if(n>=1e12)return(n/1e12).toFixed(2)+"t";if(n>=1e9)return(n/1e9).toFixed(2)+"b";if(n>=1e6)return(n/1e6).toFixed(2)+"m";if(n>=1e3)return(n/1e3).toFixed(2)+"k";return n.toString();}
 function notify(t){var d=document.createElement("div");d.className="nf";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2000);}
-function getWeather(){var c=G.day%180,s=c<60?"summer":c<120?"rainy":"cool",p={summer:{sunny:.35,cloudy:.25,rainy:.2,hot:.15,tet:0},rainy:{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1},cool:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.35}};var pr=p[s],r=Math.random(),cm=0,ks=Object.keys(pr);for(var i=0;i<ks.length;i++){cm+=pr[ks[i]];if(r<=cm)return WEATHERS[ks[i]];}return WEATHERS.sunny;}
 
-// ========== STAFF POWER SYSTEM ==========
-// Staff làm tăng số khách và tốc độ phục vụ
-function getStaffBonus(){
-  var bonus={rev:0,cust:0,foodBonus:0,autoServeChance:0,speedMult:1,autoOps:false};
+// ========== STAFF BUFF SYSTEM (CORE MECHANIC) ==========
+// Mỗi staff buff các staff khác dựa trên buffType của nó
+function getStaffBuff(){
+  var buff={skillMult:1,custMult:1,speedMult:1,revMult:1,profitBonus:0,allBuff:0};
+  
+  // Manager/Senior Manager buff TẤT CẢ staff khác
+  var managerCount=0;
+  var seniorManagerCount=0;
+  
   G.staff.forEach(function(s){
     var tier=STAFF_TYPES.find(function(t){return t.id===s.tier;});
     if(!tier)return;
-    var sk=s.sk*(s.mood/100); // Skill ảnh hưởng bởi mood
+    var sk=s.sk*(s.mood/100); // Skill thực = skill * mood
+    
     switch(tier.id){
-      case "barista":bonus.rev+=sk*.05;bonus.autoServeChance+=sk*.02;break;
-      case "server":bonus.cust+=sk*.5;bonus.speedMult+=sk*.2;break;
-      case "chef":bonus.foodBonus+=sk*.08;break;
-      case "manager":bonus.autoServeChance+=sk*.03;bonus.autoOps=true;break;
-      case "senior_barista":bonus.rev+=sk*.1;bonus.speedMult+=sk*.3;break;
-      case "senior_manager":bonus.autoServeChance+=sk*.04;bonus.autoOps=true;bonus.speedMult+=sk*.2;break;
+      case "manager":
+        managerCount++;
+        // Manager buff tất cả staff khác
+        buff.skillMult+=tier.buffVal*sk;
+        buff.speedMult+=tier.buffVal*sk;
+        buff.allBuff+=tier.buffVal*sk;
+        break;
+      case "senior_manager":
+        seniorManagerCount++;
+        // Senior Manager buff MẠNH hơn
+        buff.skillMult+=tier.buffVal*sk;
+        buff.speedMult+=tier.buffVal*sk;
+        buff.custMult+=tier.buffVal*sk;
+        buff.revMult+=tier.buffVal*sk;
+        buff.allBuff+=tier.buffVal*sk;
+        break;
+      case "barista":
+        buff.skillMult+=tier.buffVal*sk;
+        break;
+      case "server":
+        buff.custMult+=tier.buffVal*sk;
+        buff.speedMult+=tier.buffVal*sk;
+        break;
+      case "chef":
+        buff.profitBonus+=tier.buffVal*sk;
+        break;
+      case "senior_barista":
+        buff.skillMult+=tier.buffVal*sk;
+        buff.speedMult+=tier.buffVal*sk*.5;
+        break;
     }
   });
-  bonus.revMult=1+bonus.rev;
-  bonus.custMult=1+bonus.cust;
-  bonus.speedMult=Math.max(1,bonus.speedMult);
-  return bonus;
+  
+  buff.skillMult=Math.max(1,buff.skillMult);
+  buff.speedMult=Math.max(1,buff.speedMult);
+  buff.custMult=Math.max(1,buff.custMult);
+  buff.revMult=Math.max(1,buff.revMult);
+  
+  // Manager buff cũng buff chính nó (buff lẫn nhau)
+  buff.skillMult+=managerCount*.03+seniorManagerCount*.06;
+  
+  return buff;
 }
 
-function getRevMult(){
-  var l=LOCS.find(function(x){return x.id===G.curLoc;});
-  var m=l.rm;
-  for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}
-  var w=getWeather();m*=w.m;
-  var sb=getStaffBonus();m*=sb.revMult;
-  return m;
-}
-function getBaseCust(){
-  var l=LOCS.find(function(x){return x.id===G.curLoc;});
-  var c=l.bc;
-  for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="cust")c+=it.vf*G.items[id];}
-  var sb=getStaffBonus();c*=sb.custMult;
-  return Math.floor(c);
-}
-function addItemCost(item){
-  if(item.lk&&G.recipes.indexOf(item.id)<0)return 0;
-  var cost=0;
-  var prices={beans:5000,milk:10000,sugar:5000,ice:1000,tea:10000,matcha:20000,tapioca:15000,cup:500,bread:3000,cheese:8000};
-  for(var i=0;i<item.nl.length;i++){cost+=prices[item.nl[i]]||0;}
-  // Chef bonus: giảm cost nếu có chef
-  var chefCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="chef";}).length;
-  if(chefCount>0&&item.nl.indexOf("bread")>=0||item.nl.indexOf("cheese")>=0){cost=Math.floor(cost*(1-chefCount*.1));}
-  return cost;
-}
+function getWeather(){var c=G.day%180,s=c<60?"summer":c<120?"rainy":"cool",p={summer:{sunny:.35,cloudy:.25,rainy:.2,hot:.15,tet:0},rainy:{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1},cool:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.35}};var pr=p[s],r=Math.random(),cm=0,ks=Object.keys(pr);for(var i=0;i<ks.length;i++){cm+=pr[ks[i]];if(r<=cm)return WEATHERS[ks[i]];}return WEATHERS.sunny;}
+function getRevMult(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var m=l.rm;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}var w=getWeather();m*=w.m;var sb=getStaffBuff();m*=sb.revMult;return m;}
+function getBaseCust(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var c=l.bc;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="cust")c+=it.vf*G.items[id];}var sb=getStaffBuff();c*=sb.custMult;return Math.floor(c);}
 function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);notify("Level "+G.lv+"!");}}
 
 // ========== AUTO SERVE ==========
-function autoServeSingleOrder(){
+function autoServeSingle(){
   if(G.orders.length===0)return false;
-  var sb=getStaffBonus();
-  if(Math.random()>sb.autoServeChance)return false;
+  var sb=getStaffBuff();
+  // Chance = manager count * 0.05 + senior manager * 0.1 + speed buff
+  var chance=.01*sb.speedMult+managerCount*.03+seniorManagerCount*.06;
+  if(Math.random()>chance)return false;
   
-  // Tìm đơn hợp lệ (đã unlock recipe hoặc không cần unlock)
   var validIdx=-1;
   for(var i=0;i<G.orders.length;i++){
     var item=MENU.find(function(m){return m.id===G.orders[i].id;});
@@ -206,18 +191,14 @@ function autoServeSingleOrder(){
   }
   if(validIdx<0)return false;
   
-  var o=G.orders[validIdx];
-  var item=MENU.find(function(m){return m.id===o.id;});
+  var o=G.orders[validIdx];var item=MENU.find(function(m){return m.id===o.id;});
   var revenue=Math.floor(item.pr*(G.prices[o.id]||1)*getRevMult());
-  var cost=getItemCost(item);
+  // Chef bonus
+  var chefBuff=getStaffBuff();
+  revenue=Math.floor(revenue*(1+chefBuff.profitBonus));
   
-  // Chef bonus: tăng profit từ food
-  var chefCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="chef";}).length;
-  if(item.nl.indexOf("bread")>=0&&chefCount>0)revenue=Math.floor(revenue*(1+chefCount*.08));
-  
-  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;G.dcost+=cost;
-  G.orders.splice(validIdx,1);G.autoServeCount++;
-  addXP(5);
+  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;G.autoServeCount++;
+  G.orders.splice(validIdx,1);addXP(5);
   return true;
 }
 
@@ -226,24 +207,34 @@ function serveOrder(i){
   var o=G.orders[i];var item=MENU.find(function(m){return m.id===o.id;});
   if(!item)return;
   if(item.lk&&G.recipes.indexOf(item.id)<0){G.orders.splice(i,1);return;}
-  
-  var cost=getItemCost(item);
-  var mult=G.prices[o.id]||1;
-  var revenue=Math.floor(item.pr*mult*getRevMult());
-  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;G.dcost+=cost;
+  var revenue=Math.floor(item.pr*(G.prices[o.id]||1)*getRevMult());
+  var chefBuff=getStaffBuff();
+  revenue=Math.floor(revenue*(1+chefBuff.profitBonus));
+  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;
   G.orders.splice(i,1);addXP(10);
   notify("Served! +"+fmt(revenue));
   saveGame();renderAll();
 }
 
 // ========== ACTIONS ==========
-function getItemCost(item){return addItemCost(item);}
 function buyItem(id){var it=TREND.find(function(x){return x.id===id;});if(!it)return;if(G.coins<it.cst){notify("Not enough!");return;}G.coins-=it.cst;G.items[id]=(G.items[id]||0)+1;notify("Bought "+it.nm+"!");saveGame();renderAll();}
 function buyRecipe(id){var item=MENU.find(function(m){return m.id===id;});if(!item||!item.lk)return;if(G.coins<item.uc){notify("Not enough!");return;}G.coins-=item.uc;G.recipes.push(id);item.lk=false;notify("Unlocked: "+item.nm);saveGame();renderAll();}
-function hireStaff(tid){var l=LOCS.find(function(x){return x.id===G.curLoc;});if(G.staff.length>=l.ms){notify("Full staff!");return;}var t=STAFF_TYPES.find(function(x){return x.id===tid;});if(!t)return;var cst=t.sl*3;if(G.coins<cst){notify("Need "+fmt(cst)+"!");return;}G.staff.push({id:"s_"+Date.now(),nm:t.nm+" "+(G.staff.length+1),tier:t.id,sk:t.sk,sl:t.sl,mood:80,loy:70,day:0,served:0});G.coins-=cst;notify("Hired "+t.nm+"!");saveGame();renderAll();}
+function hireStaff(tid){
+  var l=LOCS.find(function(x){return x.id===G.curLoc;});
+  if(G.staff.length>=l.ms){notify("Full staff!");return;}
+  var t=STAFF_TYPES.find(function(x){return x.id===tid;});if(!t)return;
+  var cst=t.sl*3;if(G.coins<cst){notify("Need "+fmt(cst)+"!");return;}
+  G.staff.push({id:"s_"+Date.now(),nm:t.nm+" "+(G.staff.length+1),tier:t.id,sk:t.sk,sl:t.sl,mood:80,loy:70,day:0,served:0});
+  G.coins-=cst;notify("Hired "+t.nm+"!");saveGame();renderAll();
+}
 function setPrice(id,v){G.prices[id]=v/100;renderAll();}
 function unlockLoc(id){var l=LOCS.find(function(x){return x.id===id;});if(G.coins<l.cst){notify("Not enough!");return;}G.coins-=l.cst;G.unlocked.push(id);G.curLoc=id;notify("Unlocked: "+l.nm);saveGame();renderAll();}
-function trainStaff(sid){var s=G.staff.find(function(x){return x.id===sid;});if(!s)return;if(G.coins<500000){notify("Need 500k!");return;}G.coins-=500000;s.sk=Math.min(1,s.sk+.1);s.mood=Math.max(0,s.mood-5);notify("Trained "+s.nm+"! Skill: "+s.sk.toFixed(1));saveGame();renderAll();}
+function trainStaff(sid){
+  var s=G.staff.find(function(x){return x.id===sid;});if(!s)return;
+  if(G.coins<500000){notify("Need 500k!");return;}
+  G.coins-=500000;s.sk=Math.min(1,s.sk+.1);s.mood=Math.max(0,s.mood-5);
+  notify("Trained "+s.nm+"! Skill: "+s.sk.toFixed(1));saveGame();renderAll();
+}
 function fireStaff(sid){var i=G.staff.findIndex(function(x){return x.id===sid;});if(i<0)return;G.staff.splice(i,1);notify("Fired!");saveGame();renderAll();}
 
 // ========== RENDER ==========
@@ -251,104 +242,77 @@ function renderAll(){renderHeader();renderWeather();renderLocs();renderOrders();
 function renderHeader(){document.getElementById("coins").textContent=fmt(G.coins);document.getElementById("day").textContent=G.day;document.getElementById("lvl").textContent=G.lv;document.getElementById("stamina").textContent=G.stam+"/"+G.maxstam;}
 function renderWeather(){var w=getWeather();document.getElementById("weather").textContent=w.e+" (x"+w.m+")";}
 function renderLocs(){var el=document.getElementById("loc-tabs");el.innerHTML="";LOCS.forEach(function(l){var btn=document.createElement("button");btn.className="ltb"+(G.curLoc===l.id?" act":"");var ok=G.unlocked.indexOf(l.id)>=0;btn.disabled=!ok;btn.innerHTML=l.nm+(ok?"":"<br><small>"+fmt(l.cst)+"</small>");btn.onclick=function(){if(ok){G.curLoc=l.id;}else{unlockLoc(l.id);}renderAll();};el.appendChild(btn);});}
-function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting for customers...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var cost=getItemCost(item);var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var d=document.createElement("div");d.className="item"+(G.auto?" auto-served":"");d.innerHTML="<div><div style='font-weight:bold'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span style='color:#f44336;font-size:10px'>LOCKED</span>":"")+"</div><div style='color:#FFD700;font-size:11px'>"+fmt(item.pr)+" VND</div><div class='cost-box'>Cost: "+fmt(cost)+" VND</div></div><button class='btn' onclick='serveOrder("+i+")' " + (item.lk&&!unlocked?"disabled":"") + ">Serve</button>";el.appendChild(d);});}
-function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var cost=getItemCost(item);var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span class='badge' style='background:#f44336'>LOCKED</span>":"")+"</div><div class='ds'>Needs: "+item.nl.join(",")+"</div><div class='cost-box'>Cost: "+fmt(cost)+" VND</div></div><div class='pr'>"+fmt(item.pr)+" VND</div>";el.appendChild(d);});}
-function renderStats(){var el=document.getElementById("stats-list");el.innerHTML="";var profit=G.drev-G.dcost;var sb=getStaffBonus();var rows=[["Total served",G.tserved],["Today revenue",fmt(G.drev)],["Today cost",fmt(G.dcost)],["Today profit",fmt(profit)],["Items owned",Object.keys(G.items).length],["Recipes unlocked",G.recipes.length],["Staff count",G.staff.length+"/"+LOCS.find(function(x){return x.id===G.curLoc;}).ms],["Auto serves (total)",G.autoServeCount],["Revenue bonus",fmt(Math.floor(sb.revMult*100-100))+"%"],["Customer bonus",fmt(Math.floor(sb.custMult*100-100))+"%"],["Serve speed",fmt(Math.floor(sb.speedMult*100))+"%"],["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
+function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting for customers...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var d=document.createElement("div");d.className="item";d.innerHTML="<div><div style='font-weight:bold'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span style='color:#f44336;font-size:10px'>LOCKED</span>":"")+"</div><div style='color:#FFD700;font-size:11px'>"+fmt(item.pr)+" VND <span class='free-tag'>FREE</span></div></div><button class='btn' onclick='serveOrder("+i+")' "+(item.lk&&!unlocked?"disabled":"") +">Serve</button>";el.appendChild(d);});}
+function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span class='badge' style='background:#f44336'>LOCKED</span>":"")+"</div></div><div class='pr'>"+fmt(item.pr)+" VND <span class='free-tag'>FREE</span></div>";el.appendChild(d);});}
+function renderStats(){
+  var el=document.getElementById("stats-list");el.innerHTML="";
+  var profit=G.drev-G.dayCost;var sb=getStaffBuff();
+  var managerCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="manager";}).length;
+  var seniorMgrCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="senior_manager";}).length;
+  var rows=[
+    ["Coins",fmt(G.coins)+" VND"],
+    ["Total served",G.tserved],["Auto-served",G.autoServeCount],
+    ["Today revenue",fmt(G.drev)],["Today cost",fmt(G.dayCost)],["Today profit",fmt(profit)],
+    ["Staff buffs: Skill",fmt(Math.floor(sb.skillMult*100))+"%",
+     "Staff buffs: Speed",fmt(Math.floor(sb.speedMult*100))+"%",
+     "Staff buffs: Customers",fmt(Math.floor(sb.custMult*100))+"%",
+     "Staff buffs: Revenue",fmt(Math.floor(sb.revMult*100))+"%",
+     "Staff buffs: Profit bonus",fmt(Math.floor(sb.profitBonus*100))+"%"],
+    ["Manager count",managerCount],["Senior Manager count",seniorMgrCount],
+    ["Items owned",Object.keys(G.items).length],["Recipes unlocked",G.recipes.length],
+    ["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]
+  ];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
 function renderShop(){var el=document.getElementById("shop-list");el.innerHTML="";var avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<=0;});if(avail.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>All owned!</div>";return;}avail.forEach(function(item){var d=document.createElement("div");d.className="card";var rc={cm:"#b0b0b0",rm:"#4169E1",ep:"#9932CC",lg:"#FFD700"};d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div><div><div class='pr'>"+fmt(item.cst)+"</div><button class='btn' onclick='buyItem(\""+item.id+"\")' "+(G.coins<item.cst?"disabled":"")+">Buy</button></div>";el.appendChild(d);});}
 function renderItems(){var el=document.getElementById("items-list");el.innerHTML="";var owned=Object.entries(G.items).filter(function(e){return e[1]>0;});if(owned.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>No items!</div>";return;}owned.forEach(function(e){var item=TREND.find(function(t){return t.id===e[0];});if(!item)return;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+" x"+e[1]+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div>";el.appendChild(d);});}
 function renderStaff(){
-  var el=document.getElementById("staff-list");
+  var el=document.getElementById("staff-list");var sb=getStaffBuff();
   var statusBar=document.getElementById("staff-status-bar");
   el.innerHTML="";
   
-  // Staff status summary
-  var sb=getStaffBonus();
-  var revCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="barista";}).length;
-  var srvCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="server";}).length;
-  var mgrCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="manager";}).length;
+  var managerCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="manager";}).length;
+  var seniorMgrCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="senior_manager";}).length;
   
-  statusBar.innerHTML='<div class="staff-status"><span class="label">Baristas:</span><span class="value"> '+revCount+'</span> <span class="label">Servers:</span><span class="value"> '+srvCount+'</span> <span class="label">Managers:</span><span class="value"> '+mgrCount+'</span> <span class="label">Revenue Bonus:</span><span class="value"> '+fmt(Math.floor(sb.revMult*100-100))+'%</span></div>';
+  statusBar.innerHTML='<div class="staff-status"><span class="label">📊 Buffs: </span><span class="value">Skill '+fmt(Math.floor(sb.skillMult*100))+'% | Speed '+fmt(Math.floor(sb.speedMult*100))+'% | Customers '+fmt(Math.floor(sb.custMult*100))+'% | Revenue '+fmt(Math.floor(sb.revMult*100))+'% | Profit +'+fmt(Math.floor(sb.profitBonus*100))+'%</span></div>';
+  
+  if(managerCount>0||seniorMgrCount>0){
+    document.getElementById("manager-buff-bar").innerHTML='<div class="manager-buff">👑 Manager/Senior Manager đang buff TẤT CẢ staff: +skill +mood +speed +revenue!</div>';
+  } else {
+    document.getElementById("manager-buff-bar").innerHTML='<div style="padding:4px;color:#a0a0b0;font-size:10px">👉 Hire Manager to buff ALL staff!</div>';
+  }
   
   var l=LOCS.find(function(x){return x.id===G.curLoc;});
   el.innerHTML+='<div style="margin-bottom:6px;color:#a0a0b0;font-size:11px">Count: '+G.staff.length+'/'+l.ms+'</div>';
-  
   STAFF_TYPES.forEach(function(tier){
-    var cst=tier.sl*3;
-    var d=document.createElement("div");
-    d.className="card";
-    d.innerHTML='<div class="inf"><div class="nm">'+tier.e+' '+tier.nm+'</div><div class="ds">'+tier.ds+'</div><div class="ds">Salary: '+fmt(tier.sl)+'/day</div><div class="ds">Auto-serves every '+fmt(tier.autoSpeed/1000)+'s</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';
+    var cst=tier.sl*3;var d=document.createElement("div");d.className="card";
+    d.innerHTML='<div class="inf"><div class="nm">'+tier.e+' '+tier.nm+'</div><div class="ds">'+tier.ds+'</div><div class="ds">Salary: '+fmt(tier.sl)+'/day</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';
     el.appendChild(d);
   });
-  
   G.staff.forEach(function(s){
     var tier=STAFF_TYPES.find(function(t){return t.id===s.tier;});
-    var mc=s.mood>60?"#4CAF50":s.mood>30?"#FF9800":"#f44336";
-    var d=document.createElement("div");
-    d.className="staff-box";
-    d.innerHTML='<div class="nm">'+(tier?tier.e:"")+' '+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+'</div><div class="stats"><span>Skill:'+s.sk.toFixed(1)+'</span></div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button></div>';
+    var d=document.createElement("div");d.className="staff-box";
+    d.innerHTML='<div class="nm">'+(tier?tier.e:"")+' '+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+' | Skill: '+s.sk.toFixed(1)+'</div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button></div>';
     el.appendChild(d);
   });
 }
-function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=unlocked?Math.round(G.prices[item.id]*100):50;var cost=getItemCost(item);var d=document.createElement("div");d.className="price-box";d.innerHTML='<div style="font-size:12px;font-weight:bold">'+item.ic+' '+item.nm+'</div>'+(unlocked?'<input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="lbl">'+pp+'% (base: '+fmt(item.pr)+' VND)</div>':'<span style="color:#FF6347;font-size:11px">Locked - need '+fmt(item.uc)+' VND to unlock</span>')+(unlocked?'<div class="cost-box">Cost per cup: '+fmt(cost)+' VND</div>':'');el.appendChild(d);});}
+function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=unlocked?Math.round(G.prices[item.id]*100):50;var d=document.createElement("div");d.className="price-box";d.innerHTML='<div style="font-size:12px;font-weight:bold">'+item.ic+' '+item.nm+'</div>'+(unlocked?'<input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="lbl">'+pp+'% (base: '+fmt(item.pr)+' VND)</div>':'<span style="color:#FF6347;font-size:11px">Locked - need '+fmt(item.uc)+' VND to unlock</span>');el.appendChild(d);});}
 
-// ========== TABS ==========
+// TABS
 document.querySelectorAll(".nv").forEach(function(btn){btn.onclick=function(){document.querySelectorAll(".nv").forEach(function(b){b.classList.remove("act");});document.querySelectorAll(".pnl").forEach(function(p){p.classList.remove("act");});btn.classList.add("act");document.getElementById("p-"+btn.dataset.tab).classList.add("act");};});
 
-// ========== GAME LOOP ==========
-// Ngày mới (1 phút = 1 ngày)
+// GAME LOOP
 setInterval(function(){
-  var now=Date.now();
-  if(now-G.day>=60000){
-    G.day++;
-    var cost=G.staff.reduce(function(t,s){var tier=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);
-    G.dcost=cost;G.coins-=cost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);
-    // Staff mood decays slowly
-    G.staff.forEach(function(s){s.mood=Math.max(0,s.mood-.5);s.day++;});
-    notify("Day "+G.day+"! Staff cost: "+fmt(cost));
-    saveGame();renderAll();
-  }
-  G.day=now;
-},1000);
+  var now=Date.now();if(now-G.day>=60000){
+    G.day++;G.dayCost=G.staff.reduce(function(t,s){var tier=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);G.coins-=G.dayCost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);G.staff.forEach(function(s){s.mood=Math.max(0,s.mood-.5);s.day++;});
+    notify("Day "+G.day+"! Cost: "+fmt(G.dayCost));saveGame();renderAll();
+  }G.day=now;},1000);
+setInterval(function(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var w=getWeather();var sb=getStaffBuff();var maxCust=Math.floor(l.bc*w.m*sb.custMult);if(G.orders.length<maxCust){var avail=MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;});if(avail.length>0){G.orders.push({id:avail[Math.floor(Math.random()*avail.length)].id});}},15000);
+setInterval(function(){var sb=getStaffBuff();for(var i=0;i<2;i++){if(G.orders.length===0)break;if(autoServeSingle()){/*success*/}}renderAll();},Math.max(1000,5000/sb=>sb.speedMult||1));
+setInterval(saveGame,30000);setInterval(renderAll,3000);
 
-// Sinh đơn hàng (mỗi 15 giây)
-setInterval(function(){
-  var l=LOCS.find(function(x){return x.id===G.curLoc;});
-  var w=getWeather();
-  var sb=getStaffBonus();
-  var maxCust=Math.floor(l.bc*w.m*sb.custMult);
-  if(G.orders.length<maxCust){
-    var avail=MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;});
-    if(avail.length>0){
-      var item=avail[Math.floor(Math.random()*avail.length)];
-      G.orders.push({id:item.id});
-    }
-  }
-},15000);
+function saveGame(){localStorage.setItem("cafeGame4",JSON.stringify(G));}
+function loadGame(){var s=localStorage.getItem("cafeGame4");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});}
 
-// AUTO SERVE - nhân viên tự phục vụ!
-setInterval(function(){
-  if(G.staff.length===0)return;
-  var sb=getStaffBonus();
-  // Thử phục vụ đơn hàng tự động
-  for(var i=0;i<3;i++){
-    if(G.orders.length===0)break;
-    if(autoServeSingleOrder()){
-      // Thành công
-    }
-  }
-  renderAll();
-},sb=>sb.speedMult?5000/sb.speedMult:5000);
-
-setInterval(saveGame,30000);
-setInterval(renderAll,3000);
-
-// ========== SAVE/LOAD ==========
-function saveGame(){localStorage.setItem("cafeGame3",JSON.stringify(G));}
-function loadGame(){var s=localStorage.getItem("cafeGame3");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});}
-
-// ========== START ==========
-loadGame();renderAll();
-notify("Welcome! Staff auto-serve enabled!");
+loadGame();renderAll();notify("Welcome! Free ingredients! Managers buff ALL staff!");
 </script>
 </body>
 </html>
