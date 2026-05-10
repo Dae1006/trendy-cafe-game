@@ -1,721 +1,199 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuÃ¡n Trendy CafÃ© - Premium</title>
+<title>Cafe Business Game</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: white; min-height: 100vh; }
-#app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #1a1a2e; }
-.header { display: flex; justify-content: space-between; padding: 12px; background: linear-gradient(90deg, #16213e, #0f3460); border-bottom: 2px solid #8B4513; font-size: 13px; }
-.header span { font-weight: bold; color: #FFD700; }
-.weather { padding: 8px; background: linear-gradient(90deg, #2196F3, #03A9F4); text-align: center; font-size: 12px; font-weight: bold; }
-.loc-tabs { display: flex; gap: 4px; padding: 8px; background: #0f0f1a; overflow-x: auto; }
-.loc-tab { flex: 1; min-width: 60px; padding: 8px 4px; border: none; border-radius: 6px; background: #0f3460; color: #a0a0b0; font-size: 11px; cursor: pointer; text-align: center; white-space: nowrap; }
-.loc-tab.active { background: #8B4513; color: white; }
-.cafe-scene { position: relative; height: 150px; background: linear-gradient(to bottom, #87CEEB, #228B22 60%); overflow: hidden; display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding-bottom: 10px; }
-.cafe-scene .customer { font-size: 32px; animation: bounce 1.5s infinite; }
-@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-.orders { padding: 10px; border-bottom: 1px solid #8B4513; }
-.orders h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
-.order { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #FF6347; }
-.order .nm { font-weight: bold; }
-.order .pr { color: #FFD700; font-weight: bold; }
-.btn-sm { padding: 6px 12px; border: none; border-radius: 6px; background: #FF6347; color: white; cursor: pointer; font-weight: bold; }
-.btn-sm:active { transform: scale(0.95); }
-.nav { display: flex; position: sticky; bottom: 0; background: #0f0f1a; border-top: 2px solid #8B4513; z-index: 100; flex-wrap: wrap; }
-.nb { flex: 1; min-width: 50px; padding: 10px 4px; border: none; background: transparent; color: #a0a0b0; font-size: 11px; cursor: pointer; text-align: center; }
-.nb.active { color: #FFD700; background: rgba(255,215,0,0.1); }
-.panels { position: relative; min-height: 300px; max-height: 50vh; overflow-y: auto; }
-.pnl { display: none; padding: 12px; }
-.pnl.active { display: block; }
-.pnl h3 { font-size: 15px; margin-bottom: 10px; color: #FFD700; }
-.mi { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 4px; }
-.mi .pr { color: #FFD700; font-weight: bold; }
-.stats { padding: 10px; border-bottom: 1px solid #8B4513; }
-.stats h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
-.sr { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.sr .v { color: #FFD700; font-weight: bold; }
-.ic { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; border-left: 3px solid #b0b0b0; flex-wrap: wrap; gap: 8px; }
-.ic .inf { flex: 1; min-width: 150px; }
-.ic .t { font-weight: bold; font-size: 13px; }
-.ic .d { font-size: 11px; color: #a0a0b0; margin-top: 2px; }
-.ic .c { color: #FFD700; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
-.bc { padding: 6px 14px; border: none; border-radius: 6px; background: #FF6347; color: white; cursor: pointer; font-size: 12px; }
-.bc:disabled { background: #555; cursor: not-allowed; }
-.sc { padding: 12px; background: #0f3460; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #2196F4; }
-.sc .nm { font-weight: bold; font-size: 14px; }
-.sc .tier { font-size: 11px; color: #a0a0b0; }
-.sk { display: flex; gap: 10px; margin: 6px 0; font-size: 12px; }
-.sr2 { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
-.sr2 .l { color: #a0a0b0; }
-.sr2 .v { color: #FFD700; }
-.ba { padding: 4px 10px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; margin: 2px; }
-.bt { background: #FF9800; color: white; }
-.bf { background: #f44336; color: white; }
-.bh { background: #4CAF50; color: white; }
-.sr3 { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; font-size: 12px; flex-wrap: wrap; gap: 4px; }
-.sr3 .nm { font-weight: bold; }
-.sr3 .st { color: #FFD700; }
-.sr3 .co { color: #a0a0b0; font-size: 10px; }
-.bs { padding: 4px 10px; border: none; border-radius: 5px; background: #4CAF50; color: white; cursor: pointer; font-size: 11px; }
-.bs:disabled { background: #555; cursor: not-allowed; }
-.pr2 { padding: 10px; background: #0f3460; border-radius: 8px; margin-bottom: 6px; }
-.pr2 .nm { font-weight: bold; font-size: 13px; margin-bottom: 4px; }
-.pr2 input[type=range] { width: 100%; accent-color: #8B4513; }
-.pr2 .pct { font-size: 12px; color: #FFD700; text-align: center; margin-top: 4px; }
-.trend { padding: 8px; background: linear-gradient(90deg, #FF6347, #FF8C00); text-align: center; font-size: 13px; font-weight: bold; }
-.nf { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #8B4513; color: white; padding: 10px 20px; border-radius: 8px; z-index: 9999; font-size: 13px; }
-.badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-top: 3px; }
-.badge.common { background: #b0b0b0; color: #333; }
-.badge.rare { background: #4169E1; color: white; }
-.badge.epic { background: #9932CC; color: white; }
-.badge.legend { background: #FFD700; color: #333; }
-.badge.locked { background: #f44336; color: white; }
-.staff-section { margin-top: 8px; }
-.section-title { font-size: 13px; color: #a0a0b0; margin: 8px 0 4px; }
+body { font-family: Arial, sans-serif; background: #111; color: #fff; min-height: 100vh; }
+#app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: #1a1a2e; }
+.hdr { display: flex; justify-content: space-between; padding: 10px; background: #16213e; border-bottom: 2px solid #8B4513; font-size: 13px; }
+.hdr span { font-weight: bold; color: #FFD700; }
+.wth { padding: 6px; background: #2196F3; text-align: center; font-size: 12px; }
+.ltbs { display: flex; gap: 3px; padding: 6px; background: #0f0f1a; overflow-x: auto; }
+.ltb { flex: 1; min-width: 60px; padding: 6px; border: none; border-radius: 4px; background: #0f3460; color: #a0a0b0; font-size: 11px; cursor: pointer; }
+.ltb.act { background: #8B4513; color: #fff; }
+.ors { padding: 8px; border-bottom: 1px solid #8B4513; }
+.ors h3 { font-size: 13px; margin-bottom: 6px; color: #FFD700; }
+.ors .item { display: flex; justify-content: space-between; padding: 6px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid #FF6347; font-size: 12px; }
+.btn { padding: 4px 10px; border: none; border-radius: 4px; background: #FF6347; color: #fff; cursor: pointer; font-size: 11px; }
+.btn:active { transform: scale(0.95); }
+.navs { display: flex; position: sticky; bottom: 0; background: #0f0f1a; border-top: 2px solid #8B4513; flex-wrap: wrap; }
+.nv { flex: 1; min-width: 45px; padding: 8px 3px; border: none; background: transparent; color: #a0a0b0; font-size: 10px; cursor: pointer; text-align: center; }
+.nv.act { color: #FFD700; background: rgba(255,215,0,0.1); }
+.pnl { position: relative; min-height: 280px; max-height: 45vh; overflow-y: auto; }
+.pnl { display: none; padding: 10px; }
+.pnl.act { display: block; }
+.pnl h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
+.card { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid #b0b0b0; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+.card .inf { flex: 1; min-width: 120px; }
+.card .nm { font-weight: bold; }
+.card .ds { font-size: 10px; color: #a0a0b0; }
+.card .pr { color: #FFD700; font-weight: bold; font-size: 11px; }
+.badge { display: inline-block; padding: 1px 4px; border-radius: 3px; font-size: 9px; font-weight: bold; margin-top: 2px; }
+.badge.cm { background: #b0b0b0; color: #333; }
+.badge.rm { background: #4169E1; color: #fff; }
+.badge.ep { background: #9932CC; color: #fff; }
+.badge.lg { background: #FFD700; color: #333; }
+.staff-box { padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 6px; border-left: 2px solid #2196F4; font-size: 12px; }
+.staff-box .nm { font-weight: bold; }
+.staff-box .ds { font-size: 10px; color: #a0a0b0; margin: 3px 0; }
+.staff-box .stats { display: flex; gap: 8px; margin: 3px 0; font-size: 11px; }
+.staff-box .stats span { color: #FFD700; }
+.btn-sm { padding: 3px 8px; border: none; border-radius: 3px; font-size: 10px; cursor: pointer; margin: 2px; }
+.btn-t { background: #FF9800; color: #fff; }
+.btn-f { background: #f44336; color: #fff; }
+.btn-h { background: #4CAF50; color: #fff; }
+.stk { display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.stk .nm { color: #FFD700; }
+.nf { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #8B4513; color: #fff; padding: 8px 16px; border-radius: 6px; z-index: 9999; font-size: 12px; }
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="header">
-    <div><span id="coins">50000000</span>â‚« <span id="stamina">50/50</span></div>
+  <div class="hdr">
+    <div><span id="coins">50000000</span>VND | <span id="stamina">50/50</span></div>
     <div>Day <span id="day">1</span> Lv.<span id="lvl">1</span></div>
   </div>
-  <div class="weather" id="weather">â˜€ï¸ Sunny (x1.0)</div>
-  <div class="loc-tabs" id="loc-tabs"></div>
-  <div class="cafe-scene" id="customers"></div>
-  <div class="orders">
+  <div class="wth" id="weather">Sunny (x1.0)</div>
+  <div class="ltbs" id="loc-tabs"></div>
+  <div class="ors">
     <h3>Orders (<span id="oc">0</span>)</h3>
     <div id="orders"></div>
   </div>
-  <div class="nav">
-    <button class="nb active" data-tab="menu">â˜• Menu</button>
-    <button class="nb" data-tab="shop">ðŸ›’ Shop</button>
-    <button class="nb" data-tab="items">ðŸŽ Items</button>
-    <button class="nb" data-tab="staff">ðŸ‘¥ Staff</button>
-    <button class="nb" data-tab="supply">ðŸ“¦ Supply</button>
-    <button class="nb" data-tab="price">ðŸ’° Price</button>
-    <button class="nb" data-tab="stats">ðŸ“Š Stats</button>
+  <div class="navs">
+    <button class="nv act" data-tab="menu">Menu</button>
+    <button class="nv" data-tab="shop">Shop</button>
+    <button class="nv" data-tab="items">Items</button>
+    <button class="nv" data-tab="staff">Staff</button>
+    <button class="nv" data-tab="supply">Supply</button>
+    <button class="nv" data-tab="price">Price</button>
+    <button class="nv" data-tab="stats">Stats</button>
   </div>
-  <div class="panels">
-    <div id="p-menu" class="pnl active"><h3>Menu Items</h3><div id="menu-list"></div></div>
-    <div id="p-shop" class="pnl"><h3>Trend Shop</h3><div id="shop-list"></div></div>
-    <div id="p-items" class="pnl"><h3>Collection</h3><div id="items-list"></div></div>
-    <div id="p-staff" class="pnl"><h3>Staff Management</h3><div id="staff-list"></div></div>
-    <div id="p-supply" class="pnl"><h3>Buy Supplies</h3><div id="supply-list"></div></div>
-    <div id="p-price" class="pnl"><h3>Set Prices</h3><div id="price-list"></div></div>
-    <div id="p-stats" class="pnl"><h3>Statistics</h3><div id="stats-list"></div></div>
+  <div class="pnl">
+    <div id="p-menu" class="act"><h3>Menu Items</h3><div id="menu-list"></div></div>
+    <div id="p-shop"><h3>Trend Shop</h3><div id="shop-list"></div></div>
+    <div id="p-items"><h3>Collection</h3><div id="items-list"></div></div>
+    <div id="p-staff"><h3>Staff</h3><div id="staff-list"></div></div>
+    <div id="p-supply"><h3>Supplies</h3><div id="supply-list"></div></div>
+    <div id="p-price"><h3>Set Prices</h3><div id="price-list"></div></div>
+    <div id="p-stats"><h3>Statistics</h3><div id="stats-list"></div></div>
   </div>
-  <div class="trend" id="trend">ðŸ”¥ Trend: Organic Coffee is HOT!</div>
 </div>
 <script>
-// === GAME DATA ===
+// GAME DATA
 var LOCS = [
-  {id: "street", name: "â˜• Sidewalk", cost: 0, rm: 1, bc: 3, ms: 4},
-  {id: "mall", name: "ðŸ¬ Mall", cost: 50000000, rm: 2.5, bc: 5, ms: 8},
-  {id: "garden", name: "ðŸŒ¿ Garden", cost: 150000000, rm: 2, bc: 4, ms: 10},
-  {id: "rooftop", name: "ðŸŒ† Rooftop", cost: 500000000, rm: 3.5, bc: 6, ms: 12},
-  {id: "festival", name: "ðŸŽ‰ Festival", cost: 1000000000, rm: 4, bc: 8, ms: 16}
+  {id: "street", nm: "Sidewalk", cst: 0, rm: 1, bc: 3, ms: 4},
+  {id: "mall", nm: "Mall", cst: 50000000, rm: 2.5, bc: 5, ms: 8},
+  {id: "garden", nm: "Garden", cst: 150000000, rm: 2, bc: 4, ms: 10}
 ];
-
-var MENU_ITEMS = [
-  {id: "coffee", n: "Black Coffee", i: "â˜•", p: 25000, nl: ["beans", "ice", "cup"], lk: false},
-  {id: "milk_coffee", n: "Milk Coffee", i: "ðŸ¥›", p: 30000, nl: ["beans", "milk", "sugar", "ice", "cup"], lk: false},
-  {id: "espresso", n: "Espresso", i: "â˜•", p: 35000, nl: ["beans", "ice", "cup"], lk: true, uc: 500000},
-  {id: "matcha", n: "Matcha Tea", i: "ðŸµ", p: 40000, nl: ["matcha", "milk", "sugar", "cup"], lk: true, uc: 3000000},
-  {id: "smoothie", n: "Smoothie", i: "ðŸ¥¤", p: 45000, nl: ["milk", "sugar", "ice", "cup"], lk: true, uc: 2000000},
-  {id: "cake", n: "Banh Mi", i: "ðŸ¥–", p: 35000, nl: ["bread", "cheese", "cup"], lk: false},
-  {id: "ice_tea", n: "Iced Tea", i: "ðŸ§Š", p: 15000, nl: ["tea", "ice", "cup"], lk: false},
-  {id: "bubble_tea", n: "Bubble Tea", i: "ðŸ§‹", p: 50000, nl: ["tea", "milk", "tapioca", "sugar", "ice", "cup"], lk: true, uc: 4000000},
-  {id: "tropical", n: "Coconut Juice", i: "ðŸ¥¥", p: 55000, nl: ["milk", "ice", "cup"], lk: true, uc: 5000000},
-  {id: "signature", n: "Signature Drink", i: "ðŸ¹", p: 80000, nl: ["beans", "milk", "syrup", "topping", "ice", "cup"], lk: true, uc: 15000000}
+var MENU = [
+  {id: "coffee", nm: "Black Coffee", ic: "C", pr: 25000, nl: ["beans","ice","cup"], lk: false},
+  {id: "milk_coffee", nm: "Milk Coffee", ic: "M", pr: 30000, nl: ["beans","milk","sugar","ice","cup"], lk: false},
+  {id: "espresso", nm: "Espresso", ic: "E", pr: 35000, nl: ["beans","ice","cup"], lk: true, uc: 500000},
+  {id: "matcha", nm: "Matcha Tea", ic: "T", pr: 40000, nl: ["matcha","milk","sugar","cup"], lk: true, uc: 3000000},
+  {id: "smoothie", nm: "Smoothie", ic: "S", pr: 45000, nl: ["milk","sugar","ice","cup"], lk: true, uc: 2000000},
+  {id: "cake", nm: "Banh Mi", ic: "K", pr: 35000, nl: ["bread","cheese","cup"], lk: false},
+  {id: "ice_tea", nm: "Iced Tea", ic: "I", pr: 15000, nl: ["tea","ice","cup"], lk: false},
+  {id: "bubble_tea", nm: "Bubble Tea", ic: "B", pr: 50000, nl: ["tea","milk","tapioca","sugar","ice","cup"], lk: true, uc: 4000000}
 ];
-
-var TREND_ITEMS = [
-  {id: "t1", n: "Meme Dog", r: "common", ef: "revenue", v: 0.05, d: "+5% revenue", c: 200000},
-  {id: "t2", n: "Wild Cat", r: "common", ef: "revenue", v: 0.03, d: "+3% revenue", c: 150000},
-  {id: "t3", n: "MU Jersey", r: "common", ef: "customers", v: 1, d: "+1 customer", c: 300000},
-  {id: "t4", n: "Girl Boy Style", r: "rare", ef: "revenue", v: 0.1, d: "+10% revenue", c: 1000000},
-  {id: "t5", n: "Ba Tram", r: "rare", ef: "customers", v: 2, d: "+2 customers", c: 1500000},
-  {id: "t6", n: "Tuyen Style", r: "rare", ef: "revenue", v: 0.15, d: "+15% revenue", c: 2000000},
-  {id: "t7", n: "Lam Pham", r: "epic", ef: "revenue", v: 0.2, d: "+20% revenue", c: 5000000},
-  {id: "t8", n: "Super Speed", r: "epic", ef: "customers", v: 5, d: "+5 customers", c: 8000000},
-  {id: "t9", n: "Coffee King", r: "legend", ef: "revenue", v: 0.5, d: "+50% revenue", c: 20000000},
-  {id: "t10", n: "Hoang Thu", r: "legend", ef: "revenue", v: 0.4, d: "+40% revenue", c: 25000000},
-  {id: "t11", n: "Omega Plus", r: "legend", ef: "all", v: 0.3, d: "+30% everything", c: 50000000}
+var TREND = [
+  {id: "t1", nm: "Meme Dog", rt: "cm", ef: "rev", vf: 0.05, ds: "+5% rev", cst: 200000},
+  {id: "t2", nm: "Wild Cat", rt: "cm", ef: "rev", vf: 0.03, ds: "+3% rev", cst: 150000},
+  {id: "t3", nm: "MU Jersey", rt: "cm", ef: "cust", vf: 1, ds: "+1 cust", cst: 300000},
+  {id: "t4", nm: "Trend Shirt", rt: "rm", ef: "rev", vf: 0.1, ds: "+10% rev", cst: 1000000},
+  {id: "t5",nm: "Mystery Key", rt: "rm", ef: "cust", vf: 2, ds: "+2 cust", cst: 1500000},
+  {id: "t6", nm: "VIP Card", rt: "ep", ef: "rev", vf: 0.2, ds: "+20% rev", cst: 5000000},
+  {id: "t7", nm: "Gold Cup", rt: "lg", ef: "rev", vf: 0.5, ds: "+50% rev", cst: 20000000}
 ];
-
-var STAFF_TYPES = [
-  {id: "barista", n: "Barista", e: "A", salary: 300000, skill: 0.6, desc: "Coffee maker - brews drinks"},
-  {id: "server", n: "Server", e: "B", salary: 200000, skill: 0.5, desc: "Serves customers - faster speed"},
-  {id: "chef", n: "Chef", e: "C", salary: 350000, skill: 0.7, desc: "Kitchen - improves food quality"},
-  {id: "manager", n: "Manager", e: "D", salary: 500000, skill: 0.8, desc: "Auto-buys supplies, manages ops"},
-  {id: "senior_barista", n: "Senior Barista", e: "E", salary: 600000, skill: 0.9, desc: "Expert coffee maker"},
-  {id: "senior_manager", n: "Senior Manager", e: "F", salary: 800000, skill: 1.0, desc: "Full auto management"}
+var STAFF_T = [
+  {id: "barista", nm: "Barista", e: "A", sl: 300000, sk: 0.6, ds: "Coffee maker"},
+  {id: "server", nm: "Server", e: "B", sl: 200000, sk: 0.5, ds: "Serves customers"},
+  {id: "chef", nm: "Chef", e: "C", sl: 350000, sk: 0.7, ds: "Kitchen staff"},
+  {id: "manager", nm: "Manager", e: "D", sl: 500000, sk: 0.8, ds: "Auto ops"},
+  {id: "senior_barista", nm: "Sr Barista", e: "E", sl: 600000, sk: 0.9, ds: "Expert coffee"},
+  {id: "senior_manager", nm: "Sr Manager", e: "F", sl: 800000, sk: 1.0, ds: "Full auto"}
 ];
-
-var SUPPLIERS = {
-  beans: [{n: "Robusta Regular", p: 50000, q: 50}, {n: "Robusta Dalat", p: 80000, q: 70}, {n: "Arabica", p: 120000, q: 85}, {n: "Specialty", p: 200000, q: 100}],
-  milk: [{n: "Condensed Milk", p: 800000, q: 40}, {n: "Vinamilk", p: 1200000, q: 70}, {n: "TH True", p: 1800000, q: 85}, {n: "Fresh Cream", p: 2800000, q: 100}],
-  sugar: [{n: "White Sugar", p: 1000000, q: 80}, {n: "Coconut Sugar", p: 1500000, q: 100}],
-  ice: [{n: "Ice Cubes", p: 20000, q: 100}],
-  tea: [{n: "Regular Tea", p: 2000000, q: 60}, {n: "Premium Tea", p: 4000000, q: 90}],
-  matcha: [{n: "Regular Matcha", p: 4000000, q: 60}, {n: "Japanese Matcha", p: 12000000, q: 100}],
-  tapioca: [{n: "Tapioca Pearls", p: 1500000, q: 80}],
-  syrup: [{n: "Vanilla Syrup", p: 2000000, q: 90}, {n: "Caramel Syrup", p: 2000000, q: 90}, {n: "Hazelnut Syrup", p: 2200000, q: 100}],
-  topping: [{n: "Jelly Topping", p: 1500000, q: 80}, {n: "Cheese Foam", p: 1800000, q: 90}],
-  cup: [{n: "Paper Cup Std", p: 1500000, q: 80}, {n: "Paper Cup Premium", p: 4000000, q: 100}, {n: "Glass Cup", p: 20000000, q: 100}],
-  bread: [{n: "Banh Mi Bread", p: 500000, q: 70}, {n: "Premium Bread", p: 1000000, q: 90}],
-  cheese: [{n: "Cheese", p: 800000, q: 70}, {n: "Premium Cheese", p: 1500000, q: 90}]
+var SUPPL = {
+  beans: [{nm:"Robusta",pr:50000,q:50},{nm:"Arabica",pr:120000,q:85}],
+  milk: [{nm:"Vinamilk",pr:1200000,q:70},{nm:"TH True",pr:1800000,q:85}],
+  sugar: [{nm:"White",pr:1000000,q:80}],
+  ice: [{nm:"Ice Cubes",pr:20000,q:100}],
+  tea: [{nm:"Regular",pr:2000000,q:60},{nm:"Premium",pr:4000000,q:90}],
+  cup: [{nm:"Cups Std",pr:1500000,q:80}],
+  bread: [{nm:"Bread",pr:500000,q:70},{nm:"Premium",pr:1000000,q:90}],
+  cheese: [{nm:"Cheese",pr:800000,q:70},{nm:"Premium",pr:1500000,q:90}],
+  tapioca: [{nm:"Pearls",pr:1500000,q:80}],
+  matcha: [{nm:"Regular",pr:4000000,q:60},{nm:"Japanese",pr:12000000,q:100}]
 };
-
-var WEATHERS = {
-  sunny: {e: "â˜€ï¸ Sunny", m: 1.0},
-  cloudy: {e: "â˜ï¸ Cloudy", m: 1.05},
-  rainy: {e: "ðŸŒ§ï¸ Rainy", m: 0.75},
-  hot: {e: "ðŸ”¥ Hot", m: 1.15},
-  tet: {e: "ðŸŽ† Tet", m: 2.5}
-};
-
-var SEASONS = {
-  summer: {sunny: 0.35, cloudy: 0.25, rainy: 0.20, hot: 0.15, tet: 0},
-  rainy: {sunny: 0.10, cloudy: 0.15, rainy: 0.45, hot: 0.0, tet: 0.10},
-  cool: {sunny: 0.15, cloudy: 0.30, rainy: 0.15, hot: 0.0, tet: 0.35}
-};
-
-// === GAME STATE ===
+var STK_NM = {beans:"Coffee",milk:"Milk",sugar:"Sugar",ice:"Ice",tea:"Tea",matcha:"Matcha",tapioca:"Tapioca",cup:"Cups",bread:"Bread",cheese:"Cheese"};
+var WEATHERS = {sunny:{e:"Sunny",m:1.0},cloudy:{e:"Cloudy",m:1.05},rainy:{e:"Rainy",m:0.75},hot:{e:"Hot",m:1.15},tet:{e:"Tet",m:2.5}};
 var G = {
-  coins: 50000000, level: 1, xp: 0, xpN: 100,
-  curLoc: "street", unlocked: ["street"],
-  ownedItems: {}, ownedRecipes: [], menuPrices: {},
-  staff: [], stock: {beans: 10, milk: 20, sugar: 30, ice: 100, tea: 20, matcha: 5, tapioca: 5, syrup: 5, topping: 5, cup: 200, bread: 10, cheese: 5},
-  stockNames: {beans: "Coffee", milk: "Milk", sugar: "Sugar", ice: "Ice", tea: "Tea", matcha: "Matcha", tapioca: "Tapioca", syrup: "Syrup", topping: "Topping", cup: "Cups", bread: "Bread", cheese: "Cheese"},
-  orders: [], gameDay: 1, lastDayTick: Date.now(),
-  totalRev: 0, totalServed: 0, dailyRev: 0, dailyCost: 0,
-  autoPurchase: false, stamina: 50, maxStamina: 50
+  coins:50000000,lv:1,xp:0,xpn:100,cur:"street",unlocked:["street"],
+  items:{},recipes:[],prices:{},staff:[],stk:{beans:10,milk:20,sugar:30,ice:100,tea:20,matcha:5,tapioca:5,cup:200,bread:10,cheese:5},
+  orders:[],day:1,drev:0,dcost:0,trev:0,tserved:0,auto:false,stam:50,maxstam:50
 };
+MENU.forEach(function(m){G.prices[m.id]=1.0;});
 
-MENU_ITEMS.forEach(function(m) { G.menuPrices[m.id] = 1.0; });
+function fmt(n){if(n>=1e12)return(n/1e12).toFixed(2)+"t";if(n>=1e9)return(n/1e9).toFixed(2)+"b";if(n>=1e6)return(n/1e6).toFixed(2)+"m";if(n>=1e3)return(n/1e3).toFixed(2)+"k";return n.toString();}
+function notify(t){var d=document.createElement("div");d.className="nf";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2000);}
+function getWeather(){var c=G.day%180,s=c<60?"summer":(c<120?"rainy":"cool"),p={"summer":{sunny:.35,cloudy:.25,rainy:.20,hot:.15,tet:0},"rainy":{sunny:.10,cloudy:.15,rainy:.45,hot:0,tet:.10},"cool":{sunny:.15,cloudy:.30,rainy:.15,hot:0,tet:.35}};var probs=p[s],r=Math.random(),cum=0,k=Object.keys(probs);for(var i=0;i<k.length;i++){cum+=probs[k[i]];if(r<=cum)return WEATHERS[k[i]];}return WEATHERS.sunny;}
+function getRevMult(){var l=LOCS.find(function(x){return x.id===G.cur;});var m=l.rm;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}var w=getWeather();m*=w.m;return m;}
+function getBaseCust(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var c=l.bc;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="cust")c+=it.vf*G.items[id];}return c;}
+function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);notify("Level "+G.lv+"!");}}
 
-// === HELPERS ===
-function fmt(n) {
-  if (n >= 1e12) return (n / 1e12).toFixed(2) + "t";
-  if (n >= 1e9) return (n / 1e9).toFixed(2) + "b";
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + "m";
-  if (n >= 1e3) return (n / 1e3).toFixed(2) + "k";
-  return n.toString();
+function serveOrder(i){
+  if(!G.orders||i<0||i>=G.orders.length)return;
+  var o=G.orders[i];var item=MENU.find(function(m){return m.id===o.id;});
+  if(!item)return;
+  for(var j=0;j<item.nl.length;j++){if(G.stk[item.nl[j]]<=0){notify("No "+STK_NM[item.nl[j]]+"!");return;}}
+  for(var j=0;j<item.nl.length;j++){G.stk[item.nl[j]]--;}
+  var rev=Math.floor(item.pr*G.prices[o.id]*getRevMult());
+  G.coins+=rev;G.trev+=rev;G.tserved++;G.drev+=rev;G.orders.splice(i,1);addXP(10);notify("Served! +"+fmt(rev));saveGame();renderAll();
 }
 
-function notify(text) {
-  var d = document.createElement("div");
-  d.className = "nf";
-  d.textContent = text;
-  document.body.appendChild(d);
-  setTimeout(function() { d.remove(); }, 2000);
+function buyItem(id){var it=TREND.find(function(x){return x.id===id;});if(!it)return;if(G.coins<it.cst){notify("Not enough!");return;}G.coins-=it.cst;G.items[id]=(G.items[id]||0)+1;notify("Bought "+it.nm+"!");saveGame();renderAll();}
+function buyRecipe(id){var item=MENU.find(function(m){return m.id===id;});if(!item||!item.lk)return;if(G.coins<item.uc){notify("Not enough!");return;}G.coins-=item.uc;G.recipes.push(id);item.lk=false;notify("Unlocked: "+item.nm);saveGame();renderAll();}
+function hireStaff(tid){var l=LOCS.find(function(x){return x.id===G.curLoc;});if(G.staff.length>=l.ms){notify("Full staff!");return;}var t=STAFF_T.find(function(x){return x.id===tid;});if(!t)return;var cst=t.sl*3;if(G.coins<cst){notify("Need "+fmt(cst)+"!");return;}G.staff.push({id:"s_"+Date.now(),nm:"Staff "+(G.staff.length+1),tier:tid,sk:t.sk,sl:t.sl,mood:80,loy:70,day:0,served:0});G.coins-=cst;notify("Hired!");saveGame();renderAll();}
+function orderSupply(k,t){var list=SUPPL[k];if(!list||!list[t])return;var it=list[t];var cst=Math.ceil(it.pr*10);if(G.coins<cst){notify("Not enough!");return;}G.coins-=cst;G.stk[k]+=10;notify("Bought "+k+"!");saveGame();renderAll();}
+function setPrice(id,v){G.prices[id]=v/100;renderAll();}
+function unlockLoc(id){var l=LOCS.find(function(x){return x.id===id;});if(G.coins<l.cst){notify("Not enough!");return;}G.coins-=l.cst;G.unlocked.push(id);G.curLoc=id;notify("Unlocked: "+l.nm);saveGame();renderAll();}
+function trainStaff(sid){var s=G.staff.find(function(x){return x.id===sid;});if(!s)return;if(G.coins<500000){notify("Need 500k!");return;}G.coins-=500000;s.sk=Math.min(1,s.sk+.1);notify("Trained "+s.nm+"!");saveGame();renderAll();}
+function fireStaff(sid){var i=G.staff.findIndex(function(x){return x.id===sid;});if(i<0)return;G.staff.splice(i,1);notify("Fired!");saveGame();renderAll();}
+function toggleAuto(){G.auto=!G.auto;notify("Auto: "+(G.auto?"ON":"OFF"));renderAll();}
+
+function renderAll(){
+  renderHeader();renderWeather();renderLocs();renderCustomers();renderOrders();renderMenu();renderStats();renderShop();renderItems();renderStaff();renderSupply();renderPrice();
 }
+function renderHeader(){document.getElementById("coins").textContent=fmt(G.coins);document.getElementById("day").textContent=G.day;document.getElementById("lvl").textContent=G.lv;document.getElementById("stamina").textContent=G.stam+"/"+G.maxstam;}
+function renderWeather(){var w=getWeather();document.getElementById("weather").textContent=w.e+" (x"+w.m+")";}
+function renderLocs(){var el=document.getElementById("loc-tabs");el.innerHTML="";LOCS.forEach(function(l){var btn=document.createElement("button");btn.className="ltb"+(G.curLoc===l.id?" act":"");var ok=G.unlocked.indexOf(l.id)>=0;btn.disabled=!ok;btn.innerHTML=l.nm+(ok?"":"<br><small>"+fmt(l.cst)+"</small>");btn.onclick=function(){if(ok){G.curLoc=l.id;}else{unlockLoc(l.id);}renderAll();};el.appendChild(btn);});}
+function renderCustomers(){var el=document.getElementById("customers");el.innerHTML="";var c=getBaseCust();for(var i=0;i<Math.min(c,10);i++){var d=document.createElement("div");d.textContent="["+(i%4)+"]";d.style.fontSize="24px";d.style.margin="2px";el.appendChild(d);}}
+function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var d=document.createElement("div");d.className="item";d.innerHTML="<div><div>"+item.ic+" "+item.nm+"</div><div style='color:#FFD700'>"+fmt(item.pr)+"</div></div><button class='btn' onclick='serveOrder("+i+")'>Serve</button>";el.appendChild(d);});}
+function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;}).forEach(function(item){var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+"</div><div class='ds'>"+item.nl.join(",")+"</div></div><div class='pr'>"+fmt(item.pr)+"</div>";el.appendChild(d);});}
+function renderStats(){var el=document.getElementById("stats-list");el.innerHTML="";var profit=G.drev-G.dcost;var rows=[["Total served",G.tserved],["Today rev",fmt(G.drev)],["Today cost",fmt(G.dcost)],["Profit today",fmt(profit)],["Items",Object.keys(G.items).length],["Staff",G.staff.length],["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
+function renderShop(){var el=document.getElementById("shop-list");el.innerHTML="";var avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<=0;});if(avail.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>All owned!</div>";return;}avail.forEach(function(item){var d=document.createElement("div");d.className="card";var rc={cm:"#b0b0b0",rm:"#4169E1",ep:"#9932CC",lg:"#FFD700"};d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div><div><div class='pr'>"+fmt(item.cst)+"</div><button class='btn' onclick='buyItem(\""+item.id+"\")' "+(G.coins<item.cst?"disabled":"")+">Buy</button></div>";el.appendChild(d);});}
+function renderItems(){var el=document.getElementById("items-list");el.innerHTML="";var owned=Object.entries(G.items).filter(function(e){return e[1]>0;});if(owned.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>No items!</div>";return;}owned.forEach(function(e){var item=TREND.find(function(t){return t.id===e[0];});if(!item)return;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+" x"+e[1]+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div>";el.appendChild(d);});}
+function renderStaff(){var el=document.getElementById("staff-list");el.innerHTML="";var l=LOCS.find(function(x){return x.id===G.curLoc;});el.innerHTML+="<div style='margin-bottom:6px;color:#a0a0b0;font-size:11px'>Count: "+G.staff.length+"/"+l.ms+"</div>";STAFF_T.forEach(function(tier){var cst=tier.sl*3;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+tier.e+" "+tier.nm+"</div><div class='ds'>"+tier.ds+"</div><div class='ds'>Salary: "+fmt(tier.sl)+'/day</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';el.appendChild(d);});G.staff.forEach(function(s){var tier=STAFF_T.find(function(t){return t.id===s.tier;});var mc=s.mood>60?"#4CAF50":(s.mood>30?"#FF9800":"#f44336");var d=document.createElement("div");d.className="staff-box";d.innerHTML='<div class="nm">'+(tier?tier.e:"")+" "+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+'</div><div class="stats"><span>Skill:'+s.sk.toFixed(1)+'</span></div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button> <label style="font-size:10px;margin-left:6px"><input type="checkbox" '+(G.auto?"checked":"")+' onchange="toggleAuto()"> Auto</label></div>';el.appendChild(d);});}
+function renderSupply(){var el=document.getElementById("supply-list");el.innerHTML='<div style="margin-top:8px;font-size:12px;color:#FFD700">STOCK:</div>';Object.entries(G.stk).forEach(function(e){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+STK_NM[e[0]]+"</div><div>"+e[1]+"</div>";el.appendChild(d);});el.innerHTML+='<div style="margin-top:8px;font-size:12px;color:#FFD700">ORDER:</div>';Object.entries(SUPPL).forEach(function(e){var k=e[0],list=e[1];list.forEach(function(it,t){var cst=Math.ceil(it.pr*10);var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+k+" T"+(t+1)+"</div><div>"+fmt(it.pr)+" / 10u</div><button class='btn' onclick='orderSupply(\''+k+'\',"+t+")' "+(G.coins<cst?"disabled":"")+">Buy "+fmt(cst)+"</button>";el.appendChild(d);});});}
+function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=Math.round(G.prices[item.id]*100);var d=document.createElement("div");d.style.padding="6px";d.style.background="#0f3460";d.style.borderRadius="6px";d.style.marginBottom="4px";if(unlocked){d.innerHTML='<div class="nm">'+item.ic+' '+item.nm+'</div><input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div style="color:#FFD700;text-align:center;font-size:11px">'+pp+'%</div>';}else{d.innerHTML='<div class="nm">'+item.ic+' '+item.nm+' <span class="badge" style="background:#f44336">LOCKED</span></div><button class="btn" onclick="buyRecipe(\''+item.id+'\')" '+(G.coins<item.uc?"disabled":"")+'>Unlock ('+fmt(item.uc)+')</button>';el.appendChild(d);}});el.appendChild(d);}}
 
-function getWeather() {
-  var cycle = G.gameDay % 180;
-  var season = cycle < 60 ? "summer" : (cycle < 120 ? "rainy" : "cool");
-  var probs = SEASONS[season];
-  var rand = Math.random();
-  var cum = 0;
-  var keys = Object.keys(probs);
-  for (var i = 0; i < keys.length; i++) {
-    cum += probs[keys[i]];
-    if (rand <= cum) return WEATHERS[keys[i]];
-  }
-  return WEATHERS.sunny;
-}
+// TABS
+document.querySelectorAll(".nv").forEach(function(btn){btn.onclick=function(){document.querySelectorAll(".nv").forEach(function(b){b.classList.remove("act");});document.querySelectorAll(".pnl").forEach(function(p){p.classList.remove("act");});btn.classList.add("act");document.getElementById("p-"+btn.dataset.tab).classList.add("act");};});
 
-// === CORE ===
-function getRevMult() {
-  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
-  var m = loc.rm;
-  for (var id in G.ownedItems) {
-    var it = TREND_ITEMS.find(function(t) { return t.id === id; });
-    if (it && it.ef === "revenue") m += it.v * G.ownedItems[id];
-  }
-  var w = getWeather();
-  m *= w.m;
-  return m;
-}
+// GAME LOOP
+setInterval(function(){var now=Date.now();if(now-G.day>=60000){G.day++;var cost=G.staff.reduce(function(t,s){var tier=STAFF_T.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);G.dcost=cost;G.coins-=cost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);notify("Day "+G.day+"! Cost: "+fmt(cost));saveGame();renderAll();}G.day=now;},1000);
+setInterval(function(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var w=getWeather();var exp=Math.floor(l.bc*w.m);if(G.orders.length<exp){var avail=MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;});if(avail.length>0){var item=avail[Math.floor(Math.random()*avail.length)];G.orders.push({id:item.id});}}},15000);
+setInterval(saveGame,30000);
+setInterval(renderAll,2000);
 
-function getBaseCust() {
-  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
-  var c = loc.bc;
-  for (var id in G.ownedItems) {
-    var it = TREND_ITEMS.find(function(t) { return t.id === id; });
-    if (it && it.ef === "customers") c += it.v * G.ownedItems[id];
-  }
-  return c;
-}
+// SAVE/LOAD
+function saveGame(){localStorage.setItem("cafeGame",JSON.stringify(G));}
+function loadGame(){var s=localStorage.getItem("cafeGame");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1.0;});}
 
-function addXP(a) {
-  G.xp += a;
-  while (G.xp >= G.xpN) {
-    G.xp -= G.xpN;
-    G.level++;
-    G.xpN = Math.floor(G.xpN * 1.5);
-    notify("Level " + G.level + "!");
-  }
-}
-
-// === ACTIONS ===
-function serveOrder(idx) {
-  if (!G.orders || idx < 0 || idx >= G.orders.length) return;
-  var order = G.orders[idx];
-  var item = MENU_ITEMS.find(function(m) { return m.id === order.id; });
-  if (!item) return;
-
-  // Check stock
-  for (var i = 0; i < item.nl.length; i++) {
-    if (G.stock[item.nl[i]] <= 0) {
-      notify("Not enough " + G.stockNames[item.nl[i]] + "!");
-      return;
-    }
-  }
-
-  // Deduct stock
-  for (var i = 0; i < item.nl.length; i++) {
-    G.stock[item.nl[i]]--;
-  }
-
-  // Calculate revenue
-  var basePrice = item.p;
-  var mult = G.menuPrices[order.id] || 1.0;
-  var revenue = Math.floor(basePrice * mult * getRevMult());
-  G.coins += revenue;
-  G.totalRev += revenue;
-  G.totalServed++;
-  G.dailyRev += revenue;
-  G.orders.splice(idx, 1);
-  addXP(10);
-  notify("Served! +â‚«" + fmt(revenue));
-  saveGame();
-  renderAll();
-}
-
-function buyItem(id) {
-  var item = TREND_ITEMS.find(function(t) { return t.id === id; });
-  if (!item) return;
-  if (G.coins < item.c) { notify("Not enough coins!"); return; }
-  G.coins -= item.c;
-  G.ownedItems[id] = (G.ownedItems[id] || 0) + 1;
-  notify("Bought " + item.n + "!");
-  saveGame();
-  renderAll();
-}
-
-function buyRecipe(id) {
-  var item = MENU_ITEMS.find(function(m) { return m.id === id; });
-  if (!item || !item.lk) return;
-  if (G.coins < item.uc) { notify("Not enough coins!"); return; }
-  G.coins -= item.uc;
-  G.ownedRecipes.push(id);
-  item.lk = false;
-  notify("Unlocked: " + item.n);
-  saveGame();
-  renderAll();
-}
-
-function hireStaff(tierId) {
-  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
-  if (G.staff.length >= loc.ms) { notify("Max staff!"); return; }
-  var tier = STAFF_TYPES.find(function(t) { return t.id === tierId; });
-  if (!tier) return;
-  var cost = tier.salary * 3;
-  if (G.coins < cost) { notify("Need " + fmt(cost) + "!"); return; }
-  G.staff.push({id: "s_" + Date.now(), name: "Staff " + (G.staff.length + 1), tier: tierId, skill: tier.skill, salary: tier.salary, mood: 80, loyalty: 70, days: 0, served: 0});
-  G.coins -= cost;
-  notify("Hired staff!");
-  saveGame();
-  renderAll();
-}
-
-function orderSupply(key, ti) {
-  var list = SUPPLIERS[key];
-  if (!list || !list[ti]) return;
-  var item = list[ti];
-  var cost = Math.ceil(item.p * 10);
-  if (G.coins < cost) { notify("Not enough!"); return; }
-  G.coins -= cost;
-  G.stock[key] += 10;
-  notify("Bought " + key + " x10!");
-  saveGame();
-  renderAll();
-}
-
-function setPrice(id, val) {
-  G.menuPrices[id] = val / 100;
-  renderAll();
-}
-
-function unlockLocation(id) {
-  var loc = LOCS.find(function(l) { return l.id === id; });
-  if (G.coins < loc.cost) { notify("Not enough!"); return; }
-  G.coins -= loc.cost;
-  G.unlocked.push(id);
-  G.curLoc = id;
-  notify("Unlocked: " + loc.name);
-  saveGame();
-  renderAll();
-}
-
-// === RENDER ===
-function renderAll() {
-  renderHeader();
-  renderWeather();
-  renderLocs();
-  renderCustomers();
-  renderOrders();
-  renderMenu();
-  renderStats();
-  renderShop();
-  renderItems();
-  renderStaff();
-  renderSupply();
-  renderPrice();
-  renderMP();
-}
-
-function renderHeader() {
-  document.getElementById("coins").textContent = fmt(G.coins);
-  document.getElementById("day").textContent = G.gameDay;
-  document.getElementById("lvl").textContent = G.level;
-  document.getElementById("stamina").textContent = G.stamina + "/" + G.maxStamina;
-}
-
-function renderWeather() {
-  var w = getWeather();
-  document.getElementById("weather").textContent = w.e + " (x" + w.m + ")";
-}
-
-function renderLocs() {
-  var el = document.getElementById("loc-tabs");
-  el.innerHTML = "";
-  LOCS.forEach(function(loc) {
-    var btn = document.createElement("button");
-    btn.className = "loc-tab" + (G.curLoc === loc.id ? " active" : "");
-    var ok = G.unlocked.indexOf(loc.id) >= 0;
-    btn.disabled = !ok;
-    btn.innerHTML = loc.name + (ok ? "" : "<br><small>" + fmt(loc.cost) + "</small>");
-    btn.onclick = function() {
-      if (ok) { G.curLoc = loc.id; } else { unlockLocation(loc.id); }
-      renderAll();
-    };
-    el.appendChild(btn);
-  });
-}
-
-function renderCustomers() {
-  var el = document.getElementById("customers");
-  el.innerHTML = "";
-  var c = getBaseCust();
-  for (var i = 0; i < Math.min(c, 15); i++) {
-    var d = document.createElement("div");
-    d.className = "customer";
-    d.textContent = ["ðŸ‘¨", "ðŸ‘©", "ðŸ‘¦", "ðŸ‘§"][i % 4];
-    d.style.animationDelay = (i * 0.1) + "s";
-    el.appendChild(d);
-  }
-}
-
-function renderOrders() {
-  var el = document.getElementById("orders");
-  document.getElementById("oc").textContent = G.orders.length;
-  el.innerHTML = "";
-  if (!G.orders || G.orders.length === 0) {
-    el.innerHTML = '<div style="padding:10px;color:#a0a0b0;text-align:center">Waiting for customers...</div>';
-    return;
-  }
-  G.orders.forEach(function(order, idx) {
-    var item = MENU_ITEMS.find(function(m) { return m.id === order.id; });
-    if (!item) return;
-    var d = document.createElement("div");
-    d.className = "order";
-    d.innerHTML = '<div><div class="item-name">' + item.i + " " + item.n + '</div><div class="item-price">' + fmt(item.p) + '</div></div><button class="btn-sm" onclick="serveOrder(' + idx + ')">Serve</button>';
-    el.appendChild(d);
-  });
-}
-
-function renderMenu() {
-  var el = document.getElementById("menu-list");
-  el.innerHTML = "";
-  MENU_ITEMS.filter(function(m) { return !m.lk || G.ownedRecipes.indexOf(m.id) >= 0; }).forEach(function(item) {
-    var d = document.createElement("div");
-    d.className = "mi";
-    d.innerHTML = '<span>' + item.i + " " + item.n + '</span><span class="item-price">' + fmt(item.p) + '</span>';
-    el.appendChild(d);
-  });
-}
-
-function renderStats() {
-  var el = document.getElementById("stats-list");
-  el.innerHTML = "";
-  var profit = G.dailyRev - G.dailyCost;
-  var rows = [
-    ["Total served", G.totalServed],
-    ["Today revenue", fmt(G.dailyRev)],
-    ["Today cost", fmt(G.dailyCost)],
-    ["Profit today", fmt(profit)],
-    ["Items owned", Object.keys(G.ownedItems).length],
-    ["Staff", G.staff.length + "/" + LOCS.find(function(l) { return l.id === G.curLoc; }).ms],
-    ["Day", G.gameDay],
-    ["Stamina", G.stamina + "/" + G.maxStamina]
-  ];
-  rows.forEach(function(r) {
-    var d = document.createElement("div");
-    d.className = "sr";
-    d.innerHTML = '<span>' + r[0] + '</span><span class="v">' + r[1] + '</span>';
-    el.appendChild(d);
-  });
-}
-
-function renderShop() {
-  var el = document.getElementById("shop-list");
-  el.innerHTML = "";
-  var avail = TREND_ITEMS.filter(function(t) { return !G.ownedItems[t.id] || G.ownedItems[t.id] <= 0; });
-  if (avail.length === 0) {
-    el.innerHTML = '<div style="padding:10px;color:#a0a0b0;text-align:center">All owned!</div>';
-    return;
-  }
-  var rc = {common: "#b0b0b0", rare: "#4169E1", epic: "#9932CC", legend: "#FFD700"};
-  avail.forEach(function(item) {
-    var d = document.createElement("div");
-    d.className = "ic";
-    d.style.borderLeftColor = rc[item.r];
-    d.innerHTML = '<div class="inf"><div class="t">' + item.n + '</div><div class="d">' + item.d + '</div><span class="badge ' + item.r + '">' + item.r + '</span></div><div><div class="c">' + fmt(item.c) + '</div><button class="bc" onclick="buyItem(\'' + item.id + '\')" ' + (G.coins < item.c ? "disabled" : "") + '>Buy</button></div>';
-    el.appendChild(d);
-  });
-}
-
-function renderItems() {
-  var el = document.getElementById("items-list");
-  el.innerHTML = "";
-  var owned = Object.entries(G.ownedItems).filter(function(e) { return e[1] > 0; });
-  if (owned.length === 0) {
-    el.innerHTML = '<div style="padding:10px;color:#a0a0b0">No items yet!</div>';
-    return;
-  }
-  owned.forEach(function(e) {
-    var item = TREND_ITEMS.find(function(t) { return t.id === e[0]; });
-    if (!item) return;
-    var d = document.createElement("div");
-    d.className = "ic";
-    d.innerHTML = '<div class="inf"><div class="t">' + item.n + '</div><div class="d">' + item.d + " x" + e[1] + '</div><span class="badge ' + item.r + '">' + item.r + '</span></div>';
-    el.appendChild(d);
-  });
-}
-
-function renderStaff() {
-  var el = document.getElementById("staff-list");
-  el.innerHTML = "";
-  var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
-  el.innerHTML += '<div style="margin-bottom:8px;color:#a0a0b0;font-size:12px">Count: ' + G.staff.length + "/" + loc.ms + '</div>';
-  STAFF_TYPES.forEach(function(tier) {
-    var cost = tier.salary * 3;
-    var d = document.createElement("div");
-    d.className = "ic";
-    d.style.borderLeftColor = "#2196F4";
-    d.innerHTML = '<div class="inf"><div class="t">' + tier.e + " " + tier.n + '</div><div class="d">' + tier.desc + '</div><div class="d">Salary: ' + fmt(tier.salary) + '/day</div></div><div><div class="c">' + fmt(cost) + '</div><button class="bc bh" onclick="hireStaff(\'' + tier.id + '\')" ' + (G.coins < cost || G.staff.length >= loc.ms ? "disabled" : "") + '>Hire</button></div>';
-    el.appendChild(d);
-  });
-  G.staff.forEach(function(s) {
-    var tier = STAFF_TYPES.find(function(t) { return t.id === s.tier; });
-    var mc = s.mood > 60 ? "#4CAF50" : (s.mood > 30 ? "#FF9800" : "#f44336");
-    var d = document.createElement("div");
-    d.className = "sc";
-    d.innerHTML = '<div class="item-name">' + (tier ? tier.e : "") + " " + s.name + '</div><div class="tier">' + (tier ? tier.n : "?") + '</div><div class="sk"><span>Skill: ' + s.skill.toFixed(1) + '</span></div><div class="sr2"><span class="l">Mood</span><span class="v">' + s.mood.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Loyalty</span><span class="v">' + s.loyalty.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Days</span><span class="v">' + s.days + '</span></div><div class="sr2"><span class="l">Served</span><span class="v">' + s.served + '</span></div><div style="margin-top:6px"><button class="ba bt" onclick="trainStaff(\'' + s.id + '\')">Train</button> <button class="ba bf" onclick="fireStaff(\'' + s.id + '\')">Fire</button> <label style="font-size:11px;margin-left:8px"><input type="checkbox" ' + (G.autoPurchase ? "checked" : "") + ' onchange="toggleAutoPurchase()"> Auto Buy</label></div>';
-    el.appendChild(d);
-  });
-}
-
-function trainStaff(sid) {
-  var s = G.staff.find(function(x) { return x.id === sid; });
-  if (!s) return;
-  if (G.coins < 500000) { notify("Need 500k!"); return; }
-  G.coins -= 500000;
-  s.skill = Math.min(1, s.skill + 0.1);
-  notify("Trained " + s.name + "!");
-  saveGame();
-  renderAll();
-}
-
-function fireStaff(sid) {
-  var i = G.staff.findIndex(function(x) { return x.id === sid; });
-  if (i < 0) return;
-  G.staff.splice(i, 1);
-  notify("Fired!");
-  saveGame();
-  renderAll();
-}
-
-function toggleAutoPurchase() {
-  G.autoPurchase = !G.autoPurchase;
-  notify("Auto purchase: " + (G.autoPurchase ? "ON" : "OFF"));
-  renderAll();
-}
-
-function renderSupply() {
-  var el = document.getElementById("supply-list");
-  el.innerHTML = '<div style="margin-top:10px;font-size:13px;color:#FFD700">STOCK:</div>';
-  Object.entries(G.stock).forEach(function(e) {
-    var d = document.createElement("div");
-    d.className = "sr3";
-    d.innerHTML = '<span class="item-name">' + G.stockNames[e[0]] + '</span><span class="stock-info">' + e[1] + '</span>';
-    el.appendChild(d);
-  });
-  el.innerHTML += '<div style="margin-top:10px;font-size:13px;color:#FFD700">ORDER SUPPLIES:</div>';
-  Object.entries(SUPPLIERS).forEach(function(e) {
-    var key = e[0], list = e[1];
-    list.forEach(function(item, ti) {
-      var cost = Math.ceil(item.p * 10);
-      var d = document.createElement("div");
-      d.className = "sr3";
-      d.innerHTML = '<span class="item-name">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="price-range">' + fmt(item.p) + " / 10u</span><span class="stock-info">x10</span><button class="bs" onclick="orderSupply(\'' + key + '\',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
-      el.appendChild(d);
-    });
-  });
-}
-
-function renderPrice() {
-  var el = document.getElementById("price-list");
-  el.innerHTML = "";
-  MENU_ITEMS.forEach(function(item) {
-    var unlocked = !item.lk || G.ownedRecipes.indexOf(item.id) >= 0;
-    var pp = Math.round(G.menuPrices[item.id] * 100);
-    var d = document.createElement("div");
-    d.className = "pr2";
-    if (unlocked) {
-      d.innerHTML = '<div class="item-name">' + item.i + " " + item.n + '</div><input type="range" min="70" max="130" value="' + pp + '" oninput="setPrice(\'' + item.id + '\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="pct">' + pp + '%</div>';
-    } else {
-      d.innerHTML = '<div class="item-name">' + item.i + " " + item.n + ' <span class="badge locked">LOCKED</span></div><button class="bc" onclick="buyRecipe(\'' + item.id + '\')" ' + (G.coins < item.uc ? "disabled" : "") + '>Unlock (' + fmt(item.uc) + ')</button>';
-    }
-    el.appendChild(d);
-  });
-}
-
-function renderMP() {
-  var el = document.getElementById("mp-list");
-  el.innerHTML = '<div style="padding:10px;background:#0f3460;border-radius:8px"><h4>Multiplayer</h4><div>Score: ' + fmt(G.totalRev) + '</div><div>Served: ' + G.totalServed + '</div></div>';
-}
-
-// === EVENT LISTENERS ===
-document.querySelectorAll(".nb").forEach(function(btn) {
-  btn.addEventListener("click", function() {
-    document.querySelectorAll(".nb").forEach(function(b) { b.classList.remove("active"); });
-    document.querySelectorAll(".pnl").forEach(function(p) { p.classList.remove("active"); });
-    btn.classList.add("active");
-    document.getElementById("p-" + btn.dataset.tab).classList.add("active");
-  });
-});
-
-// === GAME LOOP ===
-function startGameLoop() {
-  setInterval(function() {
-    var now = Date.now();
-    if (now - G.lastDayTick >= 60000) {
-      G.gameDay++;
-      G.lastDayTick = now;
-      
-      // Calculate daily cost
-      G.dailyCost = G.staff.reduce(function(total, s) {
-        var tier = STAFF_TYPES.find(function(t) { return t.id === s.tier; });
-        return total + (tier ? tier.salary : 300000);
-      }, 0);
-      
-      // Deduct staff salaries
-      G.coins -= G.dailyCost;
-      
-      G.dailyRev = 0;
-      autoPurchaseFn();
-      
-      // Recover stamina
-      G.stamina = Math.min(G.maxStamina, G.stamina + 5);
-      
-      notify("Day " + G.gameDay + "! Cost: " + fmt(G.dailyCost));
-      saveGame();
-      renderAll();
-    }
-  }, 1000);
-
-  setInterval(function() {
-    var loc = LOCS.find(function(l) { return l.id === G.curLoc; });
-    var w = getWeather();
-    var exp = Math.floor(loc.bc * w.m);
-    if (G.orders.length < exp) {
-      var avail = MENU_ITEMS.filter(function(m) { return !m.lk || G.ownedRecipes.indexOf(m.id) >= 0; });
-      if (avail.length > 0) {
-        var item = avail[Math.floor(Math.random() * avail.length)];
-        G.orders.push({id: item.id});
-      }
-    }
-  }, 15000);
-
-  setInterval(saveGame, 30000);
-  setInterval(renderAll, 2000);
-}
-
-// === AUTO FUNCTIONS ===
-function autoPurchaseFn() {
-  if (!G.autoPurchase) return;
-  // Auto-buy supplies if low
-  for (var key in G.stock) {
-    if (G.stock[key] < 5) {
-      var suppliers = SUPPLIERS[key];
-      if (suppliers && suppliers[0] && G.coins >= suppliers[0].p * 10) {
-        G.coins -= suppliers[0].p * 10;
-        G.stock[key] += 10;
-      }
-    }
-  }
-}
-
-// === AUTO SERVE ===
-function autoServe() {
-  if (G.orders.length === 0) return;
-  // Staff auto-serve based on skill
-  var totalSkill = G.staff.reduce(function(sum, s) { return sum + s.skill; }, 0);
-  if (totalSkill > 0 && Math.random() < totalSkill * 0.1) {
-    serveOrder(0);
-  }
-}
-
-// === SAVE/LOAD ===
-function saveGame() {
-  localStorage.setItem("trendyCafePremium", JSON.stringify(G));
-}
-
-function loadGame() {
-  var s = localStorage.getItem("trendyCafePremium");
-  if (s) {
-    try {
-      var p = JSON.parse(s);
-      for (var k in p) {
-        if (G.hasOwnProperty(k)) G[k] = p[k];
-      }
-    } catch (e) {}
-  }
-  MENU_ITEMS.forEach(function(m) { if (!G.menuPrices[m.id]) G.menuPrices[m.id] = 1.0; });
-}
-
-// === INIT ===
-function init() {
-  loadGame();
-  renderAll();
-  startGameLoop();
-  notify("Welcome! QuÃ¡n Trendy CafÃ© Premium! â˜•");
-}
-
-// Auto-start when DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+// START
+loadGame();renderAll();renderCustomers();notify("Welcome! Cafe Business Game!");
 </script>
 </body>
 </html>
