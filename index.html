@@ -436,7 +436,7 @@ function renderOrders() {
     if (!item) return;
     var d = document.createElement("div");
     d.className = "order";
-    d.innerHTML = '<div><div class="nm">' + item.i + " " + item.n + '</div><div class="pr">' + fmt(item.p) + '</div></div><button class="btn-sm" onclick="serveOrder(' + idx + ')">Serve</button>';
+    d.innerHTML = '<div><div class="item-name">' + item.i + " " + item.n + '</div><div class="item-price">' + fmt(item.p) + '</div></div><button class="btn-sm" onclick="serveOrder(' + idx + ')">Serve</button>';
     el.appendChild(d);
   });
 }
@@ -447,7 +447,7 @@ function renderMenu() {
   MENU_ITEMS.filter(function(m) { return !m.lk || G.ownedRecipes.indexOf(m.id) >= 0; }).forEach(function(item) {
     var d = document.createElement("div");
     d.className = "mi";
-    d.innerHTML = '<span>' + item.i + " " + item.n + '</span><span class="pr">' + fmt(item.p) + '</span>';
+    d.innerHTML = '<span>' + item.i + " " + item.n + '</span><span class="item-price">' + fmt(item.p) + '</span>';
     el.appendChild(d);
   });
 }
@@ -528,7 +528,7 @@ function renderStaff() {
     var mc = s.mood > 60 ? "#4CAF50" : (s.mood > 30 ? "#FF9800" : "#f44336");
     var d = document.createElement("div");
     d.className = "sc";
-    d.innerHTML = '<div class="nm">' + (tier ? tier.e : "") + " " + s.name + '</div><div class="tier">' + (tier ? tier.n : "?") + '</div><div class="sk"><span>Skill: ' + s.skill.toFixed(1) + '</span></div><div class="sr2"><span class="l">Mood</span><span class="v">' + s.mood.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Loyalty</span><span class="v">' + s.loyalty.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Days</span><span class="v">' + s.days + '</span></div><div class="sr2"><span class="l">Served</span><span class="v">' + s.served + '</span></div><div style="margin-top:6px"><button class="ba bt" onclick="trainStaff(\'' + s.id + '\')">Train</button> <button class="ba bf" onclick="fireStaff(\'' + s.id + '\')">Fire</button> <label style="font-size:11px;margin-left:8px"><input type="checkbox" ' + (G.autoPurchase ? "checked" : "") + ' onchange="toggleAutoPurchase()"> Auto Buy</label></div>';
+    d.innerHTML = '<div class="item-name">' + (tier ? tier.e : "") + " " + s.name + '</div><div class="tier">' + (tier ? tier.n : "?") + '</div><div class="sk"><span>Skill: ' + s.skill.toFixed(1) + '</span></div><div class="sr2"><span class="l">Mood</span><span class="v">' + s.mood.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Loyalty</span><span class="v">' + s.loyalty.toFixed(0) + '%</span></div><div class="sr2"><span class="l">Days</span><span class="v">' + s.days + '</span></div><div class="sr2"><span class="l">Served</span><span class="v">' + s.served + '</span></div><div style="margin-top:6px"><button class="ba bt" onclick="trainStaff(\'' + s.id + '\')">Train</button> <button class="ba bf" onclick="fireStaff(\'' + s.id + '\')">Fire</button> <label style="font-size:11px;margin-left:8px"><input type="checkbox" ' + (G.autoPurchase ? "checked" : "") + ' onchange="toggleAutoPurchase()"> Auto Buy</label></div>';
     el.appendChild(d);
   });
 }
@@ -565,7 +565,7 @@ function renderSupply() {
   Object.entries(G.stock).forEach(function(e) {
     var d = document.createElement("div");
     d.className = "sr3";
-    d.innerHTML = '<span class="nm">' + G.stockNames[e[0]] + '</span><span class="st">' + e[1] + '</span>';
+    d.innerHTML = '<span class="item-name">' + G.stockNames[e[0]] + '</span><span class="stock-info">' + e[1] + '</span>';
     el.appendChild(d);
   });
   el.innerHTML += '<div style="margin-top:10px;font-size:13px;color:#FFD700">ORDER SUPPLIES:</div>';
@@ -575,7 +575,7 @@ function renderSupply() {
       var cost = Math.ceil(item.p * 10);
       var d = document.createElement("div");
       d.className = "sr3";
-      d.innerHTML = '<span class="nm">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="price">' + fmt(item.p) + " / 10u</span><span class="st">x10</span><button class="bs" onclick="orderSupply(\'' + key + '\',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
+      d.innerHTML = '<span class="item-name">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="price-range">' + fmt(item.p) + " / 10u</span><span class="stock-info">x10</span><button class="bs" onclick="orderSupply(\'' + key + '\',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
       el.appendChild(d);
     });
   });
@@ -590,9 +590,9 @@ function renderPrice() {
     var d = document.createElement("div");
     d.className = "pr2";
     if (unlocked) {
-      d.innerHTML = '<div class="nm">' + item.i + " " + item.n + '</div><input type="range" min="70" max="130" value="' + pp + '" oninput="setPrice(\'' + item.id + '\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="pct">' + pp + '%</div>';
+      d.innerHTML = '<div class="item-name">' + item.i + " " + item.n + '</div><input type="range" min="70" max="130" value="' + pp + '" oninput="setPrice(\'' + item.id + '\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="pct">' + pp + '%</div>';
     } else {
-      d.innerHTML = '<div class="nm">' + item.i + " " + item.n + ' <span class="badge locked">LOCKED</span></div><button class="bc" onclick="buyRecipe(\'' + item.id + '\')" ' + (G.coins < item.uc ? "disabled" : "") + '>Unlock (' + fmt(item.uc) + ')</button>';
+      d.innerHTML = '<div class="item-name">' + item.i + " " + item.n + ' <span class="badge locked">LOCKED</span></div><button class="bc" onclick="buyRecipe(\'' + item.id + '\')" ' + (G.coins < item.uc ? "disabled" : "") + '>Unlock (' + fmt(item.uc) + ')</button>';
     }
     el.appendChild(d);
   });
