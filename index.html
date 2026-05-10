@@ -88,17 +88,7 @@ body { font-family: Arial, sans-serif; background: #0a0a1a; color: white; min-he
 </head>
 <body>
 <!-- LOGIN SCREEN -->
-<div id="login-screen">
-  <div class="logo">â˜•</div>
-  <h1>Quan Trendy Cafe</h1>
-  <p>Build your cafe empire! Start with a sidewalk cafe and grow into a coffee chain!</p>
-  <button class="btn btn-google" onclick="loginGoogle()">ðŸ”µ Sign in with Google</button>
-  <div style="margin: 10px 0; color: #a0a0b0;">â€” or â€”</div>
-  <button class="btn btn-guest" onclick="guestLogin()">ðŸ‘¤ Play as Guest</button>
-</div>
-
-<!-- GAME -->
-<div id="app">
+<div id="app" style="display: block;">
   <div class="header">
     <div><span id="coins">50000000</span>âš¡<span id="stamina">50/50</span></div>
     <div>Day <span id="day">1</span> Lv.<span id="lvl">1</span></div>
@@ -743,12 +733,7 @@ function guestLogin() {
   notify("Welcome! You have 50 million VND to start your cafe business!");
 }
 
-// === INIT ===
-function init() {
-  // Wait for DOM to be ready
-  if (document.readyState !== 'loading') {
-    startGame();
-  } else {
+// Auto-start game — no login needed else {
     document.addEventListener('DOMContentLoaded', startGame);
   }
 }
