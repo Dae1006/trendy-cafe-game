@@ -5,63 +5,140 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cafe Game</title>
 <style>
-body{font-family:Arial;background:#1a1a2e;color:#fff;margin:0;padding:10px}
-#app{max-width:500px;margin:0 auto}
-.hdr{display:flex;justify-content:space-between;padding:10px;background:#16213e;border-radius:5px;margin-bottom:5px;font-size:14px}
+body{font-family:Arial;background:#1a1a2e;color:#fff;margin:0;padding:0}
+#app{max-width:500px;margin:0 auto;min-height:100vh;background:#16213e}
+
+/* HEADER STATS */
+.hdr{display:flex;justify-content:space-between;padding:8px 10px;background:#0f3460;border-bottom:2px solid #8B4513;font-size:13px}
 .hdr span{color:#FFD700;font-weight:bold}
-.btn{padding:6px 12px;border:none;border-radius:4px;cursor:pointer;margin:2px;font-size:12px}
+
+/* CAFE VIEW */
+.cafe-view{position:relative;background:#1a1a2e;min-height:200px;overflow:hidden}
+.cafe-scene{width:100%;height:200px;background:linear-gradient(180deg,#0f3460 0%,#16213e 100%);position:relative;display:flex;align-items:flex-end;justify-content:center}
+.cafe-building{position:relative;margin-bottom:0;width:90%;height:160px;background:#5c3d2e;border-radius:5px 5px 0 0;border-top:3px solid #8B4513}
+.cafe-roof{position:absolute;top:-20px;left:5%;width:90%;height:20px;background:#8B4513;border-radius:3px 3px 0 0}
+.cafe-window{position:absolute;width:25px;height:30px;background:#FFD700;opacity:0.7;border:2px solid #3e2723}
+.cafe-door{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40px;height:60px;background:#3e2723;border:2px solid #8B4513;border-radius:3px 3px 0 0}
+.cafe-sign{position:absolute;top:-40px;left:50%;transform:translateX(-50%);background:#FFD700;color:#000;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:bold}
+.cafe-patios{position:absolute;bottom:-5px;left:10%;width:80%;height:5px;background:#795548}
+.cafe-lamp{position:absolute;width:8px;height:8px;background:#FFD700;border-radius:50%;box-shadow:0 0 10px #FFD700}
+.weather-badge{position:absolute;top:5px;right:5px;padding:3px 8px;background:#2196F3;border-radius:3px;font-size:11px}
+.loc-badge{position:absolute;top:5px;left:5px;padding:3px 8px;background:#FF9800;color:#000;border-radius:3px;font-size:11px;font-weight:bold}
+
+/* AUTO SERVE BAR */
+.auto-bar{display:flex;justify-content:center;align-items:center;padding:8px;background:#0f0f1a;gap:8px}
+.auto-bar span{font-size:12px;color:#a0a0b0}
+.auto-toggle{padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:bold}
+.auto-on{background:#4CAF50;color:#fff}
+.auto-off{background:#f44336;color:#fff}
+
+/* LOC TABS */
+.loc-tabs{display:flex;gap:3px;padding:5px;background:#0f0f1a;overflow-x:auto}
+.loc-tab{flex:1;min-width:60px;padding:5px;border:none;border-radius:3px;background:#0f3460;color:#a0a0b0;font-size:11px;cursor:pointer;text-align:center}
+.loc-tab.active{background:#2196F3;color:#fff}
+.loc-tab:disabled{opacity:.4;cursor:not-allowed}
+
+/* MAIN TABS */
+.main-tabs{display:flex;gap:2px;padding:3px;background:#0f0f1a;overflow-x:auto}
+.main-tab{flex:1;padding:6px 2px;border:none;border-radius:3px;background:#0f3460;color:#a0a0b0;font-size:10px;cursor:pointer;text-align:center}
+.main-tab.active{background:#2196F3;color:#fff}
+
+/* PANEL */
+.panel{display:none;padding:8px;max-height:45vh;overflow-y:auto}
+.panel.active{display:block}
+
+/* CARDS */
+.card{background:#16213e;padding:8px;border-radius:5px;margin:4px 0}
+.card .nm{font-weight:bold;font-size:13px}
+.card .pr{color:#FFD700;font-size:12px;margin:2px 0}
+.card .cost-info{font-size:10px;color:#FF9800}
+.card .profit-info{font-size:10px;margin:1px 0}
+.card .req-info{font-size:10px;color:#f44336;margin:2px 0}
+.badge{font-size:9px;padding:1px 3px;border-radius:2px;color:#fff}
+.badge.locked{background:#f44336}
+.badge.unlocked{background:#4CAF50}
+
+/* BUTTONS */
+.btn{padding:5px 10px;border:none;border-radius:4px;cursor:pointer;font-size:11px;margin:2px}
 .btn-green{background:#4CAF50;color:#fff}
 .btn-orange{background:#FF9800;color:#000;font-weight:bold}
 .btn-red{background:#f44336;color:#fff}
-.tabs{display:flex;gap:3px;padding:5px;background:#0f3460;border-radius:5px;margin-bottom:5px;overflow-x:auto}
-.tab{padding:5px;border:none;background:#16213e;color:#a0a0b0;border-radius:3px;cursor:pointer;font-size:11px;white-space:nowrap}
-.tab.active{background:#2196F3;color:#fff}
-.panel{display:none;padding:10px;min-height:300px}
-.panel.active{display:block}
-.card{background:#16213e;padding:8px;border-radius:5px;margin:4px 0}
-.row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #333;font-size:12px}
-.cost{color:#FF9800;font-size:11px}
-.profit{font-size:11px;margin:2px 0}
-.badge{font-size:9px;padding:1px 3px;border-radius:2px;color:#fff}
-.locked{background:#f44336}
-.unlocked{background:#4CAF50}
+.btn-small{padding:3px 6px;font-size:10px}
+
+/* ORDER CARD */
+.order-card{background:#16213e;padding:8px;border-radius:5px;margin:4px 0;display:flex;justify-content:space-between;align-items:center}
+.order-card .item-name{font-weight:bold;font-size:12px}
+.order-card .item-price{color:#FFD700;font-size:11px}
+
+/* STAFF CARD */
+.staff-card{background:#0f3460;padding:6px;border-radius:5px;margin:3px 0;font-size:11px}
+
+/* STATS ROW */
+.stat-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:12px}
+
+/* PRICE INPUT */
+.price-row{display:flex;align-items:center;gap:4px;margin:3px 0;padding:3px;background:#0f3460;border-radius:3px}
+.price-row input{width:70px;padding:3px;background:#16213e;border:1px solid #333;color:#FFD700;border-radius:3px;text-align:right}
 </style>
 </head>
 <body>
 <div id="app">
-<h1>CAFE GAME</h1>
-<div class="hdr">
-<div>Money: <span id="coins">0</span></div>
-<div>Day: <span id="day">1</span></div>
-<div>Lv: <span id="lvl">1</span></div>
-</div>
-<div id="weather" style="padding:5px;background:#2196F3;text-align:center;border-radius:3px;margin:5px 0">Sunny</div>
-<div class="tabs" id="loc-tabs"></div>
-<div class="panel active" id="p-orders"><div id="orders-list"></div></div>
-<div class="panel" id="p-menu"><div id="menu-list"></div></div>
-<div class="panel" id="p-stats"><div id="stats-list"></div></div>
-<div class="panel" id="p-staff"><div id="staff-list"></div><div id="hire-area"></div></div>
-<div class="panel" id="p-shop"><div id="shop-list"></div></div>
-<div class="tabs" id="nav-tabs"></div>
+
+  <!-- HEADER STATS -->
+  <div class="hdr">
+    <div>Coins: <span id="coins">0</span></div>
+    <div>Day: <span id="day">1</span></div>
+    <div>Lv <span id="lvl">1</span></div>
+  </div>
+
+  <!-- CAFE VIEW -->
+  <div class="cafe-view">
+    <div class="cafe-scene" id="cafe-scene">
+      <div class="cafe-building">
+        <div class="cafe-roof"></div>
+        <div class="cafe-sign" id="cafe-sign">MY CAFE</div>
+        <div class="cafe-window" style="top:30px;left:15px"></div>
+        <div class="cafe-window" style="top:30px;right:15px"></div>
+        <div class="cafe-window" style="top:80px;left:15px"></div>
+        <div class="cafe-window" style="top:80px;right:15px"></div>
+        <div class="cafe-door"></div>
+        <div class="cafe-patios"></div>
+        <div class="cafe-lamp" style="top:45px;left:-15px"></div>
+        <div class="cafe-lamp" style="top:45px;right:-15px"></div>
+      </div>
+    </div>
+    <div class="weather-badge" id="weather-badge">Sunny</div>
+    <div class="loc-badge" id="loc-badge">Sidewalk</div>
+  </div>
+
+  <!-- AUTO SERVE BAR -->
+  <div class="auto-bar">
+    <span>AUTO SERVE:</span>
+    <button class="auto-toggle auto-off" id="auto-btn" onclick="toggleAuto()">OFF</button>
+    <span id="auto-status" style="font-size:11px">Disabled</span>
+  </div>
+
+  <!-- LOCATION TABS -->
+  <div class="loc-tabs" id="loc-tabs"></div>
+
+  <!-- MAIN INFO TABS -->
+  <div class="main-tabs" id="main-tabs"></div>
+
+  <!-- PANELS -->
+  <div class="panel active" id="p-orders"><div id="orders-list"></div></div>
+  <div class="panel" id="p-menu"><div id="menu-list"></div></div>
+  <div class="panel" id="p-stats"><div id="stats-list"></div></div>
+  <div class="panel" id="p-staff"><div id="staff-list"></div><div id="hire-area"></div></div>
+  <div class="panel" id="p-shop"><div id="shop-list"></div></div>
+  <div class="panel" id="p-price"><div id="price-list"></div></div>
 </div>
 <script>
-// === GAME DATA ===
 var G = {
-  coins: 500000,
-  lv: 1,
-  xp: 0,
-  xpn: 100,
-  curLoc: 'street',
-  unlocked: ['street'],
-  recipes: [],
-  prices: {},
-  staff: [],
-  orders: [],
-  day: 1,
-  dayTS: Date.now(),
-  drev: 0,
-  dcost: 0,
-  tserved: 0
+  coins:500000, lv:1, xp:0, xpn:100,
+  curLoc:'street', unlocked:['street'],
+  recipes:[], prices:{}, staff:[], orders:[],
+  day:1, dayTS:Date.now(), drev:0, dcost:0, tserved:0,
+  autoServe:false
 };
 
 var LOCS = [
@@ -105,62 +182,36 @@ var WEATHERS = [
   {e:'Hot',m:1.15},{e:'Tet',m:2.5}
 ];
 
-// === UTILITIES ===
-function fmt(n){
-  if(!n) n=0;
-  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');
-}
-
+function fmt(n){if(!n)n=0;return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 function getWeather(){
   var r=Math.random();
-  if(r<0.1) return WEATHERS[4];
-  if(r<0.3) return WEATHERS[3];
-  if(r<0.6) return WEATHERS[2];
-  if(r<0.8) return WEATHERS[1];
-  return WEATHERS[0];
+  if(r<0.1)return WEATHERS[4];if(r<0.3)return WEATHERS[3];if(r<0.6)return WEATHERS[2];
+  if(r<0.8)return WEATHERS[1];return WEATHERS[0];
 }
 
-// === SAVE / LOAD ===
-function saveGame(){
-  try{localStorage.setItem('cafe_save',JSON.stringify(G));}catch(e){}
-}
-
+function saveGame(){try{localStorage.setItem('cafe_save',JSON.stringify(G))}catch(e){}}
 function loadGame(){
   try{
     var s=localStorage.getItem('cafe_save');
-    if(s){
-      var d=JSON.parse(s);
-      for(var k in d){
-        if(G.hasOwnProperty(k)){
-          G[k]=d[k];
-        }
-      }
-    }
-  }catch(e){
-    console.log('Load error:',e);
-  }
+    if(s){var d=JSON.parse(s);for(var k in d){if(G.hasOwnProperty(k))G[k]=d[k]}}
+  }catch(e){}
   saveGame();
 }
 
-// === GAME LOGIC ===
-function addXP(amount){
-  G.xp += amount;
-  while(G.xp >= G.xpn){
-    G.xp -= G.xpn;
-    G.lv++;
-    G.xpn = Math.floor(G.xpn * 1.5);
-    alert('Level Up! Lv'+G.lv);
-  }
+function addXP(a){
+  G.xp+=a;
+  while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);notify('Level Up! Lv'+G.lv)}
 }
 
+function notify(t){alert(t)}
+
 function getBuff(){
-  var b={skill:1,cust:1,rev:1,profit:0};
+  var b={rev:1};
   for(var i=0;i<G.staff.length;i++){
-    var s=G.staff[i];
     for(var j=0;j<STAFF_T.length;j++){
-      if(STAFF_T[j].id === s.tier){
-        if(STAFF_T[j].id==='manager') b.rev *= 1+0.12*s.skill;
-        if(STAFF_T[j].id==='sr_manager'){b.skill=5;b.cust=5;b.rev=5;}
+      if(STAFF_T[j].id===G.staff[i].tier){
+        if(STAFF_T[j].id==='manager')b.rev*=1+0.12*G.staff[i].skill;
+        if(STAFF_T[j].id==='sr_manager')b.rev=5;
         break;
       }
     }
@@ -168,477 +219,292 @@ function getBuff(){
   return b;
 }
 
+function toggleAuto(){
+  G.autoServe=!G.autoServe;
+  var btn=document.getElementById('auto-btn');
+  var st=document.getElementById('auto-status');
+  if(G.autoServe){btn.className='auto-toggle auto-on';btn.textContent='ON';st.textContent='Enabled';}
+  else{btn.className='auto-toggle auto-off';btn.textContent='OFF';st.textContent='Disabled';}
+  saveGame();
+  notify(G.autoServe?'Auto-serve ON':'Auto-serve OFF');
+}
+
 function serveOrder(idx){
-  if(idx<0||idx>=G.orders.length) return;
+  if(idx<0||idx>=G.orders.length)return;
   var order=G.orders[idx];
   var item=null;
-  for(var i=0;i<MENU.length;i++){
-    if(MENU[i].id===order.id){item=MENU[i];break;}
-  }
-  if(!item){return;}
-  
-  if(item.lk && G.recipes.indexOf(item.id)<0){
-    alert('Recipe not unlocked!');
-    return;
-  }
-  
+  for(var i=0;i<MENU.length;i++){if(MENU[i].id===order.id){item=MENU[i];break}}
+  if(!item)return;
+  if(item.lk&&G.recipes.indexOf(item.id)<0){notify('Recipe not unlocked!');return}
   var price=G.prices[order.id]||item.pr;
   var buff=getBuff();
   var revenue=Math.floor(price*buff.rev);
-  
-  G.coins += revenue;
-  G.drev += revenue;
-  G.dcost += item.cost;
-  G.tserved++;
+  G.coins+=revenue;G.drev+=revenue;G.dcost+=item.cost;G.tserved++;
   G.orders.splice(idx,1);
-  
   addXP(10);
-  saveGame();
-  renderAll();
+  saveGame();renderAll();
 }
 
 function buyRecipe(id){
   var item=null;
-  for(var i=0;i<MENU.length;i++){
-    if(MENU[i].id===id){item=MENU[i];break;}
-  }
-  if(!item) return;
-  if(!item.lk) return;
-  if(G.recipes.indexOf(item.id)>=0) return;
-  
-  if(G.lv<item.reqLv){
-    alert('Need Level '+item.reqLv+'! (You Lv'+G.lv+')');
-    return;
-  }
-  if(G.coins<item.uc){
-    alert('Need '+fmt(item.uc)+' VND');
-    return;
-  }
-  
-  G.coins-=item.uc;
-  G.recipes.push(item.id);
-  item.lk=false;
-  
-  var profit=item.pr-item.cost;
-  alert('Unlocked: '+item.nm+'!\nCost: '+fmt(item.cost)+' | Price: '+fmt(item.pr)+' | Profit: '+fmt(profit));
-  
-  saveGame();
-  renderAll();
+  for(var i=0;i<MENU.length;i++){if(MENU[i].id===id){item=MENU[i];break}}
+  if(!item||!item.lk||G.recipes.indexOf(item.id)>=0)return;
+  if(G.lv<item.reqLv){notify('Need Level '+item.reqLv+'! (You Lv'+G.lv+')');return}
+  if(G.coins<item.uc){notify('Need '+fmt(item.uc)+' VND');return}
+  G.coins-=item.uc;G.recipes.push(item.id);item.lk=false;
+  var p=item.pr-item.cost;
+  notify('Unlocked: '+item.nm+'! Cost:'+fmt(item.cost)+' | Price:'+fmt(item.pr)+' | Profit:'+fmt(p));
+  saveGame();renderAll();
 }
 
 function buyTrend(id){
   var it=null;
-  for(var i=0;i<TREND.length;i++){
-    if(TREND[i].id===id){it=TREND[i];break;}
-  }
-  if(!it) return;
-  if(G.coins<it.cost){
-    alert('Not enough money!');
-    return;
-  }
+  for(var i=0;i<TREND.length;i++){if(TREND[i].id===id){it=TREND[i];break}}
+  if(!it||G.coins<it.cost){notify('Not enough!');return}
   G.coins-=it.cost;
-  if(!G.items) G.items={};
-  G.items[it.id]=(G.items[it.id]||0)+1;
-  saveGame();
-  renderAll();
+  if(!G.items)G.items={};G.items[it.id]=(G.items[it.id]||0)+1;
+  saveGame();renderAll();
 }
 
 function unlockLoc(id){
   var loc=null;
-  for(var i=0;i<LOCS.length;i++){
-    if(LOCS[i].id===id){loc=LOCS[i];break;}
-  }
-  if(!loc) return;
-  if(G.coins<loc.cost){
-    alert('Not enough! Need '+fmt(loc.cost));
-    return;
-  }
-  G.coins-=loc.cost;
-  G.unlocked.push(id);
-  G.curLoc=id;
-  alert('Unlocked '+loc.nm+'!');
-  saveGame();
-  renderAll();
+  for(var i=0;i<LOCS.length;i++){if(LOCS[i].id===id){loc=LOCS[i];break}}
+  if(!loc||G.coins<loc.cost){notify('Not enough! Need '+fmt(loc.cost));return}
+  G.coins-=loc.cost;G.unlocked.push(id);G.curLoc=id;
+  notify('Unlocked '+loc.nm+'!');saveGame();renderAll();
 }
 
 function hireStaff(tid){
   var tier=null;
-  for(var i=0;i<STAFF_T.length;i++){
-    if(STAFF_T[i].id===tid){tier=STAFF_T[i];break;}
-  }
-  if(!tier) return;
-  
-  var maxStaff=4;
-  for(var i=0;i<LOCS.length;i++){
-    if(LOCS[i].id===G.curLoc){maxStaff=LOCS[i].maxS;break;}
-  }
-  if(G.staff.length>=maxStaff){
-    alert('Staff full! Max: '+maxStaff);
-    return;
-  }
-  if(G.coins<tier.cost){
-    alert('Not enough! Need '+fmt(tier.cost));
-    return;
-  }
-  
+  for(var i=0;i<STAFF_T.length;i++){if(STAFF_T[i].id===tid){tier=STAFF_T[i];break}}
+  if(!tier)return;
+  var ms=4;
+  for(var i=0;i<LOCS.length;i++){if(LOCS[i].id===G.curLoc)ms=LOCS[i].maxS}
+  if(G.staff.length>=ms){notify('Staff full!');return}
+  if(G.coins<tier.cost){notify('Need '+fmt(tier.cost));return}
   G.coins-=tier.cost;
-  G.staff.push({
-    id:'s'+Date.now(),
-    nm:tier.nm+' #'+(G.staff.length+1),
-    tier:tier.id,
-    skill:tier.skill,
-    mood:80
-  });
-  
-  alert('Hired '+tier.nm+'!');
-  saveGame();
-  renderAll();
+  G.staff.push({id:'s'+Date.now(),nm:tier.nm+' #'+(G.staff.length+1),tier:tier.id,skill:tier.skill,mood:80});
+  notify('Hired '+tier.nm+'!');saveGame();renderAll();
 }
 
 function fireStaff(sid){
   for(var i=0;i<G.staff.length;i++){
-    if(G.staff[i].id===sid){
-      G.staff.splice(i,1);
-      alert('Staff fired!');
-      saveGame();
-      renderAll();
-      return;
-    }
+    if(G.staff[i].id===sid){G.staff.splice(i,1);notify('Fired!');saveGame();renderAll();return}
   }
 }
 
-function setPrice(id,val){
-  G.prices[id]=parseFloat(val)||0;
-  saveGame();
-}
+function setPrice(id,val){G.prices[id]=parseFloat(val)||0;saveGame()}
 
 // === RENDER ===
 function renderAll(){
-  renderHeader();
-  renderWeather();
-  renderLocs();
-  renderOrders();
-  renderMenu();
-  renderStats();
-  renderShop();
-  renderStaff();
+  renderHeader();renderWeather();renderLocs();
+  renderOrders();renderMenu();renderStats();renderShop();renderStaff();renderPrices();
+  var btn=document.getElementById('auto-btn');
+  var st=document.getElementById('auto-status');
+  if(btn&&st){
+    if(G.autoServe){btn.className='auto-toggle auto-on';btn.textContent='ON';st.textContent='Enabled';}
+    else{btn.className='auto-toggle auto-off';btn.textContent='OFF';st.textContent='Disabled';}
+  }
+  var locName='';
+  for(var i=0;i<LOCS.length;i++){if(LOCS[i].id===G.curLoc)locName=LOCS[i].nm}
+  var lb=document.getElementById('loc-badge');if(lb)lb.textContent=locName;
 }
 
 function renderHeader(){
-  var coins=document.getElementById('coins');
-  var day=document.getElementById('day');
-  var lvl=document.getElementById('lvl');
-  if(coins) coins.textContent=fmt(G.coins);
-  if(day) day.textContent=G.day;
-  if(lvl) lvl.textContent=G.lv;
+  var c=document.getElementById('coins');if(c)c.textContent=fmt(G.coins);
+  var d=document.getElementById('day');if(d)d.textContent=G.day;
+  var l=document.getElementById('lvl');if(l)l.textContent=G.lv;
 }
 
 function renderWeather(){
-  var el=document.getElementById('weather');
-  if(!el) return;
-  var w=getWeather();
-  el.textContent=w.e;
+  var el=document.getElementById('weather-badge');
+  if(el)el.textContent=getWeather().e;
 }
 
 function renderLocs(){
-  var el=document.getElementById('loc-tabs');
-  if(!el) return;
-  el.innerHTML='';
+  var el=document.getElementById('loc-tabs');if(!el)return;el.innerHTML='';
   for(var i=0;i<LOCS.length;i++){
-    var l=LOCS[i];
-    var btn=document.createElement('button');
-    btn.className='tab'+(G.curLoc===l.id?' active':'');
+    var l=LOCS[i],btn=document.createElement('button');
+    btn.className='loc-tab'+(G.curLoc===l.id?' active':'');
     btn.textContent=l.nm;
     btn.disabled=G.unlocked.indexOf(l.id)<0;
-    (function(locId){
-      btn.onclick=function(){
-        if(G.unlocked.indexOf(locId)>=0){
-          G.curLoc=locId;
-          renderAll();
-        }else{
-          unlockLoc(locId);
-        }
-      };
-    })(l.id);
+    (function(lid){btn.onclick=function(){if(G.unlocked.indexOf(lid)>=0){G.curLoc=lid;renderAll()}else{unlockLoc(lid)}}})(l.id);
     el.appendChild(btn);
   }
 }
 
 function renderOrders(){
-  var el=document.getElementById('orders-list');
-  if(!el) return;
-  el.innerHTML='';
-  if(!G.orders||G.orders.length===0){
-    el.innerHTML='<p style="color:#888;text-align:center;padding:20px">No orders. Wait for customers...</p>';
-    return;
-  }
+  var el=document.getElementById('orders-list');if(!el)return;el.innerHTML='';
+  if(!G.orders||G.orders.length===0){el.innerHTML='<p style="color:#888;text-align:center;padding:30px">No orders yet...</p>';return}
   for(var i=0;i<G.orders.length;i++){
-    var o=G.orders[i];
-    var item=null;
-    for(var j=0;j<MENU.length;j++){
-      if(MENU[j].id===o.id){item=MENU[j];break;}
-    }
-    if(!item) continue;
+    var o=G.orders[i],item=null;
+    for(var j=0;j<MENU.length;j++){if(MENU[j].id===o.id){item=MENU[j];break}}
+    if(!item)continue;
     var price=G.prices[o.id]||item.pr;
-    var card=document.createElement('div');
-    card.className='card';
-    card.innerHTML='<div><strong>'+item.ic+' '+item.nm+'</strong></div>'+
-      '<div class="cost">Price: '+fmt(price)+' | Cost: '+fmt(item.cost)+'</div>'+
-      '<div class="profit" style="color:#4CAF50">Profit: '+(price-item.cost)+'</div>'+
-      '<button class="btn btn-green" onclick="serveOrder('+i+')">Serve</button>';
-    el.appendChild(card);
+    var d=document.createElement('div');d.className='order-card';
+    d.innerHTML='<div><div class="item-name">'+item.ic+' '+item.nm+'</div><div class="item-price">'+fmt(price)+' VND</div></div><button class="btn btn-green" onclick="serveOrder('+i+')">Serve</button>';
+    el.appendChild(d);
   }
 }
 
 function renderMenu(){
-  var el=document.getElementById('menu-list');
-  if(!el) return;
-  el.innerHTML='';
+  var el=document.getElementById('menu-list');if(!el)return;el.innerHTML='';
   for(var i=0;i<MENU.length;i++){
-    var item=MENU[i];
-    var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;
-    var profit=item.pr-item.cost;
-    var profitColor=profit>0?'#4CAF50':'#f44336';
-    
-    var card=document.createElement('div');
-    card.className='card';
-    
-    var html='<div><strong>'+item.ic+' '+item.nm+'</strong>';
-    if(item.lk&&!unlocked) html+=' <span class="badge locked">LOCKED</span>';
-    else if(item.lk&&unlocked) html+=' <span class="badge unlocked">UNLOCKED</span>';
-    html+='</div>';
-    html+='<div style="color:#FFD700;font-size:12px">'+fmt(item.pr)+' VND</div>';
-    html+='<div class="cost">COST: '+fmt(item.cost)+' VND</div>';
-    html+='<div class="profit" style="color:'+profitColor+'">PROFIT: '+fmt(profit)+' VND/serve</div>';
-    
+    var item=MENU[i],unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;
+    var profit=item.pr-item.cost,pColor=profit>0?'#4CAF50':'#f44336';
+    var pSign=profit>0?'+':'';
+    var d=document.createElement('div');d.className='card';
+    var html='<div class="nm">'+item.ic+' '+item.nm;
+    if(item.lk&&!unlocked)html+=' <span class="badge locked">LOCKED</span>';
+    else if(item.lk&&unlocked)html+=' <span class="badge unlocked">UNLOCKED</span>';
+    html+='</div><div class="pr">'+fmt(item.pr)+' VND</div>';
+    html+='<div class="cost-info">COST: '+fmt(item.cost)+' VND</div>';
+    html+='<div class="profit-info" style="color:'+pColor+'">PROFIT: '+pSign+fmt(profit)+' VND/serve</div>';
     if(item.lk&&!unlocked){
       if(G.lv>=item.reqLv){
-        html+='<button class="btn btn-orange" style="width:100%;margin-top:4px" onclick="buyRecipe(\''+item.id+'\')">Unlock - '+fmt(item.uc)+' VND</button>';
-        html+='<div style="color:#9E9E9E;font-size:9px;margin-top:2px">You: Lv'+G.lv+'</div>';
+        html+='<button class="btn btn-orange" style="width:100%;margin-top:4px" onclick="buyRecipe(\''+item.id+'\')">Unlock - '+fmt(item.uc)+' VND</button><div style="color:#9E9E9E;font-size:9px;text-align:center;margin-top:2px">You: Lv'+G.lv+'</div>';
       }else{
-        html+='<div style="color:#f44336;font-size:11px;margin-top:4px">REQUIREMENT: Lv'+item.reqLv+' (You: Lv'+G.lv+')</div>';
-        html+='<div style="color:#FF9800;font-size:9px;margin-top:2px">Unlock cost: '+fmt(item.uc)+' VND</div>';
+        html+='<div class="req-info">REQUIREMENT: Lv'+item.reqLv+' (You Lv'+G.lv+')</div><div style="color:#FF9800;font-size:9px;margin-top:2px">Unlock: '+fmt(item.uc)+' VND</div>';
       }
     }else if(item.lk&&unlocked){
-      html+='<div style="color:#4CAF50;font-size:11px;margin-top:4px">UNLOCKED - Profit: '+fmt(profit)+' VND</div>';
+      html+='<div style="color:#4CAF50;font-size:10px;margin-top:4px">UNLOCKED - Profit: '+pSign+fmt(profit)+' VND</div>';
     }
-    
-    card.innerHTML=html;
-    el.appendChild(card);
+    d.innerHTML=html;el.appendChild(d);
   }
 }
 
 function renderStats(){
-  var el=document.getElementById('stats-list');
-  if(!el) return;
-  el.innerHTML='';
+  var el=document.getElementById('stats-list');if(!el)return;el.innerHTML='';
   var rows=[
-    ['Coins',fmt(G.coins)],
-    ['Day',G.day],
-    ['Level',G.lv+' (XP: '+G.xp+'/'+G.xpn+')'],
-    ['Recipes',G.recipes.length+'/'+MENU.length],
-    ['Staff',G.staff.length],
-    ['Total Served',G.tserved],
-    ['Today Revenue',fmt(G.drev)],
-    ['Today Cost',fmt(G.dcost)],
-    ['Today Profit',fmt(G.drev-G.dcost)]
+    ['Coins',fmt(G.coins)+' VND'],['Day',G.day],
+    ['Level',G.lv+' (XP:'+G.xp+'/'+G.xpn+')'],['Recipes',G.recipes.length+'/'+MENU.length],
+    ['Staff',G.staff.length],['Total Served',G.tserved],
+    ['Today Revenue',fmt(G.drev)+' VND'],['Today Cost',fmt(G.dcost)+' VND'],
+    ['Today Profit',fmt(G.drev-G.dcost)+' VND']
   ];
   for(var i=0;i<rows.length;i++){
-    var row=document.createElement('div');
-    row.className='row';
-    row.innerHTML='<span>'+rows[i][0]+'</span><span>'+rows[i][1]+'</span>';
-    el.appendChild(row);
+    var r=rows[i],d=document.createElement('div');d.className='stat-row';
+    d.innerHTML='<span>'+r[0]+'</span><span>'+r[1]+'</span>';el.appendChild(d);
   }
 }
 
 function renderShop(){
-  var el=document.getElementById('shop-list');
-  if(!el) return;
-  el.innerHTML='';
+  var el=document.getElementById('shop-list');if(!el)return;el.innerHTML='';
   for(var i=0;i<TREND.length;i++){
-    var t=TREND[i];
-    var owned=G.items&&G.items[t.id]?G.items[t.id]:0;
-    var card=document.createElement('div');
-    card.className='card';
-    card.innerHTML='<div><strong>'+t.nm+'</strong> ('+t.ef+' '+t.val*100+'%)</div>'+
-      '<div>Cost: '+fmt(t.cost)+'</div>'+
-      (owned>0?'<div style="color:#4CAF50">Owned: '+owned+'</div>':'')+
-      '<button class="btn btn-green" style="margin-top:4px" onclick="buyTrend(\''+t.id+'\')">Buy</button>';
-    el.appendChild(card);
+    var t=TREND[i],owned=G.items&&G.items[t.id]?G.items[t.id]:0;
+    var d=document.createElement('div');d.className='card';
+    d.innerHTML='<div class="nm">'+t.nm+'</div><div style="font-size:11px">'+t.ef+' x'+t.val*100+'%</div>';
+    d+='<div style="font-size:11px">Owned: '+owned+'</div>';
+    d+='<button class="btn btn-green" style="margin-top:4px" onclick="buyTrend(\''+t.id+'\')">Buy ('+fmt(t.cost)+')</button>';
+    el.appendChild(d);
   }
 }
 
 function renderStaff(){
-  // Hire area
-  var hireEl=document.getElementById('hire-area');
-  if(!hireEl) return;
-  hireEl.innerHTML='<div style="padding:5px;color:#FF9800;font-weight:bold">HIRE STAFF</div>';
+  var hireEl=document.getElementById('hire-area');if(!hireEl)return;hireEl.innerHTML='';
   for(var i=0;i<STAFF_T.length;i++){
-    var t=STAFF_T[i];
-    var btn=document.createElement('button');
-    btn.className='btn btn-green';
-    btn.style.fontSize='10px';
-    btn.textContent=t.nm+' ('+fmt(t.cost)+')';
-    btn.onclick=(function(tid){
-      return function(){hireStaff(tid);};
-    })(t.id);
+    var t=STAFF_T[i],btn=document.createElement('button');
+    btn.className='btn btn-green btn-small';btn.textContent=t.nm+' ('+fmt(t.cost)+')';
+    (function(tid){btn.onclick=function(){hireStaff(tid)}})(t.id);
     hireEl.appendChild(btn);
   }
-  
-  // Staff list
-  var el=document.getElementById('staff-list');
-  if(!el) return;
-  el.innerHTML='<div style="padding:5px;color:#FF9800;font-weight:bold">YOUR STAFF ('+G.staff.length+')</div>';
+  var el=document.getElementById('staff-list');if(!el)return;el.innerHTML='<div style="padding:4px;color:#FF9800;font-weight:bold;font-size:11px">YOUR STAFF ('+G.staff.length+')</div>';
   for(var i=0;i<G.staff.length;i++){
-    var s=G.staff[i];
-    var tier=null;
-    for(var j=0;j<STAFF_T.length;j++){
-      if(STAFF_T[j].id===s.tier){tier=STAFF_T[j];break;}
-    }
-    if(!tier) continue;
-    var card=document.createElement('div');
-    card.className='card';
-    card.innerHTML='<div><strong>'+s.nm+'</strong> ('+tier.nm+')</div>'+
-      '<div>Skill: '+Math.floor(s.skill*100)+'% | Mood: '+s.mood+'%</div>'+
-      '<button class="btn btn-red" style="font-size:10px" onclick="fireStaff(\''+s.id+'\')">Fire</button>';
-    el.appendChild(card);
+    var s=G.staff[i],tier=null;
+    for(var j=0;j<STAFF_T.length;j++){if(STAFF_T[j].id===s.tier){tier=STAFF_T[j];break}}
+    if(!tier)continue;
+    var d=document.createElement('div');d.className='staff-card';
+    d.innerHTML='<div><strong>'+s.nm+'</strong> ('+tier.nm+')</div><div>Skill: '+Math.floor(s.skill*100)+'% | Mood: '+s.mood+'%</div>';
+    d+='<button class="btn btn-red btn-small" onclick="fireStaff(\''+s.id+'\')">Fire</button>';
+    el.appendChild(d);
   }
 }
 
-// === TAB SYSTEM ===
-var TABS=[
-  {id:'orders',nm:'ORDERS'},
-  {id:'menu',nm:'MENU'},
-  {id:'stats',nm:'STATS'},
-  {id:'staff',nm:'STAFF'},
-  {id:'shop',nm:'SHOP'}
+function renderPrices(){
+  var el=document.getElementById('price-list');if(!el)return;el.innerHTML='<div style="padding:4px;color:#FF9800;font-weight:bold;font-size:11px">CUSTOM PRICES</div>';
+  for(var i=0;i<MENU.length;i++){
+    var item=MENU[i],price=G.prices[item.id]||item.pr;
+    var r=document.createElement('div');r.className='price-row';
+    r.innerHTML='<span style="min-width:130px;font-size:11px">'+item.ic+' '+item.nm+'</span>';
+    r+='<input type="number" value="'+price+'" onchange="setPrice(\''+item.id+'\',this.value)"> VND';
+    el.appendChild(r);
+  }
+}
+
+// TABS
+var MAIN_TABS=[
+  {id:'orders',nm:'ORDERS'},{id:'menu',nm:'MENU'},{id:'stats',nm:'STATS'},
+  {id:'staff',nm:'STAFF'},{id:'shop',nm:'SHOP'},{id:'price',nm:'PRICES'}
 ];
 
-function initTabs(){
-  var nt=document.getElementById('nav-tabs');
-  if(!nt) return;
-  nt.innerHTML='';
-  for(var i=0;i<TABS.length;i++){
-    var btn=document.createElement('button');
-    btn.className='tab';
-    btn.textContent=TABS[i].nm;
-    btn.id='tab-'+TABS[i].id;
-    btn.onclick=(function(tabId){
-      return function(){
-        // Hide all panels
-        for(var j=0;j<TABS.length;j++){
-          var p=document.getElementById('p-'+TABS[j].id);
-          if(p) p.className='panel';
-          var t=document.getElementById('tab-'+TABS[j].id);
-          if(t) t.className='tab';
+function initMainTabs(){
+  var nt=document.getElementById('main-tabs');if(!nt)return;nt.innerHTML='';
+  for(var i=0;i<MAIN_TABS.length;i++){
+    var btn=document.createElement('button'),btnId='mtab-'+MAIN_TABS[i].id;
+    btn.className='main-tab'+(i===0?' active':'');btn.id=btnId;
+    btn.textContent=MAIN_TABS[i].nm;
+    (function(tid){
+      btn.onclick=function(){
+        for(var j=0;j<MAIN_TABS.length;j++){
+          var p=document.getElementById('p-'+MAIN_TABS[j].id);if(p)p.className='panel';
+          var t=document.getElementById('mtab-'+MAIN_TABS[j].id);if(t)t.className='main-tab';
         }
-        // Show selected
-        var sel=document.getElementById('p-'+tabId);
-        if(sel) sel.className='panel active';
-        var selTab=document.getElementById('tab-'+tabId);
-        if(selTab) selTab.className='tab active';
+        var sel=document.getElementById('p-'+tid);if(sel)sel.className='panel active';
+        var st=document.getElementById('mtab-'+tid);if(st)st.className='main-tab active';
       };
-    })(TABS[i].id);
+    })(MAIN_TABS[i].id);
     nt.appendChild(btn);
   }
 }
 
-// === AUTO SERVE ===
-function autoServe(){
+// AUTO SERVE
+function doAutoServe(){
+  if(!G.autoServe)return;
   for(var i=0;i<G.staff.length;i++){
-    var s=G.staff[i];
-    var tier=null;
-    for(var j=0;j<STAFF_T.length;j++){
-      if(STAFF_T[j].id===s.tier){tier=STAFF_T[j];break;}
-    }
-    if(!tier) continue;
-    
-    var maxC=0;
-    for(var k=0;k<LOCS.length;k++){
-      if(LOCS[k].id===G.curLoc){maxC=LOCS[k].maxS;break;}
-    }
+    var s=G.staff[i],tier=null;
+    for(var j=0;j<STAFF_T.length;j++){if(STAFF_T[j].id===s.tier){tier=STAFF_T[j];break}}
+    if(!tier)continue;
+    var maxC=0;for(var k=0;k<LOCS.length;k++){if(LOCS[k].id===G.curLoc)maxC=LOCS[k].maxS}
     if(G.orders.length<maxC&&Math.random()<tier.skill*0.3){
       var avail=[];
-      for(var m=0;m<MENU.length;m++){
-        if(!MENU[m].lk||G.recipes.indexOf(MENU[m].id)>=0){
-          avail.push(MENU[m].id);
-        }
-      }
-      if(avail.length>0){
-        G.orders.push({id:avail[Math.floor(Math.random()*avail.length)]});
-      }
+      for(var m=0;m<MENU.length;m++){if(!MENU[m].lk||G.recipes.indexOf(MENU[m].id)>=0)avail.push(MENU[m].id)}
+      if(avail.length>0)G.orders.push({id:avail[Math.floor(Math.random()*avail.length)]});
     }
   }
 }
 
-// === DAY CYCLE (1 hour = 1 day) ===
+// DAY CYCLE
 function checkDay(){
   var now=Date.now();
   if(now-G.dayTS>=3600000){
-    G.dayTS=now;
-    G.day++;
-    // Calculate staff cost
-    var staffCost=0;
+    G.dayTS=now;G.day++;
+    var sc=0;
     for(var i=0;i<G.staff.length;i++){
-      for(var j=0;j<STAFF_T.length;j++){
-        if(STAFF_T[j].id===G.staff[i].tier){
-          staffCost+=Math.floor(STAFF_T[j].cost/10);
-          break;
-        }
-      }
+      for(var j=0;j<STAFF_T.length;j++){if(STAFF_T[j].id===G.staff[i].tier)sc+=Math.floor(STAFF_T[j].cost/10);break}
     }
-    G.dcost=staffCost;
-    G.drev=0;
-    G.coins-=staffCost;
-    saveGame();
+    G.dcost=sc;G.drev=0;G.coins-=sc;
+    notify('Day '+G.day+'! Staff cost: '+fmt(sc));saveGame();
   }
 }
 
-// === CUSTOMER GENERATION ===
-function generateCustomers(){
-  var maxC=0;
-  for(var i=0;i<LOCS.length;i++){
-    if(LOCS[i].id===G.curLoc){maxC=LOCS[i].maxS;break;}
-  }
-  if(G.orders.length>=maxC) return;
-  if(Math.random()>0.6) return;
-  
+// CUSTOMER
+function genCustomers(){
+  var maxC=0;for(var i=0;i<LOCS.length;i++){if(LOCS[i].id===G.curLoc)maxC=LOCS[i].maxS}
+  if(G.orders.length>=maxC)return;if(Math.random()>0.6)return;
   var avail=[];
-  for(var i=0;i<MENU.length;i++){
-    if(!MENU[i].lk||G.recipes.indexOf(MENU[i].id)>=0){
-      avail.push(MENU[i].id);
-    }
-  }
-  if(avail.length>0){
-    G.orders.push({id:avail[Math.floor(Math.random()*avail.length)]});
-  }
+  for(var i=0;i<MENU.length;i++){if(!MENU[i].lk||G.recipes.indexOf(MENU[i].id)>=0)avail.push(MENU[i].id)}
+  if(avail.length>0)G.orders.push({id:avail[Math.floor(Math.random()*avail.length)]});
 }
 
-// === INIT ===
+// INIT
 function init(){
-  console.log('=== INITIALIZING GAME ===');
-  loadGame();
-  console.log('G loaded:', G);
-  initTabs();
-  renderAll();
-  console.log('Game initialized!');
-  
-  // Start intervals
-  setInterval(checkDay, 1000);
-  setInterval(generateCustomers, 10000);
-  setInterval(autoServe, 2000);
-  setInterval(function(){
-    saveGame();
-    renderAll();
-  }, 5000);
+  loadGame();initMainTabs();renderAll();
+  setInterval(checkDay,1000);setInterval(genCustomers,10000);
+  setInterval(doAutoServe,2000);
+  setInterval(function(){saveGame();renderAll()},5000);
 }
 
-// Wait for DOM ready
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',init);
-}else{
-  init();
-}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
 </script>
 </body>
 </html>
