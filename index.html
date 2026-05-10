@@ -5,49 +5,53 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cafe Business Game</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Arial, sans-serif; background: #111; color: #fff; min-height: 100vh; }
-#app { max-width: 500px; margin: 0 auto; min-height: 100vh; background: #1a1a2e; }
-.hdr { display: flex; justify-content: space-between; padding: 10px; background: #16213e; border-bottom: 2px solid #8B4513; font-size: 13px; }
-.hdr span { font-weight: bold; color: #FFD700; }
-.wth { padding: 6px; background: #2196F3; text-align: center; font-size: 12px; }
-.ltbs { display: flex; gap: 3px; padding: 6px; background: #0f0f1a; overflow-x: auto; }
-.ltb { flex: 1; min-width: 60px; padding: 6px; border: none; border-radius: 4px; background: #0f3460; color: #a0a0b0; font-size: 11px; cursor: pointer; }
-.ltb.act { background: #8B4513; color: #fff; }
-.ors { padding: 8px; border-bottom: 1px solid #8B4513; }
-.ors h3 { font-size: 13px; margin-bottom: 6px; color: #FFD700; }
-.ors .item { display: flex; justify-content: space-between; padding: 6px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid #FF6347; font-size: 12px; }
-.btn { padding: 4px 10px; border: none; border-radius: 4px; background: #FF6347; color: #fff; cursor: pointer; font-size: 11px; }
-.btn:active { transform: scale(0.95); }
-.navs { display: flex; position: sticky; bottom: 0; background: #0f0f1a; border-top: 2px solid #8B4513; flex-wrap: wrap; }
-.nv { flex: 1; min-width: 45px; padding: 8px 3px; border: none; background: transparent; color: #a0a0b0; font-size: 10px; cursor: pointer; text-align: center; }
-.nv.act { color: #FFD700; background: rgba(255,215,0,0.1); }
-.pnl { position: relative; min-height: 280px; max-height: 45vh; overflow-y: auto; }
-.pnl { display: none; padding: 10px; }
-.pnl.act { display: block; }
-.pnl h3 { font-size: 14px; margin-bottom: 8px; color: #FFD700; }
-.card { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 4px; border-left: 2px solid #b0b0b0; flex-wrap: wrap; gap: 6px; font-size: 12px; }
-.card .inf { flex: 1; min-width: 120px; }
-.card .nm { font-weight: bold; }
-.card .ds { font-size: 10px; color: #a0a0b0; }
-.card .pr { color: #FFD700; font-weight: bold; font-size: 11px; }
-.badge { display: inline-block; padding: 1px 4px; border-radius: 3px; font-size: 9px; font-weight: bold; margin-top: 2px; }
-.badge.cm { background: #b0b0b0; color: #333; }
-.badge.rm { background: #4169E1; color: #fff; }
-.badge.ep { background: #9932CC; color: #fff; }
-.badge.lg { background: #FFD700; color: #333; }
-.staff-box { padding: 8px; background: #0f3460; border-radius: 6px; margin-bottom: 6px; border-left: 2px solid #2196F4; font-size: 12px; }
-.staff-box .nm { font-weight: bold; }
-.staff-box .ds { font-size: 10px; color: #a0a0b0; margin: 3px 0; }
-.staff-box .stats { display: flex; gap: 8px; margin: 3px 0; font-size: 11px; }
-.staff-box .stats span { color: #FFD700; }
-.btn-sm { padding: 3px 8px; border: none; border-radius: 3px; font-size: 10px; cursor: pointer; margin: 2px; }
-.btn-t { background: #FF9800; color: #fff; }
-.btn-f { background: #f44336; color: #fff; }
-.btn-h { background: #4CAF50; color: #fff; }
-.stk { display: flex; justify-content: space-between; padding: 4px 0; font-size: 11px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.stk .nm { color: #FFD700; }
-.nf { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: #8B4513; color: #fff; padding: 8px 16px; border-radius: 6px; z-index: 9999; font-size: 12px; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#111;color:#fff;min-height:100vh}
+#app{max-width:500px;margin:0 auto;min-height:100vh;background:#1a1a2e}
+.hdr{display:flex;justify-content:space-between;padding:10px;background:#16213e;border-bottom:2px solid #8B4513;font-size:13px}
+.hdr span{font-weight:bold;color:#FFD700}
+.wth{padding:6px;background:#2196F3;text-align:center;font-size:12px}
+.ltbs{display:flex;gap:3px;padding:6px;background:#0f0f1a;overflow-x:auto}
+.ltb{flex:1;min-width:60px;padding:6px;border:none;border-radius:4px;background:#0f3460;color:#a0a0b0;font-size:11px;cursor:pointer}
+.ltb.act{background:#8B4513;color:#fff}
+.ors{padding:8px;border-bottom:1px solid #8B4513}
+.ors h3{font-size:13px;margin-bottom:6px;color:#FFD700}
+.ors .item{display:flex;justify-content:space-between;padding:6px;background:#0f3460;border-radius:6px;margin-bottom:4px;border-left:2px solid #FF6347;font-size:12px;align-items:center}
+.btn{padding:4px 10px;border:none;border-radius:4px;background:#FF6347;color:#fff;cursor:pointer;font-size:11px}
+.btn:active{transform:scale(.95)}
+.btn:disabled{background:#555;cursor:not-allowed}
+.navs{display:flex;position:sticky;bottom:0;background:#0f0f1a;border-top:2px solid #8B4513;flex-wrap:wrap}
+.nv{flex:1;min-width:45px;padding:8px 3px;border:none;background:transparent;color:#a0a0b0;font-size:10px;cursor:pointer;text-align:center}
+.nv.act{color:#FFD700;background:rgba(255,215,0,.1)}
+.pnl{position:relative;min-height:280px;max-height:45vh;overflow-y:auto;display:none;padding:10px}
+.pnl.act{display:block}
+.pnl h3{font-size:14px;margin-bottom:8px;color:#FFD700}
+.card{display:flex;justify-content:space-between;align-items:center;padding:8px;background:#0f3460;border-radius:6px;margin-bottom:4px;border-left:2px solid #b0b0b0;flex-wrap:wrap;gap:6px;font-size:12px}
+.card .inf{flex:1;min-width:120px}
+.card .nm{font-weight:bold}
+.card .ds{font-size:10px;color:#a0a0b0}
+.card .pr{color:#FFD700;font-weight:bold;font-size:11px}
+.badge{display:inline-block;padding:1px 4px;border-radius:3px;font-size:9px;font-weight:bold;margin-top:2px}
+.badge.cm{background:#b0b0b0;color:#333}
+.badge.rm{background:#4169E1;color:#fff}
+.badge.ep{background:#9932CC;color:#fff}
+.badge.lg{background:#FFD700;color:#333}
+.staff-box{padding:8px;background:#0f3460;border-radius:6px;margin-bottom:6px;border-left:2px solid #2196F4;font-size:12px}
+.staff-box .nm{font-weight:bold}
+.staff-box .ds{font-size:10px;color:#a0a0b0;margin:3px 0}
+.staff-box .stats{display:flex;gap:8px;margin:3px 0;font-size:11px}
+.staff-box .stats span{color:#FFD700}
+.btn-sm{padding:3px 8px;border:none;border-radius:3px;font-size:10px;cursor:pointer;margin:2px}
+.btn-t{background:#FF9800;color:#fff}
+.btn-f{background:#f44336;color:#fff}
+.btn-h{background:#4CAF50;color:#fff}
+.stk{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,.05)}
+.stk .nm{color:#FFD700}
+.nf{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:#8B4513;color:#fff;padding:8px 16px;border-radius:6px;z-index:9999;font-size:12px}
+.price-box{padding:6px;background:#0f3460;border-radius:6px;margin-bottom:4px}
+.price-box input[type=range]{width:100%;accent-color:#8B4513}
+.price-box .lbl{font-size:11px;color:#FFD700;text-align:center;margin-top:2px}
+.cost-box{font-size:10px;color:#FF6347;margin-top:2px}
 </style>
 </head>
 <body>
@@ -67,133 +71,102 @@ body { font-family: Arial, sans-serif; background: #111; color: #fff; min-height
     <button class="nv" data-tab="shop">Shop</button>
     <button class="nv" data-tab="items">Items</button>
     <button class="nv" data-tab="staff">Staff</button>
-    <button class="nv" data-tab="supply">Supply</button>
     <button class="nv" data-tab="price">Price</button>
     <button class="nv" data-tab="stats">Stats</button>
   </div>
-  <div class="pnl">
-    <div id="p-menu" class="act"><h3>Menu Items</h3><div id="menu-list"></div></div>
-    <div id="p-shop"><h3>Trend Shop</h3><div id="shop-list"></div></div>
-    <div id="p-items"><h3>Collection</h3><div id="items-list"></div></div>
-    <div id="p-staff"><h3>Staff</h3><div id="staff-list"></div></div>
-    <div id="p-supply"><h3>Supplies</h3><div id="supply-list"></div></div>
-    <div id="p-price"><h3>Set Prices</h3><div id="price-list"></div></div>
-    <div id="p-stats"><h3>Statistics</h3><div id="stats-list"></div></div>
+  <div class="panels">
+    <div id="p-menu" class="pnl act"><h3>Menu Items</h3><div id="menu-list"></div></div>
+    <div id="p-shop" class="pnl"><h3>Trend Shop</h3><div id="shop-list"></div></div>
+    <div id="p-items" class="pnl"><h3>Collection</h3><div id="items-list"></div></div>
+    <div id="p-staff" class="pnl"><h3>Staff</h3><div id="staff-list"></div></div>
+    <div id="p-price" class="pnl"><h3>Set Prices</h3><div id="price-list"></div></div>
+    <div id="p-stats" class="pnl"><h3>Statistics</h3><div id="stats-list"></div></div>
   </div>
 </div>
 <script>
-// GAME DATA
-var LOCS = [
-  {id: "street", nm: "Sidewalk", cst: 0, rm: 1, bc: 3, ms: 4},
-  {id: "mall", nm: "Mall", cst: 50000000, rm: 2.5, bc: 5, ms: 8},
-  {id: "garden", nm: "Garden", cst: 150000000, rm: 2, bc: 4, ms: 10}
-];
-var MENU = [
-  {id: "coffee", nm: "Black Coffee", ic: "C", pr: 25000, nl: ["beans","ice","cup"], lk: false},
-  {id: "milk_coffee", nm: "Milk Coffee", ic: "M", pr: 30000, nl: ["beans","milk","sugar","ice","cup"], lk: false},
-  {id: "espresso", nm: "Espresso", ic: "E", pr: 35000, nl: ["beans","ice","cup"], lk: true, uc: 500000},
-  {id: "matcha", nm: "Matcha Tea", ic: "T", pr: 40000, nl: ["matcha","milk","sugar","cup"], lk: true, uc: 3000000},
-  {id: "smoothie", nm: "Smoothie", ic: "S", pr: 45000, nl: ["milk","sugar","ice","cup"], lk: true, uc: 2000000},
-  {id: "cake", nm: "Banh Mi", ic: "K", pr: 35000, nl: ["bread","cheese","cup"], lk: false},
-  {id: "ice_tea", nm: "Iced Tea", ic: "I", pr: 15000, nl: ["tea","ice","cup"], lk: false},
-  {id: "bubble_tea", nm: "Bubble Tea", ic: "B", pr: 50000, nl: ["tea","milk","tapioca","sugar","ice","cup"], lk: true, uc: 4000000}
-];
-var TREND = [
-  {id: "t1", nm: "Meme Dog", rt: "cm", ef: "rev", vf: 0.05, ds: "+5% rev", cst: 200000},
-  {id: "t2", nm: "Wild Cat", rt: "cm", ef: "rev", vf: 0.03, ds: "+3% rev", cst: 150000},
-  {id: "t3", nm: "MU Jersey", rt: "cm", ef: "cust", vf: 1, ds: "+1 cust", cst: 300000},
-  {id: "t4", nm: "Trend Shirt", rt: "rm", ef: "rev", vf: 0.1, ds: "+10% rev", cst: 1000000},
-  {id: "t5",nm: "Mystery Key", rt: "rm", ef: "cust", vf: 2, ds: "+2 cust", cst: 1500000},
-  {id: "t6", nm: "VIP Card", rt: "ep", ef: "rev", vf: 0.2, ds: "+20% rev", cst: 5000000},
-  {id: "t7", nm: "Gold Cup", rt: "lg", ef: "rev", vf: 0.5, ds: "+50% rev", cst: 20000000}
-];
-var STAFF_T = [
-  {id: "barista", nm: "Barista", e: "A", sl: 300000, sk: 0.6, ds: "Coffee maker"},
-  {id: "server", nm: "Server", e: "B", sl: 200000, sk: 0.5, ds: "Serves customers"},
-  {id: "chef", nm: "Chef", e: "C", sl: 350000, sk: 0.7, ds: "Kitchen staff"},
-  {id: "manager", nm: "Manager", e: "D", sl: 500000, sk: 0.8, ds: "Auto ops"},
-  {id: "senior_barista", nm: "Sr Barista", e: "E", sl: 600000, sk: 0.9, ds: "Expert coffee"},
-  {id: "senior_manager", nm: "Sr Manager", e: "F", sl: 800000, sk: 1.0, ds: "Full auto"}
-];
-var SUPPL = {
-  beans: [{nm:"Robusta",pr:50000,q:50},{nm:"Arabica",pr:120000,q:85}],
-  milk: [{nm:"Vinamilk",pr:1200000,q:70},{nm:"TH True",pr:1800000,q:85}],
-  sugar: [{nm:"White",pr:1000000,q:80}],
-  ice: [{nm:"Ice Cubes",pr:20000,q:100}],
-  tea: [{nm:"Regular",pr:2000000,q:60},{nm:"Premium",pr:4000000,q:90}],
-  cup: [{nm:"Cups Std",pr:1500000,q:80}],
-  bread: [{nm:"Bread",pr:500000,q:70},{nm:"Premium",pr:1000000,q:90}],
-  cheese: [{nm:"Cheese",pr:800000,q:70},{nm:"Premium",pr:1500000,q:90}],
-  tapioca: [{nm:"Pearls",pr:1500000,q:80}],
-  matcha: [{nm:"Regular",pr:4000000,q:60},{nm:"Japanese",pr:12000000,q:100}]
-};
-var STK_NM = {beans:"Coffee",milk:"Milk",sugar:"Sugar",ice:"Ice",tea:"Tea",matcha:"Matcha",tapioca:"Tapioca",cup:"Cups",bread:"Bread",cheese:"Cheese"};
-var WEATHERS = {sunny:{e:"Sunny",m:1.0},cloudy:{e:"Cloudy",m:1.05},rainy:{e:"Rainy",m:0.75},hot:{e:"Hot",m:1.15},tet:{e:"Tet",m:2.5}};
-var G = {
-  coins:50000000,lv:1,xp:0,xpn:100,cur:"street",unlocked:["street"],
-  items:{},recipes:[],prices:{},staff:[],stk:{beans:10,milk:20,sugar:30,ice:100,tea:20,matcha:5,tapioca:5,cup:200,bread:10,cheese:5},
-  orders:[],day:1,drev:0,dcost:0,trev:0,tserved:0,auto:false,stam:50,maxstam:50
-};
-MENU.forEach(function(m){G.prices[m.id]=1.0;});
+var LOCS=[{id:"street",nm:"Sidewalk",cst:0,rm:1,bc:3,ms:4},{id:"mall",nm:"Mall",cst:50000000,rm:2.5,bc:5,ms:8},{id:"garden",nm:"Garden",cst:150000000,rm:2,bc:4,ms:10}];
+var MENU=[{id:"coffee",nm:"Black Coffee",ic:"C",pr:25000,nl:["beans","ice","cup"],lk:false,uc:0},{id:"milk_coffee",nm:"Milk Coffee",ic:"M",pr:30000,nl:["beans","milk","sugar","ice","cup"],lk:false,uc:0},{id:"espresso",nm:"Espresso",ic:"E",pr:35000,nl:["beans","ice","cup"],lk:true,uc:500000},{id:"matcha",nm:"Matcha Tea",ic:"T",pr:40000,nl:["matcha","milk","sugar","cup"],lk:true,uc:3000000},{id:"smoothie",nm:"Smoothie",ic:"S",pr:45000,nl:["milk","sugar","ice","cup"],lk:true,uc:2000000},{id:"cake",nm:"Banh Mi",ic:"K",pr:35000,nl:["bread","cheese","cup"],lk:false,uc:0},{id:"ice_tea",nm:"Iced Tea",ic:"I",pr:15000,nl:["tea","ice","cup"],lk:false,uc:0},{id:"bubble_tea",nm:"Bubble Tea",ic:"B",pr:50000,nl:["tea","milk","tapioca","sugar","ice","cup"],lk:true,uc:4000000}];
+var TREND=[{id:"t1",nm:"Meme Dog",rt:"cm",ef:"rev",vf:.05,ds:"+5% rev",cst:200000},{id:"t2",nm:"Wild Cat",rt:"cm",ef:"rev",vf:.03,ds:"+3% rev",cst:150000},{id:"t3",nm:"MU Jersey",rt:"cm",ef:"cust",vf:1,ds:"+1 cust",cst:300000},{id:"t4",nm:"Trend Shirt",rt:"rm",ef:"rev",vf:.1,ds:"+10% rev",cst:1000000},{id:"t5",nm:"Mystery Key",rt:"rm",ef:"cust",vf:2,ds:"+2 cust",cst:1500000},{id:"t6",nm:"VIP Card",rt:"ep",ef:"rev",vf:.2,ds:"+20% rev",cst:5000000},{id:"t7",nm:"Gold Cup",rt:"lg",ef:"rev",vf:.5,ds:"+50% rev",cst:20000000}];
+var STAFF_T=[{id:"barista",nm:"Barista",e:"A",sl:300000,sk:.6,ds:"Coffee maker" },{id:"server",nm:"Server",e:"B",sl:200000,sk:.5,ds:"Serves faster" },{id:"chef",nm:"Chef",e:"C",sl:350000,sk:.7,ds:"Kitchen staff" },{id:"manager",nm:"Manager",e:"D",sl:500000,sk:.8,ds:"Auto ops" },{id:"senior_barista",nm:"Sr Barista",e:"E",sl:600000,sk:.9,ds:"Expert" },{id:"senior_manager",nm:"Sr Manager",e:"F",sl:800000,sk:1,ds:"Full auto"}];
+var STK_NM={beans:"Coffee",milk:"Milk",sugar:"Sugar",ice:"Ice",tea:"Tea",matcha:"Matcha",tapioca:"Tapioca",cup:"Cups",bread:"Bread",cheese:"Cheese"};
+var WEATHERS={sunny:{e:"Sunny",m:1},cloudy:{e:"Cloudy",m:1.05},rainy:{e:"Rainy",m:.75},hot:{e:"Hot",m:1.15},tet:{e:"Tet",m:2.5}};
+var G={coins:50000000,lv:1,xp:0,xpn:100,curLoc:"street",unlocked:["street"],items:{},recipes:[],prices:{},staff:[],stk:{beans:10,milk:20,sugar:30,ice:100,tea:20,matcha:5,tapioca:5,cup:200,bread:10,cheese:5},orders:[],day:1,drev:0,dcost:0,trev:0,tserved:0,auto:false,stam:50,maxstam:50};
+MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});
 
 function fmt(n){if(n>=1e12)return(n/1e12).toFixed(2)+"t";if(n>=1e9)return(n/1e9).toFixed(2)+"b";if(n>=1e6)return(n/1e6).toFixed(2)+"m";if(n>=1e3)return(n/1e3).toFixed(2)+"k";return n.toString();}
 function notify(t){var d=document.createElement("div");d.className="nf";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2000);}
-function getWeather(){var c=G.day%180,s=c<60?"summer":(c<120?"rainy":"cool"),p={"summer":{sunny:.35,cloudy:.25,rainy:.20,hot:.15,tet:0},"rainy":{sunny:.10,cloudy:.15,rainy:.45,hot:0,tet:.10},"cool":{sunny:.15,cloudy:.30,rainy:.15,hot:0,tet:.35}};var probs=p[s],r=Math.random(),cum=0,k=Object.keys(probs);for(var i=0;i<k.length;i++){cum+=probs[k[i]];if(r<=cum)return WEATHERS[k[i]];}return WEATHERS.sunny;}
-function getRevMult(){var l=LOCS.find(function(x){return x.id===G.cur;});var m=l.rm;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}var w=getWeather();m*=w.m;return m;}
+function getWeather(){var c=G.day%180,s=c<60?"summer":c<120?"rainy":"cool",p={summer:{sunny:.35,cloudy:.25,rainy:.2,hot:.15,tet:0},rainy:{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1},cool:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.35}};var pr=p[s],r=Math.random(),cm=0,ks=Object.keys(pr);for(var i=0;i<ks.length;i++){cm+=pr[ks[i]];if(r<=cm)return WEATHERS[ks[i]];}return WEATHERS.sunny;}
+function getRevMult(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var m=l.rm;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}var w=getWeather();m*=w.m;return m;}
 function getBaseCust(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var c=l.bc;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="cust")c+=it.vf*G.items[id];}return c;}
 function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);notify("Level "+G.lv+"!");}}
 
 function serveOrder(i){
   if(!G.orders||i<0||i>=G.orders.length)return;
-  var o=G.orders[i];var item=MENU.find(function(m){return m.id===o.id;});
+  var o=G.orders[i];
+  var item=MENU.find(function(m){return m.id===o.id;});
   if(!item)return;
+  if(item.lk&&G.recipes.indexOf(item.id)<0){G.orders.splice(i,1);return;}
   for(var j=0;j<item.nl.length;j++){if(G.stk[item.nl[j]]<=0){notify("No "+STK_NM[item.nl[j]]+"!");return;}}
   for(var j=0;j<item.nl.length;j++){G.stk[item.nl[j]]--;}
-  var rev=Math.floor(item.pr*G.prices[o.id]*getRevMult());
-  G.coins+=rev;G.trev+=rev;G.tserved++;G.drev+=rev;G.orders.splice(i,1);addXP(10);notify("Served! +"+fmt(rev));saveGame();renderAll();
+  var basePrice=item.pr;
+  var mult=G.prices[o.id]||1;
+  var revenue=Math.floor(basePrice*mult*getRevMult());
+  var cost=getItemCost(item);
+  var profit=revenue-cost;
+  G.coins+=revenue;
+  G.trev+=revenue;
+  G.tserved++;
+  G.drev=revenue;
+  G.dcost=cost;
+  G.orders.splice(i,1);
+  addXP(10);
+  notify("Served! +"+fmt(revenue)+" (cost: "+fmt(cost)+")");
+  saveGame();
+  renderAll();
+}
+
+function getItemCost(item){
+  if(item.lk&&G.recipes.indexOf(item.id)<0)return 0;
+  var cost=0;
+  var prices={beans:5000,milk:10000,sugar:5000,ice:1000,tea:10000,matcha:20000,tapioca:15000,cup:500,bread:3000,cheese:8000};
+  for(var i=0;i<item.nl.length;i++){cost+=prices[item.nl[i]]||0;}
+  return cost;
 }
 
 function buyItem(id){var it=TREND.find(function(x){return x.id===id;});if(!it)return;if(G.coins<it.cst){notify("Not enough!");return;}G.coins-=it.cst;G.items[id]=(G.items[id]||0)+1;notify("Bought "+it.nm+"!");saveGame();renderAll();}
 function buyRecipe(id){var item=MENU.find(function(m){return m.id===id;});if(!item||!item.lk)return;if(G.coins<item.uc){notify("Not enough!");return;}G.coins-=item.uc;G.recipes.push(id);item.lk=false;notify("Unlocked: "+item.nm);saveGame();renderAll();}
 function hireStaff(tid){var l=LOCS.find(function(x){return x.id===G.curLoc;});if(G.staff.length>=l.ms){notify("Full staff!");return;}var t=STAFF_T.find(function(x){return x.id===tid;});if(!t)return;var cst=t.sl*3;if(G.coins<cst){notify("Need "+fmt(cst)+"!");return;}G.staff.push({id:"s_"+Date.now(),nm:"Staff "+(G.staff.length+1),tier:tid,sk:t.sk,sl:t.sl,mood:80,loy:70,day:0,served:0});G.coins-=cst;notify("Hired!");saveGame();renderAll();}
-function orderSupply(k,t){var list=SUPPL[k];if(!list||!list[t])return;var it=list[t];var cst=Math.ceil(it.pr*10);if(G.coins<cst){notify("Not enough!");return;}G.coins-=cst;G.stk[k]+=10;notify("Bought "+k+"!");saveGame();renderAll();}
 function setPrice(id,v){G.prices[id]=v/100;renderAll();}
 function unlockLoc(id){var l=LOCS.find(function(x){return x.id===id;});if(G.coins<l.cst){notify("Not enough!");return;}G.coins-=l.cst;G.unlocked.push(id);G.curLoc=id;notify("Unlocked: "+l.nm);saveGame();renderAll();}
 function trainStaff(sid){var s=G.staff.find(function(x){return x.id===sid;});if(!s)return;if(G.coins<500000){notify("Need 500k!");return;}G.coins-=500000;s.sk=Math.min(1,s.sk+.1);notify("Trained "+s.nm+"!");saveGame();renderAll();}
 function fireStaff(sid){var i=G.staff.findIndex(function(x){return x.id===sid;});if(i<0)return;G.staff.splice(i,1);notify("Fired!");saveGame();renderAll();}
-function toggleAuto(){G.auto=!G.auto;notify("Auto: "+(G.auto?"ON":"OFF"));renderAll();}
 
-function renderAll(){
-  renderHeader();renderWeather();renderLocs();renderCustomers();renderOrders();renderMenu();renderStats();renderShop();renderItems();renderStaff();renderSupply();renderPrice();
-}
+function renderAll(){renderHeader();renderWeather();renderLocs();renderOrders();renderMenu();renderStats();renderShop();renderItems();renderStaff();renderPrice();}
 function renderHeader(){document.getElementById("coins").textContent=fmt(G.coins);document.getElementById("day").textContent=G.day;document.getElementById("lvl").textContent=G.lv;document.getElementById("stamina").textContent=G.stam+"/"+G.maxstam;}
 function renderWeather(){var w=getWeather();document.getElementById("weather").textContent=w.e+" (x"+w.m+")";}
 function renderLocs(){var el=document.getElementById("loc-tabs");el.innerHTML="";LOCS.forEach(function(l){var btn=document.createElement("button");btn.className="ltb"+(G.curLoc===l.id?" act":"");var ok=G.unlocked.indexOf(l.id)>=0;btn.disabled=!ok;btn.innerHTML=l.nm+(ok?"":"<br><small>"+fmt(l.cst)+"</small>");btn.onclick=function(){if(ok){G.curLoc=l.id;}else{unlockLoc(l.id);}renderAll();};el.appendChild(btn);});}
-function renderCustomers(){var el=document.getElementById("customers");el.innerHTML="";var c=getBaseCust();for(var i=0;i<Math.min(c,10);i++){var d=document.createElement("div");d.textContent="["+(i%4)+"]";d.style.fontSize="24px";d.style.margin="2px";el.appendChild(d);}}
-function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var d=document.createElement("div");d.className="item";d.innerHTML="<div><div>"+item.ic+" "+item.nm+"</div><div style='color:#FFD700'>"+fmt(item.pr)+"</div></div><button class='btn' onclick='serveOrder("+i+")'>Serve</button>";el.appendChild(d);});}
-function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;}).forEach(function(item){var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+"</div><div class='ds'>"+item.nl.join(",")+"</div></div><div class='pr'>"+fmt(item.pr)+"</div>";el.appendChild(d);});}
-function renderStats(){var el=document.getElementById("stats-list");el.innerHTML="";var profit=G.drev-G.dcost;var rows=[["Total served",G.tserved],["Today rev",fmt(G.drev)],["Today cost",fmt(G.dcost)],["Profit today",fmt(profit)],["Items",Object.keys(G.items).length],["Staff",G.staff.length],["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
+function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var cost=getItemCost(item);var d=document.createElement("div");d.className="item";d.innerHTML="<div><div>"+item.ic+" "+item.nm+"</div><div style='color:#FFD700'>"+fmt(item.pr)+" VND</div><div class='cost-box'>Cost: "+fmt(cost)+" VND</div></div><button class='btn' onclick='serveOrder("+i+")'>Serve</button>";el.appendChild(d);});}
+function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var cost=getItemCost(item);var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span class='badge' style='background:#f44336'>LOCKED</span>":"")+"</div><div class='ds'>Needs: "+item.nl.join(",")+"</div><div class='cost-box'>Cost: "+fmt(cost)+" VND</div></div><div class='pr'>"+fmt(item.pr)+" VND</div>";el.appendChild(d);});}
+function renderStats(){var el=document.getElementById("stats-list");el.innerHTML="";var profit=G.drev-G.dcost;var rows=[["Total served",G.tserved],["Today revenue",fmt(G.drev)],["Today cost",fmt(G.dcost)],["Today profit",fmt(profit)],["Items owned",Object.keys(G.items).length],["Recipes unlocked",G.recipes.length],["Staff count",G.staff.length],["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
 function renderShop(){var el=document.getElementById("shop-list");el.innerHTML="";var avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<=0;});if(avail.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>All owned!</div>";return;}avail.forEach(function(item){var d=document.createElement("div");d.className="card";var rc={cm:"#b0b0b0",rm:"#4169E1",ep:"#9932CC",lg:"#FFD700"};d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div><div><div class='pr'>"+fmt(item.cst)+"</div><button class='btn' onclick='buyItem(\""+item.id+"\")' "+(G.coins<item.cst?"disabled":"")+">Buy</button></div>";el.appendChild(d);});}
 function renderItems(){var el=document.getElementById("items-list");el.innerHTML="";var owned=Object.entries(G.items).filter(function(e){return e[1]>0;});if(owned.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>No items!</div>";return;}owned.forEach(function(e){var item=TREND.find(function(t){return t.id===e[0];});if(!item)return;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+" x"+e[1]+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div>";el.appendChild(d);});}
-function renderStaff(){var el=document.getElementById("staff-list");el.innerHTML="";var l=LOCS.find(function(x){return x.id===G.curLoc;});el.innerHTML+="<div style='margin-bottom:6px;color:#a0a0b0;font-size:11px'>Count: "+G.staff.length+"/"+l.ms+"</div>";STAFF_T.forEach(function(tier){var cst=tier.sl*3;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+tier.e+" "+tier.nm+"</div><div class='ds'>"+tier.ds+"</div><div class='ds'>Salary: "+fmt(tier.sl)+'/day</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';el.appendChild(d);});G.staff.forEach(function(s){var tier=STAFF_T.find(function(t){return t.id===s.tier;});var mc=s.mood>60?"#4CAF50":(s.mood>30?"#FF9800":"#f44336");var d=document.createElement("div");d.className="staff-box";d.innerHTML='<div class="nm">'+(tier?tier.e:"")+" "+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+'</div><div class="stats"><span>Skill:'+s.sk.toFixed(1)+'</span></div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button> <label style="font-size:10px;margin-left:6px"><input type="checkbox" '+(G.auto?"checked":"")+' onchange="toggleAuto()"> Auto</label></div>';el.appendChild(d);});}
-function renderSupply(){var el=document.getElementById("supply-list");el.innerHTML='<div style="margin-top:8px;font-size:12px;color:#FFD700">STOCK:</div>';Object.entries(G.stk).forEach(function(e){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+STK_NM[e[0]]+"</div><div>"+e[1]+"</div>";el.appendChild(d);});el.innerHTML+='<div style="margin-top:8px;font-size:12px;color:#FFD700">ORDER:</div>';Object.entries(SUPPL).forEach(function(e){var k=e[0],list=e[1];list.forEach(function(it,t){var cst=Math.ceil(it.pr*10);var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+k+" T"+(t+1)+"</div><div>"+fmt(it.pr)+" / 10u</div><button class='btn' onclick='orderSupply(\''+k+'\',"+t+")' "+(G.coins<cst?"disabled":"")+">Buy "+fmt(cst)+"</button>";el.appendChild(d);});});}
-function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=Math.round(G.prices[item.id]*100);var d=document.createElement("div");d.style.padding="6px";d.style.background="#0f3460";d.style.borderRadius="6px";d.style.marginBottom="4px";if(unlocked){d.innerHTML='<div class="nm">'+item.ic+' '+item.nm+'</div><input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div style="color:#FFD700;text-align:center;font-size:11px">'+pp+'%</div>';}else{d.innerHTML='<div class="nm">'+item.ic+' '+item.nm+' <span class="badge" style="background:#f44336">LOCKED</span></div><button class="btn" onclick="buyRecipe(\''+item.id+'\')" '+(G.coins<item.uc?"disabled":"")+'>Unlock ('+fmt(item.uc)+')</button>';el.appendChild(d);}});el.appendChild(d);}}
+function renderStaff(){var el=document.getElementById("staff-list");el.innerHTML="";var l=LOCS.find(function(x){return x.id===G.curLoc;});el.innerHTML+="<div style='margin-bottom:6px;color:#a0a0b0;font-size:11px'>Count: "+G.staff.length+"/"+l.ms+"</div>";STAFF_T.forEach(function(tier){var cst=tier.sl*3;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+tier.e+" "+tier.nm+"</div><div class='ds'>"+tier.ds+"</div><div class='ds'>Salary: "+fmt(tier.sl)+'/day</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';el.appendChild(d);});G.staff.forEach(function(s){var tier=STAFF_T.find(function(t){return t.id===s.tier;});var mc=s.mood>60?"#4CAF50":s.mood>30?"#FF9800":"#f44336";var d=document.createElement("div");d.className="staff-box";d.innerHTML='<div class="nm">'+(tier?tier.e:"")+" "+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+'</div><div class="stats"><span>Skill:'+s.sk.toFixed(1)+'</span></div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button></div>';el.appendChild(d);});}
+function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=unlocked?Math.round(G.prices[item.id]*100):50;var cost=getItemCost(item);var d=document.createElement("div");d.className="price-box";d.innerHTML='<div style="font-size:12px;font-weight:bold">'+item.ic+' '+item.nm+'</div>'+(unlocked?'<input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="lbl">'+pp+'% (base: '+fmt(item.pr)+' VND)</div>':'<span style="color:#FF6347;font-size:11px">Locked - need '+fmt(item.uc)+' VND to unlock</span>')+(unlocked?'<div class="cost-box">Cost per cup: '+fmt(cost)+' VND</div>':'');el.appendChild(d);});}
 
 // TABS
 document.querySelectorAll(".nv").forEach(function(btn){btn.onclick=function(){document.querySelectorAll(".nv").forEach(function(b){b.classList.remove("act");});document.querySelectorAll(".pnl").forEach(function(p){p.classList.remove("act");});btn.classList.add("act");document.getElementById("p-"+btn.dataset.tab).classList.add("act");};});
 
 // GAME LOOP
-setInterval(function(){var now=Date.now();if(now-G.day>=60000){G.day++;var cost=G.staff.reduce(function(t,s){var tier=STAFF_T.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);G.dcost=cost;G.coins-=cost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);notify("Day "+G.day+"! Cost: "+fmt(cost));saveGame();renderAll();}G.day=now;},1000);
+setInterval(function(){var now=Date.now();if(now-G.day>=60000){G.day++;var cost=G.staff.reduce(function(t,s){var tier=STAFF_T.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);G.dcost=cost;G.coins-=cost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);notify("Day "+G.day+"! Staff cost: "+fmt(cost));saveGame();renderAll();}G.day=now;},1000);
 setInterval(function(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var w=getWeather();var exp=Math.floor(l.bc*w.m);if(G.orders.length<exp){var avail=MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;});if(avail.length>0){var item=avail[Math.floor(Math.random()*avail.length)];G.orders.push({id:item.id});}}},15000);
 setInterval(saveGame,30000);
 setInterval(renderAll,2000);
 
-// SAVE/LOAD
-function saveGame(){localStorage.setItem("cafeGame",JSON.stringify(G));}
-function loadGame(){var s=localStorage.getItem("cafeGame");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1.0;});}
+function saveGame(){localStorage.setItem("cafeGame2",JSON.stringify(G));}
+function loadGame(){var s=localStorage.getItem("cafeGame2");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});}
 
 // START
-loadGame();renderAll();renderCustomers();notify("Welcome! Cafe Business Game!");
+loadGame();renderAll();notify("Welcome! Cafe Business Game!");
 </script>
 </body>
 </html>
