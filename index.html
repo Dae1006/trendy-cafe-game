@@ -106,8 +106,8 @@ function serveOrder(i){
   var item=MENU.find(function(m){return m.id===o.id;});
   if(!item)return;
   if(item.lk&&G.recipes.indexOf(item.id)<0){G.orders.splice(i,1);return;}
-  for(var j=0;j<item.nl.length;j++){if(G.stk[item.nl[j]]<=0){notify("No "+STK_NM[item.nl[j]]+"!");return;}}
-  for(var j=0;j<item.nl.length;j++){G.stk[item.nl[j]]--;}
+  // Free unlimited ingredients - just calculate cost for profit
+  var cost=getItemCost(item);
   var basePrice=item.pr;
   var mult=G.prices[o.id]||1;
   var revenue=Math.floor(basePrice*mult*getRevMult());
