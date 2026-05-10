@@ -778,6 +778,55 @@ window.setPrice = setPrice;
 window.toggleAutoPurchase = toggleAutoPurchase;
 window.loginGoogle = loginGoogle;
 window.guestLogin = guestLogin;
+// === EVENT LISTENERS ===
+
+document.addEventListener('click', function(e) {
+  // Handle tab navigation
+  if (e.target.classList.contains('nb')) {
+    document.querySelectorAll('.nb').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+    e.target.classList.add('active');
+    var tab = e.target.dataset.tab;
+    document.querySelectorAll('.pnl').forEach(function(pnl) {
+      pnl.classList.remove('active');
+    });
+    document.getElementById('p-' + tab).classList.add('active');
+  }
+  
+  // Handle serve order buttons
+  if (e.target.classList.contains('btn-sm')) {
+    var idx = parseInt(e.target.dataset.idx);
+    if (!isNaN(idx)) {
+      serveOrder(idx);
+    }
+  }
+  
+  // Handle buy item buttons
+  if (e.target.classList.contains('bc') && !e.target.parentElement.querySelector('.badge')) {
+    var id = e.target.dataset.id;
+    if (id) {
+      buyItem(id);
+    }
+  }
+  
+  // Handle buy recipe buttons
+  if (e.target.classList.contains('bc') && e.target.parentElement.querySelector('.badge')) {
+    var id = e.target.dataset.id;
+    if (id) {
+      buyRecipe(id);
+    }
+  }
+  
+  // Handle hire staff buttons
+  if (e.target.classList.contains('bc') && e.target.parentElement.parentElement.querySelector('.bh')) {
+    var tier = e.target.dataset.tier;
+    if (tier) {
+      hireStaff(tier);
+    }
+  }
+});
+
 // Add click handlers for navigation
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('nb')) {
