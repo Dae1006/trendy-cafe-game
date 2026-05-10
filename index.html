@@ -381,67 +381,107 @@ function serveOrder(i) {
   renderAll();
 }
 
-function autoServeSingle() {
-  if (G.orders.length === 0) return false;
+function autoServeByStaff() {
+  if (G.orders.length === 0 || G.staff.length === 0) return 0;
+  var served = 0;
   
-  var sb = getStaffBuff();
-  var chance = 0.01 * sb.speedMult;
-  
-  // Count managers
   for (var i = 0; i < G.staff.length; i++) {
+    var s = G.staff[i];
     var tier = null;
     for (var j = 0; j < STAFF_TYPES.length; j++) {
-      if (STAFF_TYPES[j].id === G.staff[i].tier) {
-        tier = STAFF_TYPES[j];
-        break;
-      }
+      if (STAFF_TYPES[j].id === s.tier) { tier = STAFF_TYPES[j]; break; }
     }
-    if (tier && tier.id === "manager") chance += 0.03;
-    if (tier && tier.id === "senior_manager") chance += 0.06;
-  }
-  
-  if (Math.random() > chance) return false;
-  
-  // Find valid order
-  var validIdx = -1;
-  for (var i = 0; i < G.orders.length; i++) {
-    var item = null;
-    for (var j = 0; j < MENU.length; j++) {
-      if (MENU[j].id === G.orders[i].id) {
-        item = MENU[j];
+    if (!tier) continue;
+    
+    var sk = s.sk * (s.mood / 100);
+    var chance = 0;
+    var speed = 1;
+    
+    // Each staff type serves specific items with different speed
+    switch (tier.id) {
+      case "barista":
+        // Barista serves drinks (coffee, milk_coffee, espresso, matcha, smoothie, ice_tea, bubble_tea)
+        chance = sk * 0.15;
+        speed = 0.7;
         break;
-      }
+      case "senior_barista":
+        // Senior barista serves ALL drinks
+        chance = sk * 0.2;
+        speed = 0.5;
+        break;
+      case "chef":
+        // Chef serves food only (cake = Banh Mi)
+        chance = sk * 0.15;
+        speed = 1.0;
+        break;
+      case "server":
+        // Server serves everything but slower
+        chance = sk * 0.08;
+        speed = 1.8;
+        break;
+      case "manager":
+        // Manager serves everything medium speed
+        chance = sk * 0.1;
+        speed = 1.2;
+        break;
+      case "senior_manager":
+        // Senior manager serves everything fastest
+        chance = sk * 0.15;
+        speed = 0.6;
+        break;
     }
-    if (item && (!item.lk || G.recipes.indexOf(item.id) >= 0)) {
-      validIdx = i;
+    
+    if (Math.random() > chance) continue;
+    
+    // Find a valid order that this staff can serve
+    for (var o = 0; o < G.orders.length; o++) {
+      var order = G.orders[o];
+      var item = null;
+      for (var m = 0; m < MENU.length; m++) {
+        if (MENU[m].id === order.id) { item = MENU[m]; break; }
+      }
+      if (!item) continue;
+      
+      // Check if item is unlocked
+      if (item.lk && G.recipes.indexOf(item.id) < 0) continue;
+      
+      // Check if staff type can serve this item
+      var canServe = false;
+      switch (tier.id) {
+        case "barista":
+        case "senior_barista":
+          canServe = (item.nm.indexOf("Coffee") >= 0 || item.nm.indexOf("Espresso") >= 0 || item.nm.indexOf("Tea") >= 0 || item.nm.indexOf("Smoothie") >= 0 || item.nm.indexOf("Bubble") >= 0 || item.nm.indexOf("Coconut") >= 0);
+          break;
+        case "chef":
+          canServe = item.nm.indexOf("Banh Mi") >= 0;
+          break;
+        case "server":
+        case "manager":
+        case "senior_manager":
+          canServe = true;
+          break;
+      }
+      
+      if (!canServe) continue;
+      
+      // Serve the order
+      var revenue = Math.floor(item.pr * (G.prices[order.id] || 1) * getRevMult());
+      var chefBuff = getStaffBuff();
+      revenue = Math.floor(revenue * (1 + chefBuff.profitBonus));
+      
+      G.coins += revenue;
+      G.trev += revenue;
+      G.tserved++;
+      G.drev += revenue;
+      G.autoServeCount++;
+      s.served++;
+      G.orders.splice(o, 1);
+      addXP(5);
+      served++;
       break;
     }
   }
-  
-  if (validIdx < 0) return false;
-  
-  var o = G.orders[validIdx];
-  var item = null;
-  for (var i = 0; i < MENU.length; i++) {
-    if (MENU[i].id === o.id) {
-      item = MENU[i];
-      break;
-    }
-  }
-  
-  var revenue = Math.floor(item.pr * (G.prices[o.id] || 1) * getRevMult());
-  var chefBuff = getStaffBuff();
-  revenue = Math.floor(revenue * (1 + chefBuff.profitBonus));
-  
-  G.coins += revenue;
-  G.trev += revenue;
-  G.tserved++;
-  G.drev += revenue;
-  G.autoServeCount++;
-  G.orders.splice(validIdx, 1);
-  addXP(5);
-  
-  return true;
+  return served;
 }
 
 function buyItem(id) {
@@ -902,10 +942,10 @@ for (var i = 0; i < navBtns.length; i++) {
 }
 
 // ====== GAME LOOP ======
-// Day tick (every minute)
+// Day tick (every 5 minutes = 1 in-game hour)
 setInterval(function() {
   var now = Date.now();
-  if (now - G.day >= 60000) {
+  if (now - G.day >= 300000) { // 5 minutes
     G.day++;
     G.dcost = 0;
     for (var i = 0; i < G.staff.length; i++) {
@@ -959,21 +999,13 @@ setInterval(function() {
       G.orders.push({id: item.id});
     }
   }
-}, 15000);
+}, 10000);
 
-// Auto serve (every 5 seconds)
+// Auto serve (every 3 seconds)
 setInterval(function() {
   if (G.staff.length === 0) return;
-  
-  var sb = getStaffBuff();
-  var speed = sb ? sb.speedMult : 1;
-  
-  for (var i = 0; i < 2; i++) {
-    if (G.orders.length === 0) break;
-    autoServeSingle();
-  }
   renderAll();
-}, Math.max(1000, Math.floor(5000 / (speed || 1))));
+}, 3000);
 
 // Auto save (every 30 seconds)
 setInterval(function() {
