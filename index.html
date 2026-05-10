@@ -942,10 +942,10 @@ for (var i = 0; i < navBtns.length; i++) {
 }
 
 // ====== GAME LOOP ======
-// Day tick (every 5 minutes = 1 in-game hour)
+// Day tick (every 1 hour = 1 in-game day)
 setInterval(function() {
   var now = Date.now();
-  if (now - G.day >= 300000) { // 5 minutes
+  if (now - G.day >= 3600000) { // 1 hour
     G.day++;
     G.dcost = 0;
     for (var i = 0; i < G.staff.length; i++) {
@@ -1001,11 +1001,12 @@ setInterval(function() {
   }
 }, 10000);
 
-// Auto serve (every 3 seconds)
+// Auto serve (every 2 seconds)
 setInterval(function() {
   if (G.staff.length === 0) return;
+  autoServeByStaff();
   renderAll();
-}, 3000);
+}, 2000);
 
 // Auto save (every 30 seconds)
 setInterval(function() {
