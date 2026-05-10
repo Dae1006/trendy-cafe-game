@@ -89,230 +89,933 @@ body{font-family:Arial,sans-serif;background:#111;color:#fff;min-height:100vh}
   </div>
 </div>
 <script>
-var LOCS=[{id:"street",nm:"Sidewalk",cst:0,rm:1,bc:3,ms:4},{id:"mall",nm:"Mall",cst:50000000,rm:2.5,bc:5,ms:8},{id:"garden",nm:"Garden",cst:150000000,rm:2,bc:4,ms:10}];
-var MENU=[{id:"coffee",nm:"Black Coffee",ic:"C",pr:25000,lk:false},{id:"milk_coffee",nm:"Milk Coffee",ic:"M",pr:30000,lk:false},{id:"espresso",nm:"Espresso",ic:"E",pr:35000,lk:true,uc:500000},{id:"matcha",nm:"Matcha Tea",ic:"T",pr:40000,lk:true,uc:3000000},{id:"smoothie",nm:"Smoothie",ic:"S",pr:45000,lk:true,uc:2000000},{id:"cake",nm:"Banh Mi",ic:"K",pr:35000,lk:false},{id:"ice_tea",nm:"Iced Tea",ic:"I",pr:15000,lk:false},{id:"bubble_tea",nm:"Bubble Tea",ic:"B",pr:50000,lk:true,uc:4000000}];
-var TREND=[{id:"t1",nm:"Meme Dog",rt:"cm",ef:"rev",vf:.05,ds:"+5% rev",cst:200000},{id:"t2",nm:"Wild Cat",rt:"cm",ef:"rev",vf:.03,ds:"+3% rev",cst:150000},{id:"t3",nm:"MU Jersey",rt:"cm",ef:"cust",vf:1,ds:"+1 cust",cst:300000},{id:"t4",nm:"Trend Shirt",rt:"rm",ef:"rev",vf:.1,ds:"+10% rev",cst:1000000},{id:"t5",nm:"Mystery Key",rt:"rm",ef:"cust",vf:2,ds:"+2 cust",cst:1500000},{id:"t6",nm:"VIP Card",rt:"ep",ef:"rev",vf:.2,ds:"+20% rev",cst:5000000},{id:"t7",nm:"Gold Cup",rt:"lg",ef:"rev",vf:.5,ds:"+50% rev",cst:20000000}];
-var STAFF_TYPES=[
-  {id:"barista",nm:"Barista",e:"A",sl:300000,sk:.6,ds:"Brews drinks | auto-serve",buffType:"skill",buffVal:.05},
-  {id:"server",nm:"Server",e:"B",sl:200000,sk:.5,ds:"Serves faster | more customers",buffType:"speed_cust",buffVal:.15},
-  {id:"chef",nm:"Chef",e:"C",sl:350000,sk:.7,ds:"Increases profit margin",buffType:"profit",buffVal:.08},
-  {id:"manager",nm:"Manager",e:"D",sl:500000,sk:.8,ds:"BUFFS ALL other staff! +skill+mood+speed",buffType:"all",buffVal:.12},
-  {id:"senior_barista",nm:"Senior Barista",e:"E",sl:600000,sk:.9,ds:"Expert brewer | fast auto-serve",buffType:"skill",buffVal:.1},
-  {id:"senior_manager",nm:"Senior Manager",e:"F",sl:800000,sk:1,ds:"MAX buff to ALL staff! +skill+mood+speed+revenue",buffType:"all_max",buffVal:.2}
+// ====== GAME CONFIG ======
+var LOCS = [
+  {id:"street",nm:"Sidewalk",cst:0,rm:1,bc:3,ms:4},
+  {id:"mall",nm:"Mall",cst:50000000,rm:2.5,bc:5,ms:8},
+  {id:"garden",nm:"Garden",cst:150000000,rm:2,bc:4,ms:10}
 ];
-var WEATHERS={sunny:{e:"Sunny",m:1},cloudy:{e:"Cloudy",m:1.05},rainy:{e:"Rainy",m:.75},hot:{e:"Hot",m:1.15},tet:{e:"Tet",m:2.5}};
-var G={
-  coins:50000000,lv:1,xp:0,xpn:100,curLoc:"street",unlocked:["street"],
-  items:{},recipes:[],prices:{},staff:[],
-  orders:[],day:1,drev:0,dcost:0,trev:0,tserved:0,auto:false,stam:50,maxstam:50,
-  autoServeCount:0,dayCost:0
+var MENU = [
+  {id:"coffee",nm:"Black Coffee",ic:"C",pr:25000,lk:false},
+  {id:"milk_coffee",nm:"Milk Coffee",ic:"M",pr:30000,lk:false},
+  {id:"espresso",nm:"Espresso",ic:"E",pr:35000,lk:true,uc:500000},
+  {id:"matcha",nm:"Matcha Tea",ic:"T",pr:40000,lk:true,uc:3000000},
+  {id:"smoothie",nm:"Smoothie",ic:"S",pr:45000,lk:true,uc:2000000},
+  {id:"cake",nm:"Banh Mi",ic:"K",pr:35000,lk:false},
+  {id:"ice_tea",nm:"Iced Tea",ic:"I",pr:15000,lk:false},
+  {id:"bubble_tea",nm:"Bubble Tea",ic:"B",pr:50000,lk:true,uc:4000000}
+];
+var TREND = [
+  {id:"t1",nm:"Meme Dog",rt:"cm",ef:"rev",vf:.05,ds:"+5% rev",cst:200000},
+  {id:"t2",nm:"Wild Cat",rt:"cm",ef:"rev",vf:.03,ds:"+3% rev",cst:150000},
+  {id:"t3",nm:"MU Jersey",rt:"cm",ef:"cust",vf:1,ds:"+1 cust",cst:300000},
+  {id:"t4",nm:"Trend Shirt",rt:"rm",ef:"rev",vf:.1,ds:"+10% rev",cst:1000000},
+  {id:"t5",nm:"Mystery Key",rt:"rm",ef:"cust",vf:2,ds:"+2 cust",cst:1500000},
+  {id:"t6",nm:"VIP Card",rt:"ep",ef:"rev",vf:.2,ds:"+20% rev",cst:5000000},
+  {id:"t7",nm:"Gold Cup",rt:"lg",ef:"rev",vf:.5,ds:"+50% rev",cst:20000000}
+];
+var STAFF_TYPES = [
+  {id:"barista",nm:"Barista",e:"A",sl:300000,sk:.6,ds:"Brews drinks",buffType:"skill",buffVal:.05},
+  {id:"server",nm:"Server",e:"B",sl:200000,sk:.5,ds:"Serves faster",buffType:"speed_cust",buffVal:.15},
+  {id:"chef",nm:"Chef",e:"C",sl:350000,sk:.7,ds:"Increases profit",buffType:"profit",buffVal:.08},
+  {id:"manager",nm:"Manager",e:"D",sl:500000,sk:.8,ds:"BUFFS ALL staff",buffType:"all",buffVal:.12},
+  {id:"senior_barista",nm:"Senior Barista",e:"E",sl:600000,sk:.9,ds:"Expert brewer",buffType:"skill",buffVal:.1},
+  {id:"senior_manager",nm:"Senior Manager",e:"F",sl:800000,sk:1,ds:"MAX buff to ALL",buffType:"all_max",buffVal:.2}
+];
+var WEATHERS = {
+  sunny:{e:"Sunny",m:1},
+  cloudy:{e:"Cloudy",m:1.05},
+  rainy:{e:"Rainy",m:.75},
+  hot:{e:"Hot",m:1.15},
+  tet:{e:"Tet",m:2.5}
 };
-MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});
 
-function fmt(n){if(n>=1e12)return(n/1e12).toFixed(2)+"t";if(n>=1e9)return(n/1e9).toFixed(2)+"b";if(n>=1e6)return(n/1e6).toFixed(2)+"m";if(n>=1e3)return(n/1e3).toFixed(2)+"k";return n.toString();}
-function notify(t){var d=document.createElement("div");d.className="nf";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove();},2000);}
+// ====== GAME STATE ======
+var G = {
+  coins: 50000000,
+  lv: 1,
+  xp: 0,
+  xpn: 100,
+  curLoc: "street",
+  unlocked: ["street"],
+  items: {},
+  recipes: [],
+  prices: {},
+  staff: [],
+  orders: [],
+  day: 1,
+  drev: 0,
+  dcost: 0,
+  trev: 0,
+  tserved: 0,
+  auto: false,
+  stam: 50,
+  maxstam: 50,
+  autoServeCount: 0
+};
 
-// ========== STAFF BUFF SYSTEM (CORE MECHANIC) ==========
-// Mỗi staff buff các staff khác dựa trên buffType của nó
-function getStaffBuff(){
-  var buff={skillMult:1,custMult:1,speedMult:1,revMult:1,profitBonus:0,allBuff:0};
+// Initialize prices
+for (var i = 0; i < MENU.length; i++) {
+  if (!G.prices[MENU[i].id]) {
+    G.prices[MENU[i].id] = 1;
+  }
+}
+
+// ====== HELPER FUNCTIONS ======
+function fmt(n) {
+  if (n >= 1e12) return (n / 1e12).toFixed(2) + "t";
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + "b";
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + "m";
+  if (n >= 1e3) return (n / 1e3).toFixed(2) + "k";
+  return n.toString();
+}
+
+function notify(t) {
+  var d = document.createElement("div");
+  d.className = "nf";
+  d.textContent = t;
+  document.body.appendChild(d);
+  setTimeout(function() { d.remove(); }, 2000);
+}
+
+// ====== STAFF BUFF SYSTEM ======
+function getStaffBuff() {
+  var buff = {
+    skillMult: 1,
+    custMult: 1,
+    speedMult: 1,
+    revMult: 1,
+    profitBonus: 0
+  };
   
-  // Manager/Senior Manager buff TẤT CẢ staff khác
-  var managerCount=0;
-  var seniorManagerCount=0;
+  // Count managers for special treatment
+  var managerCount = 0;
+  var seniorManagerCount = 0;
   
-  G.staff.forEach(function(s){
-    var tier=STAFF_TYPES.find(function(t){return t.id===s.tier;});
-    if(!tier)return;
-    var sk=s.sk*(s.mood/100); // Skill thực = skill * mood
+  for (var i = 0; i < G.staff.length; i++) {
+    var s = G.staff[i];
+    var tier = null;
+    for (var j = 0; j < STAFF_TYPES.length; j++) {
+      if (STAFF_TYPES[j].id === s.tier) {
+        tier = STAFF_TYPES[j];
+        break;
+      }
+    }
+    if (!tier) continue;
     
-    switch(tier.id){
+    var sk = s.sk * (s.mood / 100);
+    
+    switch (tier.id) {
       case "manager":
         managerCount++;
-        // Manager buff tất cả staff khác
-        buff.skillMult+=tier.buffVal*sk;
-        buff.speedMult+=tier.buffVal*sk;
-        buff.allBuff+=tier.buffVal*sk;
+        buff.skillMult += tier.buffVal * sk;
+        buff.speedMult += tier.buffVal * sk;
         break;
       case "senior_manager":
         seniorManagerCount++;
-        // Senior Manager buff MẠNH hơn
-        buff.skillMult+=tier.buffVal*sk;
-        buff.speedMult+=tier.buffVal*sk;
-        buff.custMult+=tier.buffVal*sk;
-        buff.revMult+=tier.buffVal*sk;
-        buff.allBuff+=tier.buffVal*sk;
+        buff.skillMult += tier.buffVal * sk;
+        buff.speedMult += tier.buffVal * sk;
+        buff.custMult += tier.buffVal * sk;
+        buff.revMult += tier.buffVal * sk;
         break;
       case "barista":
-        buff.skillMult+=tier.buffVal*sk;
+        buff.skillMult += tier.buffVal * sk;
         break;
       case "server":
-        buff.custMult+=tier.buffVal*sk;
-        buff.speedMult+=tier.buffVal*sk;
+        buff.custMult += tier.buffVal * sk;
+        buff.speedMult += tier.buffVal * sk;
         break;
       case "chef":
-        buff.profitBonus+=tier.buffVal*sk;
+        buff.profitBonus += tier.buffVal * sk;
         break;
       case "senior_barista":
-        buff.skillMult+=tier.buffVal*sk;
-        buff.speedMult+=tier.buffVal*sk*.5;
+        buff.skillMult += tier.buffVal * sk;
+        buff.speedMult += tier.buffVal * sk * 0.5;
         break;
     }
-  });
+  }
   
-  buff.skillMult=Math.max(1,buff.skillMult);
-  buff.speedMult=Math.max(1,buff.speedMult);
-  buff.custMult=Math.max(1,buff.custMult);
-  buff.revMult=Math.max(1,buff.revMult);
+  // Ensure minimum values
+  buff.skillMult = Math.max(1, buff.skillMult);
+  buff.speedMult = Math.max(1, buff.speedMult);
+  buff.custMult = Math.max(1, buff.custMult);
+  buff.revMult = Math.max(1, buff.revMult);
   
-  // Manager buff cũng buff chính nó (buff lẫn nhau)
-  buff.skillMult+=managerCount*.03+seniorManagerCount*.06;
+  // Managers also buff themselves
+  buff.skillMult += managerCount * 0.03 + seniorManagerCount * 0.06;
   
   return buff;
 }
 
-function getWeather(){var c=G.day%180,s=c<60?"summer":c<120?"rainy":"cool",p={summer:{sunny:.35,cloudy:.25,rainy:.2,hot:.15,tet:0},rainy:{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1},cool:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.35}};var pr=p[s],r=Math.random(),cm=0,ks=Object.keys(pr);for(var i=0;i<ks.length;i++){cm+=pr[ks[i]];if(r<=cm)return WEATHERS[ks[i]];}return WEATHERS.sunny;}
-function getRevMult(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var m=l.rm;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="rev")m+=it.vf*G.items[id];}var w=getWeather();m*=w.m;var sb=getStaffBuff();m*=sb.revMult;return m;}
-function getBaseCust(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var c=l.bc;for(var id in G.items){var it=TREND.find(function(x){return x.id===id;});if(it&&it.ef==="cust")c+=it.vf*G.items[id];}var sb=getStaffBuff();c*=sb.custMult;return Math.floor(c);}
-function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);notify("Level "+G.lv+"!");}}
-
-// ========== AUTO SERVE ==========
-function autoServeSingle(){
-  if(G.orders.length===0)return false;
-  var sb=getStaffBuff();
-  // Chance = manager count * 0.05 + senior manager * 0.1 + speed buff
-  var chance=.01*sb.speedMult+managerCount*.03+seniorManagerCount*.06;
-  if(Math.random()>chance)return false;
+function getWeather() {
+  var cycle = G.day % 180;
+  var season = cycle < 60 ? "summer" : (cycle < 120 ? "rainy" : "cool");
+  var probs = {
+    summer: {sunny: 0.35, cloudy: 0.25, rainy: 0.20, hot: 0.15, tet: 0},
+    rainy: {sunny: 0.10, cloudy: 0.15, rainy: 0.45, hot: 0, tet: 0.10},
+    cool: {sunny: 0.15, cloudy: 0.30, rainy: 0.15, hot: 0, tet: 0.35}
+  };
   
-  var validIdx=-1;
-  for(var i=0;i<G.orders.length;i++){
-    var item=MENU.find(function(m){return m.id===G.orders[i].id;});
-    if(item&&(item.lk===false||G.recipes.indexOf(item.id)>=0)){validIdx=i;break;}
+  var prob = probs[season];
+  var rand = Math.random();
+  var cum = 0;
+  var keys = Object.keys(prob);
+  
+  for (var i = 0; i < keys.length; i++) {
+    cum += prob[keys[i]];
+    if (rand <= cum) return WEATHERS[keys[i]];
   }
-  if(validIdx<0)return false;
+  return WEATHERS.sunny;
+}
+
+function getRevMult() {
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === G.curLoc) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  var m = loc.rm;
   
-  var o=G.orders[validIdx];var item=MENU.find(function(m){return m.id===o.id;});
-  var revenue=Math.floor(item.pr*(G.prices[o.id]||1)*getRevMult());
-  // Chef bonus
-  var chefBuff=getStaffBuff();
-  revenue=Math.floor(revenue*(1+chefBuff.profitBonus));
+  // Add trend item bonuses
+  for (var id in G.items) {
+    var item = null;
+    for (var i = 0; i < TREND.length; i++) {
+      if (TREND[i].id === id) {
+        item = TREND[i];
+        break;
+      }
+    }
+    if (item && item.ef === "rev") {
+      m += item.vf * G.items[id];
+    }
+  }
   
-  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;G.autoServeCount++;
-  G.orders.splice(validIdx,1);addXP(5);
+  var w = getWeather();
+  m *= w.m;
+  
+  // Add staff revenue buff
+  var sb = getStaffBuff();
+  m *= sb.revMult;
+  
+  return m;
+}
+
+function getBaseCust() {
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === G.curLoc) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  var c = loc.bc;
+  
+  // Add trend customer bonuses
+  for (var id in G.items) {
+    var item = null;
+    for (var i = 0; i < TREND.length; i++) {
+      if (TREND[i].id === id) {
+        item = TREND[i];
+        break;
+      }
+    }
+    if (item && item.ef === "cust") {
+      c += item.vf * G.items[id];
+    }
+  }
+  
+  // Add staff customer buff
+  var sb = getStaffBuff();
+  c *= sb.custMult;
+  
+  return Math.floor(c);
+}
+
+function addXP(a) {
+  G.xp += a;
+  while (G.xp >= G.xpn) {
+    G.xp -= G.xpn;
+    G.lv++;
+    G.xpn = Math.floor(G.xpn * 1.5);
+    notify("Level " + G.lv + "!");
+  }
+}
+
+// ====== GAME ACTIONS ======
+function serveOrder(i) {
+  if (!G.orders || i < 0 || i >= G.orders.length) return;
+  
+  var o = G.orders[i];
+  var item = null;
+  for (var j = 0; j < MENU.length; j++) {
+    if (MENU[j].id === o.id) {
+      item = MENU[j];
+      break;
+    }
+  }
+  if (!item) return;
+  
+  // Check if recipe is unlocked
+  if (item.lk && G.recipes.indexOf(item.id) < 0) {
+    G.orders.splice(i, 1);
+    return;
+  }
+  
+  // Calculate revenue
+  var revenue = Math.floor(item.pr * (G.prices[o.id] || 1) * getRevMult());
+  var chefBuff = getStaffBuff();
+  revenue = Math.floor(revenue * (1 + chefBuff.profitBonus));
+  
+  // Update game state
+  G.coins += revenue;
+  G.trev += revenue;
+  G.tserved++;
+  G.drev += revenue;
+  G.orders.splice(i, 1);
+  addXP(10);
+  
+  notify("Served! +" + fmt(revenue));
+  saveGame();
+  renderAll();
+}
+
+function autoServeSingle() {
+  if (G.orders.length === 0) return false;
+  
+  var sb = getStaffBuff();
+  var chance = 0.01 * sb.speedMult;
+  
+  // Count managers
+  for (var i = 0; i < G.staff.length; i++) {
+    var tier = null;
+    for (var j = 0; j < STAFF_TYPES.length; j++) {
+      if (STAFF_TYPES[j].id === G.staff[i].tier) {
+        tier = STAFF_TYPES[j];
+        break;
+      }
+    }
+    if (tier && tier.id === "manager") chance += 0.03;
+    if (tier && tier.id === "senior_manager") chance += 0.06;
+  }
+  
+  if (Math.random() > chance) return false;
+  
+  // Find valid order
+  var validIdx = -1;
+  for (var i = 0; i < G.orders.length; i++) {
+    var item = null;
+    for (var j = 0; j < MENU.length; j++) {
+      if (MENU[j].id === G.orders[i].id) {
+        item = MENU[j];
+        break;
+      }
+    }
+    if (item && (!item.lk || G.recipes.indexOf(item.id) >= 0)) {
+      validIdx = i;
+      break;
+    }
+  }
+  
+  if (validIdx < 0) return false;
+  
+  var o = G.orders[validIdx];
+  var item = null;
+  for (var i = 0; i < MENU.length; i++) {
+    if (MENU[i].id === o.id) {
+      item = MENU[i];
+      break;
+    }
+  }
+  
+  var revenue = Math.floor(item.pr * (G.prices[o.id] || 1) * getRevMult());
+  var chefBuff = getStaffBuff();
+  revenue = Math.floor(revenue * (1 + chefBuff.profitBonus));
+  
+  G.coins += revenue;
+  G.trev += revenue;
+  G.tserved++;
+  G.drev += revenue;
+  G.autoServeCount++;
+  G.orders.splice(validIdx, 1);
+  addXP(5);
+  
   return true;
 }
 
-function serveOrder(i){
-  if(!G.orders||i<0||i>=G.orders.length)return;
-  var o=G.orders[i];var item=MENU.find(function(m){return m.id===o.id;});
-  if(!item)return;
-  if(item.lk&&G.recipes.indexOf(item.id)<0){G.orders.splice(i,1);return;}
-  var revenue=Math.floor(item.pr*(G.prices[o.id]||1)*getRevMult());
-  var chefBuff=getStaffBuff();
-  revenue=Math.floor(revenue*(1+chefBuff.profitBonus));
-  G.coins+=revenue;G.trev+=revenue;G.tserved++;G.drev+=revenue;
-  G.orders.splice(i,1);addXP(10);
-  notify("Served! +"+fmt(revenue));
-  saveGame();renderAll();
-}
-
-// ========== ACTIONS ==========
-function buyItem(id){var it=TREND.find(function(x){return x.id===id;});if(!it)return;if(G.coins<it.cst){notify("Not enough!");return;}G.coins-=it.cst;G.items[id]=(G.items[id]||0)+1;notify("Bought "+it.nm+"!");saveGame();renderAll();}
-function buyRecipe(id){var item=MENU.find(function(m){return m.id===id;});if(!item||!item.lk)return;if(G.coins<item.uc){notify("Not enough!");return;}G.coins-=item.uc;G.recipes.push(id);item.lk=false;notify("Unlocked: "+item.nm);saveGame();renderAll();}
-function hireStaff(tid){
-  var l=LOCS.find(function(x){return x.id===G.curLoc;});
-  if(G.staff.length>=l.ms){notify("Full staff!");return;}
-  var t=STAFF_TYPES.find(function(x){return x.id===tid;});if(!t)return;
-  var cst=t.sl*3;if(G.coins<cst){notify("Need "+fmt(cst)+"!");return;}
-  G.staff.push({id:"s_"+Date.now(),nm:t.nm+" "+(G.staff.length+1),tier:t.id,sk:t.sk,sl:t.sl,mood:80,loy:70,day:0,served:0});
-  G.coins-=cst;notify("Hired "+t.nm+"!");saveGame();renderAll();
-}
-function setPrice(id,v){G.prices[id]=v/100;renderAll();}
-function unlockLoc(id){var l=LOCS.find(function(x){return x.id===id;});if(G.coins<l.cst){notify("Not enough!");return;}G.coins-=l.cst;G.unlocked.push(id);G.curLoc=id;notify("Unlocked: "+l.nm);saveGame();renderAll();}
-function trainStaff(sid){
-  var s=G.staff.find(function(x){return x.id===sid;});if(!s)return;
-  if(G.coins<500000){notify("Need 500k!");return;}
-  G.coins-=500000;s.sk=Math.min(1,s.sk+.1);s.mood=Math.max(0,s.mood-5);
-  notify("Trained "+s.nm+"! Skill: "+s.sk.toFixed(1));saveGame();renderAll();
-}
-function fireStaff(sid){var i=G.staff.findIndex(function(x){return x.id===sid;});if(i<0)return;G.staff.splice(i,1);notify("Fired!");saveGame();renderAll();}
-
-// ========== RENDER ==========
-function renderAll(){renderHeader();renderWeather();renderLocs();renderOrders();renderMenu();renderStats();renderShop();renderItems();renderStaff();renderPrice();}
-function renderHeader(){document.getElementById("coins").textContent=fmt(G.coins);document.getElementById("day").textContent=G.day;document.getElementById("lvl").textContent=G.lv;document.getElementById("stamina").textContent=G.stam+"/"+G.maxstam;}
-function renderWeather(){var w=getWeather();document.getElementById("weather").textContent=w.e+" (x"+w.m+")";}
-function renderLocs(){var el=document.getElementById("loc-tabs");el.innerHTML="";LOCS.forEach(function(l){var btn=document.createElement("button");btn.className="ltb"+(G.curLoc===l.id?" act":"");var ok=G.unlocked.indexOf(l.id)>=0;btn.disabled=!ok;btn.innerHTML=l.nm+(ok?"":"<br><small>"+fmt(l.cst)+"</small>");btn.onclick=function(){if(ok){G.curLoc=l.id;}else{unlockLoc(l.id);}renderAll();};el.appendChild(btn);});}
-function renderOrders(){var el=document.getElementById("orders");document.getElementById("oc").textContent=G.orders.length;el.innerHTML="";if(!G.orders||G.orders.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>Waiting for customers...</div>";return;}G.orders.forEach(function(o,i){var item=MENU.find(function(m){return m.id===o.id;});if(!item)return;var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var d=document.createElement("div");d.className="item";d.innerHTML="<div><div style='font-weight:bold'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span style='color:#f44336;font-size:10px'>LOCKED</span>":"")+"</div><div style='color:#FFD700;font-size:11px'>"+fmt(item.pr)+" VND <span class='free-tag'>FREE</span></div></div><button class='btn' onclick='serveOrder("+i+")' "+(item.lk&&!unlocked?"disabled":"") +">Serve</button>";el.appendChild(d);});}
-function renderMenu(){var el=document.getElementById("menu-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.ic+" "+item.nm+(item.lk&&!unlocked?" <span class='badge' style='background:#f44336'>LOCKED</span>":"")+"</div></div><div class='pr'>"+fmt(item.pr)+" VND <span class='free-tag'>FREE</span></div>";el.appendChild(d);});}
-function renderStats(){
-  var el=document.getElementById("stats-list");el.innerHTML="";
-  var profit=G.drev-G.dayCost;var sb=getStaffBuff();
-  var managerCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="manager";}).length;
-  var seniorMgrCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="senior_manager";}).length;
-  var rows=[
-    ["Coins",fmt(G.coins)+" VND"],
-    ["Total served",G.tserved],["Auto-served",G.autoServeCount],
-    ["Today revenue",fmt(G.drev)],["Today cost",fmt(G.dayCost)],["Today profit",fmt(profit)],
-    ["Staff buffs: Skill",fmt(Math.floor(sb.skillMult*100))+"%",
-     "Staff buffs: Speed",fmt(Math.floor(sb.speedMult*100))+"%",
-     "Staff buffs: Customers",fmt(Math.floor(sb.custMult*100))+"%",
-     "Staff buffs: Revenue",fmt(Math.floor(sb.revMult*100))+"%",
-     "Staff buffs: Profit bonus",fmt(Math.floor(sb.profitBonus*100))+"%"],
-    ["Manager count",managerCount],["Senior Manager count",seniorMgrCount],
-    ["Items owned",Object.keys(G.items).length],["Recipes unlocked",G.recipes.length],
-    ["Day",G.day],["Stamina",G.stam+"/"+G.maxstam]
-  ];rows.forEach(function(r){var d=document.createElement("div");d.className="stk";d.innerHTML="<div class='nm'>"+r[0]+"</div><div>"+r[1]+"</div>";el.appendChild(d);});}
-function renderShop(){var el=document.getElementById("shop-list");el.innerHTML="";var avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<=0;});if(avail.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>All owned!</div>";return;}avail.forEach(function(item){var d=document.createElement("div");d.className="card";var rc={cm:"#b0b0b0",rm:"#4169E1",ep:"#9932CC",lg:"#FFD700"};d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div><div><div class='pr'>"+fmt(item.cst)+"</div><button class='btn' onclick='buyItem(\""+item.id+"\")' "+(G.coins<item.cst?"disabled":"")+">Buy</button></div>";el.appendChild(d);});}
-function renderItems(){var el=document.getElementById("items-list");el.innerHTML="";var owned=Object.entries(G.items).filter(function(e){return e[1]>0;});if(owned.length===0){el.innerHTML="<div style='padding:8px;color:#a0a0b0'>No items!</div>";return;}owned.forEach(function(e){var item=TREND.find(function(t){return t.id===e[0];});if(!item)return;var d=document.createElement("div");d.className="card";d.innerHTML="<div class='inf'><div class='nm'>"+item.nm+"</div><div class='ds'>"+item.ds+" x"+e[1]+"</div><div class='badge "+item.rt+"'>"+item.rt.toUpperCase()+"</div></div>";el.appendChild(d);});}
-function renderStaff(){
-  var el=document.getElementById("staff-list");var sb=getStaffBuff();
-  var statusBar=document.getElementById("staff-status-bar");
-  el.innerHTML="";
+function buyItem(id) {
+  var it = null;
+  for (var i = 0; i < TREND.length; i++) {
+    if (TREND[i].id === id) {
+      it = TREND[i];
+      break;
+    }
+  }
+  if (!it) return;
   
-  var managerCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="manager";}).length;
-  var seniorMgrCount=G.staff.filter(function(s){var t=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t&&t.id==="senior_manager";}).length;
-  
-  statusBar.innerHTML='<div class="staff-status"><span class="label">📊 Buffs: </span><span class="value">Skill '+fmt(Math.floor(sb.skillMult*100))+'% | Speed '+fmt(Math.floor(sb.speedMult*100))+'% | Customers '+fmt(Math.floor(sb.custMult*100))+'% | Revenue '+fmt(Math.floor(sb.revMult*100))+'% | Profit +'+fmt(Math.floor(sb.profitBonus*100))+'%</span></div>';
-  
-  if(managerCount>0||seniorMgrCount>0){
-    document.getElementById("manager-buff-bar").innerHTML='<div class="manager-buff">👑 Manager/Senior Manager đang buff TẤT CẢ staff: +skill +mood +speed +revenue!</div>';
-  } else {
-    document.getElementById("manager-buff-bar").innerHTML='<div style="padding:4px;color:#a0a0b0;font-size:10px">👉 Hire Manager to buff ALL staff!</div>';
+  if (G.coins < it.cst) {
+    notify("Not enough!");
+    return;
   }
   
-  var l=LOCS.find(function(x){return x.id===G.curLoc;});
-  el.innerHTML+='<div style="margin-bottom:6px;color:#a0a0b0;font-size:11px">Count: '+G.staff.length+'/'+l.ms+'</div>';
-  STAFF_TYPES.forEach(function(tier){
-    var cst=tier.sl*3;var d=document.createElement("div");d.className="card";
-    d.innerHTML='<div class="inf"><div class="nm">'+tier.e+' '+tier.nm+'</div><div class="ds">'+tier.ds+'</div><div class="ds">Salary: '+fmt(tier.sl)+'/day</div></div><div><div class="pr">'+fmt(cst)+'</div><button class="btn btn-h" onclick="hireStaff(\''+tier.id+'\')" '+(G.coins<cst||G.staff.length>=l.ms?'disabled':'')+'>Hire</button></div>';
-    el.appendChild(d);
-  });
-  G.staff.forEach(function(s){
-    var tier=STAFF_TYPES.find(function(t){return t.id===s.tier;});
-    var d=document.createElement("div");d.className="staff-box";
-    d.innerHTML='<div class="nm">'+(tier?tier.e:"")+' '+s.nm+'</div><div class="ds">'+(tier?tier.nm:"?")+' | Skill: '+s.sk.toFixed(1)+'</div><div class="stats"><span>Mood:'+s.mood.toFixed(0)+'%</span></div><div class="stats"><span>Loyalty:'+s.loy.toFixed(0)+'%</span></div><div class="stats"><span>Days:'+s.day+'</span></div><div class="stats"><span>Served:'+s.served+'</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\''+s.id+'\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\''+s.id+'\')">Fire</button></div>';
-    el.appendChild(d);
-  });
+  G.coins -= it.cst;
+  G.items[id] = (G.items[id] || 0) + 1;
+  notify("Bought " + it.nm + "!");
+  saveGame();
+  renderAll();
 }
-function renderPrice(){var el=document.getElementById("price-list");el.innerHTML="";MENU.forEach(function(item){var unlocked=!item.lk||G.recipes.indexOf(item.id)>=0;var pp=unlocked?Math.round(G.prices[item.id]*100):50;var d=document.createElement("div");d.className="price-box";d.innerHTML='<div style="font-size:12px;font-weight:bold">'+item.ic+' '+item.nm+'</div>'+(unlocked?'<input type="range" min="70" max="130" value="'+pp+'" onchange="setPrice(\''+item.id+'\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="lbl">'+pp+'% (base: '+fmt(item.pr)+' VND)</div>':'<span style="color:#FF6347;font-size:11px">Locked - need '+fmt(item.uc)+' VND to unlock</span>');el.appendChild(d);});}
 
-// TABS
-document.querySelectorAll(".nv").forEach(function(btn){btn.onclick=function(){document.querySelectorAll(".nv").forEach(function(b){b.classList.remove("act");});document.querySelectorAll(".pnl").forEach(function(p){p.classList.remove("act");});btn.classList.add("act");document.getElementById("p-"+btn.dataset.tab).classList.add("act");};});
+function buyRecipe(id) {
+  var item = null;
+  for (var i = 0; i < MENU.length; i++) {
+    if (MENU[i].id === id) {
+      item = MENU[i];
+      break;
+    }
+  }
+  if (!item || !item.lk) return;
+  
+  if (G.coins < item.uc) {
+    notify("Not enough!");
+    return;
+  }
+  
+  G.coins -= item.uc;
+  G.recipes.push(id);
+  item.lk = false;
+  notify("Unlocked: " + item.nm);
+  saveGame();
+  renderAll();
+}
 
-// GAME LOOP
-setInterval(function(){
-  var now=Date.now();if(now-G.day>=60000){
-    G.day++;G.dayCost=G.staff.reduce(function(t,s){var tier=STAFF_TYPES.find(function(x){return x.id===s.tier;});return t+(tier?tier.sl:300000);},0);G.coins-=G.dayCost;G.drev=0;G.stam=Math.min(G.maxstam,G.stam+5);G.staff.forEach(function(s){s.mood=Math.max(0,s.mood-.5);s.day++;});
-    notify("Day "+G.day+"! Cost: "+fmt(G.dayCost));saveGame();renderAll();
-  }G.day=now;},1000);
-setInterval(function(){var l=LOCS.find(function(x){return x.id===G.curLoc;});var w=getWeather();var sb=getStaffBuff();var maxCust=Math.floor(l.bc*w.m*sb.custMult);if(G.orders.length<maxCust){var avail=MENU.filter(function(m){return !m.lk||G.recipes.indexOf(m.id)>=0;});if(avail.length>0){G.orders.push({id:avail[Math.floor(Math.random()*avail.length)].id});}},15000);
-setInterval(function(){var sb=getStaffBuff();for(var i=0;i<2;i++){if(G.orders.length===0)break;if(autoServeSingle()){/*success*/}}renderAll();},Math.max(1000,5000/sb=>sb.speedMult||1));
-setInterval(saveGame,30000);setInterval(renderAll,3000);
+function hireStaff(tid) {
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === G.curLoc) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  
+  if (G.staff.length >= loc.ms) {
+    notify("Full staff!");
+    return;
+  }
+  
+  var t = null;
+  for (var i = 0; i < STAFF_TYPES.length; i++) {
+    if (STAFF_TYPES[i].id === tid) {
+      t = STAFF_TYPES[i];
+      break;
+    }
+  }
+  if (!t) return;
+  
+  var cst = t.sl * 3;
+  if (G.coins < cst) {
+    notify("Need " + fmt(cst) + "!");
+    return;
+  }
+  
+  G.staff.push({
+    id: "s_" + Date.now(),
+    nm: t.nm + " " + (G.staff.length + 1),
+    tier: t.id,
+    sk: t.sk,
+    sl: t.sl,
+    mood: 80,
+    loy: 70,
+    day: 0,
+    served: 0
+  });
+  
+  G.coins -= cst;
+  notify("Hired " + t.nm + "!");
+  saveGame();
+  renderAll();
+}
 
-function saveGame(){localStorage.setItem("cafeGame4",JSON.stringify(G));}
-function loadGame(){var s=localStorage.getItem("cafeGame4");if(s){try{var p=JSON.parse(s);for(var k in p){if(G.hasOwnProperty(k))G[k]=p[k];}}catch(e){}}MENU.forEach(function(m){if(!G.prices[m.id])G.prices[m.id]=1;});}
+function setPrice(id, v) {
+  G.prices[id] = v / 100;
+  renderAll();
+}
 
-loadGame();renderAll();notify("Welcome! Free ingredients! Managers buff ALL staff!");
+function unlockLoc(id) {
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === id) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  
+  if (G.coins < loc.cst) {
+    notify("Not enough!");
+    return;
+  }
+  
+  G.coins -= loc.cst;
+  G.unlocked.push(id);
+  G.curLoc = id;
+  notify("Unlocked: " + loc.nm);
+  saveGame();
+  renderAll();
+}
+
+function trainStaff(sid) {
+  var s = null;
+  for (var i = 0; i < G.staff.length; i++) {
+    if (G.staff[i].id === sid) {
+      s = G.staff[i];
+      break;
+    }
+  }
+  if (!s) return;
+  
+  if (G.coins < 500000) {
+    notify("Need 500k!");
+    return;
+  }
+  
+  G.coins -= 500000;
+  s.sk = Math.min(1, s.sk + 0.1);
+  s.mood = Math.max(0, s.mood - 5);
+  notify("Trained " + s.nm + "! Skill: " + s.sk.toFixed(1));
+  saveGame();
+  renderAll();
+}
+
+function fireStaff(sid) {
+  for (var i = 0; i < G.staff.length; i++) {
+    if (G.staff[i].id === sid) {
+      G.staff.splice(i, 1);
+      notify("Fired!");
+      saveGame();
+      renderAll();
+      return;
+    }
+  }
+}
+
+// ====== RENDER FUNCTIONS ======
+function renderAll() {
+  renderHeader();
+  renderWeather();
+  renderLocs();
+  renderOrders();
+  renderMenu();
+  renderStats();
+  renderShop();
+  renderItems();
+  renderStaff();
+  renderPrice();
+}
+
+function renderHeader() {
+  document.getElementById("coins").textContent = fmt(G.coins);
+  document.getElementById("day").textContent = G.day;
+  document.getElementById("lvl").textContent = G.lv;
+  document.getElementById("stamina").textContent = G.stam + "/" + G.maxstam;
+}
+
+function renderWeather() {
+  var w = getWeather();
+  document.getElementById("weather").textContent = w.e + " (x" + w.m + ")";
+}
+
+function renderLocs() {
+  var el = document.getElementById("loc-tabs");
+  el.innerHTML = "";
+  
+  for (var i = 0; i < LOCS.length; i++) {
+    var l = LOCS[i];
+    var btn = document.createElement("button");
+    btn.className = "ltb" + (G.curLoc === l.id ? " act" : "");
+    var ok = G.unlocked.indexOf(l.id) >= 0;
+    btn.disabled = !ok;
+    btn.innerHTML = l.nm + (ok ? "" : "<br><small>" + fmt(l.cst) + "</small>");
+    
+    (function(locId) {
+      btn.onclick = function() {
+        if (G.unlocked.indexOf(locId) >= 0) {
+          G.curLoc = locId;
+        } else {
+          unlockLoc(locId);
+        }
+        renderAll();
+      };
+    })(l.id);
+    
+    el.appendChild(btn);
+  }
+}
+
+function renderOrders() {
+  var el = document.getElementById("orders");
+  document.getElementById("oc").textContent = G.orders.length;
+  el.innerHTML = "";
+  
+  if (!G.orders || G.orders.length === 0) {
+    el.innerHTML = "<div style='padding:8px;color:#a0a0b0'>Waiting for customers...</div>";
+    return;
+  }
+  
+  for (var i = 0; i < G.orders.length; i++) {
+    var o = G.orders[i];
+    var item = null;
+    for (var j = 0; j < MENU.length; j++) {
+      if (MENU[j].id === o.id) {
+        item = MENU[j];
+        break;
+      }
+    }
+    if (!item) continue;
+    
+    var unlocked = !item.lk || G.recipes.indexOf(item.id) >= 0;
+    var d = document.createElement("div");
+    d.className = "item";
+    d.innerHTML = "<div><div style='font-weight:bold'>" + item.ic + " " + item.nm + (item.lk && !unlocked ? " <span style='color:#f44336;font-size:10px'>LOCKED</span>" : "") + "</div><div style='color:#FFD700;font-size:11px'>" + fmt(item.pr) + " VND <span class='free-tag'>FREE</span></div></div><button class='btn' onclick='serveOrder(" + i + ")' " + (item.lk && !unlocked ? "disabled" : "") + ">Serve</button>";
+    el.appendChild(d);
+  }
+}
+
+function renderMenu() {
+  var el = document.getElementById("menu-list");
+  el.innerHTML = "";
+  
+  for (var i = 0; i < MENU.length; i++) {
+    var item = MENU[i];
+    var unlocked = !item.lk || G.recipes.indexOf(item.id) >= 0;
+    var d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = "<div class='inf'><div class='nm'>" + item.ic + " " + item.nm + (item.lk && !unlocked ? " <span class='badge' style='background:#f44336'>LOCKED</span>" : "") + "</div></div><div class='pr'>" + fmt(item.pr) + " VND <span class='free-tag'>FREE</span></div>";
+    el.appendChild(d);
+  }
+}
+
+function renderStats() {
+  var el = document.getElementById("stats-list");
+  el.innerHTML = "";
+  
+  var profit = G.drev - G.dcost;
+  var sb = getStaffBuff();
+  var managerCount = 0;
+  var seniorMgrCount = 0;
+  
+  for (var i = 0; i < G.staff.length; i++) {
+    for (var j = 0; j < STAFF_TYPES.length; j++) {
+      if (STAFF_TYPES[j].id === G.staff[i].tier) {
+        if (STAFF_TYPES[j].id === "manager") managerCount++;
+        if (STAFF_TYPES[j].id === "senior_manager") seniorMgrCount++;
+        break;
+      }
+    }
+  }
+  
+  var rows = [
+    ["Coins", fmt(G.coins) + " VND"],
+    ["Total served", G.tserved],
+    ["Auto-served", G.autoServeCount],
+    ["Today revenue", fmt(G.drev)],
+    ["Today cost", fmt(G.dcost)],
+    ["Today profit", fmt(profit)],
+    ["Skill Buff", fmt(Math.floor(sb.skillMult * 100)) + "%"],
+    ["Speed Buff", fmt(Math.floor(sb.speedMult * 100)) + "%"],
+    ["Customer Buff", fmt(Math.floor(sb.custMult * 100)) + "%"],
+    ["Revenue Buff", fmt(Math.floor(sb.revMult * 100)) + "%"],
+    ["Profit Bonus", fmt(Math.floor(sb.profitBonus * 100)) + "%"],
+    ["Manager count", managerCount],
+    ["Senior Manager count", seniorMgrCount],
+    ["Items owned", Object.keys(G.items).length],
+    ["Recipes unlocked", G.recipes.length],
+    ["Day", G.day],
+    ["Stamina", G.stam + "/" + G.maxstam]
+  ];
+  
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var d = document.createElement("div");
+    d.className = "stk";
+    d.innerHTML = "<div class='nm'>" + r[0] + "</div><div>" + r[1] + "</div>";
+    el.appendChild(d);
+  }
+}
+
+function renderShop() {
+  var el = document.getElementById("shop-list");
+  el.innerHTML = "";
+  
+  var avail = [];
+  for (var i = 0; i < TREND.length; i++) {
+    var t = TREND[i];
+    if (!G.items[t.id] || G.items[t.id] <= 0) {
+      avail.push(t);
+    }
+  }
+  
+  if (avail.length === 0) {
+    el.innerHTML = "<div style='padding:8px;color:#a0a0b0'>All owned!</div>";
+    return;
+  }
+  
+  var rc = {cm:"#b0b0b0", rm:"#4169E1", ep:"#9932CC", lg:"#FFD700"};
+  
+  for (var i = 0; i < avail.length; i++) {
+    var item = avail[i];
+    var d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = "<div class='inf'><div class='nm'>" + item.nm + "</div><div class='ds'>" + item.ds + "</div><div class='badge " + item.rt + "'>" + item.rt.toUpperCase() + "</div></div><div><div class='pr'>" + fmt(item.cst) + "</div><button class='btn' onclick='buyItem(\"" + item.id + "\")' " + (G.coins < item.cst ? "disabled" : "") + ">Buy</button></div>";
+    el.appendChild(d);
+  }
+}
+
+function renderItems() {
+  var el = document.getElementById("items-list");
+  el.innerHTML = "";
+  
+  var owned = [];
+  for (var id in G.items) {
+    if (G.items[id] > 0) {
+      owned.push([id, G.items[id]]);
+    }
+  }
+  
+  if (owned.length === 0) {
+    el.innerHTML = "<div style='padding:8px;color:#a0a0b0'>No items!</div>";
+    return;
+  }
+  
+  for (var i = 0; i < owned.length; i++) {
+    var e = owned[i];
+    var item = null;
+    for (var j = 0; j < TREND.length; j++) {
+      if (TREND[j].id === e[0]) {
+        item = TREND[j];
+        break;
+      }
+    }
+    if (!item) continue;
+    
+    var d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = "<div class='inf'><div class='nm'>" + item.nm + "</div><div class='ds'>" + item.ds + " x" + e[1] + "</div><div class='badge " + item.rt + "'>" + item.rt.toUpperCase() + "</div></div>";
+    el.appendChild(d);
+  }
+}
+
+function renderStaff() {
+  var el = document.getElementById("staff-list");
+  var statusBar = document.getElementById("staff-status-bar");
+  el.innerHTML = "";
+  
+  var sb = getStaffBuff();
+  var managerCount = 0;
+  var seniorMgrCount = 0;
+  
+  for (var i = 0; i < G.staff.length; i++) {
+    for (var j = 0; j < STAFF_TYPES.length; j++) {
+      if (STAFF_TYPES[j].id === G.staff[i].tier) {
+        if (STAFF_TYPES[j].id === "manager") managerCount++;
+        if (STAFF_TYPES[j].id === "senior_manager") seniorMgrCount++;
+        break;
+      }
+    }
+  }
+  
+  statusBar.innerHTML = '<div class="staff-status"><span class="label">📊 Buffs: </span><span class="value">Skill ' + fmt(Math.floor(sb.skillMult * 100)) + '% | Speed ' + fmt(Math.floor(sb.speedMult * 100)) + '% | Customers ' + fmt(Math.floor(sb.custMult * 100)) + '% | Revenue ' + fmt(Math.floor(sb.revMult * 100)) + '% | Profit +' + fmt(Math.floor(sb.profitBonus * 100)) + '%</span></div>';
+  
+  if (managerCount > 0 || seniorMgrCount > 0) {
+    document.getElementById("manager-buff-bar").innerHTML = '<div class="manager-buff">👑 Manager/Senior Manager đang buff TẤT CẢ staff: +skill +mood +speed +revenue!</div>';
+  } else {
+    document.getElementById("manager-buff-bar").innerHTML = '<div style="padding:4px;color:#a0a0b0;font-size:10px">👉 Hire Manager to buff ALL staff!</div>';
+  }
+  
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === G.curLoc) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  
+  el.innerHTML += '<div style="margin-bottom:6px;color:#a0a0b0;font-size:11px">Count: ' + G.staff.length + '/' + loc.ms + '</div>';
+  
+  for (var i = 0; i < STAFF_TYPES.length; i++) {
+    var tier = STAFF_TYPES[i];
+    var cst = tier.sl * 3;
+    var d = document.createElement("div");
+    d.className = "card";
+    d.innerHTML = '<div class="inf"><div class="nm">' + tier.e + ' ' + tier.nm + '</div><div class="ds">' + tier.ds + '</div><div class="ds">Salary: ' + fmt(tier.sl) + '/day</div></div><div><div class="pr">' + fmt(cst) + '</div><button class="btn btn-h" onclick="hireStaff(\'' + tier.id + '\')" ' + (G.coins < cst || G.staff.length >= loc.ms ? 'disabled' : '') + '>Hire</button></div>';
+    el.appendChild(d);
+  }
+  
+  for (var i = 0; i < G.staff.length; i++) {
+    var s = G.staff[i];
+    var tier = null;
+    for (var j = 0; j < STAFF_TYPES.length; j++) {
+      if (STAFF_TYPES[j].id === s.tier) {
+        tier = STAFF_TYPES[j];
+        break;
+      }
+    }
+    
+    var d = document.createElement("div");
+    d.className = "staff-box";
+    d.innerHTML = '<div class="nm">' + (tier ? tier.e : '') + ' ' + s.nm + '</div><div class="ds">' + (tier ? tier.nm : '?') + ' | Skill: ' + s.sk.toFixed(1) + '</div><div class="stats"><span>Mood:' + s.mood.toFixed(0) + '%</span></div><div class="stats"><span>Loyalty:' + s.loy.toFixed(0) + '%</span></div><div class="stats"><span>Days:' + s.day + '</span></div><div class="stats"><span>Served:' + s.served + '</span></div><div><button class="btn-sm btn-t" onclick="trainStaff(\'' + s.id + '\')">Train</button> <button class="btn-sm btn-f" onclick="fireStaff(\'' + s.id + '\')">Fire</button></div>';
+    el.appendChild(d);
+  }
+}
+
+function renderPrice() {
+  var el = document.getElementById("price-list");
+  el.innerHTML = "";
+  
+  for (var i = 0; i < MENU.length; i++) {
+    var item = MENU[i];
+    var unlocked = !item.lk || G.recipes.indexOf(item.id) >= 0;
+    var pp = unlocked ? Math.round(G.prices[item.id] * 100) : 50;
+    var d = document.createElement("div");
+    d.className = "price-box";
+    d.innerHTML = '<div style="font-size:12px;font-weight:bold">' + item.ic + ' ' + item.nm + '</div>' + (unlocked ? '<input type="range" min="70" max="130" value="' + pp + '" onchange="setPrice(\'' + item.id + '\',this.value);this.nextElementSibling.textContent=this.value+\'%\'"><div class="lbl">' + pp + '% (base: ' + fmt(item.pr) + ' VND)</div>' : '<span style="color:#FF6347;font-size:11px">Locked - need ' + fmt(item.uc) + ' VND to unlock</span>');
+    el.appendChild(d);
+  }
+}
+
+// ====== TAB NAVIGATION ======
+var navBtns = document.querySelectorAll(".nv");
+for (var i = 0; i < navBtns.length; i++) {
+  (function(btn) {
+    btn.onclick = function() {
+      for (var j = 0; j < navBtns.length; j++) {
+        navBtns[j].classList.remove("act");
+      }
+      var pnls = document.querySelectorAll(".pnl");
+      for (var j = 0; j < pnls.length; j++) {
+        pnls[j].classList.remove("act");
+      }
+      btn.classList.add("act");
+      var panelId = "p-" + btn.dataset.tab;
+      document.getElementById(panelId).classList.add("act");
+    };
+  })(navBtns[i]);
+}
+
+// ====== GAME LOOP ======
+// Day tick (every minute)
+setInterval(function() {
+  var now = Date.now();
+  if (now - G.day >= 60000) {
+    G.day++;
+    G.dcost = 0;
+    for (var i = 0; i < G.staff.length; i++) {
+      var tier = null;
+      for (var j = 0; j < STAFF_TYPES.length; j++) {
+        if (STAFF_TYPES[j].id === G.staff[i].tier) {
+          tier = STAFF_TYPES[j];
+          break;
+        }
+      }
+      if (tier) {
+        G.dcost += tier.sl;
+      }
+    }
+    G.coins -= G.dcost;
+    G.drev = 0;
+    G.stam = Math.min(G.maxstam, G.stam + 5);
+    for (var i = 0; i < G.staff.length; i++) {
+      G.staff[i].mood = Math.max(0, G.staff[i].mood - 0.5);
+      G.staff[i].day++;
+    }
+    notify("Day " + G.day + "! Cost: " + fmt(G.dcost));
+    saveGame();
+    renderAll();
+  }
+  G.day = Date.now();
+}, 1000);
+
+// Order generation (every 15 seconds)
+setInterval(function() {
+  var loc = null;
+  for (var i = 0; i < LOCS.length; i++) {
+    if (LOCS[i].id === G.curLoc) {
+      loc = LOCS[i];
+      break;
+    }
+  }
+  var w = getWeather();
+  var sb = getStaffBuff();
+  var maxCust = Math.floor(loc.bc * w.m * sb.custMult);
+  
+  if (G.orders.length < maxCust) {
+    var avail = [];
+    for (var i = 0; i < MENU.length; i++) {
+      if (!MENU[i].lk || G.recipes.indexOf(MENU[i].id) >= 0) {
+        avail.push(MENU[i]);
+      }
+    }
+    if (avail.length > 0) {
+      var item = avail[Math.floor(Math.random() * avail.length)];
+      G.orders.push({id: item.id});
+    }
+  }
+}, 15000);
+
+// Auto serve (every 5 seconds)
+setInterval(function() {
+  if (G.staff.length === 0) return;
+  
+  var sb = getStaffBuff();
+  var speed = sb ? sb.speedMult : 1;
+  
+  for (var i = 0; i < 2; i++) {
+    if (G.orders.length === 0) break;
+    autoServeSingle();
+  }
+  renderAll();
+}, Math.max(1000, Math.floor(5000 / (speed || 1))));
+
+// Auto save (every 30 seconds)
+setInterval(function() {
+  saveGame();
+}, 30000);
+
+// Auto render (every 3 seconds)
+setInterval(function() {
+  renderAll();
+}, 3000);
+
+// ====== SAVE/LOAD ======
+function saveGame() {
+  localStorage.setItem("cafeGame", JSON.stringify(G));
+}
+
+function loadGame() {
+  var s = localStorage.getItem("cafeGame");
+  if (s) {
+    try {
+      var p = JSON.parse(s);
+      for (var k in p) {
+        if (G.hasOwnProperty(k)) {
+          G[k] = p[k];
+        }
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+  }
+  // Reset prices if missing
+  for (var i = 0; i < MENU.length; i++) {
+    if (!G.prices[MENU[i].id]) {
+      G.prices[MENU[i].id] = 1;
+    }
+  }
+}
+
+// ====== START GAME ======
+loadGame();
+renderAll();
+notify("Welcome! Cafe Business Game - Free ingredients! Managers buff ALL staff!");
 </script>
 </body>
 </html>
