@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quán Trendy Café - Premium</title>
+<title>QuÃ¡n Trendy CafÃ© - Premium</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: white; min-height: 100vh; }
@@ -80,10 +80,10 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: w
 <body>
 <div id="app">
   <div class="header">
-    <div><span id="coins">50000000</span>₫ <span id="stamina">50/50</span></div>
+    <div><span id="coins">50000000</span>â‚« <span id="stamina">50/50</span></div>
     <div>Day <span id="day">1</span> Lv.<span id="lvl">1</span></div>
   </div>
-  <div class="weather" id="weather">☀️ Sunny (x1.0)</div>
+  <div class="weather" id="weather">â˜€ï¸ Sunny (x1.0)</div>
   <div class="loc-tabs" id="loc-tabs"></div>
   <div class="cafe-scene" id="customers"></div>
   <div class="orders">
@@ -91,13 +91,13 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: w
     <div id="orders"></div>
   </div>
   <div class="nav">
-    <button class="nb active" data-tab="menu">☕ Menu</button>
-    <button class="nb" data-tab="shop">🛒 Shop</button>
-    <button class="nb" data-tab="items">🎁 Items</button>
-    <button class="nb" data-tab="staff">👥 Staff</button>
-    <button class="nb" data-tab="supply">📦 Supply</button>
-    <button class="nb" data-tab="price">💰 Price</button>
-    <button class="nb" data-tab="stats">📊 Stats</button>
+    <button class="nb active" data-tab="menu">â˜• Menu</button>
+    <button class="nb" data-tab="shop">ðŸ›’ Shop</button>
+    <button class="nb" data-tab="items">ðŸŽ Items</button>
+    <button class="nb" data-tab="staff">ðŸ‘¥ Staff</button>
+    <button class="nb" data-tab="supply">ðŸ“¦ Supply</button>
+    <button class="nb" data-tab="price">ðŸ’° Price</button>
+    <button class="nb" data-tab="stats">ðŸ“Š Stats</button>
   </div>
   <div class="panels">
     <div id="p-menu" class="pnl active"><h3>Menu Items</h3><div id="menu-list"></div></div>
@@ -108,29 +108,29 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #0a0a1a; color: w
     <div id="p-price" class="pnl"><h3>Set Prices</h3><div id="price-list"></div></div>
     <div id="p-stats" class="pnl"><h3>Statistics</h3><div id="stats-list"></div></div>
   </div>
-  <div class="trend" id="trend">🔥 Trend: Organic Coffee is HOT!</div>
+  <div class="trend" id="trend">ðŸ”¥ Trend: Organic Coffee is HOT!</div>
 </div>
 <script>
 // === GAME DATA ===
 var LOCS = [
-  {id: "street", name: "☕ Sidewalk", cost: 0, rm: 1, bc: 3, ms: 4},
-  {id: "mall", name: "🏬 Mall", cost: 50000000, rm: 2.5, bc: 5, ms: 8},
-  {id: "garden", name: "🌿 Garden", cost: 150000000, rm: 2, bc: 4, ms: 10},
-  {id: "rooftop", name: "🌆 Rooftop", cost: 500000000, rm: 3.5, bc: 6, ms: 12},
-  {id: "festival", name: "🎉 Festival", cost: 1000000000, rm: 4, bc: 8, ms: 16}
+  {id: "street", name: "â˜• Sidewalk", cost: 0, rm: 1, bc: 3, ms: 4},
+  {id: "mall", name: "ðŸ¬ Mall", cost: 50000000, rm: 2.5, bc: 5, ms: 8},
+  {id: "garden", name: "ðŸŒ¿ Garden", cost: 150000000, rm: 2, bc: 4, ms: 10},
+  {id: "rooftop", name: "ðŸŒ† Rooftop", cost: 500000000, rm: 3.5, bc: 6, ms: 12},
+  {id: "festival", name: "ðŸŽ‰ Festival", cost: 1000000000, rm: 4, bc: 8, ms: 16}
 ];
 
 var MENU_ITEMS = [
-  {id: "coffee", n: "Black Coffee", i: "☕", p: 25000, nl: ["beans", "ice", "cup"], lk: false},
-  {id: "milk_coffee", n: "Milk Coffee", i: "🥛", p: 30000, nl: ["beans", "milk", "sugar", "ice", "cup"], lk: false},
-  {id: "espresso", n: "Espresso", i: "☕", p: 35000, nl: ["beans", "ice", "cup"], lk: true, uc: 500000},
-  {id: "matcha", n: "Matcha Tea", i: "🍵", p: 40000, nl: ["matcha", "milk", "sugar", "cup"], lk: true, uc: 3000000},
-  {id: "smoothie", n: "Smoothie", i: "🥤", p: 45000, nl: ["milk", "sugar", "ice", "cup"], lk: true, uc: 2000000},
-  {id: "cake", n: "Banh Mi", i: "🥖", p: 35000, nl: ["bread", "cheese", "cup"], lk: false},
-  {id: "ice_tea", n: "Iced Tea", i: "🧊", p: 15000, nl: ["tea", "ice", "cup"], lk: false},
-  {id: "bubble_tea", n: "Bubble Tea", i: "🧋", p: 50000, nl: ["tea", "milk", "tapioca", "sugar", "ice", "cup"], lk: true, uc: 4000000},
-  {id: "tropical", n: "Coconut Juice", i: "🥥", p: 55000, nl: ["milk", "ice", "cup"], lk: true, uc: 5000000},
-  {id: "signature", n: "Signature Drink", i: "🍹", p: 80000, nl: ["beans", "milk", "syrup", "topping", "ice", "cup"], lk: true, uc: 15000000}
+  {id: "coffee", n: "Black Coffee", i: "â˜•", p: 25000, nl: ["beans", "ice", "cup"], lk: false},
+  {id: "milk_coffee", n: "Milk Coffee", i: "ðŸ¥›", p: 30000, nl: ["beans", "milk", "sugar", "ice", "cup"], lk: false},
+  {id: "espresso", n: "Espresso", i: "â˜•", p: 35000, nl: ["beans", "ice", "cup"], lk: true, uc: 500000},
+  {id: "matcha", n: "Matcha Tea", i: "ðŸµ", p: 40000, nl: ["matcha", "milk", "sugar", "cup"], lk: true, uc: 3000000},
+  {id: "smoothie", n: "Smoothie", i: "ðŸ¥¤", p: 45000, nl: ["milk", "sugar", "ice", "cup"], lk: true, uc: 2000000},
+  {id: "cake", n: "Banh Mi", i: "ðŸ¥–", p: 35000, nl: ["bread", "cheese", "cup"], lk: false},
+  {id: "ice_tea", n: "Iced Tea", i: "ðŸ§Š", p: 15000, nl: ["tea", "ice", "cup"], lk: false},
+  {id: "bubble_tea", n: "Bubble Tea", i: "ðŸ§‹", p: 50000, nl: ["tea", "milk", "tapioca", "sugar", "ice", "cup"], lk: true, uc: 4000000},
+  {id: "tropical", n: "Coconut Juice", i: "ðŸ¥¥", p: 55000, nl: ["milk", "ice", "cup"], lk: true, uc: 5000000},
+  {id: "signature", n: "Signature Drink", i: "ðŸ¹", p: 80000, nl: ["beans", "milk", "syrup", "topping", "ice", "cup"], lk: true, uc: 15000000}
 ];
 
 var TREND_ITEMS = [
@@ -172,11 +172,11 @@ var SUPPLIERS = {
 };
 
 var WEATHERS = {
-  sunny: {e: "☀️ Sunny", m: 1.0},
-  cloudy: {e: "☁️ Cloudy", m: 1.05},
-  rainy: {e: "🌧️ Rainy", m: 0.75},
-  hot: {e: "🔥 Hot", m: 1.15},
-  tet: {e: "🎆 Tet", m: 2.5}
+  sunny: {e: "â˜€ï¸ Sunny", m: 1.0},
+  cloudy: {e: "â˜ï¸ Cloudy", m: 1.05},
+  rainy: {e: "ðŸŒ§ï¸ Rainy", m: 0.75},
+  hot: {e: "ðŸ”¥ Hot", m: 1.15},
+  tet: {e: "ðŸŽ† Tet", m: 2.5}
 };
 
 var SEASONS = {
@@ -293,7 +293,7 @@ function serveOrder(idx) {
   G.dailyRev += revenue;
   G.orders.splice(idx, 1);
   addXP(10);
-  notify("Served! +₫" + fmt(revenue));
+  notify("Served! +â‚«" + fmt(revenue));
   saveGame();
   renderAll();
 }
@@ -417,7 +417,7 @@ function renderCustomers() {
   for (var i = 0; i < Math.min(c, 15); i++) {
     var d = document.createElement("div");
     d.className = "customer";
-    d.textContent = ["👨", "👩", "👦", "👧"][i % 4];
+    d.textContent = ["ðŸ‘¨", "ðŸ‘©", "ðŸ‘¦", "ðŸ‘§"][i % 4];
     d.style.animationDelay = (i * 0.1) + "s";
     el.appendChild(d);
   }
@@ -575,7 +575,7 @@ function renderSupply() {
       var cost = Math.ceil(item.p * 10);
       var d = document.createElement("div");
       d.className = "sr3";
-      d.innerHTML = '<span class="nm">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="co">' + fmt(item.p) + " / 10u</span><span class="st">x10</span><button class="bs" onclick="orderSupply(\'' + key + '\',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
+      d.innerHTML = '<span class="nm">' + key + " T" + (ti + 1) + " (" + item.q + "%)</span><span class="price">' + fmt(item.p) + " / 10u</span><span class="st">x10</span><button class="bs" onclick="orderSupply(\'' + key + '\',' + ti + ')" ' + (G.coins < cost ? "disabled" : "") + '>Buy (' + fmt(cost) + ')</button>';
       el.appendChild(d);
     });
   });
@@ -707,7 +707,7 @@ function init() {
   loadGame();
   renderAll();
   startGameLoop();
-  notify("Welcome! Quán Trendy Café Premium! ☕");
+  notify("Welcome! QuÃ¡n Trendy CafÃ© Premium! â˜•");
 }
 
 // Auto-start when DOM ready
