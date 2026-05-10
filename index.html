@@ -509,27 +509,26 @@ function buyItem(id) {
 function buyRecipe(id) {
   var item = null;
   for (var i = 0; i < MENU.length; i++) {
-    if (MENU[i].id === id) {
-      item = MENU[i];
-      break;
-    }
+    if (MENU[i].id === id) { item = MENU[i]; break; }
   }
   if (!item || !item.lk) return;
-  
-  if (G.coins < item.uc) {
-    notify("Not enough!");
+  if (G.lv < item.reqLv) {
+    notify("Need Level " + item.reqLv + "! (You Lv" + G.lv + ")");
     return;
   }
-  
+  if (G.coins < item.uc) {
+    notify("Need " + fmt(item.uc) + " VND to unlock recipe!");
+    return;
+  }
   G.coins -= item.uc;
   G.recipes.push(id);
   item.lk = false;
-  notify("Unlocked: " + item.nm);
+  var profit = item.pr - item.cost;
+  var profitStr = profit > 0 ? "+" : "";
+  notify("UNLOCKED: " + item.nm + "! Cost: " + fmt(item.cost) + " | Price: " + fmt(item.pr) + " | Profit: " + profitStr + fmt(profit) + " per serve");
   saveGame();
   renderAll();
-}
-
-function hireStaff(tid) {
+}function hireStaff(tid) {
   var loc = null;
   for (var i = 0; i < LOCS.length; i++) {
     if (LOCS[i].id === G.curLoc) {
@@ -723,18 +722,45 @@ function renderOrders() {
 function renderMenu() {
   var el = document.getElementById("menu-list");
   el.innerHTML = "";
-  
-  for (var i = 0; i < MENU.length; i++) {
-    var item = MENU[i];
+  for (var mi = 0; mi < MENU.length; mi++) {
+    var item = MENU[mi];
     var unlocked = !item.lk || G.recipes.indexOf(item.id) >= 0;
+    var profit = item.pr - item.cost;
     var d = document.createElement("div");
     d.className = "card";
-    d.innerHTML = "<div class='inf'><div class='nm'>" + item.ic + " " + item.nm + (item.lk && !unlocked ? " <span class='badge' style='background:#f44336'>LOCKED</span>" : "") + "</div></div><div class='pr'>" + fmt(item.pr) + " VND <span class='free-tag'>FREE</span></div>";
+
+    var profitColor = profit > 0 ? "#4CAF50" : (profit < 0 ? "#f44336" : "#9E9E9E");
+    var profitSign = profit > 0 ? "+" : "";
+
+    var costHtml = "<div style='font-size:10px;color:#FF9800;margin-top:4px'><b>COST:</b> " + fmt(item.cost) + " VND</div>";
+    costHtml += "<div style='font-size:10px;color:" + profitColor + ";margin-top:2px'><b>PROFIT:</b> " + profitSign + fmt(profit) + " VND per serve</div>";
+
+    var unlockHtml = "";
+    if (item.lk && !unlocked) {
+      if (G.lv >= item.reqLv) {
+        unlockHtml = "<button class='btn' style='margin-top:6px;width:100%;background:#FF9800;color:#000;font-weight:bold' onclick=buyRecipe(item.id)>Unlock (" + fmt(item.uc) + " VND)</button>";
+        unlockHtml += "<div style='font-size:9px;color:#9E9E9E;text-align:center;margin-top:2px'>You have Lv" + G.lv + "</div>";
+      } else {
+        unlockHtml = "<div style='font-size:10px;color:#f44336;margin-top:6px'><b>REQUIREMENT: Lv" + item.reqLv + "</b> (You Lv" + G.lv + ")</div>";
+        unlockHtml += "<div style='font-size:9px;color:#FF9800;margin-top:2px'>Unlock cost: " + fmt(item.uc) + " VND</div>";
+      }
+    } else if (item.lk && unlocked) {
+      unlockHtml = "<div style='font-size:10px;color:#4CAF50;margin-top:6px'><b>UNLOCKED</b> - Profit: " + profitSign + fmt(profit) + " VND</div>";
+    }
+
+    var badgeHtml = "";
+    if (item.lk && !unlocked) {
+      badgeHtml = " <span class='badge' style='background:#f44336;font-size:9px'>LOCKED</span>";
+    } else if (item.lk && unlocked) {
+      badgeHtml = " <span class='badge' style='background:#4CAF50;font-size:9px'>UNLOCKED</span>";
+    }
+
+    d.innerHTML = "<div class='inf'><div class='nm'>" + item.ic + " " + item.nm + badgeHtml + "</div><div class='pr'>" + fmt(item.pr) + " VND</div></div>" + costHtml + unlockHtml;
     el.appendChild(d);
   }
 }
 
-function renderStats() {
+}function renderStats() {
   var el = document.getElementById("stats-list");
   el.innerHTML = "";
   
