@@ -1,0 +1,654 @@
+/* ============================================
+   QUÁN TRENDY CAFÉ — STYLES
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #8B4513;
+    --primary-light: #D2691E;
+    --secondary: #F4A460;
+    --accent: #FF6347;
+    --gold: #FFD700;
+    --bg-dark: #1a1a2e;
+    --bg-medium: #16213e;
+    --bg-light: #0f3460;
+    --text: #e8e8e8;
+    --text-dim: #a0a0b0;
+    --common: #b0b0b0;
+    --rare: #4169E1;
+    --epic: #9932CC;
+    --legendary: #FFD700;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+#game-container {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--bg-medium);
+}
+
+/* ---- Header ---- */
+#header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: linear-gradient(135deg, var(--bg-dark), var(--bg-light));
+    border-bottom: 2px solid var(--primary);
+}
+
+#player-info, #level-info {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 14px;
+}
+
+#coins, #daily-income, #player-level, #xp-amount, #xp-needed {
+    font-weight: bold;
+}
+
+/* ---- Weather Display ---- */
+#weather-display {
+    padding: 6px 15px;
+    background: linear-gradient(90deg, #FF6347, #FF8C00);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.weather-tip {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* Weather background classes */
+.weather-sunny { background: linear-gradient(to bottom, #87CEEB 0%, #8B7355 60%, #696969 100%); }
+.weather-cloudy { background: linear-gradient(to bottom, #708090 0%, #778899 60%, #2F4F4F 100%); }
+.weather-rainy { background: linear-gradient(to bottom, #4a4a5a 0%, #5a5a6a 60%, #3a3a4a 100%); }
+.weather-thunderstorm { background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 60%, #0a0a1a 100%); }
+.weather-hot { background: linear-gradient(to bottom, #FF4500 0%, #FF6347 60%, #FF8C00 100%); }
+.weather-tet { background: linear-gradient(to bottom, #FF0000 0%, #FFD700 50%, #FF0000 100%); }
+
+/* ---- Location Bar ---- */
+#location-bar {
+    display: flex;
+    gap: 5px;
+    padding: 8px 10px;
+    background: var(--bg-dark);
+    overflow-x: auto;
+}
+
+.loc-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 5px;
+    border: none;
+    border-radius: 8px;
+    background: var(--bg-light);
+    color: var(--text-dim);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.loc-btn.active {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+.loc-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ---- Cafe Display ---- */
+#cafe-display {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+#cafe-scene {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#cafe-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    transition: background 0.5s;
+}
+
+/* Cafe bg themes */
+#cafe-bg.street { background: linear-gradient(to bottom, #87CEEB 0%, #8B7355 60%, #696969 100%); }
+#cafe-bg.mall { background: linear-gradient(to bottom, #f5f5f5 0%, #c0c0c0 60%, #808080 100%); }
+#cafe-bg.garden { background: linear-gradient(to bottom, #87CEEB 0%, #228B22 60%, #006400 100%); }
+#cafe-bg.rooftop { background: linear-gradient(to bottom, #0a0a2e 0%, #1a1a4e 60%, #2a2a6e 100%); }
+#cafe-bg.festival { background: linear-gradient(to bottom, #FF69B4 0%, #FF8C00 50%, #9370DB 100%); }
+
+#customers-container {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.customer {
+    font-size: 28px;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.customer:hover {
+    transform: scale(1.2);
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* ---- Orders & Menu Panels ---- */
+#orders-panel, #menu-panel, #stats-panel {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--primary);
+}
+
+#orders-panel h3, #menu-panel h3, #stats-panel h3 {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+#orders-list, #menu-list, #stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background: var(--bg-light);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+}
+
+.order-item .order-info {
+    font-size: 13px;
+}
+
+.order-item .order-price {
+    color: var(--gold);
+    font-weight: bold;
+}
+
+.serve-btn {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 5px;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 5px;
+    font-size: 13px;
+}
+
+/* ---- Bottom Nav ---- */
+#bottom-nav {
+    display: flex;
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-dark);
+    border-top: 2px solid var(--primary);
+    z-index: 100;
+}
+
+.nav-btn {
+    flex: 1;
+    padding: 10px 2px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.nav-btn.active {
+    color: var(--gold);
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.nav-btn:hover {
+    color: var(--secondary);
+}
+
+/* ---- Panels ---- */
+#panels-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.panel {
+    display: none;
+    padding: 15px;
+}
+
+.panel.active {
+    display: block;
+}
+
+.panel h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Shop items */
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg-light);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.shop-item .item-icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.shop-item .item-details {
+    flex: 1;
+}
+
+.shop-item .item-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.shop-item .item-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.shop-item .item-price {
+    color: var(--gold);
+    font-weight: bold;
+}
+
+.buy-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.buy-btn:hover {
+    background: var(--primary);
+}
+
+/* ---- Items Collection ---- */
+#items-filter {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    background: var(--bg-light);
+    color: var(--text-dim);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* Item cards */
+.item-card {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg-light);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border-left: 4px solid var(--common);
+}
+
+.item-card.common { border-left-color: var(--common); }
+.item-card.rare { border-left-color: var(--rare); }
+.item-card.epic { border-left-color: var(--epic); }
+.item-card.legendary { border-left-color: var(--legendary); }
+
+.item-card .item-emoji {
+    font-size: 28px;
+    margin-right: 10px;
+}
+
+.item-card .item-info {
+    flex: 1;
+}
+
+.item-card .item-name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.item-card .item-rarity {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 3px;
+}
+
+.item-card .item-rarity.common { background: var(--common); color: #333; }
+.item-card .item-rarity.rare { background: var(--rare); color: white; }
+.item-card .item-rarity.epic { background: var(--epic); color: white; }
+.item-card .item-rarity.legendary { background: var(--legendary); color: #333; }
+
+/* ---- Market ---- */
+#market-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.market-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    background: var(--bg-light);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.market-tab.active {
+    background: var(--accent);
+    color: white;
+}
+
+.market-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg-dark);
+    border-radius: 8px;
+    margin-bottom: 6px;
+}
+
+.market-item .seller {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+/* ---- Quests ---- */
+#quest-trend-banner {
+    padding: 10px;
+    background: linear-gradient(90deg, #FF6347, #FF8C00);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.quest-item {
+    padding: 12px;
+    background: var(--bg-light);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid var(--gold);
+}
+
+.quest-item .quest-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.quest-item .quest-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+}
+
+.quest-item .quest-reward {
+    color: var(--gold);
+    font-size: 12px;
+}
+
+.quest-item .quest-progress {
+    margin-top: 6px;
+    height: 6px;
+    background: var(--bg-dark);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.quest-item .quest-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transition: width 0.3s;
+}
+
+.complete-quest {
+    margin-top: 6px;
+    padding: 5px 12px;
+    border: none;
+    border-radius: 5px;
+    background: var(--gold);
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* ---- Upgrades ---- */
+.upgrade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: var(--bg-light);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.upgrade-item .upgrade-info {
+    flex: 1;
+}
+
+.upgrade-item .upgrade-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.upgrade-item .upgrade-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+.upgrade-item .upgrade-cost {
+    color: var(--gold);
+    font-weight: bold;
+}
+
+.upgrade-btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.upgrade-btn:hover {
+    background: var(--primary-light);
+}
+
+/* ---- Trend Banner ---- */
+#trend-banner {
+    padding: 8px 15px;
+    background: linear-gradient(90deg, #FF6347, #FFD700);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: bold;
+    overflow: hidden;
+}
+
+#trend-text {
+    animation: scroll-text 10s linear infinite;
+    white-space: nowrap;
+}
+
+@keyframes scroll-text {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* ---- Modal ---- */
+#modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#modal-overlay.hidden {
+    display: none;
+}
+
+#modal {
+    background: var(--bg-medium);
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 2px solid var(--primary);
+}
+
+#modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid var(--primary);
+}
+
+#modal-title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#modal-body {
+    padding: 15px;
+}
+
+/* ---- Animations ---- */
+@keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-pop {
+    animation: pop 0.3s ease-out;
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ---- Responsive ---- */
+@media (min-width: 481px) {
+    #game-container {
+        border-left: 2px solid var(--primary);
+        border-right: 2px solid var(--primary);
+    }
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+}
