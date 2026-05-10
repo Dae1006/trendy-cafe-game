@@ -754,15 +754,12 @@ function init() {
 }
 
 function startGame() {
-  // Check if user is logged in
-  var isLoggedIn = localStorage.getItem("tcLoggedIn");
-  if (isLoggedIn) {
-    document.getElementById("login-screen").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    loadGame();
-    renderAll();
-    startGameLoop();
-  }
+  // Always start game - remove login requirement
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  loadGame();
+  renderAll();
+  startGameLoop();
 }
 
 // Save login state
@@ -781,6 +778,21 @@ window.setPrice = setPrice;
 window.toggleAutoPurchase = toggleAutoPurchase;
 window.loginGoogle = loginGoogle;
 window.guestLogin = guestLogin;
+// Add click handlers for navigation
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('nb')) {
+    document.querySelectorAll('.nb').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+    e.target.classList.add('active');
+    var tab = e.target.dataset.tab;
+    document.querySelectorAll('.pnl').forEach(function(pnl) {
+      pnl.classList.remove('active');
+    });
+    document.getElementById('p-' + tab).classList.add('active');
+  }
+});
+
 window.onload = init;
 </script>
 </body>
