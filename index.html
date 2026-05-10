@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -143,7 +143,7 @@ var G = {
   prices: {},
   staff: [],
   orders: [],
-  day: 1,
+  day: 1, dayTimestamp: Date.now(),
   drev: 0,
   dcost: 0,
   trev: 0,
@@ -863,12 +863,12 @@ function renderStaff() {
     }
   }
   
-  statusBar.innerHTML = '<div class="staff-status"><span class="label">📊 Buffs: </span><span class="value">Skill ' + fmt(Math.floor(sb.skillMult * 100)) + '% | Speed ' + fmt(Math.floor(sb.speedMult * 100)) + '% | Customers ' + fmt(Math.floor(sb.custMult * 100)) + '% | Revenue ' + fmt(Math.floor(sb.revMult * 100)) + '% | Profit +' + fmt(Math.floor(sb.profitBonus * 100)) + '%</span></div>';
+  statusBar.innerHTML = '<div class="staff-status"><span class="label">ðŸ“Š Buffs: </span><span class="value">Skill ' + fmt(Math.floor(sb.skillMult * 100)) + '% | Speed ' + fmt(Math.floor(sb.speedMult * 100)) + '% | Customers ' + fmt(Math.floor(sb.custMult * 100)) + '% | Revenue ' + fmt(Math.floor(sb.revMult * 100)) + '% | Profit +' + fmt(Math.floor(sb.profitBonus * 100)) + '%</span></div>';
   
   if (managerCount > 0 || seniorMgrCount > 0) {
-    document.getElementById("manager-buff-bar").innerHTML = '<div class="manager-buff">👑 Manager/Senior Manager đang buff TẤT CẢ staff: +skill +mood +speed +revenue!</div>';
+    document.getElementById("manager-buff-bar").innerHTML = '<div class="manager-buff">ðŸ‘‘ Manager/Senior Manager Ä‘ang buff Táº¤T Cáº¢ staff: +skill +mood +speed +revenue!</div>';
   } else {
-    document.getElementById("manager-buff-bar").innerHTML = '<div style="padding:4px;color:#a0a0b0;font-size:10px">👉 Hire Manager to buff ALL staff!</div>';
+    document.getElementById("manager-buff-bar").innerHTML = '<div style="padding:4px;color:#a0a0b0;font-size:10px">ðŸ‘‰ Hire Manager to buff ALL staff!</div>';
   }
   
   var loc = null;
@@ -945,7 +945,7 @@ for (var i = 0; i < navBtns.length; i++) {
 // Day tick (every 1 hour = 1 in-game day)
 setInterval(function() {
   var now = Date.now();
-  if (now - G.day >= 3600000) { // 1 hour
+  if (now - G.dayTimestamp >= 3600000) { // 1 hour
     G.day++;
     G.dcost = 0;
     for (var i = 0; i < G.staff.length; i++) {
@@ -971,7 +971,7 @@ setInterval(function() {
     saveGame();
     renderAll();
   }
-  G.day = Date.now();
+  G.dayTimestamp = Date.now();
 }, 1000);
 
 // Order generation (every 15 seconds)
@@ -1030,6 +1030,7 @@ function loadGame() {
       var p = JSON.parse(s);
       for (var k in p) {
         if (G.hasOwnProperty(k)) {
+          if (k === "dayTimestamp") continue;
           G[k] = p[k];
         }
       }
@@ -1037,6 +1038,9 @@ function loadGame() {
       // Ignore parse errors
     }
   }
+  // Reset timestamp so timer starts fresh
+  G.dayTimestamp = Date.now();
+  // Reset prices if missing
   // Reset prices if missing
   for (var i = 0; i < MENU.length; i++) {
     if (!G.prices[MENU[i].id]) {
