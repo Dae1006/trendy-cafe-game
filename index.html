@@ -2,156 +2,572 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>☕ Quán Trendy Café — Pixel Art Edition</title>
-<link rel="stylesheet" href="styles.css">
 <style>
-  /* Pixel font fallback for emoji sprites */
-  .pixel-emoji {
-    image-rendering: pixelated;
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    text-align: center;
-    line-height: 32px;
-  }
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root {
+  --bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;
+  --gold:#FFD700;--accent:#FF6347;--green:#28a745;
+  --red:#dc3545;--txt:#e8e8e8;--dim:#a0a0b0;
+}
+
+body {
+  font-family:'Press Start 2P',monospace;
+  background:var(--bg);color:var(--txt);
+  min-height:100vh;max-width:480px;margin:0 auto;
+  image-rendering:pixelated;font-size:10px;line-height:1.6;overflow-x:hidden;
+}
+
+/* HEADER */
+#hdr {
+  display:flex;justify-content:space-between;padding:10px 15px;
+  background:linear-gradient(135deg,var(--bg),var(--bg3));
+  border-bottom:4px solid var(--gold);
+  font-size:9px;position:sticky;top:0;z-index:10;
+}
+#hdr .v { color:var(--gold);text-shadow:1px 1px 0 #000; }
+#xp-bar-wrap { height:6px;background:#333;border-bottom:2px solid #000; }
+#xp-bar { height:100%;background:linear-gradient(90deg,#4169E1,#9932CC);width:0%;transition:width .3s; }
+
+/* WEATHER */
+#weather {
+  padding:6px 15px;background:linear-gradient(90deg,#FF6347,#FF8C00);
+  border-bottom:4px solid #000;font-size:8px;
+}
+
+/* CAFE SCENE */
+#scene {
+  height:160px;position:relative;overflow:hidden;
+  border-bottom:4px solid var(--bg3);
+}
+#cafe-bg {
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%);
+}
+#cafe-bg::after {
+  content:'';position:absolute;inset:0;
+  background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);
+  background-size:4px 4px;pointer-events:none;
+}
+#custs {
+  position:absolute;bottom:5px;left:0;width:100%;height:60px;
+  display:flex;gap:4px;justify-content:center;flex-wrap:wrap;
+}
+.cust {
+  font-size:24px;animation:bot .8s infinite alternate;
+  filter:drop-shadow(2px 2px 0 #000);
+}
+@keyframes bot { from{transform:translateY(0)} to{transform:translateY(-6px)} }
+
+/* BOTTOM NAV */
+#nav {
+  display:flex;position:sticky;bottom:0;background:var(--bg);
+  border-top:4px solid var(--gold);z-index:10;overflow-x:auto;
+}
+.nb {
+  flex:1;min-width:40px;padding:8px 2px;border:none;background:transparent;
+  color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;white-space:nowrap;
+  border-top:3px solid transparent;
+}
+.nb.on { color:var(--gold);background:rgba(255,215,0,.12);border-top-color:var(--gold); }
+
+/* PANEL */
+#pnl { min-height:300px;background:var(--bg2); }
+.pan { display:none;padding:10px; }
+.pan.on { display:block; }
+.pan h3 {
+  font-size:10px;color:var(--gold);margin-bottom:8px;padding-bottom:4px;
+  border-bottom:2px solid var(--bg3);
+}
+
+/* BUTTONS */
+.btn {
+  padding:6px 12px;border:2px solid #000;border-radius:0;background:var(--accent);
+  color:#fff;cursor:pointer;font-family:inherit;font-size:8px;
+  box-shadow:2px 2px 0 #000;transition:all .05s;
+}
+.btn:hover { transform:translate(-1px,-1px);box-shadow:3px 3px 0 #000; }
+.btn:active { transform:translate(2px,2px);box-shadow:none; }
+.btn:disabled { background:#555;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 #000; }
+.btn.g { background:var(--green); }
+.btn.o { background:var(--red); }
+.btn:disabled { opacity:.5; }
+
+/* CARDS */
+.card {
+  padding:8px;margin:4px 0;background:var(--bg3);border:2px solid #000;
+  border-bottom:3px solid #000;display:flex;justify-content:space-between;
+  align-items:center;font-size:8px;
+}
+.card .nm { font-weight:bold;line-height:2; }
+.card .pr { color:var(--gold); }
+.r-bar { height:6px;background:#333;border:1px solid #000;margin:3px 0;overflow:hidden; }
+.r-fill { height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s; }
+
+/* NOTIFICATION */
+#notif {
+  position:fixed;top:10px;left:50%;transform:translateX(-50%);
+  background:var(--bg3);color:var(--gold);padding:8px 16px;
+  border:3px solid var(--gold);box-shadow:0 4px 0 #000;
+  font-size:8px;z-index:999;display:none;
+}
+
+/* SHOP / FILTER */
+.flt-row { display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap; }
+.flt-btn { padding:4px 8px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;font-family:inherit;cursor:pointer; }
+.flt-btn.on { background:var(--bg);color:var(--gold);border-color:var(--gold); }
+
+/* STATS */
+.st-row { display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px; }
+.st-l { color:var(--dim); }
+.st-v { color:var(--gold); }
+
+/* LOC */
+#locs { display:flex;gap:4px;padding:6px;background:var(--bg);border-bottom:4px solid var(--bg3);overflow-x:auto; }
+.lb {
+  flex:1;min-width:55px;padding:6px 3px;border:2px solid #000;background:var(--bg3);
+  color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;text-align:center;
+}
+.lb.on { background:var(--bg);color:var(--gold);border-color:var(--gold); }
+.lb:disabled { opacity:.3;cursor:not-allowed; }
+
+/* EMPTY */
+.empty { padding:20px;text-align:center;color:var(--dim);font-size:9px; }
+
+/* LOADING */
+#loading {
+  position:fixed;inset:0;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;z-index:9999;
+  font-size:14px;color:var(--gold);flex-direction:column;gap:10px;
+}
+.spinner {
+  width:40px;height:40px;border:4px solid var(--bg3);border-top-color:var(--gold);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
 </style>
 </head>
 <body>
-<div id="game-container">
-    <!-- HEADER -->
-    <div id="header">
-        <div id="player-info">
-            <span>💰</span>
-            <span id="coin-amount">500</span>
-        </div>
-        <div id="level-info">
-            <span>Lv</span>
-            <span id="player-level">1</span>
-            <span>⭐</span>
-            <span id="xp-amount">0</span>/<span id="xp-needed">100</span>
-        </div>
-    </div>
-    <div id="xp-bar-container">
-        <div id="xp-bar" style="width:0%"></div>
-    </div>
 
-    <!-- WEATHER -->
-    <div id="weather-display">
-        <span id="weather-emoji">☀️</span>
-        <span id="weather-text">Nắng — Trời nắng — khách mua nước đá tăng!</span>
-    </div>
-
-    <!-- TREND BANNER -->
-    <div id="trend-banner">
-        <span>🔥</span>
-        <div id="trend-text">Chào mừng đến Quán Trendy Café! 🎮 Pixel Art Edition ☕</div>
-        <span>🔥</span>
-    </div>
-
-    <!-- LOCATION BAR -->
-    <div id="location-bar">
-        <button class="loc-btn active" data-loc="street">🚶 Vỉa hè</button>
-        <button class="loc-btn" data-loc="mall">🏬 Mall</button>
-        <button class="loc-btn" data-loc="garden">🌳 Sân vườn</button>
-        <button class="loc-btn" data-loc="rooftop" disabled>🌃 Rooftop</button>
-        <button class="loc-btn" data-loc="festival" disabled>🎪 Lễ hội</button>
-    </div>
-
-    <!-- CAFE SCENE DISPLAY -->
-    <div id="cafe-display">
-        <div id="cafe-scene">
-            <div id="cafe-bg" class="weather-sunny"></div>
-            <div id="customers-container"></div>
-        </div>
-    </div>
-
-    <!-- BOTTOM NAV -->
-    <div id="bottom-nav">
-        <button class="nav-btn active" data-tab="orders">📋 Order</button>
-        <button class="nav-btn" data-tab="menu">🍽️ Menu</button>
-        <button class="nav-btn" data-tab="stats">📊 Stats</button>
-        <button class="nav-btn" data-tab="staff">👥 Staff</button>
-        <button class="nav-btn" data-tab="shop">🛒 Shop</button>
-        <button class="nav-btn" data-tab="items">🎒 Items</button>
-        <button class="nav-btn" data-tab="market">⚡ Market</button>
-        <button class="nav-btn" data-tab="quests">📌 Quest</button>
-        <button class="nav-btn" data-tab="upgrades">⬆️ Upgrade</button>
-    </div>
-
-    <!-- PANELS CONTAINER -->
-    <div id="panels-container">
-        <!-- ORDERS PANEL -->
-        <div id="orders-panel" class="panel active">
-            <h3>📋 ĐƠN HÀNG</h3>
-            <div id="orders-list"></div>
-        </div>
-
-        <!-- MENU PANEL -->
-        <div id="menu-panel" class="panel">
-            <h3>🍽️ MENU</h3>
-            <div id="menu-list"></div>
-        </div>
-
-        <!-- STATS PANEL -->
-        <div id="stats-panel" class="panel">
-            <h3>📊 THỐNG KÊ</h3>
-            <div id="stats-list"></div>
-        </div>
-
-        <!-- STAFF PANEL -->
-        <div id="staff-panel" class="panel">
-            <h3>👥 NHÂN VIÊN</h3>
-            <div id="staff-hire-area"></div>
-            <h3 style="margin-top:10px">👥 ĐỘI NGŨ</h3>
-            <div id="staff-list"></div>
-        </div>
-
-        <!-- SHOP PANEL -->
-        <div id="shop-panel" class="panel">
-            <h3>🛒 SHOP TRENDY</h3>
-            <div id="shop-menu-list"></div>
-        </div>
-
-        <!-- ITEMS PANEL -->
-        <div id="items-panel" class="panel">
-            <h3>🎒 BỘ SƯU TẬP</h3>
-            <div id="items-filter">
-                <button class="filter-btn active" data-filter="all">Tất cả</button>
-                <button class="filter-btn" data-filter="common">Common</button>
-                <button class="filter-btn" data-filter="rare">Rare</button>
-                <button class="filter-btn" data-filter="epic">Epic</button>
-                <button class="filter-btn" data-filter="legendary">Legendary</button>
-            </div>
-            <div id="items-list"></div>
-        </div>
-
-        <!-- MARKET PANEL -->
-        <div id="market-panel" class="panel">
-            <h3>⚡ CHỢ ĐỔI LỘC</h3>
-            <div id="market-tabs">
-                <button class="market-tab active">Mua</button>
-                <button class="market-tab">Bán</button>
-            </div>
-            <div id="market-list"></div>
-        </div>
-
-        <!-- QUESTS PANEL -->
-        <div id="quests-panel" class="panel">
-            <h3>📌 NHIỆM VỤ</h3>
-            <div id="quest-trend-banner">🎮 Hoàn thành nhiệm vụ để nhận phần thưởng!</div>
-            <div id="quests-list"></div>
-        </div>
-
-        <!-- UPGRADES PANEL -->
-        <div id="upgrades-panel" class="panel">
-            <h3>⬆️ NÂNG CẤP</h3>
-            <div id="upgrades-list"></div>
-        </div>
-    </div>
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div>☕ Đang mở quán...</div>
 </div>
 
-<!-- All game logic in game_engine_v2.js -->
-<script src="game_engine_v2.js"></script>
+<!-- NOTIFICATION -->
+<div id="notif"></div>
+
+<!-- HEADER -->
+<div id="hdr">
+  <div>💰 <span class="v" id="coins">500</span></div>
+  <div>
+    Lv<span class="v" id="lv">1</span>
+    <span>⭐</span><span class="v" id="xp">0</span>/<span class="v" id="xpn">100</span>
+  </div>
+</div>
+<div id="xp-bar-wrap"><div id="xp-bar"></div></div>
+
+<!-- WEATHER -->
+<div id="weather">☀️ Nắng</div>
+
+<!-- LOCATIONS -->
+<div id="locs"></div>
+
+<!-- CAFE SCENE -->
+<div id="scene">
+  <div id="cafe-bg"></div>
+  <div id="custs"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div id="nav">
+  <button class="nb on" data-tab="orders">📋Order</button>
+  <button class="nb" data-tab="menu">🍽️Menu</button>
+  <button class="nb" data-tab="stats">📊Stats</button>
+  <button class="nb" data-tab="staff">👥Staff</button>
+  <button class="nb" data-tab="shop">🛒Shop</button>
+  <button class="nb" data-tab="items">🎒Items</button>
+  <button class="nb" data-tab="quests">📌Quest</button>
+  <button class="nb" data-tab="up">⬆️Upgrade</button>
+</div>
+
+<!-- PANELS -->
+<div id="pnl">
+  <div class="pan on" id="p-orders"><div id="ol"></div></div>
+  <div class="pan" id="p-menu"><div id="ml"></div></div>
+  <div class="pan" id="p-stats"><div id="sl"></div></div>
+  <div class="pan" id="p-staff"><div id="hl"></div><div id="sll"></div></div>
+  <div class="pan" id="p-shop"><div id="so"></div></div>
+  <div class="pan" id="p-items"><div id="fl"></div><div id="il"></div></div>
+  <div class="pan" id="p-quests"><div id="ql"></div></div>
+  <div class="pan" id="p-up"><div id="ul"></div></div>
+</div>
+
+<script>
+// === GAME DATA ===
+const LOCS = [
+  {id:'street',name:'Vỉa hè',emoji:'🚶',cost:0,rm:1,cust:3,bg:'linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)'},
+  {id:'mall',name:'TMall',emoji:'🏬',cost:5000,rm:2.5,cust:5,bg:'linear-gradient(to bottom,#f5f5f5 0%,#c0c0c0 60%,#808080 100%)'},
+  {id:'garden',name:'Sân vườn',emoji:'🌳',cost:15000,rm:2,cust:4,bg:'linear-gradient(to bottom,#87CEEB 0%,#228B22 60%,#006400 100%)'},
+  {id:'rooftop',name:'Rooftop',emoji:'🌃',cost:50000,rm:3.5,cust:6,bg:'linear-gradient(to bottom,#0a0a2e 0%,#1a1a4e 60%,#2a2a6e 100%)'},
+  {id:'festival',name:'Lễ hội',emoji:'🎪',cost:100000,rm:4,cust:8,bg:'linear-gradient(to bottom,#FF69B4 0%,#FF8C00 50%,#9370DB 100%)'}
+];
+
+const MENU = [
+  {id:'coffee',name:'Cà phê đen',icon:'☕',price:25,cost:5},
+  {id:'milk_coffee',name:'Cà phê sữa',icon:'🥛',price:30,cost:8},
+  {id:'espresso',name:'Espresso',icon:'☕',price:35,cost:5},
+  {id:'matcha',name:'Trà matcha',icon:'🍵',price:40,cost:10},
+  {id:'smoothie',name:'Sinh tố',icon:'🥤',price:45,cost:12},
+  {id:'cake',name:'Bánh mì',icon:'🥪',price:35,cost:8},
+  {id:'ice_tea',name:'Trà đá',icon:'🧊',price:15,cost:3},
+  {id:'bubble_tea',name:'Trà sữa',icon:'🧋',price:50,cost:12},
+  {id:'tropical',name:'Nước ép dừa',icon:'🥥',price:55,cost:15},
+  {id:'signature',name:'Signature',icon:'🍸',price:80,cost:20}
+];
+
+const TREND = [
+  {id:'t_dog',name:'🐶 Meme Chó Vàng',r:'common',ef:'rev',v:.05,cost:200,desc:'+5% rev'},
+  {id:'t_cat',name:'🐱 Mèo hoang',r:'common',ef:'rev',v:.03,cost:150,desc:'+3% rev'},
+  {id:'t_mu',name:'⚽ Áo MU',r:'common',ef:'cust',v:1,cost:300,desc:'+1 khách'},
+  {id:'t_astro',name:'🧋 Trà Astro',r:'common',ef:'rev',v:.1,cost:400,desc:'+10% trà sữa'},
+  {id:'t_girl',name:'💃 Cô Bé',r:'rare',ef:'rev',v:.1,cost:1000,desc:'+10% rev'},
+  {id:'t_ba',name:'💯 Ba Trăm',r:'rare',ef:'cust',v:2,cost:1500,desc:'+2 khách'},
+  {id:'t_sieu',name:'⚡ Siêu Tốc',r:'epic',ef:'cust',v:5,cost:8000,desc:'+5 khách'},
+  {id:'t_vua',name:'👑 Vua Cà Phê',r:'legendary',ef:'rev',v:.5,cost:20000,desc:'+50% rev'},
+  {id:'t_omega',name:'💫 Omega Plus',r:'legendary',ef:'all',v:.3,cost:50000,desc:'+30% all'},
+];
+
+const UPGRADES = [
+  {id:'u1',name:'👨‍🍳 Thuê nhân viên',desc:'Auto +1 khách/phút',cost:1000,type:'auto',v:1},
+  {id:'u2',name:'👩‍🍳 Thêm nhân viên',desc:'Auto +2 khách/phút',cost:3000,type:'auto',v:2},
+  {id:'u3',name:'🪑 Bàn ghế mới',desc:'+10% doanh thu',cost:1500,type:'rev',v:.1},
+  {id:'u4',name:'🎵 Nhạc nền',desc:'+5% doanh thu',cost:800,type:'rev',v:.05},
+  {id:'u5',name:'🪧 Bảng hiệu LED',desc:'+20% khách',cost:5000,type:'cust',v:.2},
+  {id:'u6',name:'❄️ Điều hòa',desc:'+15% doanh thu',cost:3500,type:'rev',v:.15},
+];
+
+const QUESTS = [
+  {id:'q1',title:'Ngày đầu khai trương',desc:'Phục vụ 10 khách',type:'serve',target:10,reward:200,xp:50,done:false,p:0},
+  {id:'q2',title:'Thu thập meme',desc:'Sở hữu 1 item',type:'collect',target:1,reward:300,xp:75,done:false,p:0},
+  {id:'q3',title:'Triệu phú cà phê',desc:'Kiếm 5000 coin',type:'earn',target:5000,reward:1000,xp:150,done:false,p:0},
+  {id:'q4',title:'Thu thập bộ sưu tập',desc:'Có 5 items',type:'collect_all',target:5,reward:3000,xp:300,done:false,p:0},
+  {id:'q5',title:'King of Trendy',desc:'Sở hữu hết items',type:'complete_all',target:TREND.length,reward:20000,xp:2000,done:false,p:0},
+];
+
+const WEATHERS = [
+  {e:'☀️',n:'Nắng',rm:1.0},
+  {e:'⛅',n:'Mát',rm:1.05},
+  {e:'🌧️',n:'Mưa',rm:0.75},
+  {e:'🔥',n:'Nóng',rm:1.15},
+  {e:'🎊',n:'Tết',rm:2.5}
+];
+
+// === STATE ===
+let G = {
+  coins:500, lv:1, xp:0, xpn:100,
+  loc:'street', ul:['street'], rc:[],
+  items:{}, ups:[], qs:JSON.parse(JSON.stringify(QUESTS)),
+  rev:0, totalRev:0, served:0, day:1,
+  autoRate:0, filter:'all'
+};
+
+// === HELPERS ===
+const fm = n => n?.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',') || '0';
+
+function save() { try{localStorage.setItem('tc',JSON.stringify(G))}catch(e){} }
+function load() {
+  try {
+    const s = localStorage.getItem('tc');
+    if(s) { const d=JSON.parse(s); for(let k in d) if(k!=='qs') G[k]=d[k]; }
+  } catch(e){}
+}
+
+function getBuff() {
+  let r = 1;
+  for(let id in G.items) {
+    const t = TREND.find(x=>x.id===id);
+    if(t) { if(t.ef==='rev') r+=t.v*G.items[id]; if(t.ef==='all') r+=t.v*G.items[id]; }
+  }
+  for(let ui of G.ups) {
+    const u = UPGRADES.find(x=>x.id===ui);
+    if(u && u.type==='rev') r+=u.v;
+  }
+  const w = getWeather(); r *= w.rm;
+  return r;
+}
+
+function getCustomers() {
+  const l = LOCS.find(x=>x.id===G.loc);
+  let base = l.cust;
+  for(let id in G.items) {
+    const t = TREND.find(x=>x.id===id);
+    if(t && t.ef==='cust') base+=t.v*G.items[id];
+  }
+  for(let ui of G.ups) {
+    const u = UPGRADES.find(x=>x.id===ui);
+    if(u && u.type==='cust') base=Math.floor(base*(1+u.v));
+  }
+  return base;
+}
+
+function getWeather() {
+  const idx = Math.floor(Math.sin(G.day*0.3)*1000) % WEATHERS.length;
+  const i = ((idx%WEATHERS.length)+WEATHERS.length)%WEATHERS.length;
+  return WEATHERS[i];
+}
+
+function addXP(a) {
+  G.xp+=a;
+  while(G.xp>=G.xpn) { G.xp-=G.xpn; G.lv++; G.xpn=Math.floor(G.xpn*1.5); show('⭐ UP Lv'+G.lv+'!'); }
+}
+
+function checkQuest(type, val) {
+  G.qs.forEach(q=>{
+    if(!q.done && q.type===type) {
+      q.p = (q.p||0)+val;
+      if(q.p>=q.target) {
+        q.done=true; G.coins+=q.reward; addXP(q.xp);
+        show('✅ Quest: '+q.title+'! +'+q.reward+'💰');
+      }
+    }
+  });
+}
+
+// === RENDER ===
+function render() {
+  const c=document.getElementById('coins'); if(c) c.textContent=fm(G.coins);
+  const l=document.getElementById('lv'); if(l) l.textContent=G.lv;
+  const x=document.getElementById('xp'); if(x) x.textContent=G.xp;
+  const xn=document.getElementById('xpn'); if(xn) xn.textContent=G.xpn;
+  const xb=document.getElementById('xp-bar'); if(xb) xb.style.width=(G.xp/G.xpn*100)+'%';
+
+  renderLocs(); renderWeather(); renderCafe(); renderOrders();
+  renderMenu(); renderStats(); renderShop(); renderItems(); renderQuests(); renderUpgrades();
+}
+
+function renderLocs() {
+  const el=document.getElementById('locs'); if(!el)return; el.innerHTML='';
+  LOCS.forEach(l=>{
+    const b=document.createElement('button');
+    b.className='lb'+(G.loc===l.id?' on':'')+((G.ul.indexOf(l.id)<0)?'':'');
+    b.textContent=l.emoji+' '+l.name;
+    b.disabled=G.ul.indexOf(l.id)<0;
+    if(G.ul.indexOf(l.id)>=0) b.onclick=()=>{G.loc=l.id;save();render();};
+    else b.onclick=()=>{
+      if(G.coins>=l.cost){G.coins-=l.cost;G.ul.push(l.id);show('🔓 Mở khóa: '+l.name+'!');checkQuest('upgrade',1);}
+      else show('❌ Cần '+fm(l.cost)+'💰');
+      save();render();
+    };
+    el.appendChild(b);
+  });
+}
+
+function renderWeather() {
+  const el=document.getElementById('weather'); if(!el)return;
+  const w=getWeather();
+  el.textContent=w.e+' '+w.n+' (x'+w.rm+')';
+}
+
+function renderCafe() {
+  const bg=document.getElementById('cafe-bg');
+  const sc=document.getElementById('custs');
+  const l=LOCS.find(x=>x.id===G.loc);
+  if(bg) bg.style.background=l.bg;
+  sc.innerHTML='';
+  const n=Math.min(getCustomers(),12);
+  const emojis=['👨‍💻','👩‍🎮','🧑‍🎨','👴','🧒','🤓','😎','🥳','👦','👧','👩‍🏫','🧔'];
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');d.className='cust';
+    d.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    d.style.animationDelay=(Math.random()*1)+'s';
+    d.style.fontSize=(20+Math.random()*8)+'px';
+    sc.appendChild(d);
+  }
+}
+
+function renderOrders() {
+  const el=document.getElementById('ol'); if(!el)return; el.innerHTML='';
+  const l=LOCS.find(x=>x.id===G.loc);
+  const n=Math.min(l.cust+Math.floor(getCustomers()*0.4),8);
+  if(n===0){el.innerHTML='<div class="empty">⏳ Chờ khách...</div>';return;}
+  for(let i=0;i<n;i++){
+    const mi=MENU[Math.floor(Math.random()*MENU.length)];
+    const buff=getBuff();
+    const price=Math.floor(mi.price*buff);
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span></div><div><span class="pr">'+fm(price)+'₫</span> <button class="btn g" onclick="serve('+i+',\''+mi.id+'\')">SERVE</button></div>';
+    el.appendChild(d);
+  }
+}
+
+function serve(idx, itemId) {
+  const mi=MENU.find(x=>x.id===itemId); if(!mi)return;
+  const buff=getBuff();
+  const earned=Math.floor(mi.price*buff);
+  G.coins+=earned; G.rev+=earned; G.totalRev+=earned; G.served++;
+  addXP(10); checkQuest('serve',1); checkQuest('earn',earned);
+  show('✅ +'+fm(earned)+'₫ | '+mi.name);
+  save(); render();
+}
+
+function renderMenu() {
+  const el=document.getElementById('ml'); if(!el)return; el.innerHTML='';
+  MENU.forEach(mi=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span><div style="color:#a0a0b0">Cost: '+fm(mi.cost)+'₫</div></div><div style="text-align:right"><span class="pr">~'+fm(Math.floor(mi.price*getBuff()))+'₫</span></div>';
+    el.appendChild(d);
+  });
+}
+
+function renderStats() {
+  const el=document.getElementById('sl'); if(!el)return; el.innerHTML='';
+  const rows=[['Ngày',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Đã phục vụ',G.served],['Doanh thu hôm nay',fm(G.rev)+'₫'],['Tổng doanh thu',fm(G.totalRev)+'₫'],['Coin',fm(G.coins)+'₫'],['Items sở hữu',Object.keys(G.items).length]];
+  rows.forEach(r=>{
+    const d=document.createElement('div');d.className='st-row';
+    d.innerHTML='<span class="st-l">'+r[0]+'</span><span class="st-v">'+r[1]+'</span>';
+    el.appendChild(d);
+  });
+}
+
+function renderShop() {
+  const el=document.getElementById('so'); if(!el)return; el.innerHTML='';
+  const avail=TREND.filter(t=>!G.items[t.id]||G.items[t.id]<1);
+  if(avail.length===0){el.innerHTML='<div class="empty">✅ Đã hết!</div>';return;}
+  const rc={common:'#b0b0b0',rare:'#4169E1',epic:'#9932CC',legendary:'#FFD700'};
+  avail.forEach(t=>{
+    const d=document.createElement('div');d.className='card';
+    d.style.borderLeft='4px solid '+(rc[t.r]||'#b0b0b0');
+    d.innerHTML='<div><span class="nm">'+t.name+'</span><div style="color:#a0a0b0">'+t.desc+'</div></div><div><span class="pr">'+fm(t.cost)+'₫</span> <button class="btn" onclick="buyItem(\''+t.id+'\')">MUA</button></div>';
+    el.appendChild(d);
+  });
+}
+
+function buyItem(id) {
+  const t=TREND.find(x=>x.id===id); if(!t)return;
+  if(G.coins<t.cost){show('❌ Không đủ coin!');return;}
+  G.coins-=t.cost; G.items[id]=(G.items[id]||0)+1;
+  show('✅ Mua: '+t.name+'!'); checkQuest('collect',1); checkQuest('collect_all',1); save(); render();
+}
+
+function renderItems() {
+  const el=document.getElementById('il'); if(!el)return; el.innerHTML='';
+  const fl=document.getElementById('fl'); if(!fl)return; fl.innerHTML='';
+  const rc={common:'Common',rare:'Rare',epic:'Epic',legendary:'Legendary'};
+
+  ['all','common','rare','epic','legendary'].forEach(f=>{
+    const b=document.createElement('button');b.className='flt-btn'+(G.filter===f?' on':'');
+    b.textContent=f==='all'?'All':rc[f]; b.onclick=()=>{G.filter=f;render();}; fl.appendChild(b);
+  });
+
+  const owned=Object.entries(G.items).filter(([k,v])=>v>0);
+  const filtered=G.filter==='all'?owned:owned.filter(([id])=>{const t=TREND.find(x=>x.id===id);return t&&t.r===G.filter;});
+  if(filtered.length===0){el.innerHTML='<div class="empty">📦 Chưa có items!</div>';return;}
+  filtered.forEach(([id,cnt])=>{
+    const t=TREND.find(x=>x.id===id); if(!t)return;
+    const d=document.createElement('div');d.className='card';
+    d.style.borderLeft='4px solid var(--'+(t.r==='legendary'?'gold':'dim')+')';
+    d.innerHTML='<span class="nm">'+t.name+'</span><span class="pr">'+rc[t.r]+' ×'+cnt+'</span>';
+    el.appendChild(d);
+  });
+}
+
+function renderQuests() {
+  const el=document.getElementById('ql'); if(!el)return; el.innerHTML='';
+  G.qs.forEach(q=>{
+    const pct=Math.min(100,(q.p||0)/q.target*100);
+    const d=document.createElement('div');d.className='card';
+    d.style.borderLeft='4px solid '+(q.done?'var(--gold)':'var(--dim)');
+    d.innerHTML='<div><span class="nm">'+(q.done?'✅':'📌')+' '+q.title+'</span><div style="color:#a0a0b0;font-size:7px">'+q.desc+'</div><div style="color:var(--gold);font-size:7px">🎁 '+q.reward+'💰 '+q.xp+'XP</div></div><div><div class="r-bar"><div class="r-fill" style="width:'+pct+'%"></div></div><div style="font-size:7px;color:var(--dim)">'+Math.floor(q.p||0)+'/'+q.target+'</div></div>';
+    el.appendChild(d);
+  });
+}
+
+function renderUpgrades() {
+  const el=document.getElementById('ul'); if(!el)return; el.innerHTML='';
+  UPGRADES.forEach(u=>{
+    const bought=G.ups.includes(u.id);
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+u.name+'</span><div style="color:#a0a0b0;font-size:7px">'+u.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(u.cost)+'₫</span><button class="btn'+(bought?'':'')+'" onclick="buyUpgrade(\''+u.id+'\')" '+(bought||G.coins<u.cost?'disabled':'')+'>'+(bought?'✅Đã mua':'MUA')+'</button></div>';
+    el.appendChild(d);
+  });
+}
+
+function buyUpgrade(id) {
+  const u=UPGRADES.find(x=>x.id===id); if(!u||G.coins<u.cost||G.ups.includes(id))return;
+  G.coins-=u.cost; G.ups.push(id);
+  if(u.type==='auto') G.autoRate+=u.v;
+  show('⬆️ '+u.name+'!'); checkQuest('upgrade',1); save(); render();
+}
+
+// === NOTIFICATION ===
+function show(msg) {
+  const el=document.getElementById('notif');
+  el.textContent=msg; el.style.display='block';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.style.display='none',2500);
+}
+
+// === TABS ===
+function initTabs() {
+  document.querySelectorAll('.nb').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));
+      document.querySelectorAll('.pan').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      document.getElementById('p-'+b.dataset.tab)?.classList.add('on');
+    };
+  });
+}
+
+// === GAME LOOP ===
+function gameLoop() {
+  // Auto serve
+  if(G.autoRate>0){
+    const served=Math.floor(G.autoRate/60); // per sec
+    if(served>0){
+      G.coins+=served*15; G.rev+=served*15; G.totalRev+=served*15;
+      save();
+    }
+  }
+
+  // Day change (every 60s)
+  if(!G._dayTick) G._dayTick=Date.now();
+  if(Date.now()-G._dayTick>60000){
+    G.day++; G._dayTick=Date.now();
+    save();
+  }
+
+  render();
+}
+
+// === INIT ===
+function init() {
+  load();
+  initTabs();
+  render();
+
+  // Hide loading
+  setTimeout(()=>{
+    document.getElementById('loading').style.display='none';
+  },1000);
+
+  // Game loop every 2s
+  setInterval(gameLoop,2000);
+
+  // Save every 10s
+  setInterval(save,10000);
+}
+
+// Start
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+else init();
+</script>
 </body>
 </html>
