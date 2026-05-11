@@ -275,7 +275,7 @@ let G = {
   loc:'street', ul:['street'], rc:[],
   items:{}, ups:[], qs:JSON.parse(JSON.stringify(QUESTS)),
   rev:0, totalRev:0, served:0, day:1,
-  autoRate:0, filter:'all'
+  autoRate:0, filter:'all', staff:[]
 };
 
 // === HELPERS ===
@@ -349,7 +349,7 @@ function render() {
   const xb=document.getElementById('xp-bar'); if(xb) xb.style.width=(G.xp/G.xpn*100)+'%';
 
   renderLocs(); renderWeather(); renderCafe(); renderOrders();
-  renderMenu(); renderStats(); renderShop(); renderItems(); renderQuests(); renderUpgrades();
+  renderMenu(); renderStats(); renderShop(); renderStaff(); renderItems(); renderQuests(); renderUpgrades();
 }
 
 function renderLocs() {
@@ -487,6 +487,64 @@ function renderQuests() {
     d.innerHTML='<div><span class="nm">'+(q.done?'✅':'📌')+' '+q.title+'</span><div style="color:#a0a0b0;font-size:7px">'+q.desc+'</div><div style="color:var(--gold);font-size:7px">🎁 '+q.reward+'💰 '+q.xp+'XP</div></div><div><div class="r-bar"><div class="r-fill" style="width:'+pct+'%"></div></div><div style="font-size:7px;color:var(--dim)">'+Math.floor(q.p||0)+'/'+q.target+'</div></div>';
     el.appendChild(d);
   });
+}
+
+// === STAFF DATA ===
+const STAFF = [
+  {id:'s_coffee',name:'☕ Barista thường',cost:300,sk:.6},
+  {id:'s_chef',name:'👨‍🍳 Đầu bếp',cost:400,sk:.7},
+  {id:'s_senior',name:'🧑‍💼 Senior Barista',cost:800,sk:.9},
+  {id:'s_manager',name:'👔 Quản lý',cost:1200,sk:1},
+];
+
+function renderStaff() {
+  const hl=document.getElementById('hl'); if(!hl)return; hl.innerHTML='';
+  const ll=document.getElementById('sll'); if(!ll)return; ll.innerHTML='';
+
+  // Hire section
+  const hTitle=document.createElement('div');
+  hTitle.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';
+  hTitle.textContent='📋 THUÊ NHÂN VIÊN';
+  hl.appendChild(hTitle);
+
+  STAFF.forEach(s=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'%</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';
+    hl.appendChild(d);
+  });
+
+  // Owned staff section
+  const sTitle=document.createElement('div');
+  sTitle.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';
+  sTitle.textContent='👥 ĐỘI NGŨ ('+G.staff.length+')';
+  ll.appendChild(sTitle);
+
+  if(G.staff.length===0){
+    const e=document.createElement('div');e.className='empty';
+    e.textContent='📦 Chưa thuê ai — hãy thuê nhân viên!';
+    ll.appendChild(e);
+    return;
+  }
+
+  G.staff.forEach(s=>{
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Mood: '+s.mood+'%</div></div><div style="text-align:right"><div class="r-bar" style="width:60px"><div class="r-fill' + (s.mood>60?' high':s.mood>30?' mid':' low') + '" style="width:'+s.mood+'%"></div></div><button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';
+    ll.appendChild(d);
+  });
+}
+
+function hireStaff(id) {
+  const s=STAFF.find(x=>x.id===id); if(!s)return;
+  if(G.coins<s.cost){show('❌ Không đủ coin!');return;}
+  if(G.staff.length>=6){show('❌ Đầy nhân viên!');return;}
+  G.coins-=s.cost;
+  G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:80});
+  show('✅ Thuê: '+s.name+'!'); save(); render();
+}
+
+function fireStaff(sid) {
+  const idx=G.staff.findIndex(x=>x.id===sid);
+  if(idx>=0){const s=G.staff.splice(idx,1)[0];show('💔 Đã sa thải: '+s.name);save();render();}
 }
 
 function renderUpgrades() {
