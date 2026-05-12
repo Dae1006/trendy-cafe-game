@@ -428,10 +428,19 @@ function gameLoop(){
 }
 
 function init(){
-  try{load();}catch(e){console.log('No saved game, starting fresh');}
+  try{load();}catch(e){
+    console.log('No saved game, starting fresh:', e.message);
+    G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:JSON.parse(JSON.stringify(QUESTS)),rev:0,totalRev:0,served:0,day:1,staff:[],filter:'all',pendingOrders:[],
+      comboCount:0,comboTimer:0,maxCombo:0,comboBuff:0,feedbackHistory:[],autoServeTick:0,tickCount:0};
+  }
   initTabs();
   render();
-  setTimeout(()=>{const ld=document.getElementById('loading');if(ld)ld.style.display='none'},500);
+  // Always hide loading after 2s max
+  setTimeout(()=>{
+    const ld=document.getElementById('loading');
+    if(ld)ld.style.display='none';
+    console.log('Game started!');
+  },2000);
   setInterval(gameLoop,2000);
   setInterval(save,10000);
 }
