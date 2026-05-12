@@ -269,14 +269,48 @@ function renderCafe(){
   }
 }
 function addPendingOrder(){
+  const now=Date.now();
+  if(now-G._orderTimer<getCustomerInterval())return;
+  G._orderTimer=now;
+  
   const l=LOCS.find(x=>x.id===G.loc);
-  const maxOrders=Math.min(l.cust+Math.floor(getCustomers()*0.4),8);
+  const maxOrders=Math.min(l.cust+Math.floor(getCustomers()*0.3),8);
   if(G.pendingOrders.length>=maxOrders)return;
-  if(G.tickCount%2===0){const mi=MENU[Math.floor(Math.random()*MENU.length)];G.pendingOrders.push({...mi,uid:Date.now()+Math.random()});}
+  
+  const mi=MENU[Math.floor(Math.random()*MENU.length)];
+  G.pendingOrders.push({
+    ...mi, uid:Date.now()+Math.random(),
+    arrivedAt:Date.now(), patience:120000
+  });
+  if(G.pendingOrders.length>=G.currentCustomers)G.currentCustomers=G.pendingOrders.length;
+}
+
+function getCustomerInterval(){
+  const target=getCustomers()*getReputationModifier();
+  if(G.pendingOrders.length<target){
+    return Math.max(3000, 15000/(1+Math.floor(target/2)));
+  }else{
+    return Math.min(30000, 30000);
+  }
 }
 function renderOrders(){
   const el=document.getElementById('ol');if(!el)return;
-  addPendingOrder();checkComboExpire();
+  const now=Date.now();
+  
+  // === NEW: Customer timeout (patience) ===
+  for(let i=G.pendingOrders.length-1;i>=0;i--){
+    const order=G.pendingOrders[i];
+    if(now-order.arrivedAt>order.patience){
+      // Khach da cham chong bo di
+      G.reputation=Math.max(0,G.reputation-2);  // giam reputation
+      G.pendingOrders.splice(i,1);
+      if(G.pendingOrders.length>0)G.currentCustomers=G.pendingOrders.length;
+      show('😡 Khach bo di! Reputation -2');
+    }
+  }
+  
+  addPendingOrder();
+  checkComboExpire();
   // Auto-serve: chỉ chạy mỗi 8s (dùng timestamp)
   const now=Date.now();
   if(!G._lastAutoServe)G._lastAutoServe=now;
@@ -318,10 +352,21 @@ function renderOrders(){
 function serveOrder(idx){
   if(typeof idx!=='number'||idx<0||idx>=G.pendingOrders.length)return;
   const order=G.pendingOrders[idx];const buff=getBuff();const earned=Math.floor(order.price*buff);
-  G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;startCombo();const isCombo=G.comboCount>=3;
-  addXP(10);checkQuest('serve',1);checkQuest('earn',earned);G.pendingOrders.splice(idx,1);
-  const fb=recordFeedback(isCombo,false);
+  // Calculate wait time for quality score
+  const waitTime=(Date.now()-order.arrivedAt)/1000; // seconds
+  const isFast=waitTime<30; // fast = under 30s
+  
+  G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;G.totalServedToday++;
+  startCombo();const isCombo=G.comboCount>=3;
+  addXP(10);checkQuest('serve',1);checkQuest('earn',earned);
+  G.pendingOrders.splice(idx,1);
+  if(G.pendingOrders.length>0)G.currentCustomers=G.pendingOrders.length;
+  
+  const fb=recordFeedback(isCombo,isFast);
+  // Fast serve = reputation boost
+  if(isFast){G.reputation=Math.min(100,G.reputation+1);}
   let msg='✅ +'+fm(earned)+'₫ | '+order.name;if(isCombo)msg+=' 🔥x'+G.comboCount;
+  if(isFast)msg+=' ⚡Fast!';
   show(msg);showFeedback(fb.taste,fb.service,fb.ambiance);render();
 }
 function renderMenu(){
