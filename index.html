@@ -2,213 +2,274 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>☕ Trendy Cafe v2.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trendy Cafe</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--gold:#FFD700;--accent:#FF6347;--green:#28a745;--red:#dc3545;--txt:#e8e8e8;--dim:#a0a0b0}
-body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt);min-height:100vh;max-width:480px;margin:0 auto;image-rendering:pixelated;font-size:10px;line-height:1.6;overflow-x:hidden}
-#hdr{display:flex;justify-content:space-between;padding:10px 15px;background:linear-gradient(135deg,var(--bg),var(--bg3));border-bottom:4px solid var(--gold);font-size:9px;position:sticky;top:0;z-index:10}
-#hdr .v{color:var(--gold);text-shadow:1px 1px 0 #000}
-#xp-wrap{height:6px;background:#333;border-bottom:2px solid #000}
-#xp-bar{height:100%;background:linear-gradient(90deg,#4169E1,#9932CC);width:0%;transition:width .3s}
-#weather{padding:6px 15px;background:linear-gradient(90deg,#FF6347,#FF8C00);border-bottom:4px solid #000;font-size:8px}
-#scene{height:160px;position:relative;overflow:hidden;border-bottom:4px solid var(--bg3)}
-#cafe-bg{position:absolute;inset:0;background:linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)}
-#cafe-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:4px 4px;pointer-events:none}
-#custs{position:absolute;bottom:5px;left:0;width:100%;height:60px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
-.cust{font-size:24px;animation:bot .8s infinite alternate;filter:drop-shadow(2px 2px 0 #000)}
-@keyframes bot{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-#locs{display:flex;gap:4px;padding:6px;background:var(--bg);border-bottom:4px solid var(--bg3);overflow-x:auto}
-.lb{flex:1;min-width:55px;padding:6px 3px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;text-align:center}
-.lb.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
-.lb:disabled{opacity:.3;cursor:not-allowed}
-#nav{display:flex;position:sticky;bottom:0;background:var(--bg);border-top:4px solid var(--gold);z-index:10;overflow-x:auto}
-.nb{flex:1;min-width:40px;padding:8px 2px;border:none;background:transparent;color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;white-space:nowrap;border-top:3px solid transparent}
-.nb.on{color:var(--gold);background:rgba(255,215,0,.12);border-top-color:var(--gold)}
-#pnl{min-height:300px;background:var(--bg2)}
-.pan{display:none;padding:10px}
-.pan.on{display:block}
-.pan h3{font-size:10px;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--bg3)}
-.btn{padding:6px 12px;border:2px solid #000;border-radius:0;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;font-size:8px;box-shadow:2px 2px 0 #000;transition:all .05s}
-.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #000}
-.btn:active{transform:translate(2px,2px);box-shadow:none}
-.btn:disabled{background:#555;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 #000;opacity:.5}
-.btn.g{background:var(--green)}.btn.o{background:var(--red)}
-.card{padding:8px;margin:4px 0;background:var(--bg3);border:2px solid #000;border-bottom:3px solid #000;display:flex;justify-content:space-between;align-items:center;font-size:8px}
-.card .nm{font-weight:bold;line-height:2}
-.card .pr{color:var(--gold)}
-.r-bar{height:6px;background:#333;border:1px solid #000;margin:3px 0;overflow:hidden}
-.r-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s}
-.r-fill.high{background:#28a745}.r-fill.mid{background:#FFD700}.r-fill.low{background:#dc3545}
-#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--gold);padding:8px 16px;border:3px solid var(--gold);box-shadow:0 4px 0 #000;font-size:8px;z-index:999;display:none;white-space:pre-line}
-.flt-row{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
-.flt-btn{padding:4px 8px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit}
-.flt-btn.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
-.st-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px}
-.st-l{color:var(--dim)}.st-v{color:var(--gold)}
-.empty{padding:20px;text-align:center;color:var(--dim);font-size:9px}
-.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1a1a2e,#0f3460);border:4px solid var(--gold);box-shadow:0 8px 0 #000;padding:16px 24px;font-size:9px;z-index:1000;transition:transform .3s cubic-bezier(.17,.67,.77,.33);white-space:nowrap;pointer-events:none}
-.combo-popup.show{transform:translate(-50%,-50%) scale(1)}
-.combo-popup .combo-emoji{font-size:32px;display:block;text-align:center;margin-bottom:4px}
-.combo-popup .combo-title{color:var(--gold);font-size:11px;text-align:center}
-.combo-popup .combo-desc{color:var(--txt);font-size:8px;text-align:center;margin-top:4px}
-.feedback-float{position:fixed;font-size:8px;z-index:998;pointer-events:none;animation:feedbackUp 2s forwards;white-space:nowrap}
-@keyframes feedbackUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-.mood-boost-btn{padding:2px 4px;font-size:7px;background:#9b59b6;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
-.mood-boost-btn:active{transform:translate(1px,1px);box-shadow:none}
-.combo-counter{text-align:center;padding:4px 0;font-size:8px;color:var(--gold)}
-.urgent-order{border-left:4px solid #dc3545;animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.rep-bar{height:8px;background:#333;border:1px solid #000;margin:4px 0;overflow:hidden}
-.rep-fill{height:100%;background:linear-gradient(90deg,#dc3545,#FFD700,#28a745);width:50%}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Press Start 2P',monospace;background:#1a1a2e;color:#e8e8e8;min-height:100vh;max-width:480px;margin:0 auto;font-size:10px;line-height:1.6}
+#hdr{display:flex;justify-content:space-between;padding:10px 15px;background:#16213e;border-bottom:4px solid #FFD700}
+#hdr .v{color:#FFD700}
+#nav{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460}
+.nb{padding:8px 10px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;font-size:8px;cursor:pointer;white-space:nowrap}
+.nb.on{color:#FFD700;background:rgba(255,215,0,.1)}
+#pnl{min-height:300px;padding:10px}
+.pan{display:none}.pan.on{display:block}
+.btn{padding:6px 12px;border:2px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:8px;margin:2px}
+.btn:disabled{background:#555;cursor:not-allowed}
+.card{padding:8px;margin:4px 0;background:#0f3460;border:2px solid #000;display:flex;justify-content:space-between;align-items:center}
+.card .nm{font-weight:bold}
+.card .pr{color:#FFD700}
+.r-bar{height:6px;background:#333;border:1px solid #000;margin:3px 0}
+.r-fill{height:100%;background:#28a745}
+.empty{padding:20px;text-align:center;color:#a0a0b0}
+#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:8px 16px;border:3px solid #FFD700;font-size:8px;display:none;z-index:999}
 </style>
 </head>
 <body>
-<div id="loading" style="position:fixed;inset:0;background:var(--bg);display:none !important;justify-content:center;z-index:9999;font-size:14px;color:var(--gold);flex-direction:column;gap:10px">
-  <div class="spinner" style="width:40px;height:40px;border:4px solid var(--bg3);border-top-color:var(--gold);animation:spin .8s linear infinite;border-radius:50%"></div>
-  <div>☕ Đang mở quán...</div>
-</div>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 <div id="notif"></div>
-
-<div id="hdr">
-  <div>💰 <span class="v" id="coins">500</span></div>
-  <div>Lv<span class="v" id="lv">1</span> ⭐<span class="v" id="xp">0</span>/<span class="v" id="xpn">100</span></div>
-</div>
-<div id="xp-wrap"><div id="xp-bar"></div></div>
-<div id="weather">☀️ Nắng</div>
-<div id="rep-display" style="padding:4px 15px;background:var(--bg2);border-bottom:2px solid var(--bg3);font-size:7px">⭐ Rep: <span id="rep-val">50</span>/100 <div class="rep-bar"><div class="rep-fill" id="rep-bar"></div></div></div>
-<div id="locs"></div>
-<div id="scene"><div id="cafe-bg"></div><div id="custs"></div></div>
-
-<div id="nav">
-  <button class="nb on" data-tab="orders">📋Order</button>
-  <button class="nb" data-tab="menu">🍽️Menu</button>
-  <button class="nb" data-tab="stats">📊Stats</button>
-  <button class="nb" data-tab="staff">👥Staff</button>
-  <button class="nb" data-tab="shop">🛒Shop</button>
-  <button class="nb" data-tab="items">🎒Items</button>
-  <button class="nb" data-tab="quests">📌Quest</button>
-  <button class="nb" data-tab="up">⬆️Up</button>
-</div>
-
-<div id="pnl">
-  <div class="pan on" id="p-orders"><div id="ol"></div></div>
-  <div class="pan" id="p-menu"><div id="ml"></div></div>
-  <div class="pan" id="p-stats"><div id="sl"></div></div>
-  <div class="pan" id="p-staff"><div id="hl"></div><div id="sll"></div></div>
-  <div class="pan" id="p-shop"><div id="so"></div></div>
-  <div class="pan" id="p-items"><div id="fl"></div><div id="il"></div></div>
-  <div class="pan" id="p-quests"><div id="ql"></div></div>
-  <div class="pan" id="p-up"><div id="ul"></div></div>
-</div>
+<div id="hdr"><div>💰 <span class="v" id="coins">500</span></div><div>Lv<span class="v" id="lv">1</span></div></div>
+<div id="nav"></div>
+<div id="pnl"></div>
 
 <script>
-const LOCS=[
-  {id:'street',name:'Vỉa hè',emoji:'🚶',cost:0,rm:1,cust:3,bg:'linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)'},
-  {id:'mall',name:'TMall',emoji:'🏬',cost:5000,rm:2.5,cust:5,bg:'linear-gradient(to bottom,#f5f5f5 0%,#c0c0c0 60%,#808080 100%)'},
-  {id:'garden',name:'Sân vườn',emoji:'🌳',cost:15000,rm:2,cust:4,bg:'linear-gradient(to bottom,#87CEEB 0%,#228B22 60%,#006400 100%)'},
-  {id:'rooftop',name:'Rooftop',emoji:'🌃',cost:50000,rm:3.5,cust:6,bg:'linear-gradient(to bottom,#0a0a2e 0%,#1a1a4e 60%,#2a2a6e 100%)'},
-  {id:'festival',name:'Lễ hội',emoji:'🎪',cost:100000,rm:4,cust:8,bg:'linear-gradient(to bottom,#FF69B4 0%,#FF8C00 50%,#9370DB 100%)'}
+// GAME STATE
+var G = {
+  coins: 500, lv: 1, xp: 0, xpn: 100,
+  staff: [], items: {}, ups: [],
+  served: 0, totalRev: 0, rev: 0,
+  orders: [
+    {id: 1, name: 'Cà phê đen', icon: '☕', price: 25},
+    {id: 2, name: 'Trà sữa', icon: '🧋', price: 50},
+    {id: 3, name: 'Sinh tố', icon: '🥤', price: 45}
+  ],
+  tab: 'orders'
+};
+
+var MENU = [
+  {id: 'coffee', name: 'Cà phê đen', icon: '☕', price: 25, cost: 5},
+  {id: 'milk_coffee', name: 'Cà phê sữa', icon: '🥛', price: 30, cost: 8},
+  {id: 'espresso', name: 'Espresso', icon: '☕', price: 35, cost: 5},
+  {id: 'matcha', name: 'Trà matcha', icon: '🍵', price: 40, cost: 10},
+  {id: 'bubble_tea', name: 'Trà sữa', icon: '🧋', price: 50, cost: 12},
+  {id: 'smoothie', name: 'Sinh tố', icon: '🥤', price: 45, cost: 12}
 ];
-const MENU=[
-  {id:'coffee',name:'Cà phê đen',icon:'☕',price:25,cost:5},
-  {id:'milk_coffee',name:'Cà phê sữa',icon:'🥛',price:30,cost:8},
-  {id:'espresso',name:'Espresso',icon:'☕',price:35,cost:5},
-  {id:'matcha',name:'Trà matcha',icon:'🍵',price:40,cost:10},
-  {id:'smoothie',name:'Sinh tố',icon:'🥤',price:45,cost:12},
-  {id:'cake',name:'Bánh mì',icon:'🥪',price:35,cost:8},
-  {id:'ice_tea',name:'Trà đá',icon:'🧊',price:15,cost:3},
-  {id:'bubble_tea',name:'Trà sữa',icon:'🧋',price:50,cost:12},
-  {id:'tropical',name:'Nước ép dừa',icon:'🥥',price:55,cost:15},
-  {id:'signature',name:'Signature',icon:'🍸',price:80,cost:20}
+
+var TABS = [
+  {id: 'orders', label: '📋 Order'},
+  {id: 'menu', label: '🍽️ Menu'},
+  {id: 'staff', label: '👥 Staff'},
+  {id: 'shop', label: '🛒 Shop'},
+  {id: 'stats', label: '📊 Stats'}
 ];
-const TREND=[
-  {id:'t_dog',name:'🐶 Meme Chó Vàng',r:'common',ef:'rev',v:.05,cost:200,desc:'+5% rev'},
-  {id:'t_cat',name:'🐱 Mèo hoang',r:'common',ef:'rev',v:.03,cost:150,desc:'+3% rev'},
-  {id:'t_mu',name:'⚽ Áo MU',r:'common',ef:'cust',v:1,cost:300,desc:'+1 khách'},
-  {id:'t_astro',name:'🧋 Trà Astro',r:'common',ef:'rev',v:.1,cost:400,desc:'+10% trà sữa'},
-  {id:'t_girl',name:'💃 Cô Bé',r:'rare',ef:'rev',v:.1,cost:1000,desc:'+10% rev'},
-  {id:'t_ba',name:'💯 Ba Trăm',r:'rare',ef:'cust',v:2,cost:1500,desc:'+2 khách'},
-  {id:'t_sieu',name:'⚡ Siêu Tốc',r:'epic',ef:'cust',v:5,cost:8000,desc:'+5 khách'},
-  {id:'t_vua',name:'👑 Vua Cà Phê',r:'legendary',ef:'rev',v:.5,cost:20000,desc:'+50% rev'},
-  {id:'t_omega',name:'💫 Omega Plus',r:'legendary',ef:'all',v:.3,cost:50000,desc:'+30% all'},
+
+var TREND = [
+  {id: 't_dog', name: '🐶 Meme Chó', cost: 200, desc: '+5% rev'},
+  {id: 't_cat', name: '🐱 Mèo hoang', cost: 150, desc: '+3% rev'},
+  {id: 't_girl', name: '💃 Cô Bé', cost: 1000, desc: '+10% rev'},
+  {id: 't_sieu', name: '⚡ Siêu Tốc', cost: 8000, desc: '+5 khách'}
 ];
-const STAFF_TYPES=[
-  {id:'s_barista',name:'☕ Barista',cost:300,sk:.6,desc:'Skill: 60%'},
-  {id:'s_chef',name:'👨‍🍳 Đầu bếp',cost:400,sk:.7,desc:'Skill: 70%'},
-  {id:'s_senior',name:'🧑‍💼 Senior Barista',cost:800,sk:.9,desc:'Skill: 90%'},
-  {id:'s_manager',name:'👔 Quản lý',cost:1200,sk:1.0,desc:'Skill: 100%'},
+
+var STAFF = [
+  {id: 'barista', name: '☕ Barista', cost: 300, sk: 0.6},
+  {id: 'chef', name: '👨‍🍳 Đầu bếp', cost: 400, sk: 0.7},
+  {id: 'senior', name: '🧑‍💼 Senior', cost: 800, sk: 0.9}
 ];
-const UPGRADES=[
-  {id:'u1',name:'🪑 Bàn ghế mới',desc:'+10% doanh thu',cost:1500,type:'rev',v:.1},
-  {id:'u2',name:'🎵 Nhạc nền',desc:'+5% doanh thu',cost:800,type:'rev',v:.05},
-  {id:'u3',name:'🪧 Bảng hiệu LED',desc:'+20% khách',cost:5000,type:'cust',v:.2},
-  {id:'u4',name:'❄️ Điều hòa',desc:'+15% doanh thu',cost:3500,type:'rev',v:.15},
-];
-const WEATHERS=[
-  {e:'☀️',n:'Nắng',rm:1.0,cMod:1.0},{e:'⛅',n:'Mát',rm:1.05,cMod:1.1},{e:'🌧️',n:'Mưa',rm:0.75,cMod:0.6},
-  {e:'🔥',n:'Nóng',rm:1.15,cMod:1.2},{e:'🎊',n:'Tết',rm:2.5,cMod:2.0}
-];
-function makeQs(){return[
-  {id:'q1',title:'Ngày đầu khai trương',desc:'Phục vụ 10 khách',type:'serve',target:10,reward:200,xp:50,done:false,p:0},
-  {id:'q2',title:'Thu thập meme',desc:'Sở hữu 1 item',type:'collect',target:1,reward:300,xp:75,done:false,p:0},
-  {id:'q3',title:'Triệu phú cà phê',desc:'Kiếm 5000 coin',type:'earn',target:5000,reward:1000,xp:150,done:false,p:0},
-  {id:'q4',title:'Thu thập bộ sưu tập',desc:'Có 5 items',type:'collect_all',target:5,reward:3000,xp:300,done:false,p:0},
-  {id:'q5',title:'King of Trendy',desc:'Sở hữu hết items',type:'complete_all',target:TREND.length,reward:20000,xp:2000,done:false,p:0}
-]}
-var G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:makeQs(),rev:0,totalRev:0,served:0,day:1,
-  staff:[],filter:'all',pendingOrders:[],comboCount:0,comboTimer:0,maxCombo:0,comboBuff:0,
-  feedbackHistory:[],reputation:50,currentCustomers:0,totalServedToday:0,_orderTimer:0,_lastAutoServe:0};
-// Tạo 3 đơn hàng mẫu ngay khi mở game
-for(var i=0;i<3;i++){var mi=MENU[i%MENU.length];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));G.currentCustomers=3;}
-var _lastTick=0;
-function fm(n){return n?n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,','):0;}
-function getRepMod(){var r=G.reputation||50;if(r<=20)return .3;if(r<=40)return .6;if(r<=60)return 1.0;if(r<=80)return 1.3;return 1.6;}
-function getBuff(){var r=1;r+=(G.comboBuff||0);var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t){if(t.ef==='rev')r+=t.v*(G.items[id]||0);if(t.ef==='all')r+=t.v*(G.items[id]||0);}}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='rev')r+=u.v}var w=getWeather();r*=w.rm;r*=getRepMod();return r;}
-function getCusts(){var l=LOCS.filter(function(x){return x.id===G.loc;})[0];var base=l.cust;base=Math.floor(base*getRepMod());var w=getWeather();base=Math.floor(base*(w.cMod||1));var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t&&t.ef==='cust')base+=t.v*(G.items[id]||0);}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='cust')base=Math.floor(base*(1+u.v));}return base;}
-function getWeather(){var idx=Math.floor(Math.sin(G.day*.3)*1000)%WEATHERS.length;var i=((idx%WEATHERS.length)+WEATHERS.length)%WEATHERS.length;return WEATHERS[i];}
-function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);show('⭐ UP Lv'+G.lv+'!')}}
-function chkQ(type,val){G.qs.forEach(function(q){if(!q.done&&q.type===type){q.p=(q.p||0)+val;if(q.p>=q.target){q.done=true;G.coins+=q.reward;addXP(q.xp);show('✅ Quest: '+q.title+'! +'+q.reward+'💰')}}})}
-function getComboBuff(){if(G.comboCount>=3){var levels=Math.min(G.comboCount-2,5);return levels*.05;}return 0;}
-function startCombo(){G.comboCount=(G.comboCount||0)+1;G.comboTimer=15;if(G.comboCount>G.maxCombo)G.maxCombo=G.comboCount;G.comboBuff=getComboBuff();if(G.comboCount>=3)showCombo(G.comboCount,G.comboBuff);}
-function chkCombo(){if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0){G.comboCount=0;G.comboBuff=0;}}}
-function showCombo(cnt,buff){var e={3:'☕',4:'🔥',5:'⚡',6:'💎',7:'👑'};var n={3:'Combo!',4:'Great Combo!',5:'Super Combo!',6:'Ultra Combo!',7:'Legend Combo!'};var el=document.createElement('div');el.className='combo-popup show';el.innerHTML='<div class="combo-emoji">'+(e[cnt]||'🔥')+'</div><div class="combo-title">'+(n[cnt]||'Combo!')+'</div><div class="combo-desc">x'+cnt+' orders = +'+Math.floor(buff*100)+'% revenue!</div>';document.body.appendChild(el);setTimeout(function(){el.classList.remove('show')},1500);setTimeout(function(){el.remove()},2000);}
-function showFb(taste,svc,amb){var fB={1:'😡',2:'😕',3:'🙂',4:'😊',5:'🤩'};var fT={1:'Quá tệ!',2:'Không ngon...',3:'Khá ổn.',4:'Ngon lắm!',5:'Tuyệt vời! ❤️'};var el=document.createElement('div');el.className='feedback-float';el.style.left=(20+Math.random()*60)+'%';el.style.top=(30+Math.random()*30)+'%';el.innerHTML='<span style="font-size:16px">'+fB[taste]+'</span> <span style="color:'+(taste>=4?'#FFD700':'#dc3545')+'">'+fT[taste]+'</span>';document.body.appendChild(el);setTimeout(function(){el.remove()},2000);}
-function recFb(isCombo,isFast){var base=3;if(G.staff.length>0){var s=0;for(var i=0;i<G.staff.length;i++)s+=G.staff[i].sk;var avg=s/G.staff.length;base+=Math.floor(avg*.5);}if(isCombo)base=Math.min(5,base+1);var taste=Math.max(1,Math.min(5,base+Math.floor(Math.random()*3-1)));var svc=Math.max(1,Math.min(5,(isFast?4:2)+Math.floor(Math.random()*2-1)));var amb=Math.max(1,Math.min(5,3+Math.floor(Math.random()*3-1)));G.feedbackHistory.push({taste:taste,service:svc,ambiance:amb,time:Date.now()});if(G.feedbackHistory.length>20)G.feedbackHistory.shift();return {taste:taste,service:svc,ambiance:amb};}
-function boostMood(sid){var s=G.staff.filter(function(x){return x.id===sid;})[0];if(!s)return;if(s.mood>=80)return;s.mood=Math.min(100,s.mood+30);show('☕ '+s.name+' mood +30%! ❤️');render();}
-function calcAuto(){if(G.staff.length===0)return 0;var c=0;for(var i=0;i<G.staff.length;i++)c+=Math.floor(G.staff[i].sk*(G.staff[i].mood/100));return Math.max(0,c);}
-function render(){document.getElementById('coins').textContent=fm(G.coins);document.getElementById('lv').textContent=G.lv;document.getElementById('xp').textContent=G.xp;document.getElementById('xpn').textContent=G.xpn;document.getElementById('xp-bar').style.width=(G.xp/G.xpn*100)+'%';document.getElementById('rep-val').textContent=G.reputation||50;document.getElementById('rep-bar').style.width=((G.reputation||50)/100*100)+'%';renderLocs();renderWeather();renderCafe();renderOrders();renderMenu();renderStats();renderShop();renderStaff();renderItems();renderQuests();renderUpgrades();}
-function renderLocs(){var el=document.getElementById('locs');if(!el)return;el.innerHTML='';for(var i=0;i<LOCS.length;i++){var l=LOCS[i];var b=document.createElement('button');b.className='lb'+(G.loc===l.id?' on':'');b.textContent=l.emoji+' '+l.name;b.disabled=G.ul.indexOf(l.id)<0;if(G.ul.indexOf(l.id)>=0)b.onclick=function(l){return function(){G.loc=l.id;render();}}(l);else b.onclick=function(l){return function(){if(G.coins>=l.cost){G.coins-=l.cost;G.ul.push(l.id);show('🔓 Mở khóa: '+l.name+'!');chkQ('upgrade',1)}else show('❌ Cần '+fm(l.cost)+'💰');render();}}(l);el.appendChild(b);}}
-function renderWeather(){var el=document.getElementById('weather');if(!el)return;var w=getWeather();el.textContent=w.e+' '+w.n+' (x'+w.rm+')'}
-function renderCafe(){var bg=document.getElementById('cafe-bg');var sc=document.getElementById('custs');var l=LOCS.filter(function(x){return x.id===G.loc;})[0];if(bg)bg.style.background=l.bg;sc.innerHTML='';var n=Math.min(getCusts(),12);var emojis=['👨‍💻','👩‍🎮','🧑‍🎨','👴','🧒','🤓','😎','🥳','👦','👧','👩‍🏫','🧔'];for(var i=0;i<n;i++){var d=document.createElement('div');d.className='cust';d.textContent=emojis[Math.floor(Math.random()*emojis.length)];d.style.animationDelay=(Math.random()*1)+'s';d.style.fontSize=(20+Math.random()*8)+'px';if(G.staff.length>0){var am=0;for(var j=0;j<G.staff.length;j++)am+=G.staff[j].mood;am=am/G.staff.length;if(am<40)d.textContent+=' 😟';}sc.appendChild(d);}}
-function custInterval(){var t=(getCusts()||3)*getRepMod();if(G.pendingOrders.length<t)return Math.max(3000,8000/(1+Math.floor(t/2)));return 15000;}
-function addOrder(){var now=Date.now();if(!G._orderTimer)G._orderTimer=now;if(now-G._orderTimer<custInterval())return;G._orderTimer=now;var l=LOCS.filter(function(x){return x.id===G.loc;})[0];var maxO=Math.min(l.cust+Math.floor((getCusts()||3)*.3),8);if(G.pendingOrders.length>=maxO)return;var mi=MENU[Math.floor(Math.random()*MENU.length)];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));if(G.pendingOrders.length>G.currentCustomers)G.currentCustomers=G.pendingOrders.length;}
-function renderOrders(){var el=document.getElementById('ol');if(!el)return;var now=Date.now();chkCombo();for(var i=G.pendingOrders.length-1;i>=0;i--){var o=G.pendingOrders[i];if(now-o.arrivedAt>o.patience){G.reputation=Math.max(0,(G.reputation||50)-2);G.pendingOrders.splice(i,1);if(G.pendingOrders.length>G.currentCustomers)G.currentCustomers=G.pendingOrders.length;show('😡 Khach bo di! Reputation -2');}}addOrder();if(!G._lastAutoServe)G._lastAutoServe=now;if(now-G._lastAutoServe>=3000){G._lastAutoServe=now;var sc=calcAuto();var as=Math.min(sc,G.pendingOrders.length);var ss=0;for(var i=0;i<as&&i<G.staff.length;i++){var s=G.staff[i];if(s.sk*(s.mood/100)>=.5){var o=G.pendingOrders[i];var b=getBuff();var e=Math.floor(o.price*b*.8);G.coins+=e;G.rev+=e;G.totalRev+=e;G.served++;G.totalServedToday++;addXP(5);chkQ('serve',1);chkQ('earn',e);G.staff[i].mood=Math.max(0,G.staff[i].mood-3);ss++;if(G.served%10===0){var f=recFb(false,false);showFb(f.taste,f.service,f.ambiance);}}if(ss>0)G.pendingOrders=G.pendingOrders.slice(ss);else G.pendingOrders=G.pendingOrders.slice(as);}if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">⏳ Chờ khách...</div>';return;}el.innerHTML='';if(G.comboCount>0){var ce=document.createElement('div');ce.className='combo-counter';ce.textContent='🔥 Combo x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%) còn '+G.comboTimer+'s';ce.style.color=G.comboBuff>.15?'#28a745':'#FFD700';el.appendChild(ce);}for(var i=0;i<G.pendingOrders.length;i++){var o=G.pendingOrders[i];var b=getBuff();var p=Math.floor(o.price*b);var isU=i<2&&G.comboCount===0;var d=document.createElement('div');d.className='card'+(isU?' urgent-order':'');d.innerHTML='<div><span class="nm">'+o.icon+' '+o.name+'</span></div><div><span class="pr">'+fm(p)+'₫</span> <button class="btn g" onclick="serveOrder('+i+')">SERVE</button></div>';el.appendChild(d);}}
-function serveOrder(idx){if(typeof idx!=='number'||idx<0||idx>=G.pendingOrders.length)return;var o=G.pendingOrders[idx];var b=getBuff();var e=Math.floor(o.price*b);var wt=(Date.now()-(o.arrivedAt||Date.now()))/1000;var isF=wt<30;G.coins+=e;G.rev+=e;G.totalRev+=e;G.served++;G.totalServedToday++;startCombo();var ic=G.comboCount>=3;addXP(10);chkQ('serve',1);chkQ('earn',e);G.pendingOrders.splice(idx,1);if(G.pendingOrders.length>0)G.currentCustomers=G.pendingOrders.length;var f=recFb(ic,isF);if(isF)G.reputation=Math.min(100,(G.reputation||50)+1);var msg='✅ +'+fm(e)+'₫ | '+o.name;if(ic)msg+=' 🔥x'+G.comboCount;if(isF)msg+=' ⚡Fast!';show(msg);showFb(f.taste,f.service,f.ambiance);render();}
-function renderMenu(){var el=document.getElementById('ml');if(!el)return;el.innerHTML='';for(var i=0;i<MENU.length;i++){var mi=MENU[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span><div style="color:#a0a0b0;font-size:7px">Cost: '+fm(mi.cost)+'₫</div></div><div style="text-align:right"><span class="pr">~'+fm(Math.floor(mi.price*getBuff()))+'₫</span></div>';el.appendChild(d);}}
-function renderStats(){var el=document.getElementById('sl');if(!el)return;el.innerHTML='';var ac=calcAuto();var af=G.feedbackHistory.length>0?G.feedbackHistory.slice(-5).reduce(function(a,f){return a+f.taste;},0)/5:3;var rows=[['Ngày',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Đã phục vụ',G.served],['Doanh thu hôm nay',fm(G.rev)+'₫'],['Tổng doanh thu',fm(G.totalRev)+'₫'],['Coin',fm(G.coins)+'₫'],['Items',Object.keys(G.items).length],['Auto-serve','1nv/8s'],['Nhân viên',G.staff.length+'/6'],['Reputation',(G.reputation||50)+'/100'],['Combo hiện tại',G.comboCount>0?'x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%)':'Không có'],['Combo max','x'+(G.maxCombo||0)],['Đánh giá TB',af.toFixed(1)+'⭐']];for(var i=0;i<rows.length;i++){var r=rows[i];var d=document.createElement('div');d.className='st-row';d.innerHTML='<span class="st-l">'+r[0]+'</span><span class="st-v">'+r[1]+'</span>';el.appendChild(d);}}
-function renderShop(){var el=document.getElementById('so');if(!el)return;el.innerHTML='';var avail=[];for(var id in G.items){if(!G.items[id])continue;}avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<1;});if(avail.length===0){el.innerHTML='<div class="empty">✅ Đã hết!</div>';return}var rc={common:'#b0b0b0',rare:'#4169E1',epic:'#9932CC',legendary:'#FFD700'};for(var i=0;i<avail.length;i++){var t=avail[i];var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(rc[t.r]||'#b0b0b0');d.innerHTML='<div><span class="nm">'+t.name+'</span><div style="color:#a0a0b0;font-size:7px">'+t.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(t.cost)+'₫</span> <button class="btn" onclick="buyItem(\''+t.id+'\')">MUA</button></div>';el.appendChild(d);}}
-function buyItem(id){var t=TREND.filter(function(x){return x.id===id;})[0];if(!t)return;if(G.coins<t.cost){show('❌ Không đủ coin!');return;}G.coins-=t.cost;G.items[id]=(G.items[id]||0)+1;show('✅ Mua: '+t.name+'!');chkQ('collect',1);chkQ('collect_all',1);render();}
-function renderItems(){var el=document.getElementById('il');if(!el)return;el.innerHTML='';var fl=document.getElementById('fl');if(!fl)return;fl.innerHTML='';var rc={common:'Common',rare:'Rare',epic:'Epic',legendary:'Legendary'};['all','common','rare','epic','legendary'].forEach(function(f){var b=document.createElement('button');b.className='flt-btn'+(G.filter===f?' on':'');b.textContent=f==='all'?'All':rc[f];b.onclick=function(){G.filter=f;render();};fl.appendChild(b)});var owned=[];for(var id in G.items)if(G.items[id]>0)owned.push([id,G.items[id]]);var filtered=G.filter==='all'?owned:owned.filter(function(pair){var t=TREND.filter(function(x){return x.id===pair[0];})[0];return t&&t.r===G.filter;});if(filtered.length===0){el.innerHTML='<div class="empty">📦 Chưa có items!</div>';return}for(var i=0;i<filtered.length;i++){var t=TREND.filter(function(x){return x.id===filtered[i][0];})[0];if(!t)continue;var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid var(--'+(t.r==='legendary'?'gold':'dim')+')';d.innerHTML='<span class="nm">'+t.name+'</span><span class="pr">'+rc[t.r]+' ×'+filtered[i][1]+'</span>';el.appendChild(d)}}
-function renderQuests(){var el=document.getElementById('ql');if(!el)return;el.innerHTML='';for(var i=0;i<G.qs.length;i++){var q=G.qs[i];var pct=Math.min(100,(q.p||0)/q.target*100);var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(q.done?'var(--gold)':'var(--dim)');d.innerHTML='<div><span class="nm">'+(q.done?'✅':'📌')+' '+q.title+'</span><div style="color:#a0a0b0;font-size:7px">'+q.desc+'</div><div style="color:var(--gold);font-size:7px">🎁 '+q.reward+'💰 '+q.xp+'XP</div></div><div><div class="r-bar"><div class="r-fill" style="width:'+pct+'%"></div></div><div style="font-size:7px;color:var(--dim)">'+Math.floor(q.p||0)+'/'+q.target+'</div></div>';el.appendChild(d)}}
-function renderUpgrades(){var el=document.getElementById('ul');if(!el)return;el.innerHTML='';for(var i=0;i<UPGRADES.length;i++){var u=UPGRADES[i];var bought=G.ups.includes(u.id);var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+u.name+'</span><div style="color:#a0a0b0;font-size:7px">'+u.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(u.cost)+'₫</span><button class="btn" onclick="buyUpgrade(\''+u.id+'\')" '+(bought||G.coins<u.cost?'disabled':'')+'>'+(bought?'✅Đã mua':'MUA')+'</button></div>';el.appendChild(d)}}
-function buyUpgrade(id){var u=UPGRADES.filter(function(x){return x.id===id;})[0];if(!u||G.coins<u.cost||G.ups.includes(id))return;G.coins-=u.cost;G.ups.push(id);show('⬆️ '+u.name+'!');chkQ('upgrade',1);render();}
-function renderStaff(){var hl=document.getElementById('hl');if(!hl)return;hl.innerHTML='';var ll=document.getElementById('sll');if(!ll)return;ll.innerHTML='';if(G.comboCount>0){var cd=document.createElement('div');cd.className='combo-counter';cd.innerHTML='🔥 COMBO: x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';cd.style.color=G.comboBuff>.15?'#28a745':'#FFD700';hl.appendChild(cd);}var ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='💡 Serve tay = COMBO! +5% rev mỗi level!';hl.appendChild(ct);var hT=document.createElement('div');hT.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hT.textContent='📋 THUÊ NHÂN VIÊN';hl.appendChild(hT);var aL=document.createElement('div');aL.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';aL.textContent='💡 Auto-serve mỗi 8s (1nv=1đơn)';hl.appendChild(aL);for(var i=0;i<STAFF_TYPES.length;i++){var s=STAFF_TYPES[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';hl.appendChild(d)}var sT=document.createElement('div');sT.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sT.textContent='👥 ĐỘI NGŨ ('+G.staff.length+'/6)';ll.appendChild(sT);if(G.staff.length===0){var e=document.createElement('div');e.className='empty';e.textContent='📦 Chưa thuê ai!';ll.appendChild(e);return}for(var i=0;i<G.staff.length;i++){var s=G.staff[i];var d=document.createElement('div');d.className='card';var mc=s.mood>60?'high':s.mood>30?'mid':'low';var er=s.sk*(s.mood/100);var cb=s.mood<80;var mb='';if(cb)mb='<button class="mood-boost-btn" onclick="boostMood(\''+s.id+'\')">☕</button>';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+er.toFixed(2)+'/8s</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+mc+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+mb+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';ll.appendChild(d);}}
-function hireStaff(id){var s=STAFF_TYPES.filter(function(x){return x.id===id;})[0];if(!s)return;if(G.coins<s.cost){show('❌ Không đủ coin!');return;}if(G.staff.length>=6){show('❌ Đầy nhân viên!');return;}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ Thuê: '+s.name+'!');render();}
-function fireStaff(sid){var idx=G.staff.filter(function(x){return x.id===sid;});if(idx.length>0){G.staff.splice(G.staff.indexOf(idx[0]),1);show('💔 Đã sa thải: '+idx[0].name);render();}}
-function show(msg){var el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none'},3000)}
-function initTabs(){var bts=document.querySelectorAll('.nb');for(var i=0;i<bts.length;i++){(function(b){b.onclick=function(){document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('on')});document.querySelectorAll('.pan').forEach(function(x){x.classList.remove('on')});b.classList.add('on');var tab=document.getElementById('p-'+b.dataset.tab);if(tab)tab.classList.add('on');}};})(bts[i]);}}
-function gameLoop(ts){var dt=ts-_lastTick;_lastTick=ts;for(var i=0;i<G.staff.length;i++){if(G.staff[i].mood<100)G.staff[i].mood=Math.min(100,G.staff[i].mood+.05*dt);}if(!G._dayStart)G._dayStart=ts;if(ts-G._dayStart>=60000){G.day++;G._dayStart=ts;}render();requestAnimationFrame(gameLoop);}
-function init(){try{if(!document.getElementById('coins')){console.log('DOM not ready, retrying...');setTimeout(init,200);return;}initTabs();render();var ld=document.getElementById('loading');if(ld)ld.style.display='none';requestAnimationFrame(gameLoop);console.log('Game OK!');}catch(e){var ld=document.getElementById('loading');if(ld){ld.innerHTML='<div style="color:#ff4444;font-size:12px">Error: '+e.message+'<br><br>Click để thử lại</div>';ld.style.cursor='pointer';ld.onclick=function(){location.reload();}}}}
-function startGame(){init();}
-if(document.body){setTimeout(startGame,0);}else{window.addEventListener('load',function(){setTimeout(startGame,0);});}
-if(typeof window.addEventListener!=='undefined'){window.addEventListener('DOMContentLoaded',function(){if(document.getElementById('loading')&&document.getElementById('loading').style.display==='flex'){setTimeout(startGame,0);}});}
-if(document.readyState==='complete'){setTimeout(startGame,0);}
-if(document.readyState==='interactive'){setTimeout(startGame,100);}
+
+// === RENDER NAV ===
+function renderNav() {
+  var el = document.getElementById('nav');
+  if (!el) return;
+  var html = '';
+  for (var i = 0; i < TABS.length; i++) {
+    var t = TABS[i];
+    html += '<button class="nb' + (G.tab === t.id ? ' on' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
+  }
+  el.innerHTML = html;
+
+  // ATTACH EVENTS
+  var btns = el.querySelectorAll('.nb');
+  for (var i = 0; i < btns.length; i++) {
+    (function(btn) {
+      btn.onclick = function() {
+        G.tab = btn.getAttribute('data-tab');
+        render();
+      };
+    })(btns[i]);
+  }
+}
+
+// === RENDER PANEL ===
+function renderPanel() {
+  var el = document.getElementById('pnl');
+  if (!el) return;
+  var html = '';
+  if (G.tab === 'orders') html += renderOrders();
+  else if (G.tab === 'menu') html += renderMenu();
+  else if (G.tab === 'staff') html += renderStaff();
+  else if (G.tab === 'shop') html += renderShop();
+  else if (G.tab === 'stats') html += renderStats();
+  el.innerHTML = html;
+
+  // ATTACH EVENTS
+  el.querySelectorAll('.btn').forEach(function(btn) {
+    var fn = btn.getAttribute('onclick');
+    if (fn) {
+      try { btn.onclick = new Function(fn.replace(/^onclick="|";?$/g, '')); }
+      catch(e) { console.log('onclick error:', fn); }
+    }
+  });
+}
+
+// === ORDERS ===
+function renderOrders() {
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📋 Đơn hàng</h3>';
+  if (G.orders.length === 0) {
+    html += '<div class="empty">⏳ Hết đơn</div>';
+  } else {
+    for (var i = 0; i < G.orders.length; i++) {
+      var o = G.orders[i];
+      html += '<div class="card">' +
+        '<div><span class="nm">' + o.icon + ' ' + o.name + '</span></div>' +
+        '<div><span class="pr">' + o.price + '₫</span>' +
+        ' <button class="btn" onclick="serve(' + i + ')">SERVE</button></div></div>';
+    }
+  }
+  return html;
+}
+
+// === MENU ===
+function renderMenu() {
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🍽️ Menu</h3>';
+  for (var i = 0; i < MENU.length; i++) {
+    var m = MENU[i];
+    html += '<div class="card">' +
+      '<div><span class="nm">' + m.icon + ' ' + m.name + '</span><div style="color:#a0a0b0;font-size:7px">Cost: ' + m.cost + '₫</div></div>' +
+      '<div><span class="pr">' + m.price + '₫</span></div></div>';
+  }
+  return html;
+}
+
+// === STAFF ===
+function renderStaff() {
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">👥 Nhân viên (' + G.staff.length + '/6)</h3>';
+  for (var i = 0; i < STAFF.length; i++) {
+    var s = STAFF[i];
+    html += '<div class="card">' +
+      '<div><span class="nm">' + s.name + '</span><div style="color:#a0a0b0;font-size:7px">Skill: ' + Math.floor(s.sk * 100) + '%</div></div>' +
+      '<div><span class="pr">' + s.cost + '₫</span>' +
+      ' <button class="btn" onclick="hireStaff(\'' + s.id + '\')">THUÊ</button></div></div>';
+  }
+  if (G.staff.length > 0) {
+    html += '<div style="margin-top:10px;font-size:9px;color:#FFD700"> auto-serve chạy mỗi 8s</div>';
+  }
+  return html;
+}
+
+// === SHOP ===
+function renderShop() {
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🛒 Shop Meme</h3>';
+  for (var i = 0; i < TREND.length; i++) {
+    var t = TREND[i];
+    var bought = G.items[t.id];
+    html += '<div class="card">' +
+      '<div><span class="nm">' + t.name + '</span><div style="color:#a0a0b0;font-size:7px">' + t.desc + '</div></div>' +
+      '<div><span class="pr">' + t.cost + '₫</span>' +
+      ' <button class="btn" onclick="buyItem(\'' + t.id + '\')" ' + (bought ? 'disabled' : '') + '>' + (bought ? '✅' : 'MUA') + '</button></div></div>';
+  }
+  return html;
+}
+
+// === STATS ===
+function renderStats() {
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📊 Thống kê</h3>';
+  html += '<div style="font-size:9px;line-height:2"><span style="color:#a0a0b0">Coin: </span><span style="color:#FFD700">' + G.coins + '₫</span><br>';
+  html += '<span style="color:#a0a0b0">Level: </span><span style="color:#FFD700">' + G.lv + '</span><br>';
+  html += '<span style="color:#a0a0b0">Phục vụ: </span><span style="color:#FFD700">' + G.served + '</span><br>';
+  html += '<span style="color:#a0a0b0">Doanh thu: </span><span style="color:#FFD700">' + G.totalRev + '₫</span></div>';
+  return html;
+}
+
+// === ACTIONS ===
+function serve(idx) {
+  if (idx < 0 || idx >= G.orders.length) return;
+  var o = G.orders[idx];
+  G.coins += o.price;
+  G.rev += o.price;
+  G.totalRev += o.price;
+  G.served++;
+  G.orders.splice(idx, 1);
+  show('✅ +' + o.price + '₫ | ' + o.name);
+  render();
+}
+
+function buyItem(id) {
+  var t = TREND.filter(function(x) { return x.id === id; })[0];
+  if (!t || G.coins < t.cost || G.items[id]) return;
+  G.coins -= t.cost;
+  G.items[id] = 1;
+  show('✅ Mua: ' + t.name);
+  render();
+}
+
+var hireIds = {};
+function hireStaff(id) {
+  if (G.staff.length >= 6) { show('❌ Đầy nhân viên!'); render(); return; }
+  var s = STAFF.filter(function(x) { return x.id === id; })[0];
+  if (!s) return;
+  var cost = Math.floor(s.cost * Math.pow(1.5, hireIds[id] || 0));
+  if (!hireIds[id]) hireIds[id] = 0;
+
+  if (G.coins < cost) { show('❌ Cần ' + cost + '₫'); render(); return; }
+  G.coins -= cost;
+  hireIds[id]++;
+  G.staff.push({
+    id: id,
+    name: s.name,
+    sk: s.sk,
+    mood: 100
+  });
+  show('✅ Thuê: ' + s.name);
+  render();
+}
+
+function show(msg) {
+  var el = document.getElementById('notif');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 2000);
+}
+
+// === MAIN RENDER ===
+function render() {
+  document.getElementById('coins').textContent = G.coins;
+  document.getElementById('lv').textContent = G.lv;
+  renderNav();
+  renderPanel();
+}
+
+// === AUTO SERVE (every 8s) ===
+setInterval(function() {
+  if (G.staff.length === 0) return;
+  for (var i = 0; i < G.staff.length; i++) {
+    var s = G.staff[i];
+    var served = Math.floor(s.sk * (s.mood / 100));
+    if (served > 0 && G.orders.length > 0) {
+      var o = G.orders[0];
+      G.coins += Math.floor(o.price * 0.8);
+      G.totalRev += Math.floor(o.price * 0.8);
+      G.served++;
+      G.orders.splice(0, 1);
+      s.mood = Math.max(0, s.mood - 3);
+    }
+  }
+  render();
+}, 8000);
+
+// === START ===
+render();
+console.log('Game started!');
 </script>
 </body>
 </html>
-<!-- version 2.0 -->
