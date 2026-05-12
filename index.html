@@ -277,17 +277,33 @@ function addPendingOrder(){
 function renderOrders(){
   const el=document.getElementById('ol');if(!el)return;
   addPendingOrder();checkComboExpire();
-  if(G.tickCount>0&&G.tickCount%4===0){
-    const autoCount=calcAutoServeCount();const autoServed=Math.min(autoCount,G.pendingOrders.length);
-    for(let i=0;i<autoServed;i++){
-      const order=G.pendingOrders[i];const buff=getBuff();const earned=Math.floor(order.price*buff*0.8);
-      G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;addXP(5);checkQuest('serve',1);checkQuest('earn',earned);
-      if(G.served%5===0){const fb=recordFeedback(false,true);showFeedback(fb.taste,fb.service,fb.ambiance);}
+  // Auto-serve: chỉ chạy mỗi 8s (dùng timestamp)
+  const now=Date.now();
+  if(!G._lastAutoServe)G._lastAutoServe=now;
+  if(now-G._lastAutoServe>=8000){
+    G._lastAutoServe=now;
+    const autoCount=calcAutoServeCount();
+    const autoServed=Math.min(autoCount,G.pendingOrders.length);
+    if(autoServed>0){
+      // Mỗi staff chỉ phục vụ tối đa 1 đơn mỗi 8s
+      let servedByStaff=0;
+      for(let i=0;i<autoServed&&i<G.staff.length;i++){  
+        const s=G.staff[i];
+        const skWithMood=s.sk*(s.mood/100);
+        // Chỉ serve nếu skill x mood >= 0.5 (staff còn hoạt động)
+        if(skWithMood>=0.5){
+          const order=G.pendingOrders[i];const buff=getBuff();const earned=Math.floor(order.price*buff*0.8);
+          G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;addXP(5);checkQuest('serve',1);checkQuest('earn',earned);
+          G.staff[i].mood=Math.max(0,G.staff[i].mood-3);
+          servedByStaff++;
+          if(G.served%10===0){const fb=recordFeedback(false,true);showFeedback(fb.taste,fb.service,fb.ambiance);}
+        }
+      }
+      G.pendingOrders=G.pendingOrders.slice(servedByStaff);
     }
-    for(let i=0;i<autoServed&&i<G.staff.length;i++){G.staff[i].mood=Math.max(0,G.staff[i].mood-2);}
-    G.pendingOrders=G.pendingOrders.slice(autoServed);
   }
-  G.tickCount++;
+  // Combo timer: đếm theo seconds thật (dùng Date)
+  if(G.comboTimer>0){const nowSec=Math.floor(now/1000);if(!G._comboSec)G._comboSec=nowSec;if(Math.floor(now/1000)-G._comboSec>=2){G._comboSec=Math.floor(now/1000);G.comboTimer--;if(G.comboTimer<=0){G.comboCount=0;G.comboBuff=0;}}}
   if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">⏳ Chờ khách...</div>';return;}
   el.innerHTML='';
   if(G.comboCount>0){const ce=document.createElement('div');ce.className='combo-counter';ce.textContent='🔥 Combo x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'% rev) còn '+G.comboTimer+'s';ce.style.color=G.comboBuff>0.15?'#28a745':'#FFD700';el.appendChild(ce);}
@@ -351,16 +367,17 @@ function renderStaff(){
   if(G.comboCount>0){const cd=document.createElement('div');cd.className='combo-counter';cd.innerHTML='🔥 COMBO: x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';cd.style.color=G.comboBuff>0.15?'#28a745':'#FFD700';hl.appendChild(cd);}
   const ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='💡 Serve tay = COMBO! +5% rev mỗi level!';hl.appendChild(ct);
   const hTitle=document.createElement('div');hTitle.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hTitle.textContent='📋 THUÊ NHÂN VIÊN';hl.appendChild(hTitle);
-  const autoLabel=document.createElement('div');autoLabel.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';autoLabel.textContent='💡 Auto-serve mỗi 8s';hl.appendChild(autoLabel);
+  const autoLabel=document.createElement('div');autoLabel.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';autoLabel.textContent='💡 Auto-serve mỗi 8s (1 staff = 1 đơn)';hl.appendChild(autoLabel);
   STAFF_TYPES.forEach(s=>{const d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';hl.appendChild(d)});
   const sTitle=document.createElement('div');sTitle.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sTitle.textContent='👥 ĐỘI NGŨ ('+G.staff.length+'/6)';ll.appendChild(sTitle);
   if(G.staff.length===0){const e=document.createElement('div');e.className='empty';e.textContent='📦 Chưa thuê ai!';ll.appendChild(e);return;}
   G.staff.forEach(s=>{
     const d=document.createElement('div');d.className='card';
-    const moodClass=s.mood>60?'high':s.mood>30?'mid':'low';const effectiveRate=Math.floor(s.sk*(s.mood/100));
+    const moodClass=s.mood>60?'high':s.mood>30?'mid':'low';
+    const effectiveRate=s.sk*(s.mood/100);
     const canBoost=s.mood<80;
     let moodBtn='';if(canBoost)moodBtn='<button class="mood-boost-btn" onclick="boostStaffMood(\''+s.id+'\')">☕</button>';
-    d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+effectiveRate+'/8s</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+moodClass+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+moodBtn+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';
+    d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+effectiveRate.toFixed(2)+'/8s</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+moodClass+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+moodBtn+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';
     ll.appendChild(d);
   });
 }
