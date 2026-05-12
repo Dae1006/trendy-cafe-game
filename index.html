@@ -49,7 +49,6 @@ body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt
 .st-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px}
 .st-l{color:var(--dim)}.st-v{color:var(--gold)}
 .empty{padding:20px;text-align:center;color:var(--dim);font-size:9px}
-/* === ENHANCED: Combo \u0026 Feedback === */
 .combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1a1a2e,#0f3460);border:4px solid var(--gold);box-shadow:0 8px 0 #000;padding:16px 24px;font-size:9px;z-index:1000;transition:transform .3s cubic-bezier(.17,.67,.77,.33);white-space:nowrap;pointer-events:none}
 .combo-popup.show{transform:translate(-50%,-50%) scale(1)}
 .combo-popup .combo-emoji{font-size:32px;display:block;text-align:center;margin-bottom:4px}
@@ -57,9 +56,11 @@ body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt
 .combo-popup .combo-desc{color:var(--txt);font-size:8px;text-align:center;margin-top:4px}
 .feedback-float{position:fixed;font-size:8px;z-index:998;pointer-events:none;animation:feedbackUp 2s forwards;white-space:nowrap}
 @keyframes feedbackUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-.mood-boost-btn{padding:2px 4px;font-size:7px;background:#FF6347;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
+.mood-boost-btn{padding:2px 4px;font-size:7px;background:#9b59b6;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
 .mood-boost-btn:active{transform:translate(1px,1px);box-shadow:none}
 .combo-counter{text-align:center;padding:4px 0;font-size:8px;color:var(--gold)}
+.urgent-order{border-left:4px solid #dc3545;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 </style>
 </head>
 <body>
@@ -102,7 +103,6 @@ body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt
 </div>
 
 <script>
-// === DATA ===
 const LOCS=[
   {id:'street',name:'Vỉa hè',emoji:'🚶',cost:0,rm:1,cust:3,bg:'linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)'},
   {id:'mall',name:'TMall',emoji:'🏬',cost:5000,rm:2.5,cust:5,bg:'linear-gradient(to bottom,#f5f5f5 0%,#c0c0c0 60%,#808080 100%)'},
@@ -160,12 +160,14 @@ const WEATHERS=[
 // === STATE ===
 let G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:JSON.parse(JSON.stringify(QUESTS)),rev:0,totalRev:0,served:0,day:1,staff:[],filter:'all',pendingOrders:[],
   comboCount:0, comboTimer:0, maxCombo:0, comboBuff:0,
-  feedbackHistory:[]
+  feedbackHistory:[],
+  autoServeTick:0, // track which tick auto-serve runs (every 4 ticks = 8s)
+  tickCount:0     // total ticks for auto-serve pacing
 };
 
 const fm=n=>n?.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')||'0';
 function save(){try{localStorage.setItem('tc',JSON.stringify(G))}catch(e){}}
-function load(){try{const s=localStorage.getItem('tc');if(s){const d=JSON.parse(s);for(let k in d)if(k!=='qs'&&k!=='comboCount'&&k!=='comboTimer'&&k!=='maxCombo'&&k!=='comboBuff'&&k!=='feedbackHistory')G[k]=d[k]}}catch(e){}}
+function load(){try{const s=localStorage.getItem('tc');if(s){const d=JSON.parse(s);for(let k in d)if(k!=='qs'&&k!=='comboCount'&&k!=='comboTimer'&&k!=='maxCombo'&&k!=='comboBuff'&&k!=='feedbackHistory'&&k!=='autoServeTick'&&k!=='tickCount')G[k]=d[k]}}catch(e){}}
 
 function getBuff(){
   let r=1;
@@ -184,14 +186,14 @@ function getWeather(){const idx=Math.floor(Math.sin(G.day*.3)*1000)%WEATHERS.len
 function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);show('⭐ UP Lv'+G.lv+'!')}}
 function checkQuest(type,val){G.qs.forEach(q=>{if(!q.done&&q.type===type){q.p=(q.p||0)+val;if(q.p>=q.target){q.done=true;G.coins+=q.reward;addXP(q.xp);show('✅ Quest: '+q.title+'! +'+q.reward+'💰')}}})}
 
-// === ENHANCED: Combo System ===
+// === ENHANCED: Combo System (longer timer!) ===
 function getComboBuff(){
   if(G.comboCount>=3){const levels=Math.min(G.comboCount-2,5);return levels*0.05;}
   return 0;
 }
 function startCombo(){
   G.comboCount=(G.comboCount||0)+1;
-  G.comboTimer=10;
+  G.comboTimer=15; // 15 ticks = 30s (was 10 ticks = 20s)
   if(G.comboCount>G.maxCombo)G.maxCombo=G.comboCount;
   G.comboBuff=getComboBuff();
   if(G.comboCount>=3)showCombo(G.comboCount,G.comboBuff);
@@ -235,18 +237,17 @@ function recordFeedback(isCombo,isAuto){
   return {taste,service,ambiance};
 }
 
-// === ENHANCED: Staff Mood Boost ===
-function boostStaffMood(sid,cost){
+// === ENHANCED: Staff Mood Boost (FREE - "☕ Pha cà phê") ===
+function boostStaffMood(sid){
   const s=G.staff.find(x=>x.id===sid);
   if(!s)return;
-  if(G.coins<cost){show('❌ Không đủ coin!');return;}
-  G.coins-=cost;
-  s.mood=Math.min(100,s.mood+25);
-  show('🎁 '+s.name+' mood +25%! ❤️');
+  if(s.mood>=80)return; // already OK
+  s.mood=Math.min(100,s.mood+30); // +30 mood, bigger boost
+  show('☕ '+s.name+' mood +30%! ❤️');
   save();render();
 }
 
-// === AUTO-SERVE ===
+// === AUTO-SERVE: Only runs every 4 ticks (8s) instead of every tick ===
 function calcAutoServeCount(){
   if(G.staff.length===0)return 0;
   let count=0;
@@ -298,35 +299,48 @@ function addPendingOrder(){
 
 function renderOrders(){
   const el=document.getElementById('ol');if(!el)return;
-  addPendingOrder();
-  checkComboExpire();
-  const autoCount=calcAutoServeCount();
-  const autoServed=Math.min(autoCount,G.pendingOrders.length);
 
-  for(let i=0;i<autoServed;i++){
-    const order=G.pendingOrders[i];
-    const buff=getBuff();
-    const earned=Math.floor(order.price*buff*0.85);
-    G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;
-    addXP(10);checkQuest('serve',1);checkQuest('earn',earned);
-    if(G.served%5===0){const fb=recordFeedback(false,true);showFeedback(fb.taste,fb.service,fb.ambiance);}
+  // Only add orders every 2 ticks (not every tick)
+  if(G.tickCount%2===0){addPendingOrder();}
+
+  // Combo tick decay (every tick)
+  checkComboExpire();
+
+  // === AUTO-SERVE: Only every 4 ticks = 8 seconds (was every 2s) ===
+  if(G.tickCount>0 && G.tickCount%4===0){
+    const autoCount=calcAutoServeCount();
+    const autoServed=Math.min(autoCount,G.pendingOrders.length);
+
+    for(let i=0;i<autoServed;i++){
+      const order=G.pendingOrders[i];
+      const buff=getBuff();
+      const earned=Math.floor(order.price*buff*0.8); // auto = 80% (worse than manual 100%)
+      G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;
+      addXP(5);checkQuest('serve',1);checkQuest('earn',earned);
+      if(G.served%5===0){const fb=recordFeedback(false,true);showFeedback(fb.taste,fb.service,fb.ambiance);}
+    }
+    for(let i=0;i<autoServed&&i<G.staff.length;i++){G.staff[i].mood=Math.max(0,G.staff[i].mood-2);}
+    G.pendingOrders=G.pendingOrders.slice(autoServed);
   }
-  for(let i=0;i<autoServed&&i<G.staff.length;i++){G.staff[i].mood=Math.max(0,G.staff[i].mood-3);}
-  G.pendingOrders=G.pendingOrders.slice(autoServed);
+
+  G.tickCount++;
 
   if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">⏳ Chờ khách...</div>';return;}
   el.innerHTML='';
 
   if(G.comboCount>0){
     const comboEl=document.createElement('div');comboEl.className='combo-counter';
-    comboEl.textContent='🔥 Combo x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';
+    comboEl.textContent='🔥 Combo x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'% rev) | còn '+G.comboTimer+'s';
     comboEl.style.color=G.comboBuff>0.15?'#28a745':'#FFD700';
     el.appendChild(comboEl);
   }
 
   G.pendingOrders.forEach((order,i)=>{
     const buff=getBuff();const price=Math.floor(order.price*buff);
-    const d=document.createElement('div');d.className='card';
+    // Urgent orders (older ones) get red border
+    const isUrgent = i < 2 && G.comboCount === 0;
+    const urgentClass = isUrgent ? ' urgent-order' : '';
+    const d=document.createElement('div');d.className='card'+urgentClass;
     d.innerHTML='<div><span class="nm">'+order.icon+' '+order.name+'</span></div><div><span class="pr">'+fm(price)+'₫</span> <button class="btn g" onclick="serveOrder('+i+')">SERVE</button></div>';
     el.appendChild(d);
   });
@@ -357,7 +371,7 @@ function renderStats(){
     ['Ngày',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Đã phục vụ',G.served],
     ['Doanh thu hôm nay',fm(G.rev)+'₫'],['Tổng doanh thu',fm(G.totalRev)+'₫'],
     ['Coin',fm(G.coins)+'₫'],['Items',Object.keys(G.items).length],
-    ['Auto-serve',autoCount+' đơn/tick'],['Nhân viên',G.staff.length+'/6'],
+    ['Auto-serve','1 đơn/'+(autoCount>0?'~'+(calcAutoServeCount()>0?'4'):'-')+'tick'],['Nhân viên',G.staff.length+'/6'],
     ['Combo hiện tại',G.comboCount>0?'x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%)':'Không có'],
     ['Combo max (lịch sử)','x'+(G.maxCombo||0)],['Đánh giá TB',avgFb.toFixed(1)+'⭐']
   ];
@@ -384,7 +398,7 @@ function renderStaff(){
   const ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='💡 Serve thủ công liên tiếp = COMBO! +5% rev mỗi level!';hl.appendChild(ct);
 
   const hTitle=document.createElement('div');hTitle.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hTitle.textContent='📋 THUÊ NHÂN VIÊN (AUTO-SERVE)';hl.appendChild(hTitle);
-  const autoLabel=document.createElement('div');autoLabel.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';autoLabel.textContent='💡 Mỗi nhân viên = 1 đơn/tick (skill × mood)';hl.appendChild(autoLabel);
+  const autoLabel=document.createElement('div');autoLabel.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';autoLabel.textContent='💡 Auto-serve mỗi 8s (1 đơn/nv khi mood=100%)';hl.appendChild(autoLabel);
   STAFF_TYPES.forEach(s=>{const d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';hl.appendChild(d)});
 
   const sTitle=document.createElement('div');sTitle.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sTitle.textContent='👥 ĐỘI NGŨ ('+G.staff.length+'/6)';ll.appendChild(sTitle);
@@ -393,16 +407,15 @@ function renderStaff(){
     const d=document.createElement('div');d.className='card';
     const moodClass=s.mood>60?'high':s.mood>30?'mid':'low';
     const effectiveRate=Math.floor(s.sk*(s.mood/100));
-    const boostCost=Math.max(10,Math.floor((100-s.mood)*0.5));
     const canBoost=s.mood<80;
     let moodBtn='';
-    if(canBoost)moodBtn='<button class="mood-boost-btn" onclick="boostStaffMood(\''+s.id+'\','+boostCost+')">🎁Snack ('+boostCost+'₫)</button>';
+    if(canBoost)moodBtn='<button class="mood-boost-btn" onclick="boostStaffMood(\''+s.id+'\')">☕</button>';
     d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+effectiveRate+'/tick</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+moodClass+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+moodBtn+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';
     ll.appendChild(d);
   });
 }
 
-function hireStaff(id){const s=STAFF_TYPES.find(x=>x.id===id);if(!s)return;if(G.coins<s.cost){show('❌ Không đủ coin!');return}if(G.staff.length>=6){show('❌ Đầy nhân viên!');return}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ Thuê: '+s.name+'! Auto-serve: 1 đơn/tick');save();render()}
+function hireStaff(id){const s=STAFF_TYPES.find(x=>x.id===id);if(!s)return;if(G.coins<s.cost){show('❌ Không đủ coin!');return}if(G.staff.length>=6){show('❌ Đầy nhân viên!');return}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ Thuê: '+s.name+'! Auto: 1 đơn/tick');save();render()}
 function fireStaff(sid){const idx=G.staff.findIndex(x=>x.id===sid);if(idx>=0){const s=G.staff.splice(idx,1)[0];show('💔 Đã sa thải: '+s.name);save();render()}}
 function show(msg){const el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000)}
 function initTabs(){document.querySelectorAll('.nb').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.pan').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById('p-'+b.dataset.tab)?.classList.add('on')}})}
