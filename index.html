@@ -200,8 +200,12 @@ function fireStaff(sid){var idx=G.staff.filter(function(x){return x.id===sid;});
 function show(msg){var el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none'},3000)}
 function initTabs(){var bts=document.querySelectorAll('.nb');for(var i=0;i<bts.length;i++){(function(b){b.onclick=function(){document.querySelectorAll('.nb').forEach(function(x){x.classList.remove('on')});document.querySelectorAll('.pan').forEach(function(x){x.classList.remove('on')});b.classList.add('on');var tab=document.getElementById('p-'+b.dataset.tab);if(tab)tab.classList.add('on');}};})(bts[i]);}}
 function gameLoop(ts){var dt=ts-_lastTick;_lastTick=ts;for(var i=0;i<G.staff.length;i++){if(G.staff[i].mood<100)G.staff[i].mood=Math.min(100,G.staff[i].mood+.05*dt);}if(!G._dayStart)G._dayStart=ts;if(ts-G._dayStart>=60000){G.day++;G._dayStart=ts;}render();requestAnimationFrame(gameLoop);}
-function init(){try{initTabs();render();var ld=document.getElementById('loading');if(ld)ld.style.display='none';requestAnimationFrame(gameLoop);console.log('Game OK!');}catch(e){var ld=document.getElementById('loading');if(ld){ld.innerHTML='<div style="color:#ff4444;font-size:12px">Error: '+e.message+'<br><br>Click để thử lại</div>';ld.style.cursor='pointer';ld.onclick=function(){location.reload();}}}}
-window.addEventListener('load',function(){init();});
+function init(){try{if(!document.getElementById('coins')){console.log('DOM not ready, retrying...');setTimeout(init,200);return;}initTabs();render();var ld=document.getElementById('loading');if(ld)ld.style.display='none';requestAnimationFrame(gameLoop);console.log('Game OK!');}catch(e){var ld=document.getElementById('loading');if(ld){ld.innerHTML='<div style="color:#ff4444;font-size:12px">Error: '+e.message+'<br><br>Click để thử lại</div>';ld.style.cursor='pointer';ld.onclick=function(){location.reload();}}}}
+function startGame(){init();}
+if(document.body){setTimeout(startGame,0);}else{window.addEventListener('load',function(){setTimeout(startGame,0);});}
+if(typeof window.addEventListener!=='undefined'){window.addEventListener('DOMContentLoaded',function(){if(document.getElementById('loading')&&document.getElementById('loading').style.display==='flex'){setTimeout(startGame,0);}});}
+if(document.readyState==='complete'){setTimeout(startGame,0);}
+if(document.readyState==='interactive'){setTimeout(startGame,100);}
 </script>
 </body>
 </html>
