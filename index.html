@@ -49,6 +49,17 @@ body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt
 .st-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px}
 .st-l{color:var(--dim)}.st-v{color:var(--gold)}
 .empty{padding:20px;text-align:center;color:var(--dim);font-size:9px}
+/* === ENHANCED: Combo \u0026 Feedback === */
+.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1a1a2e,#0f3460);border:4px solid var(--gold);box-shadow:0 8px 0 #000;padding:16px 24px;font-size:9px;z-index:1000;transition:transform .3s cubic-bezier(.17,.67,.77,.33);white-space:nowrap;pointer-events:none}
+.combo-popup.show{transform:translate(-50%,-50%) scale(1)}
+.combo-popup .combo-emoji{font-size:32px;display:block;text-align:center;margin-bottom:4px}
+.combo-popup .combo-title{color:var(--gold);font-size:11px;text-align:center}
+.combo-popup .combo-desc{color:var(--txt);font-size:8px;text-align:center;margin-top:4px}
+.feedback-float{position:fixed;font-size:8px;z-index:998;pointer-events:none;animation:feedbackUp 2s forwards;white-space:nowrap}
+@keyframes feedbackUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
+.mood-boost-btn{padding:2px 4px;font-size:7px;background:#FF6347;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
+.mood-boost-btn:active{transform:translate(1px,1px);box-shadow:none}
+.combo-counter{text-align:center;padding:4px 0;font-size:8px;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -147,14 +158,18 @@ const WEATHERS=[
 ];
 
 // === STATE ===
-let G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:JSON.parse(JSON.stringify(QUESTS)),rev:0,totalRev:0,served:0,day:1,staff:[],filter:'all',pendingOrders:[]};
+let G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:JSON.parse(JSON.stringify(QUESTS)),rev:0,totalRev:0,served:0,day:1,staff:[],filter:'all',pendingOrders:[],
+  comboCount:0, comboTimer:0, maxCombo:0, comboBuff:0,
+  feedbackHistory:[]
+};
 
 const fm=n=>n?.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')||'0';
 function save(){try{localStorage.setItem('tc',JSON.stringify(G))}catch(e){}}
-function load(){try{const s=localStorage.getItem('tc');if(s){const d=JSON.parse(s);for(let k in d)if(k!=='qs')G[k]=d[k]}}catch(e){}}
+function load(){try{const s=localStorage.getItem('tc');if(s){const d=JSON.parse(s);for(let k in d)if(k!=='qs'&&k!=='comboCount'&&k!=='comboTimer'&&k!=='maxCombo'&&k!=='comboBuff'&&k!=='feedbackHistory')G[k]=d[k]}}catch(e){}}
 
 function getBuff(){
   let r=1;
+  r += G.comboBuff;
   for(let id in G.items){const t=TREND.find(x=>x.id===id);if(t){if(t.ef==='rev')r+=t.v*(G.items[id]||0);if(t.ef==='all')r+=t.v*(G.items[id]||0)}}
   for(let ui of G.ups){const u=UPGRADES.find(x=>x.id===ui);if(u&&u.type==='rev')r+=u.v}
   const w=getWeather();r*=w.rm;return r;
@@ -169,16 +184,74 @@ function getWeather(){const idx=Math.floor(Math.sin(G.day*.3)*1000)%WEATHERS.len
 function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);show('⭐ UP Lv'+G.lv+'!')}}
 function checkQuest(type,val){G.qs.forEach(q=>{if(!q.done&&q.type===type){q.p=(q.p||0)+val;if(q.p>=q.target){q.done=true;G.coins+=q.reward;addXP(q.xp);show('✅ Quest: '+q.title+'! +'+q.reward+'💰')}}})}
 
-// === AUTO-SERVE: Staff tự động phục vụ ===
-// Công thức: mỗi nhân viên phục vụ = skill * mood/100 đơn mỗi lần renderOrders() chạy
-// renderOrders() chạy MỖI 2 giây → mỗi nhân viên có thể phục vụ ~1 đơn/2s
+// === ENHANCED: Combo System ===
+function getComboBuff(){
+  if(G.comboCount>=3){const levels=Math.min(G.comboCount-2,5);return levels*0.05;}
+  return 0;
+}
+function startCombo(){
+  G.comboCount=(G.comboCount||0)+1;
+  G.comboTimer=10;
+  if(G.comboCount>G.maxCombo)G.maxCombo=G.comboCount;
+  G.comboBuff=getComboBuff();
+  if(G.comboCount>=3)showCombo(G.comboCount,G.comboBuff);
+}
+function checkComboExpire(){
+  if(G.comboTimer>0){
+    G.comboTimer--;
+    if(G.comboTimer<=0){G.comboCount=0;G.comboBuff=0;}
+  }
+}
+function showCombo(count,buff){
+  const emojis={3:'☕',4:'🔥',5:'⚡',6:'💎',7:'👑'};
+  const names={3:'Combo!',4:'Great Combo!',5:'Super Combo!',6:'Ultra Combo!',7:'Legend Combo!'};
+  const el=document.createElement('div');
+  el.className='combo-popup show';
+  el.innerHTML='<div class="combo-emoji">'+(emojis[count]||'🔥')+'</div><div class="combo-title">'+(names[count]||'Combo!')+'</div><div class="combo-desc">x'+count+' orders = +'+Math.floor(buff*100)+'% revenue!</div>';
+  document.body.appendChild(el);
+  setTimeout(()=>el.classList.remove('show'),1500);
+  setTimeout(()=>el.remove(),2000);
+}
+function showFeedback(taste,service,ambiance){
+  const fB={1:'😡',2:'😕',3:'🙂',4:'😊',5:'🤩'};
+  const fT={1:'Quá tệ!',2:'Không ngon...',3:'Khá ổn.',4:'Ngon lắm!',5:'Tuyệt vời! ❤️'};
+  const el=document.createElement('div');
+  el.className='feedback-float';
+  el.style.left=(20+Math.random()*60)+'%';
+  el.style.top=(30+Math.random()*30)+'%';
+  el.innerHTML='<span style="font-size:16px">'+fB[taste]+'</span> <span style="color:'+(taste>=4?'#FFD700':'#dc3545')+'">'+fT[taste]+'</span>';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2000);
+}
+function recordFeedback(isCombo,isAuto){
+  let base=3;
+  if(G.staff.length>0){const avgSk=G.staff.reduce((a,s)=>a+s.sk,0)/G.staff.length;base+=Math.floor(avgSk*0.5);}
+  if(isCombo)base=Math.min(5,base+1);
+  const taste=Math.max(1,Math.min(5,base+Math.floor(Math.random()*3-1)));
+  const service=Math.max(1,Math.min(5,(isAuto?2:4)+Math.floor(Math.random()*2-1)));
+  const ambiance=Math.max(1,Math.min(5,3+Math.floor(Math.random()*3-1)));
+  G.feedbackHistory.push({taste,service,ambiance,time:Date.now()});
+  if(G.feedbackHistory.length>20)G.feedbackHistory.shift();
+  return {taste,service,ambiance};
+}
+
+// === ENHANCED: Staff Mood Boost ===
+function boostStaffMood(sid,cost){
+  const s=G.staff.find(x=>x.id===sid);
+  if(!s)return;
+  if(G.coins<cost){show('❌ Không đủ coin!');return;}
+  G.coins-=cost;
+  s.mood=Math.min(100,s.mood+25);
+  show('🎁 '+s.name+' mood +25%! ❤️');
+  save();render();
+}
+
+// === AUTO-SERVE ===
 function calcAutoServeCount(){
   if(G.staff.length===0)return 0;
   let count=0;
-  G.staff.forEach(s=>{
-    count += Math.floor(s.sk * (s.mood/100));
-  });
-  return Math.max(0,count); // mỗi tick (2s) phục vụ 1 đơn/nhân viên
+  G.staff.forEach(s=>{count+=Math.floor(s.sk*(s.mood/100));});
+  return Math.max(0,count);
 }
 
 // === RENDER ===
@@ -208,87 +281,70 @@ function renderCafe(){
   const l=LOCS.find(x=>x.id===G.loc);if(bg)bg.style.background=l.bg;sc.innerHTML='';
   const n=Math.min(getCustomers(),12);
   const emojis=['👨‍💻','👩‍🎮','🧑‍🎨','👴','🧒','🤓','😎','🥳','👦','👧','👩‍🏫','🧔'];
-  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='cust';d.textContent=emojis[Math.floor(Math.random()*emojis.length)];d.style.animationDelay=(Math.random()*1)+'s';d.style.fontSize=(20+Math.random()*8)+'px';sc.appendChild(d)}
-}
-
-// === ORDERS + AUTO-SERVE (tích hợp vào đây!) ===
-// === ORDERS: Track pending orders as persistent state ===
-function addPendingOrder() {
-  const l = LOCS.find(x => x.id === G.loc);
-  const maxOrders = Math.min(l.cust + Math.floor(getCustomers() * 0.4), 8);
-  if (G.pendingOrders.length >= maxOrders) return;
-  // Random chance each tick for a new customer
-  if (Math.random() < 0.6) {
-    const mi = MENU[Math.floor(Math.random() * MENU.length)];
-    G.pendingOrders.push({ ...mi, uid: Date.now() + Math.random() });
+  for(let i=0;i<n;i++){
+    const d=document.createElement('div');d.className='cust';d.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    d.style.animationDelay=(Math.random()*1)+'s';d.style.fontSize=(20+Math.random()*8)+'px';
+    if(G.staff.length>0){const avgMood=G.staff.reduce((a,s)=>a+s.mood,0)/G.staff.length;if(avgMood<40)d.textContent+=' 😟';}
+    sc.appendChild(d);
   }
 }
 
-function renderOrders() {
-  const el = document.getElementById('ol');
-  if (!el) return;
+function addPendingOrder(){
+  const l=LOCS.find(x=>x.id===G.loc);
+  const maxOrders=Math.min(l.cust+Math.floor(getCustomers()*0.4),8);
+  if(G.pendingOrders.length>=maxOrders)return;
+  if(Math.random()<0.6){const mi=MENU[Math.floor(Math.random()*MENU.length)];G.pendingOrders.push({...mi,uid:Date.now()+Math.random()});}
+}
 
-  // 1) Add new customers
+function renderOrders(){
+  const el=document.getElementById('ol');if(!el)return;
   addPendingOrder();
+  checkComboExpire();
+  const autoCount=calcAutoServeCount();
+  const autoServed=Math.min(autoCount,G.pendingOrders.length);
 
-  // 2) Auto-serve: process orders from pendingOrders array
-  const autoCount = calcAutoServeCount();
-  const autoServed = Math.min(autoCount, G.pendingOrders.length);
+  for(let i=0;i<autoServed;i++){
+    const order=G.pendingOrders[i];
+    const buff=getBuff();
+    const earned=Math.floor(order.price*buff*0.85);
+    G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;
+    addXP(10);checkQuest('serve',1);checkQuest('earn',earned);
+    if(G.served%5===0){const fb=recordFeedback(false,true);showFeedback(fb.taste,fb.service,fb.ambiance);}
+  }
+  for(let i=0;i<autoServed&&i<G.staff.length;i++){G.staff[i].mood=Math.max(0,G.staff[i].mood-3);}
+  G.pendingOrders=G.pendingOrders.slice(autoServed);
 
-  for (let i = 0; i < autoServed; i++) {
-    const order = G.pendingOrders[i];
-    const buff = getBuff();
-    const earned = Math.floor(order.price * buff * 0.8);
-    G.coins += earned;
-    G.rev += earned;
-    G.totalRev += earned;
-    G.served++;
-    addXP(10);
-    checkQuest('serve', 1);
-    checkQuest('earn', earned);
+  if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">⏳ Chờ khách...</div>';return;}
+  el.innerHTML='';
+
+  if(G.comboCount>0){
+    const comboEl=document.createElement('div');comboEl.className='combo-counter';
+    comboEl.textContent='🔥 Combo x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';
+    comboEl.style.color=G.comboBuff>0.15?'#28a745':'#FFD700';
+    el.appendChild(comboEl);
   }
 
-  // 3) Reduce mood for serving staff
-  for (let i = 0; i < autoServed && i < G.staff.length; i++) {
-    G.staff[i].mood = Math.max(0, G.staff[i].mood - 3);
-  }
-
-  // 4) Remove served orders from pending
-  G.pendingOrders = G.pendingOrders.slice(autoServed);
-
-  // 5) Render what's left
-  if (G.pendingOrders.length === 0) {
-    el.innerHTML = '<div class="empty">⏳ Chờ khách...</div>';
-    return;
-  }
-
-  el.innerHTML = '';
-  G.pendingOrders.forEach((order, i) => {
-    const buff = getBuff();
-    const price = Math.floor(order.price * buff);
-    const d = document.createElement('div');
-    d.className = 'card';
-    d.innerHTML = '<div><span class="nm">' + order.icon + ' ' + order.name + '</span></div><div><span class="pr">' + fm(price) + '₫</span> <button class="btn g" onclick="serveOrder(' + i + ')">SERVE</button></div>';
+  G.pendingOrders.forEach((order,i)=>{
+    const buff=getBuff();const price=Math.floor(order.price*buff);
+    const d=document.createElement('div');d.className='card';
+    d.innerHTML='<div><span class="nm">'+order.icon+' '+order.name+'</span></div><div><span class="pr">'+fm(price)+'₫</span> <button class="btn g" onclick="serveOrder('+i+')">SERVE</button></div>';
     el.appendChild(d);
   });
 }
 
-function serveOrder(idx) {
-  if (typeof idx !== 'number' || idx < 0 || idx >= G.pendingOrders.length) return;
-  const order = G.pendingOrders[idx];
-  const buff = getBuff();
-  const earned = Math.floor(order.price * buff);
-  G.coins += earned;
-  G.rev += earned;
-  G.totalRev += earned;
-  G.served++;
-  addXP(10);
-  checkQuest('serve', 1);
-  checkQuest('earn', earned);
-  G.pendingOrders.splice(idx, 1);
-  show('✅ +' + fm(earned) + '₫ | ' + order.name);
-  save();
-  render();
+function serveOrder(idx){
+  if(typeof idx!=='number'||idx<0||idx>=G.pendingOrders.length)return;
+  const order=G.pendingOrders[idx];
+  const buff=getBuff();const earned=Math.floor(order.price*buff);
+  G.coins+=earned;G.rev+=earned;G.totalRev+=earned;G.served++;
+  startCombo();const isCombo=G.comboCount>=3;
+  addXP(10);checkQuest('serve',1);checkQuest('earn',earned);
+  G.pendingOrders.splice(idx,1);
+  const fb=recordFeedback(isCombo,false);
+  let msg='✅ +'+fm(earned)+'₫ | '+order.name;
+  if(isCombo)msg+=' 🔥x'+G.comboCount;
+  show(msg);showFeedback(fb.taste,fb.service,fb.ambiance);
+  save();render();
 }
 
 function renderMenu(){const el=document.getElementById('ml');if(!el)return;el.innerHTML='';MENU.forEach(mi=>{const d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span><div style="color:#a0a0b0;font-size:7px">Cost: '+fm(mi.cost)+'₫</div></div><div style="text-align:right"><span class="pr">~'+fm(Math.floor(mi.price*getBuff()))+'₫</span></div>';el.appendChild(d)})}
@@ -296,7 +352,15 @@ function renderMenu(){const el=document.getElementById('ml');if(!el)return;el.in
 function renderStats(){
   const el=document.getElementById('sl');if(!el)return;el.innerHTML='';
   const autoCount=calcAutoServeCount();
-  const rows=[['Ngày',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Đã phục vụ',G.served],['Doanh thu hôm nay',fm(G.rev)+'₫'],['Tổng doanh thu',fm(G.totalRev)+'₫'],['Coin',fm(G.coins)+'₫'],['Items',Object.keys(G.items).length],['Auto-serve',autoCount+' đơn/tick'],['Nhân viên',G.staff.length+'/6']];
+  const avgFb=G.feedbackHistory.length>0?G.feedbackHistory.slice(-5).reduce((a,f)=>a+f.taste,0)/5:3;
+  const rows=[
+    ['Ngày',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Đã phục vụ',G.served],
+    ['Doanh thu hôm nay',fm(G.rev)+'₫'],['Tổng doanh thu',fm(G.totalRev)+'₫'],
+    ['Coin',fm(G.coins)+'₫'],['Items',Object.keys(G.items).length],
+    ['Auto-serve',autoCount+' đơn/tick'],['Nhân viên',G.staff.length+'/6'],
+    ['Combo hiện tại',G.comboCount>0?'x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%)':'Không có'],
+    ['Combo max (lịch sử)','x'+(G.maxCombo||0)],['Đánh giá TB',avgFb.toFixed(1)+'⭐']
+  ];
   rows.forEach(r=>{const d=document.createElement('div');d.className='st-row';d.innerHTML='<span class="st-l">'+r[0]+'</span><span class="st-v">'+r[1]+'</span>';el.appendChild(d)})
 }
 
@@ -310,26 +374,43 @@ function buyUpgrade(id){const u=UPGRADES.find(x=>x.id===id);if(!u||G.coins<u.cos
 function renderStaff(){
   const hl=document.getElementById('hl');if(!hl)return;hl.innerHTML='';
   const ll=document.getElementById('sll');if(!ll)return;ll.innerHTML='';
+
+  if(G.comboCount>0){
+    const cd=document.createElement('div');cd.className='combo-counter';
+    cd.innerHTML='🔥 COMBO ACTIVE: x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';
+    cd.style.color=G.comboBuff>0.15?'#28a745':'#FFD700';
+    hl.appendChild(cd);
+  }
+  const ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='💡 Serve thủ công liên tiếp = COMBO! +5% rev mỗi level!';hl.appendChild(ct);
+
   const hTitle=document.createElement('div');hTitle.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hTitle.textContent='📋 THUÊ NHÂN VIÊN (AUTO-SERVE)';hl.appendChild(hTitle);
   const autoLabel=document.createElement('div');autoLabel.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';autoLabel.textContent='💡 Mỗi nhân viên = 1 đơn/tick (skill × mood)';hl.appendChild(autoLabel);
   STAFF_TYPES.forEach(s=>{const d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';hl.appendChild(d)});
+
   const sTitle=document.createElement('div');sTitle.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sTitle.textContent='👥 ĐỘI NGŨ ('+G.staff.length+'/6)';ll.appendChild(sTitle);
   if(G.staff.length===0){const e=document.createElement('div');e.className='empty';e.textContent='📦 Chưa thuê ai — hãy thuê nhân viên để auto-serve!';ll.appendChild(e);return}
-  G.staff.forEach(s=>{const d=document.createElement('div');d.className='card';const moodClass=s.mood>60?'high':s.mood>30?'mid':'low';const effectiveRate=Math.floor(s.sk*(s.mood/100));d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+effectiveRate+'/tick</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+moodClass+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';ll.appendChild(d)})}
+  G.staff.forEach(s=>{
+    const d=document.createElement('div');d.className='card';
+    const moodClass=s.mood>60?'high':s.mood>30?'mid':'low';
+    const effectiveRate=Math.floor(s.sk*(s.mood/100));
+    const boostCost=Math.max(10,Math.floor((100-s.mood)*0.5));
+    const canBoost=s.mood<80;
+    let moodBtn='';
+    if(canBoost)moodBtn='<button class="mood-boost-btn" onclick="boostStaffMood(\''+s.id+'\','+boostCost+')">🎁Snack ('+boostCost+'₫)</button>';
+    d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+effectiveRate+'/tick</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+moodClass+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+moodBtn+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';
+    ll.appendChild(d);
+  });
+}
 
-function hireStaff(id){const s=STAFF_TYPES.find(x=>x.id===id);if(!s)return;if(G.coins<s.cost){show('❌ Không đủ coin!');return}if(G.staff.length>=6){show('❌ Đầy nhân viên!');return}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ Thuê: '+s.name+'! Auto-serve: 1 đơn/tick (khi mood=100%)');save();render()}
+function hireStaff(id){const s=STAFF_TYPES.find(x=>x.id===id);if(!s)return;if(G.coins<s.cost){show('❌ Không đủ coin!');return}if(G.staff.length>=6){show('❌ Đầy nhân viên!');return}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ Thuê: '+s.name+'! Auto-serve: 1 đơn/tick');save();render()}
 function fireStaff(sid){const idx=G.staff.findIndex(x=>x.id===sid);if(idx>=0){const s=G.staff.splice(idx,1)[0];show('💔 Đã sa thải: '+s.name);save();render()}}
 function show(msg){const el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000)}
 function initTabs(){document.querySelectorAll('.nb').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.pan').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById('p-'+b.dataset.tab)?.classList.add('on')}})}
 
-// === GAME LOOP (chạy mỗi 2 giây) ===
 function gameLoop(){
-  // Mood recovery: +0.5% mood mỗi 2 giây
   G.staff.forEach(s=>{if(s.mood<100)s.mood=Math.min(100,s.mood+0.5)});
-  // Day change (every 60s)
   if(!G._dayTick)G._dayTick=Date.now();
   if(Date.now()-G._dayTick>60000){G.day++;G._dayTick=Date.now();save()}
-  // Render all
   render();
 }
 
