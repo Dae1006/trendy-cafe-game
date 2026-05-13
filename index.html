@@ -2,209 +2,260 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>☕ Trendy Cafe</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--gold:#FFD700;--accent:#FF6347;--green:#28a745;--red:#dc3545;--txt:#e8e8e8;--dim:#a0a0b0}
-body{font-family:'Courier New',monospace;background:var(--bg);color:var(--txt);min-height:100vh;max-width:480px;margin:0 auto;image-rendering:pixelated;font-size:10px;line-height:1.6;overflow-x:hidden}
-#hdr{display:flex;justify-content:space-between;padding:10px 15px;background:linear-gradient(135deg,var(--bg),var(--bg3));border-bottom:4px solid var(--gold);font-size:9px;position:sticky;top:0;z-index:10}
-#hdr .v{color:var(--gold);text-shadow:1px 1px 0 #000}
-#xp-wrap{height:6px;background:#333;border-bottom:2px solid #000}
-#xp-bar{height:100%;background:linear-gradient(90deg,#4169E1,#9932CC);width:0%;transition:width .3s}
-#weather{padding:6px 15px;background:linear-gradient(90deg,#FF6347,#FF8C00);border-bottom:4px solid #000;font-size:8px}
-#scene{height:160px;position:relative;overflow:hidden;border-bottom:4px solid var(--bg3)}
-#cafe-bg{position:absolute;inset:0;background:linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)}
-#cafe-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:4px 4px;pointer-events:none}
-#custs{position:absolute;bottom:5px;left:0;width:100%;height:60px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
-.cust{font-size:24px;animation:bot .8s infinite alternate;filter:drop-shadow(2px 2px 0 #000)}
-@keyframes bot{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-#locs{display:flex;gap:4px;padding:6px;background:var(--bg);border-bottom:4px solid var(--bg3);overflow-x:auto}
-.lb{flex:1;min-width:55px;padding:6px 3px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;text-align:center}
-.lb.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
-.lb:disabled{opacity:.3;cursor:not-allowed}
-#nav{display:flex;position:sticky;bottom:0;background:var(--bg);border-top:4px solid var(--gold);z-index:10;overflow-x:auto}
-.nb{flex:1;min-width:40px;padding:8px 2px;border:none;background:transparent;color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;white-space:nowrap;border-top:3px solid transparent}
-.nb.on{color:var(--gold);background:rgba(255,215,0,.12);border-top-color:var(--gold)}
-#pnl{min-height:300px;background:var(--bg2)}
-.pan{display:none;padding:10px}
-.pan.on{display:block}
-.pan h3{font-size:10px;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--bg3)}
-.btn{padding:6px 12px;border:2px solid #000;border-radius:0;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;font-size:8px;box-shadow:2px 2px 0 #000;transition:all .05s}
-.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #000}
-.btn:active{transform:translate(2px,2px);box-shadow:none}
-.btn:disabled{background:#555;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 #000;opacity:.5}
-.btn.g{background:var(--green)}.btn.o{background:var(--red)}
-.card{padding:8px;margin:4px 0;background:var(--bg3);border:2px solid #000;border-bottom:3px solid #000;display:flex;justify-content:space-between;align-items:center;font-size:8px}
-.card .nm{font-weight:bold;line-height:2}
-.card .pr{color:var(--gold)}
-.r-bar{height:6px;background:#333;border:1px solid #000;margin:3px 0;overflow:hidden}
-.r-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s}
-.r-fill.high{background:#28a745}.r-fill.mid{background:#FFD700}.r-fill.low{background:#dc3545}
-#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--gold);padding:8px 16px;border:3px solid var(--gold);box-shadow:0 4px 0 #000;font-size:8px;z-index:999;display:none;white-space:pre-line}
-.flt-row{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
-.flt-btn{padding:4px 8px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit}
-.flt-btn.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
-.st-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px}
-.st-l{color:var(--dim)}.st-v{color:var(--gold)}
-.empty{padding:20px;text-align:center;color:var(--dim);font-size:9px}
-.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1a1a2e,#0f3460);border:4px solid var(--gold);box-shadow:0 8px 0 #000;padding:16px 24px;font-size:9px;z-index:1000;transition:transform .3s cubic-bezier(.17,.67,.77,.33);white-space:nowrap;pointer-events:none}
-.combo-popup.show{transform:translate(-50%,-50%) scale(1)}
-.combo-popup .combo-emoji{font-size:32px;display:block;text-align:center;margin-bottom:4px}
-.combo-popup .combo-title{color:var(--gold);font-size:11px;text-align:center}
-.combo-popup .combo-desc{color:var(--txt);font-size:8px;text-align:center;margin-top:4px}
-.feedback-float{position:fixed;font-size:8px;z-index:998;pointer-events:none;animation:feedbackUp 2s forwards;white-space:nowrap}
-@keyframes feedbackUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
-.mood-boost-btn{padding:2px 4px;font-size:7px;background:#9b59b6;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
-.mood-boost-btn:active{transform:translate(1px,1px);box-shadow:none}
-.combo-counter{text-align:center;padding:4px 0;font-size:8px;color:var(--gold)}
-.urgent-order{border-left:4px solid #dc3545;animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.rep-bar{height:8px;background:#333;border:1px solid #000;margin:4px 0;overflow:hidden}
-.rep-fill{height:100%;background:linear-gradient(90deg,#dc3545,#FFD700,#28a745);width:50%}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Courier New',monospace;background:#1a1a2e;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px}
+#hdr{padding:10px 15px;background:#16213e;border-bottom:3px solid #FFD700;display:flex;justify-content:space-between}
+.gold{color:#FFD700}
+#tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460}
+.tab{padding:10px 15px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:12px}
+.tab.active{color:#FFD700;background:rgba(255,215,0,0.15)}
+#content{min-height:400px;padding:15px;background:#1a1a2e}
+.card{padding:10px;margin:8px 0;background:#0f3460;border:2px solid #000;display:flex;justify-content:space-between;align-items:center}
+.btn{padding:8px 16px;border:2px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;margin:4px}
+.btn:disabled{background:#555;cursor:not-allowed}
+.btn.green{background:#28a745}
+.empty{padding:20px;text-align:center;color:#a0a0b0}
+#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:8px 16px;border:2px solid #FFD700;font-size:12px;z-index:999;display:none}
 </style>
 </head>
 <body>
-<div id="loading" style="position:fixed;inset:0;background:var(--bg);display:none !important;justify-content:center;z-index:9999;font-size:14px;color:var(--gold);flex-direction:column;gap:10px">
-  <div class="spinner" style="width:40px;height:40px;border:4px solid var(--bg3);border-top-color:var(--gold);animation:spin .8s linear infinite;border-radius:50%"></div>
-  <div>☕ Loading...</div>
-</div>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 <div id="notif"></div>
 
 <div id="hdr">
-  <div>💰 <span class="v" id="coins">500</span></div>
-  <div>Lv<span class="v" id="lv">1</span> ⭐<span class="v" id="xp">0</span>/<span class="v" id="xpn">100</span></div>
-</div>
-<div id="xp-wrap"><div id="xp-bar"></div></div>
-<div id="weather">☀️ Sunny</div>
-<div id="rep-display" style="padding:4px 15px;background:var(--bg2);border-bottom:2px solid var(--bg3);font-size:7px">⭐ Rep: <span id="rep-val">50</span>/100 <div class="rep-bar"><div class="rep-fill" id="rep-bar"></div></div></div>
-<div id="locs"></div>
-<div id="scene"><div id="cafe-bg"></div><div id="custs"></div></div>
-
-<div id="nav">
-  <button class="nb on" data-tab="orders">📋Order</button>
-  <button class="nb" data-tab="menu">🍽️Menu</button>
-  <button class="nb" data-tab="stats">📊Stats</button>
-  <button class="nb" data-tab="staff">👥Staff</button>
-  <button class="nb" data-tab="shop">🛒Shop</button>
-  <button class="nb" data-tab="items">🎒Items</button>
-  <button class="nb" data-tab="quests">📌Quest</button>
-  <button class="nb" data-tab="up">⬆️Up</button>
+  <span>💰 <span class="gold" id="coins">500</span></span>
+  <span>Lv<span class="gold" id="lv">1</span> | Rep <span class="gold" id="rep">50</span></span>
 </div>
 
-<div id="pnl">
-  <div class="pan on" id="p-orders"><div id="ol"></div></div>
-  <div class="pan" id="p-menu"><div id="ml"></div></div>
-  <div class="pan" id="p-stats"><div id="sl"></div></div>
-  <div class="pan" id="p-staff"><div id="hl"></div><div id="sll"></div></div>
-  <div class="pan" id="p-shop"><div id="so"></div></div>
-  <div class="pan" id="p-items"><div id="fl"></div><div id="il"></div></div>
-  <div class="pan" id="p-quests"><div id="ql"></div></div>
-  <div class="pan" id="p-up"><div id="ul"></div></div>
+<div id="tabs">
+  <button class="tab active" data-tab="orders">📋Orders</button>
+  <button class="tab" data-tab="menu">🍽️Menu</button>
+  <button class="tab" data-tab="stats">📊Stats</button>
+  <button class="tab" data-tab="staff">👥Staff</button>
+  <button class="tab" data-tab="shop">🛒Shop</button>
+</div>
+
+<div id="content">
+  <div id="panel-orders"></div>
+  <div id="panel-menu" style="display:none"></div>
+  <div id="panel-stats" style="display:none"></div>
+  <div id="panel-staff" style="display:none"></div>
+  <div id="panel-shop" style="display:none"></div>
 </div>
 
 <script>
-const LOCS=[
-  {id:'street',name:'Sidewalk',emoji:'🚶',cost:0,rm:1,cust:3,bg:'linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)'},
-  {id:'mall',name:'Mall',emoji:'🏬',cost:5000,rm:2.5,cust:5,bg:'linear-gradient(to bottom,#f5f5f5 0%,#c0c0c0 60%,#808080 100%)'},
-  {id:'garden',name:'Garden',emoji:'🌳',cost:15000,rm:2,cust:4,bg:'linear-gradient(to bottom,#87CEEB 0%,#228B22 60%,#006400 100%)'},
-  {id:'rooftop',name:'Rooftop',emoji:'🌃',cost:50000,rm:3.5,cust:6,bg:'linear-gradient(to bottom,#0a0a2e 0%,#1a1a4e 60%,#2a2a6e 100%)'},
-  {id:'festival',name:'Festival',emoji:'🎪',cost:100000,rm:4,cust:8,bg:'linear-gradient(to bottom,#FF69B4 0%,#FF8C00 50%,#9370DB 100%)'}
-];
-const MENU=[
-  {id:'coffee',name:'Black Coffee',icon:'☕',price:25,cost:5},
-  {id:'milk_coffee',name:'Milk Coffee',icon:'🥛',price:30,cost:8},
-  {id:'espresso',name:'Espresso',icon:'☕',price:35,cost:5},
-  {id:'matcha',name:'Matcha Tea',icon:'🍵',price:40,cost:10},
-  {id:'smoothie',name:'Smoothie',icon:'🥤',price:45,cost:12},
-  {id:'cake',name:'Banh Mi',icon:'🥪',price:35,cost:8},
-  {id:'ice_tea',name:'Iced Tea',icon:'🧊',price:15,cost:3},
-  {id:'bubble_tea',name:'Bubble Tea',icon:'🧋',price:50,cost:12},
-  {id:'tropical',name:'Coconut Juice',icon:'🥥',price:55,cost:15},
-  {id:'signature',name:'Signature',icon:'🍸',price:80,cost:20}
-];
-const TREND=[
-  {id:'t_dog',name:'🐶 Golden Doge',r:'common',ef:'rev',v:.05,cost:200,desc:'+5% rev'},
-  {id:'t_cat',name:'🐱 Stray Cat',r:'common',ef:'rev',v:.03,cost:150,desc:'+3% rev'},
-  {id:'t_mu',name:'⚽ MU Jersey',r:'common',ef:'cust',v:1,cost:300,desc:'+1 customers'},
-  {id:'t_astro',name:'🧋 Astro Tea',r:'common',ef:'rev',v:.1,cost:400,desc:'+10% trà sữa'},
-  {id:'t_girl',name:'💃 Girly Style',r:'rare',ef:'rev',v:.1,cost:1000,desc:'+10% rev'},
-  {id:'t_ba',name:'💯 300 Style',r:'rare',ef:'cust',v:2,cost:1500,desc:'+2 customers'},
-  {id:'t_sieu',name:'⚡ Super Speed',r:'epic',ef:'cust',v:5,cost:8000,desc:'+5 customers'},
-  {id:'t_vua',name:'👑 Coffee King',r:'legendary',ef:'rev',v:.5,cost:20000,desc:'+50% rev'},
-  {id:'t_omega',name:'💫 Omega Plus',r:'legendary',ef:'all',v:.3,cost:50000,desc:'+30% all'},
-];
-const STAFF_TYPES=[
-  {id:'s_barista',name:'☕ Barista',cost:300,sk:.6,desc:'Skill: 60%'},
-  {id:'s_chef',name:'👨‍🍳 Chef',cost:400,sk:.7,desc:'Skill: 70%'},
-  {id:'s_senior',name:'🧑‍💼 Senior Barista',cost:800,sk:.9,desc:'Skill: 90%'},
-  {id:'s_manager',name:'👔 Manager',cost:1200,sk:1.0,desc:'Skill: 100%'},
-];
-const UPGRADES=[
-  {id:'u1',name:'🪑 New Tables',desc:'+10% doanh thu',cost:1500,type:'rev',v:.1},
-  {id:'u2',name:'🎵 Background Music',desc:'+5% doanh thu',cost:800,type:'rev',v:.05},
-  {id:'u3',name:'🪧 LED Sign',desc:'+20% customers',cost:5000,type:'cust',v:.2},
-  {id:'u4',name:'❄️ AC',desc:'+15% doanh thu',cost:3500,type:'rev',v:.15},
-];
-const WEATHERS=[
-  {e:'☀️',n:'Sunny',rm:1.0,cMod:1.0},{e:'⛅',n:'Cloudy',rm:1.05,cMod:1.1},{e:'🌧️',n:'Rainy',rm:0.75,cMod:0.6},
-  {e:'🔥',n:'Hot',rm:1.15,cMod:1.2},{e:'🎊',n:'Tet Holiday',rm:2.5,cMod:2.0}
-];
-function makeQs(){return[
-  {id:'q1',title:'Day đầu khai trương',desc:'Serve 10 customers',type:'serve',target:10,reward:200,xp:50,done:false,p:0},
-  {id:'q2',title:'Collect meme',desc:'Sở hữu 1 item',type:'collect',target:1,reward:300,xp:75,done:false,p:0},
-  {id:'q3',title:'Triệu phú cà phê',desc:'Kiếm 5000 coin',type:'earn',target:5000,reward:1000,xp:150,done:false,p:0},
-  {id:'q4',title:'Collect bộ sưu tập',desc:'Have 5 items',type:'collect_all',target:5,reward:3000,xp:300,done:false,p:0},
-  {id:'q5',title:'King of Trendy',desc:'Own all',type:'complete_all',target:TREND.length,reward:20000,xp:2000,done:false,p:0}
-]}
-var G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:makeQs(),rev:0,totalRev:0,served:0,day:1,
-  staff:[],filter:'all',pendingOrders:[],comboCount:0,comboTimer:0,maxCombo:0,comboBuff:0,
-  feedbackHistory:[],reputation:50,currentCustomers:0,totalServedToday:0,_orderTimer:0,_lastAutoServe:0};
-for(var i=0;i<3;i++){var mi=MENU[i%MENU.length];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));G.currentCustomers=3;}
-var _lastTick=0;
-function fm(n){return n?n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,','):0;}
-function getRepMod(){var r=G.reputation||50;if(r<=20)return .3;if(r<=40)return .6;if(r<=60)return 1.0;if(r<=80)return 1.3;return 1.6;}
-function getBuff(){var r=1;r+=(G.comboBuff||0);var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t){if(t.ef==='rev')r+=t.v*(G.items[id]||0);if(t.ef==='all')r+=t.v*(G.items[id]||0);}}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='rev')r+=u.v}var w=getWeather();r*=w.rm;r*=getRepMod();return r;}
-function getCusts(){var l=LOCS.filter(function(x){return x.id===G.loc;})[0];var base=l.cust;base=Math.floor(base*getRepMod());var w=getWeather();base=Math.floor(base*(w.cMod||1));var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t&&t.ef==='cust')base+=t.v*(G.items[id]||0);}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='cust')base=Math.floor(base*(1+u.v));}return base;}
-function getWeather(){var idx=Math.floor(Math.sin(G.day*.3)*1000)%WEATHERS.length;var i=((idx%WEATHERS.length)+WEATHERS.length)%WEATHERS.length;return WEATHERS[i];}
-function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);show('⭐ UP Lv'+G.lv+'!')}}
-function chkQ(type,val){G.qs.forEach(function(q){if(!q.done&&q.type===type){q.p=(q.p||0)+val;if(q.p>=q.target){q.done=true;G.coins+=q.reward;addXP(q.xp);show('✅ Quest: '+q.title+'! +'+q.reward+'💰')}}})}
-function getComboBuff(){if(G.comboCount>=3){var levels=Math.min(G.comboCount-2,5);return levels*.05;}return 0;}
-function startCombo(){G.comboCount=(G.comboCount||0)+1;G.comboTimer=15;if(G.comboCount>G.maxCombo)G.maxCombo=G.comboCount;G.comboBuff=getComboBuff();if(G.comboCount>=3)showCombo(G.comboCount,G.comboBuff);}
-function chkCombo(){if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0){G.comboCount=0;G.comboBuff=0;}}}
-function showCombo(cnt,buff){var e={3:'☕',4:'🔥',5:'⚡',6:'💎',7:'👑'};var n={3:'Combo!',4:'Great Combo!',5:'Super Combo!',6:'Ultra Combo!',7:'Legend Combo!'};var el=document.createElement('div');el.className='combo-popup show';el.innerHTML='<div class="combo-emoji">'+(e[cnt]||'🔥')+'</div><div class="combo-title">'+(n[cnt]||'Combo!')+'</div><div class="combo-desc">x'+cnt+' orders = +'+Math.floor(buff*100)+'% revenue!</div>';document.body.appendChild(el);setTimeout(function(){el.classList.remove('show')},1500);setTimeout(function(){el.remove()},2000);}
-function showFb(taste,svc,amb){var fB={1:'😡',2:'😕',3:'🙂',4:'😊',5:'🤩'};var fT={1:'Terrible!',2:'Not tasty...',3:'Okay.',4:'Delicious!',5:'Amazing! ❤️'};var el=document.createElement('div');el.className='feedback-float';el.style.left=(20+Math.random()*60)+'%';el.style.top=(30+Math.random()*30)+'%';el.innerHTML='<span style="font-size:16px">'+fB[taste]+'</span> <span style="color:'+(taste>=4?'#FFD700':'#dc3545')+'">'+fT[taste]+'</span>';document.body.appendChild(el);setTimeout(function(){el.remove()},2000);}
-function recFb(isCombo,isFast){var base=3;if(G.staff.length>0){var s=0;for(var i=0;i<G.staff.length;i++)s+=G.staff[i].sk;var avg=s/G.staff.length;base+=Math.floor(avg*.5);}if(isCombo)base=Math.min(5,base+1);var taste=Math.max(1,Math.min(5,base+Math.floor(Math.random()*3-1)));var svc=Math.max(1,Math.min(5,(isFast?4:2)+Math.floor(Math.random()*2-1)));var amb=Math.max(1,Math.min(5,3+Math.floor(Math.random()*3-1)));G.feedbackHistory.push({taste:taste,service:svc,ambiance:amb,time:Date.now()});if(G.feedbackHistory.length>20)G.feedbackHistory.shift();return {taste:taste,service:svc,ambiance:amb};}
-function boostMood(sid){var s=G.staff.filter(function(x){return x.id===sid;})[0];if(!s)return;if(s.mood>=80)return;s.mood=Math.min(100,s.mood+30);show('☕ '+s.name+' mood +30%! ❤️');render();}
-function calcAuto(){if(G.staff.length===0)return 0;var c=0;for(var i=0;i<G.staff.length;i++)c+=Math.floor(G.staff[i].sk*(G.staff[i].mood/100));return Math.max(0,c);}
-function render(){document.getElementById('coins').textContent=fm(G.coins);document.getElementById('lv').textContent=G.lv;document.getElementById('xp').textContent=G.xp;document.getElementById('xpn').textContent=G.xpn;document.getElementById('xp-bar').style.width=(G.xp/G.xpn*100)+'%';document.getElementById('rep-val').textContent=G.reputation||50;document.getElementById('rep-bar').style.width=((G.reputation||50)/100*100)+'%';renderLocs();renderWeather();renderCafe();renderOrders();renderMenu();renderStats();renderShop();renderStaff();renderItems();renderQuests();renderUpgrades();}
-function renderLocs(){var el=document.getElementById('locs');if(!el)return;el.innerHTML='';for(var i=0;i<LOCS.length;i++){var l=LOCS[i];var b=document.createElement('button');b.className='lb'+(G.loc===l.id?' on':'');b.textContent=l.emoji+' '+l.name;b.disabled=G.ul.indexOf(l.id)<0;if(G.ul.indexOf(l.id)>=0)b.onclick=function(l){return function(){G.loc=l.id;render();}}(l);else b.onclick=function(l){return function(){if(G.coins>=l.cost){G.coins-=l.cost;G.ul.push(l.id);show('🔓 Unlock: '+l.name+'!');chkQ('upgrade',1)}else show('❌ Need '+fm(l.cost)+'💰');render();}}(l);el.appendChild(b);}}
-function renderWeather(){var el=document.getElementById('weather');if(!el)return;var w=getWeather();el.textContent=w.e+' '+w.n+' (x'+w.rm+')'}
-function renderCafe(){var bg=document.getElementById('cafe-bg');var sc=document.getElementById('custs');var l=LOCS.filter(function(x){return x.id===G.loc;})[0];if(bg)bg.style.background=l.bg;sc.innerHTML='';var n=Math.min(getCusts(),12);var emojis=['👨‍💻','👩‍🎮','🧑‍🎨','👴','🧒','🤓','😎','🥳','👦','👧','👩‍🏫','🧔'];for(var i=0;i<n;i++){var d=document.createElement('div');d.className='cust';d.textContent=emojis[Math.floor(Math.random()*emojis.length)];d.style.animationDelay=(Math.random()*1)+'s';d.style.fontSize=(20+Math.random()*8)+'px';sc.appendChild(d);}}
-function renderOrders(){var el=document.getElementById('ol');if(!el)return;var now=Date.now();chkCombo();for(var i=G.pendingOrders.length-1;i>=0;i--){var o=G.pendingOrders[i];if(now-o.arrivedAt>o.patience){G.reputation=Math.max(0,(G.reputation||50)-2);G.pendingOrders.splice(i,1);if(G.pendingOrders.length>G.currentCustomers)G.currentCustomers=G.pendingOrders.length;show('😡 Customer left! Rep -2');}}addOrder();if(!G._lastAutoServe)G._lastAutoServe=now;if(now-G._lastAutoServe>=3000){G._lastAutoServe=now;var sc=calcAuto();var as=Math.min(sc,G.pendingOrders.length);var ss=0;for(var i=0;i<as&&i<G.staff.length;i++){var s=G.staff[i];if(s.sk*(s.mood/100)>=.5){var o=G.pendingOrders[i];var b=getBuff();var e2=Math.floor(o.price*b*.8);G.coins+=e2;G.rev+=e2;G.totalRev+=e2;G.served++;G.totalServedToday++;addXP(5);chkQ('serve',1);chkQ('earn',e2);G.staff[i].mood=Math.max(0,G.staff[i].mood-3);ss++;if(G.served%10===0){var f=recFb(false,false);showFb(f.taste,f.service,f.ambiance);}}if(ss>0)G.pendingOrders=G.pendingOrders.slice(ss);else G.pendingOrders=G.pendingOrders.slice(as);}if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">⏳ Waiting......</div>';return;}el.innerHTML='';if(G.comboCount>0){var ce=document.createElement('div');ce.className='combo-counter';ce.textContent='🔥 Combo x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%) còn '+G.comboTimer+'s';ce.style.color=G.comboBuff>.15?'#28a745':'#FFD700';el.appendChild(ce);}for(var i=0;i<G.pendingOrders.length;i++){var o=G.pendingOrders[i];var b=getBuff();var p=Math.floor(o.price*b);var isU=i<2&&G.comboCount===0;var d=document.createElement('div');d.className='card'+(isU?' urgent-order':'');d.innerHTML='<div><span class="nm">'+o.icon+' '+o.name+'</span></div><div><span class="pr">'+fm(p)+'₫</span> <button class="btn g" onclick="serveOrder('+i+')">SERVE</button></div>';el.appendChild(d);}}
-function serveOrder(idx){if(typeof idx!=='number'||idx<0||idx>=G.pendingOrders.length)return;var o=G.pendingOrders[idx];var b=getBuff();var e2=Math.floor(o.price*b);var wt=(Date.now()-(o.arrivedAt||Date.now()))/1000;var isF=wt<30;G.coins+=e2;G.rev+=e2;G.totalRev+=e2;G.served++;G.totalServedToday++;startCombo();var ic=G.comboCount>=3;addXP(10);chkQ('serve',1);chkQ('earn',e2);G.pendingOrders.splice(idx,1);if(G.pendingOrders.length>0)G.currentCustomers=G.pendingOrders.length;var f=recFb(ic,isF);if(isF)G.reputation=Math.min(100,(G.reputation||50)+1);var msg='✅ +'+fm(e2)+'₫ | '+o.name;if(ic)msg+=' 🔥x'+G.comboCount;if(isF)msg+=' ⚡Fast!';show(msg);showFb(f.taste,f.service,f.ambiance);render();}
-function addOrder(){if(G.pendingOrders.length>=getCusts()){var mi=MENU[Math.floor(Math.random()*MENU.length)];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));G.currentCustomers=G.pendingOrders.length;}}
-function renderMenu(){var el=document.getElementById('ml');if(!el)return;el.innerHTML='';for(var i=0;i<MENU.length;i++){var mi=MENU[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span><div style="color:#a0a0b0;font-size:7px">Cost: '+fm(mi.cost)+'₫</div></div><div style="text-align:right"><span class="pr">~'+fm(Math.floor(mi.price*getBuff()))+'₫</span></div>';el.appendChild(d);}}
-function renderStats(){var el=document.getElementById('sl');if(!el)return;el.innerHTML='';var ac=calcAuto();var af=G.feedbackHistory.length>0?G.feedbackHistory.slice(-5).reduce(function(a,f){return a+f.taste;},0)/5:3;var rows=[['Day',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['Served',G.served],['Today Rev',fm(G.rev)+'₫'],['Total Rev',fm(G.totalRev)+'₫'],['Coins',fm(G.coins)+'₫'],['Items',Object.keys(G.items).length],['Auto-Serve','1nv/8s'],['Staff',G.staff.length+'/6'],['Rep',(G.reputation||50)+'/100'],['Current Combo',G.comboCount>0?'x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%)':'None'],['Max Combo','x'+(G.maxCombo||0)],['Avg Rating',af.toFixed(1)+'⭐']];for(var i=0;i<rows.length;i++){var r=rows[i];var d=document.createElement('div');d.className='st-row';d.innerHTML='<span class="st-l">'+r[0]+'</span><span class="st-v">'+r[1]+'</span>';el.appendChild(d);}}
-function renderShop(){var el=document.getElementById('so');if(!el)return;el.innerHTML='';var avail=[];for(var id in G.items){if(!G.items[id])continue;}avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<1;});if(avail.length===0){el.innerHTML='<div class="empty">✅ All owned!</div>';return}var rc={common:'#b0b0b0',rare:'#4169E1',epic:'#9932CC',legendary:'#FFD700'};for(var i=0;i<avail.length;i++){var t=avail[i];var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(rc[t.r]||'#b0b0b0');d.innerHTML='<div><span class="nm">'+t.name+'</span><div style="color:#a0a0b0;font-size:7px">'+t.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(t.cost)+'₫</span> <button class="btn" onclick="buyItem(\''+t.id+'\')">BUY</button></div>';el.appendChild(d);}}
-function buyItem(id){var t=TREND.filter(function(x){return x.id===id;})[0];if(!t)return;if(G.coins<t.cost){show('❌ No coins!');return;}G.coins-=t.cost;G.items[id]=(G.items[id]||0)+1;show('✅ Bought: '+t.name+'!');chkQ('collect',1);chkQ('collect_all',1);render();}
-function renderItems(){var el=document.getElementById('il');if(!el)return;el.innerHTML='';var fl=document.getElementById('fl');if(!fl)return;fl.innerHTML='';var rc={common:'Common',rare:'Rare',epic:'Epic',legendary:'Legendary'};['all','common','rare','epic','legendary'].forEach(function(f){var b=document.createElement('button');b.className='flt-btn'+(G.filter===f?' on':'');b.textContent=f==='all'?'All':rc[f];b.onclick=function(){G.filter=f;render();};fl.appendChild(b)});var owned=[];for(var id in G.items)if(G.items[id]>0)owned.push([id,G.items[id]]);var filtered=G.filter==='all'?owned:owned.filter(function(pair){var t=TREND.filter(function(x){return x.id===pair[0];})[0];return t&&t.r===G.filter;});if(filtered.length===0){el.innerHTML='<div class="empty">📦 No items!</div>';return}for(var i=0;i<filtered.length;i++){var t=TREND.filter(function(x){return x.id===filtered[i][0];})[0];if(!t)continue;var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid var(--'+(t.r==='legendary'?'gold':'dim')+')';d.innerHTML='<span class="nm">'+t.name+'</span><span class="pr">'+rc[t.r]+' ×'+filtered[i][1]+'</span>';el.appendChild(d)}}
-function renderQuests(){var el=document.getElementById('ql');if(!el)return;el.innerHTML='';for(var i=0;i<G.qs.length;i++){var q=G.qs[i];var pct=Math.min(100,(q.p||0)/q.target*100);var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(q.done?'var(--gold)':'var(--dim)');d.innerHTML='<div><span class="nm">'+(q.done?'✅':'📌')+' '+q.title+'</span><div style="color:#a0a0b0;font-size:7px">'+q.desc+'</div><div style="color:var(--gold);font-size:7px">🎁 '+q.reward+'💰 '+q.xp+'XP</div></div><div><div class="r-bar"><div class="r-fill" style="width:'+pct+'%"></div></div><div style="font-size:7px;color:var(--dim)">'+Math.floor(q.p||0)+'/'+q.target+'</div></div>';el.appendChild(d)}}
-function renderUpgrades(){var el=document.getElementById('ul');if(!el)return;el.innerHTML='';for(var i=0;i<UPGRADES.length;i++){var u=UPGRADES[i];var bought=G.ups.includes(u.id);var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+u.name+'</span><div style="color:#a0a0b0;font-size:7px">'+u.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(u.cost)+'₫</span><button class="btn" onclick="buyUpgrade(\''+u.id+'\')" '+(bought||G.coins<u.cost?'disabled':'')+'>'+(bought?'✅Đã mua':'BUY')+'</button></div>';el.appendChild(d)}}
-function buyUpgrade(id){var u=UPGRADES.filter(function(x){return x.id===id;})[0];if(!u||G.coins<u.cost||G.ups.includes(id))return;G.coins-=u.cost;G.ups.push(id);show('⬆️ '+u.name+'!');chkQ('upgrade',1);render();}
-function renderStaff(){var hl=document.getElementById('hl');if(!hl)return;hl.innerHTML='';var ll=document.getElementById('sll');if(!ll)return;ll.innerHTML='';if(G.comboCount>0){var cd=document.createElement('div');cd.className='combo-counter';cd.innerHTML='🔥 COMBO: x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';cd.style.color=G.comboBuff>.15?'#28a745':'#FFD700';hl.appendChild(cd);}var ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='💡 Serve tay = COMBO! +5% rev mỗi level!';hl.appendChild(ct);var hT=document.createElement('div');hT.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hT.textContent='📋 HIRE STAFF';hl.appendChild(hT);var aL=document.createElement('div');aL.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';aL.textContent='💡 Auto-Serve mỗi 8s (1nv=1đơn)';hl.appendChild(aL);for(var i=0;i<STAFF_TYPES.length;i++){var s=STAFF_TYPES[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'₫</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THUÊ</button></div>';hl.appendChild(d)}var sT=document.createElement('div');sT.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sT.textContent='👥 TEAM ('+G.staff.length+'/6)';ll.appendChild(sT);if(G.staff.length===0){var e=document.createElement('div');e.className='empty';e.textContent='📦 No staff!';ll.appendChild(e);return}for(var i=0;i<G.staff.length;i++){var s=G.staff[i];var d=document.createElement('div');d.className='card';var mc=s.mood>60?'high':s.mood>30?'mid':'low';var er=s.sk*(s.mood/100);var cb=s.mood<80;var mb='';if(cb)mb='<button class="mood-boost-btn" onclick="boostMood(\''+s.id+'\')">☕</button>';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+er.toFixed(2)+'/8s</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+mc+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+mb+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SAÁT</button></div>';ll.appendChild(d);}}
-function hireStaff(id){var s=STAFF_TYPES.filter(function(x){return x.id===id;})[0];if(!s)return;if(G.coins<s.cost){show('❌ No coins!');return;}if(G.staff.length>=6){show('❌ Full staff!');return;}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('✅ HIRE: '+s.name+'!');render();}
-function fireStaff(sid){var idx=G.staff.filter(function(x){return x.id===sid;});if(idx.length>0){G.staff.splice(G.staff.indexOf(idx[0]),1);show('💔 Fired: '+idx[0].name);render();}}
-function show(msg){var el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none'},3000)}
-function initTabs(){var bts=document.querySelectorAll('.nb');for(var i=0;i<bts.length;i++){(function(b){b.tabIndex=i;b.onclick=function(){var j=b.tabIndex;var btns=document.querySelectorAll('.nb');for(var k=0;k<btns.length;k++){btns[k].classList.remove('on');}btns[j].classList.add('on');var pnls=document.querySelectorAll('.pan');for(var k=0;k<pnls.length;k++){pnls[k].classList.remove('on');}var tab=document.getElementById('p-'+b.getAttribute('data-tab'));if(tab)tab.classList.add('on');}};})(bts[i]);}}
-function gameLoop(ts){var dt=ts-_lastTick;_lastTick=ts;for(var i=0;i<G.staff.length;i++){if(G.staff[i].mood<100)G.staff[i].mood=Math.min(100,G.staff[i].mood+.05*dt);}if(!G._dayStart)G._dayStart=ts;if(ts-G._dayStart>=60000){G.day++;G._dayStart=ts;}render();requestAnimationFrame(gameLoop);}
-function init(){try{var ld=document.getElementById("loading");if(ld)ld.style.display="none";var coinsEl=document.getElementById('coins');var olEl=document.getElementById('ol');var mlEl=document.getElementById('ml');var slEl=document.getElementById('sl');var hlEl=document.getElementById('hl');var soEl=document.getElementById('so');var ilEl=document.getElementById('il');var qlEl=document.getElementById('ql');var ulEl=document.getElementById('ul');if(!coinsEl||!olEl||!mlEl||!slEl||!hlEl||!soEl||!ilEl||!qlEl||!ulEl){console.log('DOM missing, retrying...');setTimeout(init,200);return;}console.log('init() starting...');initTabs();render();var ld=document.getElementById('loading');if(ld)ld.style.display='none';requestAnimationFrame(gameLoop);console.log('Game OK!');}catch(e){console.error('init() error:',e);var ld=document.getElementById('loading');if(ld){ld.innerHTML='<div style="color:#ff4444;font-size:12px">Error: '+e.message+'<br><br>Click để thử lại</div>';ld.style.cursor='pointer';ld.onclick=function(){location.reload();}}}}
-function startGame(){console.log('startGame() called');init();}
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(startGame,0);});}else{setTimeout(startGame,0);}
+// GAME STATE
+var G = {
+  coins: 500,
+  lv: 1,
+  rep: 50,
+  tab: 'orders',
+  staff: [],
+  items: {},
+  orders: [
+    {id: 1, name: 'Black Coffee', icon: '☕', price: 25},
+    {id: 2, name: 'Milk Coffee', icon: '🥛', price: 30},
+    {id: 3, name: 'Espresso', icon: '☕', price: 35}
+  ]
+};
 
+var MENU = [
+  {id: 'coffee', name: 'Black Coffee', icon: '☕', price: 25, cost: 5},
+  {id: 'milk_coffee', name: 'Milk Coffee', icon: '🥛', price: 30, cost: 8},
+  {id: 'espresso', name: 'Espresso', icon: '☕', price: 35, cost: 5},
+  {id: 'matcha', name: 'Matcha Tea', icon: '🍵', price: 40, cost: 10},
+  {id: 'bubble_tea', name: 'Bubble Tea', icon: '🧋', price: 50, cost: 12},
+  {id: 'smoothie', name: 'Smoothie', icon: '🥤', price: 45, cost: 12}
+];
 
+var TREND = [
+  {id: 't_dog', name: 'Golden Doge', r: 'common', cost: 200, desc: '+5% revenue'},
+  {id: 't_cat', name: 'Stray Cat', r: 'common', cost: 150, desc: '+3% revenue'},
+  {id: 't_girl', name: 'Girly Style', r: 'rare', cost: 1000, desc: '+10% revenue'},
+  {id: 't_sieu', name: 'Super Speed', r: 'epic', cost: 8000, desc: '+5 customers'}
+];
+
+var STAFF = [
+  {id: 'barista', name: '☕ Barista', cost: 300, sk: 0.6},
+  {id: 'chef', name: '👨‍🍳 Chef', cost: 400, sk: 0.7},
+  {id: 'senior', name: '🧑‍💼 Senior', cost: 800, sk: 0.9}
+];
+
+// === SHOW NOTIFICATION ===
+function show(msg) {
+  var el = document.getElementById('notif');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 2000);
+}
+
+// === RENDER FUNCTIONS ===
+function renderOrders() {
+  var el = document.getElementById('panel-orders');
+  if (!el) return;
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders</h3>';
+  if (G.orders.length === 0) {
+    html += '<div class="empty">⏳ No orders yet...</div>';
+  } else {
+    for (var i = 0; i < G.orders.length; i++) {
+      var o = G.orders[i];
+      html += '<div class="card">' +
+        '<div><strong>' + o.icon + ' ' + o.name + '</strong></div>' +
+        '<div><span class="gold">' + o.price + '₫</span> ' +
+        '<button class="btn green" onclick="serveOrder(' + i + ')">SERVE</button></div></div>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+function renderMenu() {
+  var el = document.getElementById('panel-menu');
+  if (!el) return;
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🍽️ Menu</h3>';
+  for (var i = 0; i < MENU.length; i++) {
+    var m = MENU[i];
+    html += '<div class="card"><div><strong>' + m.icon + ' ' + m.name + '</strong><div style="color:#a0a0b0;font-size:10px">Cost: ' + m.cost + '₫</div></div><div><span class="gold">~' + m.price + '₫</span></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function renderStats() {
+  var el = document.getElementById('panel-stats');
+  if (!el) return;
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📊 Statistics</h3>' +
+    '<div style="font-size:12px;line-height:2">' +
+    '<span style="color:#a0a0b0">Coins:</span> <span class="gold">' + G.coins + '₫</span><br>' +
+    '<span style="color:#a0a0b0">Level:</span> <span class="gold">Lv' + G.lv + '</span><br>' +
+    '<span style="color:#a0a0b0">Reputation:</span> <span class="gold">' + G.rep + '</span><br>' +
+    '<span style="color:#a0a0b0">Staff:</span> <span class="gold">' + G.staff.length + '/6</span><br>' +
+    '<span style="color:#a0a0b0">Items:</span> <span class="gold">' + Object.keys(G.items).length + '</span></div>';
+  el.innerHTML = html;
+}
+
+function renderStaff() {
+  var el = document.getElementById('panel-staff');
+  if (!el) return;
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">👥 Hire Staff (' + G.staff.length + '/6)</h3>';
+  for (var i = 0; i < STAFF.length; i++) {
+    var s = STAFF[i];
+    html += '<div class="card">' +
+      '<div><strong>' + s.name + '</strong><div style="color:#a0a0b0;font-size:10px">Skill: ' + Math.floor(s.sk * 100) + '%</div></div>' +
+      '<div><span class="gold">' + s.cost + '₫</span> ' +
+      '<button class="btn green" onclick="hireStaff(\'' + s.id + '\')">HIRE</button></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+function renderShop() {
+  var el = document.getElementById('panel-shop');
+  if (!el) return;
+  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Shop</h3>';
+  for (var i = 0; i < TREND.length; i++) {
+    var t = TREND[i];
+    var bought = G.items[t.id];
+    html += '<div class="card">' +
+      '<div><strong>' + t.name + '</strong><div style="color:#a0a0b0;font-size:10px">' + t.desc + '</div></div>' +
+      '<div><span class="gold">' + t.cost + '₫</span> ' +
+      '<button class="btn" onclick="buyItem(\'' + t.id + '\')" ' + (bought ? 'disabled' : '') + '>' + (bought ? 'OWNED' : 'BUY') + '</button></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+// === ACTIONS ===
+function serveOrder(idx) {
+  if (idx < 0 || idx >= G.orders.length) return;
+  var o = G.orders[idx];
+  G.coins += o.price;
+  G.orders.splice(idx, 1);
+  show('✅ Served: ' + o.name + ' (+' + o.price + '₫)');
+  updateUI();
+}
+
+function buyItem(id) {
+  var t = TREND.filter(function(x) { return x.id === id; })[0];
+  if (!t || G.coins < t.cost || G.items[id]) return;
+  G.coins -= t.cost;
+  G.items[id] = 1;
+  show('✅ Bought: ' + t.name);
+  updateUI();
+}
+
+function hireStaff(id) {
+  if (G.staff.length >= 6) { show('❌ Staff full!'); return; }
+  var s = STAFF.filter(function(x) { return x.id === id; })[0];
+  if (!s) return;
+  if (G.coins < s.cost) { show('❌ Not enough coins!'); return; }
+  G.coins -= s.cost;
+  G.staff.push({id: id, name: s.name, skill: s.sk, mood: 100});
+  show('✅ Hired: ' + s.name);
+  updateUI();
+}
+
+// === UPDATE UI ===
+function updateUI() {
+  document.getElementById('coins').textContent = G.coins;
+  document.getElementById('lv').textContent = G.lv;
+  document.getElementById('rep').textContent = G.rep;
+  
+  if (G.tab === 'orders') renderOrders();
+  else if (G.tab === 'menu') renderMenu();
+  else if (G.tab === 'stats') renderStats();
+  else if (G.tab === 'staff') renderStaff();
+  else if (G.tab === 'shop') renderShop();
+}
+
+// === TAB SWITCHING ===
+var tabs = document.querySelectorAll('.tab');
+for (var i = 0; i < tabs.length; i++) {
+  (function(tab) {
+    tab.addEventListener('click', function() {
+      var tabName = this.getAttribute('data-tab');
+      G.tab = tabName;
+      
+      // Update tab buttons
+      for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+      }
+      this.classList.add('active');
+      
+      // Update panels
+      var panels = document.querySelectorAll('[id^="panel-"]');
+      for (var k = 0; k < panels.length; k++) {
+        panels[k].style.display = 'none';
+      }
+      var panel = document.getElementById('panel-' + tabName);
+      if (panel) panel.style.display = 'block';
+      
+      updateUI();
+    });
+  })(tabs[i]);
+}
+
+// === AUTO SERVE (every 8s if staff hired) ===
+setInterval(function() {
+  if (G.staff.length === 0 || G.orders.length === 0) return;
+  for (var i = 0; i < G.staff.length; i++) {
+    var s = G.staff[i];
+    var served = Math.floor(s.skill * (s.mood / 100));
+    if (served > 0) {
+      var o = G.orders[0];
+      G.coins += Math.floor(o.price * 0.8);
+      G.orders.splice(0, 1);
+      s.mood = Math.max(0, s.mood - 3);
+      show('🤖 Auto: ' + s.name + ' served ' + o.name);
+      updateUI();
+    }
+  }
+}, 8000);
+
+// === START ===
+console.log('✅ Game started!');
+console.log('✅ Tabs:', tabs.length);
+console.log('✅ Orders:', G.orders.length);
+updateUI();
 </script>
 </body>
 </html>
