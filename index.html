@@ -113,34 +113,45 @@ const CONFIG = {
   moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8, 0.6, 0.5, 0.4, 0.3],
   baseServeTime: 8000,
   repThresholds: [0, 10, 30, 60, 100, 150, 220],
-  maxRep: 220
+  maxRep: 220,
+  // === DIFFICULTY SETTINGS ===
+  profitMultiplier: 0.6,       // Revenue chỉ còn 60% so với trước
+  ingredientInflation: 1.4,     // Cost nguyên liệu tăng 40%
+  staffSalaryInterval: 30000,   // Lương nhân viên mỗi 30s game
+  fixedChargesInterval: 60000,  // Fixed charges mỗi 60s game
+  bankruptcyWarningTime: 10000, // Cảnh báo: âm coins 10s
+  bankruptcyTime: 20000,        // Bankruptcy: âm coins 20s
+  rent: 200,                    // Thuê mặt bằng/cycle
+  utilities: 100,               // Điện nước/cycle
+  insurance: 80,                // Bảo hiểm/cycle
+  tax: 50                       // Thuế/cycle
 };
 
 // ============ MENU ITEMS ============
 const MENU = [
-  {id:'coffee',name:'Black Coffee',icon:'☕',price:[15,20],cost:5,rarity:1},
-  {id:'milk_coffee',name:'Milk Coffee',icon:'🥛',price:[20,28],cost:8,rarity:1},
-  {id:'espresso',name:'Espresso',icon:'☕',price:[25,35],cost:10,rarity:1},
-  {id:'latte',name:'Caramel Latte',icon:'🥤',price:[30,42],cost:12,rarity:2},
-  {id:'matcha',name:'Matcha Tea',icon:'🍵',price:[35,45],cost:15,rarity:2},
-  {id:'bubble_tea',name:'Bubble Tea',icon:'🧋',price:[38,55],cost:18,rarity:3},
-  {id:'smoothie',name:'Berry Smoothie',icon:'🫐',price:[40,50],cost:15,rarity:2},
-  {id:'mocha',name:'Mocha Frappe',icon:'🍫',price:[45,60],cost:20,rarity:3},
-  {id:'cheesecake',name:'Cheesecake',icon:'🍰',price:[30,40],cost:12,rarity:3},
-  {id:'croissant',name:'Butter Croissant',icon:'🥐',price:[25,35],cost:10,rarity:2},
-  {id:'waffle',name:'Strawberry Waffle',icon:'🧇',price:[40,55],cost:18,rarity:3},
-  {id:'tiramisu',name:'Tiramisu',icon:'🍮',price:[50,65],cost:22,rarity:4},
-  {id:'special',name:'Chef Special',icon:'✨',price:[60,80],cost:25,rarity:5}
+  {id:'coffee',name:'Black Coffee',icon:'☕',price:[15,20],cost:7,rarity:1},
+  {id:'milk_coffee',name:'Milk Coffee',icon:'🥛',price:[20,28],cost:11,rarity:1},
+  {id:'espresso',name:'Espresso',icon:'☕',price:[25,35],cost:14,rarity:1},
+  {id:'latte',name:'Caramel Latte',icon:'🥤',price:[30,42],cost:17,rarity:2},
+  {id:'matcha',name:'Matcha Tea',icon:'🍵',price:[35,45],cost:21,rarity:2},
+  {id:'bubble_tea',name:'Bubble Tea',icon:'🧋',price:[38,55],cost:25,rarity:3},
+  {id:'smoothie',name:'Berry Smoothie',icon:'🫐',price:[40,50],cost:21,rarity:2},
+  {id:'mocha',name:'Mocha Frappe',icon:'🍫',price:[45,60],cost:28,rarity:3},
+  {id:'cheesecake',name:'Cheesecake',icon:'🍰',price:[30,40],cost:17,rarity:3},
+  {id:'croissant',name:'Butter Croissant',icon:'🥐',price:[25,35],cost:14,rarity:2},
+  {id:'waffle',name:'Strawberry Waffle',icon:'🧇',price:[40,55],cost:25,rarity:3},
+  {id:'tiramisu',name:'Tiramisu',icon:'🍮',price:[50,65],cost:31,rarity:4},
+  {id:'special',name:'Chef Special',icon:'✨',price:[60,80],cost:35,rarity:5}
 ];
 
 // ============ STAFF ============
 const STAFF = [
-  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],desc:'Basic helper'},
-  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],desc:'Skilled coffee maker'},
-  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],desc:'Expert cook'},
-  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],desc:'Top performer'},
-  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],desc:'Legendary skill'},
-  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],desc:'Business wizard'}
+  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],salary:15,desc:'Basic helper - 15₫ salary/cycle'},
+  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],salary:40,desc:'Skilled coffee maker - 40₫ salary/cycle'},
+  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],salary:70,desc:'Expert cook - 70₫ salary/cycle'},
+  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],salary:120,desc:'Top performer - 120₫ salary/cycle'},
+  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],salary:200,desc:'Legendary skill - 200₫ salary/cycle'},
+  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],salary:300,desc:'Business wizard - 300₫ salary/cycle'}
 ];
 
 // ============ EQUIPMENT ============
@@ -200,12 +211,21 @@ var G = {
   totalServed: 0,
   totalRevenue: 0,
   totalTips: 0,
+  totalExpenses: 0,
   ordersToday: 0,
   bestDay: 0,
   lastOrderTime: Date.now(),
   trendItems: [],
   unlockedMenu: ['coffee','milk_coffee','espresso'],
-  saveVersion: 6
+  saveVersion: 7,
+  // === FINANCIAL MANAGEMENT ===
+  bankruptcyWatchdog: null, // timeout ID
+  lastSalaryPaid: 0,
+  lastChargesPaid: 0,
+  isBankrupt: false,
+  lastProfitCheck: Date.now(),
+  dailyProfit: 0,
+  monthlyProfit: 0
 };
 
 // ============ AUDIO ENGINE ============
@@ -322,21 +342,13 @@ function autoGenerateOrder() {
 function serveOrder(idx) {
   if (idx < 0 || idx >= G.orders.length) return;
   const o = G.orders[idx];
-  const revenue = o.price + o.tip;
   
-  G.coins += revenue;
-  G.totalRevenue += revenue;
-  G.totalServed++;
-  G.ordersToday++;
-  G.totalTips += o.tip;
+  // COST INFLATION - nguyên liệu tăng giá
+  const ingredientCost = Math.floor(o.cost * CONFIG.ingredientInflation);
   
-  // XP gain - tăng XP đáng kể
-  const xpGain = Math.floor(o.price * 2.0) + (o.tip > 0 ? 5 : 0);
-  G.xp += xpGain;
-  
-  // Reputation gain
-  const repGain = 1 + Math.floor(G.repStars * 0.3);
-  G.rep = Math.min(CONFIG.maxRep, G.rep + repGain);
+  // PROFIT MULTIPLIER - profit chậm hơn
+  const rawRevenue = o.price + o.tip;
+  let revenue = Math.floor(rawRevenue * CONFIG.profitMultiplier);
   
   // Revenue bonus from trends
   let bonus = 1;
@@ -345,21 +357,39 @@ function serveOrder(idx) {
   });
   
   // Revenue bonus from equipment
-  bonus += G.equipment.espresso_mach * CONFIG.EQUIPMENT[0].revenueBonus;
+  bonus += (G.equipment.espresso_mach || 0) * CONFIG.EQUIPMENT[0].revenueBonus;
   
-  const finalRevenue = Math.floor(revenue * bonus);
-  G.coins = G.coins - revenue + finalRevenue;
+  revenue = Math.floor(revenue * bonus);
   
-  // XÓA đơn khỏi mảng TRƯỚC rồi render
-  const removed = G.orders.splice(idx, 1)[0];
+  // NET PROFIT
+  const netProfit = revenue - ingredientCost;
+  
+  G.coins += netProfit;
+  G.totalRevenue += revenue;
+  G.totalExpenses += ingredientCost;
+  G.totalServed++;
+  G.ordersToday++;
+  G.totalTips += o.tip;
+  
+  // XP gain
+  const xpGain = Math.floor(o.price * 1.5) + (o.tip > 0 ? 5 : 0);
+  G.xp += xpGain;
+  
+  // Reputation gain
+  const repGain = 1 + Math.floor(G.repStars * 0.3);
+  G.rep = Math.min(CONFIG.maxRep, G.rep + repGain);
+  
+  // Clear bankruptcy watchdog if coins recovered
+  if (G.coins >= 0 && G.bankruptcyWatchdog) {
+    clearTimeout(G.bankruptcyWatchdog);
+    G.bankruptcyWatchdog = null;
+    G.bankruptcyStartTime = null;
+  }
   
   AudioEngine.serve();
-  notify(`✅ Served ${o.customer.icon} ${o.name}! +${finalRevenue}₫ (XP+${xpGain})`);
+  notify(`✅ Served ${o.customer.icon} ${o.name}! +${revenue}₫ (-${ingredientCost}₫ = ${netProfit}₫ net)`);
   
-  // Check level up
   checkLevelUp();
-  
-  // Update UI - render lại panel orders
   updateUI();
 }
 
@@ -502,6 +532,179 @@ function fireStaff(idx) {
     notify(`🔥 Fired ${s.name}! Refund: ${refund}₫`);
     updateUI();
   }
+}
+
+// ============ FINANCIAL MANAGEMENT ============
+function calculateStaffSalaries() {
+  let total = 0;
+  G.staff.forEach(s => {
+    const staffDef = STAFF.find(st => st.id === s.id);
+    if (staffDef && staffDef.salary) {
+      total += staffDef.salary;
+    }
+  });
+  return total;
+}
+
+function calculateFixedCharges() {
+  const charges = CONFIG.fixedCharges || { rent: 150, electricity: 80, water: 40, internet: 30, insurance: 50, maintenance: 60 };
+  return charges.rent + charges.electricity + charges.water + charges.internet + charges.insurance + charges.maintenance;
+}
+
+function processFinancialCycles() {
+  const now = Date.now();
+  
+  // Pay staff salaries
+  if (now - G.lastSalaryPaid >= CONFIG.staffSalaryInterval) {
+    const salaries = calculateStaffSalaries();
+    if (salaries > 0) {
+      G.coins -= salaries;
+      G.totalExpenses += salaries;
+      G.lastSalaryPaid = now;
+      notify(`💸 Lương nhân viên: -${salaries}₫ (G${G.staff.length} staff)`, 3000);
+    }
+  }
+  
+  // Pay fixed charges
+  if (now - G.lastChargesPaid >= CONFIG.fixedChargesInterval) {
+    const charges = calculateFixedCharges();
+    G.coins -= charges;
+    G.totalExpenses += charges;
+    G.lastChargesPaid = now;
+    notify(`🏦 Fixed charges: -${charges}₫ (rent+utilities+insurance+tax)`, 3000);
+  }
+  
+  // Check bankruptcy
+  checkBankruptcy();
+  
+  // Update daily profit
+  if (now - G.lastProfitCheck >= 60000) {
+    G.dailyProfit = G.totalRevenue - G.totalExpenses;
+    G.lastProfitCheck = now;
+    if (G.dailyProfit > G.bestDay) G.bestDay = G.dailyProfit;
+  }
+}
+
+function checkBankruptcy() {
+  if (G.coins <= CONFIG.bankruptcyThreshold) {
+    if (!G.bankruptcyStartTime) {
+      G.bankruptcyStartTime = Date.now();
+      notify(`⚠️ WARNING! coins âm! ${Math.ceil((CONFIG.bankruptcyTime - CONFIG.bankruptcyWarningTime)/1000)}s until bankruptcy!`, 5000);
+      setTimeout(() => {
+        if (G.coins <= CONFIG.bankruptcyThreshold) {
+          notify(`💀 BANKRUPTCY WARNING! ${Math.ceil((CONFIG.bankruptcyTime - (Date.now() - G.bankruptcyStartTime))/1000)}s remaining!`, 3000);
+        }
+      }, CONFIG.bankruptcyWarningTime);
+    }
+    
+    if (Date.now() - G.bankruptcyStartTime >= CONFIG.bankruptcyTime) {
+      gameOver();
+    }
+  } else {
+    if (G.bankruptcyStartTime) {
+      G.bankruptcyStartTime = null;
+      notify(`✅ Recovered! Coins back to positive.`, 2000);
+    }
+  }
+}
+
+function gameOver() {
+  AudioEngine.error();
+  setTimeout(() => {
+    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${G.totalRevenue.toLocaleString()}₫\n- Total Expenses: ${G.totalExpenses.toLocaleString()}₫\n- Net Profit: ${(G.totalRevenue - G.totalExpenses).toLocaleString()}₫\n- Orders Served: ${G.totalServed}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\n💡 Tips for next time:\n- Fire unnecessary staff\n- Monitor fixed charges\n- Keep coins positive!\n\nTry harder next time! 🕵️`);
+    localStorage.removeItem('trendyCafeV7');
+    location.reload();
+  }, 100);
+}
+
+// ============ FINANCIAL MANAGEMENT ============
+function calculateFixedCharges() {
+  // Fixed charges: rent + utilities + insurance + tax
+  return CONFIG.rent + CONFIG.utilities + CONFIG.insurance + CONFIG.tax;
+}
+
+function calculateStaffSalary() {
+  // Calculate total salary for all staff
+  let total = 0;
+  G.staff.forEach(s => {
+    const staffDef = STAFF.find(st => st.id === s.id);
+    if (staffDef) {
+      total += staffDef.salary;
+    }
+  });
+  return total;
+}
+
+function processFinancialCycles() {
+  const now = Date.now();
+  
+  // Pay staff salary
+  if (now - G.lastSalaryPaid >= CONFIG.staffSalaryInterval) {
+    const salary = calculateStaffSalary();
+    if (salary > 0) {
+      G.coins -= salary;
+      G.totalExpenses += salary;
+      G.lastSalaryPaid = now;
+      notify(`💸 Lương nhân viên: -${salary}₫`, 3000);
+    }
+  }
+  
+  // Pay fixed charges
+  if (now - G.lastChargesPaid >= CONFIG.fixedChargesInterval) {
+    const charges = calculateFixedCharges();
+    G.coins -= charges;
+    G.totalExpenses += charges;
+    G.lastChargesPaid = now;
+    notify(`🏦 Fixed charges: -${charges}₫ (rent+utilities+insurance+tax)`, 3000);
+  }
+  
+  // Check bankruptcy
+  checkBankruptcy();
+  
+  // Update daily profit
+  if (now - G.lastProfitCheck >= 60000) { // Every 60s = 1 game-day
+    G.dailyProfit = G.totalRevenue - G.totalExpenses;
+    G.lastProfitCheck = now;
+    if (G.dailyProfit > G.bestDay) G.bestDay = G.dailyProfit;
+  }
+}
+
+function checkBankruptcy() {
+  if (G.coins < 0) {
+    if (!G.bankruptcyWatchdog) {
+      G.bankruptcyWatchdog = setTimeout(() => {
+        if (G.coins < 0) {
+          // Bankruptcy!
+          G.isBankrupt = true;
+          gameOver();
+        } else {
+          G.bankruptcyWatchdog = null;
+          notify(`✅ Survived! Coins recovered to positive.`, 3000);
+        }
+      }, CONFIG.bankruptcyTime);
+      
+      // Warning at 10s
+      setTimeout(() => {
+        if (G.coins < 0) {
+          notify(`⚠️ WARNING! Coins negative! ${Math.ceil((CONFIG.bankruptcyTime - 10000)/1000)}s until bankruptcy!`, 5000);
+        }
+      }, CONFIG.bankruptcyWarningTime);
+    }
+  } else {
+    if (G.bankruptcyWatchdog) {
+      clearTimeout(G.bankruptcyWatchdog);
+      G.bankruptcyWatchdog = null;
+    }
+  }
+}
+
+function gameOver() {
+  AudioEngine.error();
+  setTimeout(() => {
+    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${G.totalRevenue.toLocaleString()}₫\n- Total Expenses: ${G.totalExpenses.toLocaleString()}₫\n- Orders Served: ${G.totalServed}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\nTry harder next time! 🕵️`);
+    localStorage.removeItem('trendyCafeV7');
+    location.reload();
+  }, 100);
 }
 
 // ============ RENDERING ============
@@ -789,6 +992,8 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ============ PATIENCE TIMER ============
 let lastOrderCount = 0;
 setInterval(function() {
+  processFinancialCycles(); // Process salaries + charges
+  
   let changed = false;
   // Decrease patience for all orders
   for (let i = G.orders.length - 1; i >= 0; i--) {
