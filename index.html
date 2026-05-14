@@ -101,7 +101,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
 <script>
 // ============ GAME CONFIGURATION ============
 const CONFIG = {
-  xpPerLevel: [0, 100, 300, 600, 1000, 1600, 2400],
+  xpPerLevel: [0, 50, 150, 350, 700, 1200, 2400],
   maxStaff: 8,
   maxOrders: 6,
   orderInterval: [5000, 4000, 3500, 3000, 2500, 2000], // ms between orders per level
@@ -316,8 +316,8 @@ function serveOrder(idx) {
   G.ordersToday++;
   G.totalTips += o.tip;
   
-  // XP gain
-  const xpGain = Math.floor(o.price * 0.5) + (o.tip > 0 ? 5 : 0);
+  // XP gain - tăng XP đáng kể
+  const xpGain = Math.floor(o.price * 2.0) + (o.tip > 0 ? 5 : 0);
   G.xp += xpGain;
   
   // Reputation gain
@@ -336,7 +336,8 @@ function serveOrder(idx) {
   const finalRevenue = Math.floor(revenue * bonus);
   G.coins = G.coins - revenue + finalRevenue;
   
-  G.orders.splice(idx, 1);
+  // XÓA đơn khỏi mảng TRƯỚC rồi render
+  const removed = G.orders.splice(idx, 1)[0];
   
   AudioEngine.serve();
   notify(`✅ Served ${o.customer.icon} ${o.name}! +${finalRevenue}₫ (XP+${xpGain})`);
@@ -344,6 +345,7 @@ function serveOrder(idx) {
   // Check level up
   checkLevelUp();
   
+  // Update UI - render lại panel orders
   updateUI();
 }
 
@@ -759,12 +761,19 @@ setInterval(function() {
   if (G.staff.length === 0 || G.orders.length === 0) return;
   
   let served = false;
-  G.staff.forEach((s, idx) => {
-    if (s.mood < 10) return;
+  
+  // DÙNG for thay vì forEach để kiểm soát tốt hơn
+  for (let si = 0; si < G.staff.length; si++) {
+    const s = G.staff[si];
+    if (s.mood < 5) continue; // Cần ít nhất 5% mood
+    if (G.orders.length === 0) break;
     
-    const servedCount = Math.ceil(s.skill * (s.mood / 100));
-    if (servedCount > 0 && G.orders.length > 0) {
-      const o = G.orders[0];
+    // Tính cơ hội serve: skill * mood factor
+    const serveChance = s.skill * (s.mood / 100);
+    const servedCount = Math.ceil(serveChance);
+    
+    if (servedCount >= 1) {
+      const o = G.orders[0]; // Luôn serve đơn đầu tiên
       let bonus = 1;
       G.trendItems.forEach(t => { if(t.revenueBonus) bonus += t.revenueBonus; });
       bonus += G.equipment.espresso_mach * CONFIG.EQUIPMENT[0].revenueBonus;
@@ -776,10 +785,10 @@ setInterval(function() {
       G.totalServed++;
       G.ordersToday++;
       G.totalTips += o.tip;
-      G.xp += Math.floor(o.price * 0.3);
+      G.xp += Math.floor(o.price * 1.0);
       G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
       
-      // Decay mood
+      // Giảm mood
       const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
       s.mood = Math.max(0, s.mood - decay);
       
@@ -789,7 +798,7 @@ setInterval(function() {
       served = true;
       checkLevelUp();
     }
-  });
+  }
   
   if (served) updateUI();
 }, Math.floor(CONFIG.baseServeTime * 0.5)); // Every 4s
