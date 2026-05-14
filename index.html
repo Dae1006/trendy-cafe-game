@@ -69,6 +69,14 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
 .tip-content h3{color:#FFD700;margin-bottom:10px}
 .tip-content p{color:#e8e8e8;margin-bottom:15px;line-height:1.6}
 .reputation-stars{color:#FFD700;letter-spacing:2px}
+.venue-card{padding:12px;margin:8px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:2px solid #000;border-radius:8px;display:flex;justify-content:space-between;align-items:center;transition:transform 0.2s,box-shadow 0.2s}
+.venue-card.current{border-color:#28a745;background:linear-gradient(145deg,#164829,#1a1a4e)}
+.venue-card.upgrade{border-color:#FFD700;border-style:dashed;cursor:pointer}
+.venue-card.upgrade:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,215,0,0.2)}
+.venue-card.locked{opacity:0.5;border-color:#555}
+.venue-stats{font-size:10px;color:#a0a0b0}
+.venue-stats span{display:block;margin:2px 0}
+.venue-stats .gold{font-size:12px}
 </style>
 </head>
 <body>
@@ -92,6 +100,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <button class="tab" data-tab="staff">👥Staff</button>
   <button class="tab" data-tab="equip">🔧Equip</button>
   <button class="tab" data-tab="shop">🛒Shop</button>
+  <button class="tab" data-tab="expand">🏪Expand</button>
 </div>
 
 <div id="content">
@@ -101,6 +110,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <div id="panel-staff" style="display:none"></div>
   <div id="panel-equip" style="display:none"></div>
   <div id="panel-shop" style="display:none"></div>
+  <div id="panel-expand" style="display:none"></div>
 </div>
 
 <script>
@@ -131,6 +141,14 @@ const CONFIG = {
     maintenance: 30              // Bảo trì/cycle (giảm từ 60)
   }
 };
+
+// ============ VENUE TYPES (EXPAND SYSTEM) ============
+const VENUE_TYPES = [
+  {id:'street',name:'Quán Ven Đường',icon:'🏪',cost:0,maxOrders:8,bonusRent:0,bonusRevenue:1.0,desc:'Quán nhỏ ven đường'},
+  {id:'mall',name:'Quán Trong Mall',icon:'🏬',cost:3000,maxOrders:14,bonusRent:140,bonusRevenue:1.15,desc:'Mall cao cấp, khách vip hơn'},
+  {id:'garden',name:'Quán Sân Vườn',icon:'🌳',cost:10000,maxOrders:20,bonusRent:290,bonusRevenue:1.25,desc:'Không gian xanh mát, khách ở xa'},
+  {id:'park',name:'Công Viên Cafe',icon:'🏞️',cost:30000,maxOrders:28,bonusRent:540,bonusRevenue:1.4,desc:'Quán ngoài trời rộng lớn, du lịch'}
+];
 
 // ============ MENU ITEMS ============
 const MENU = [
@@ -223,6 +241,7 @@ var G = {
   trendItems: [],
   unlockedMenu: ['coffee','milk_coffee','espresso'],
   saveVersion: 7,
+  venueLevel: 0,  // 0=street, 1=mall, 2=garden, 3=park
   // === FINANCIAL MANAGEMENT ===
   bankruptcyWatchdog: null, // timeout ID
   bankruptcyStartTime: null,
