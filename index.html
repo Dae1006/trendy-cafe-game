@@ -3,37 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Trendy Cafe</title>
+<title>☕ Trendy Cafe - V6 Enhanced</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Courier New',monospace;background:#1a1a2e;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px}
-#hdr{padding:10px 15px;background:#16213e;border-bottom:3px solid #FFD700;display:flex;justify-content:space-between}
-.gold{color:#FFD700}
-#tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460}
-.tab{padding:10px 15px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:12px}
-.tab.active{color:#FFD700;background:rgba(255,215,0,0.15)}
+body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px;overflow-x:hidden}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes coinRain{0%{transform:translateY(-20px);opacity:1}100%{transform:translateY(30px);opacity:0}}
+@keyframes glow{0%,100%{text-shadow:0 0 5px #FFD700}50%{text-shadow:0 0 20px #FFD700,0 0 40px #FFD700}}
+@keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes sparkle{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0)}}
+#hdr{padding:10px 15px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:3px solid #FFD700;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px}
+.gold{color:#FFD700;animation:glow 2s ease-in-out infinite}
+.xp-bar{width:100%;height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width 0.5s}
+#tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460;background:#0f3460}
+.tab{padding:10px 12px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:12px;transition:all 0.3s}
+.tab.active{color:#FFD700;background:rgba(255,215,0,0.2)}
+.tab:hover{background:rgba(255,215,0,0.1)}
 #content{min-height:400px;padding:15px;background:#1a1a2e}
-.card{padding:10px;margin:8px 0;background:#0f3460;border:2px solid #000;display:flex;justify-content:space-between;align-items:center}
-.btn{padding:8px 16px;border:2px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;margin:4px}
-.btn:disabled{background:#555;cursor:not-allowed}
+.card{padding:12px;margin:8px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:2px solid #000;border-radius:8px;display:flex;justify-content:space-between;align-items:center;animation:slideIn 0.3s ease-out;transition:transform 0.2s,box-shadow 0.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,215,0,0.2)}
+.card.rare{border-color:#9b59b6;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
+.card.epic{border-color:#e74c3c;background:linear-gradient(145deg,#4a1a1a,#1a1a4e)}
+.btn{padding:8px 16px;border:2px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;margin:4px;border-radius:5px;transition:all 0.2s}
+.btn:hover{transform:scale(1.05);box-shadow:0 2px 10px rgba(255,99,71,0.4)}
+.btn:active{transform:scale(0.95)}
+.btn:disabled{background:#555;cursor:not-allowed;transform:none;box-shadow:none}
 .btn.green{background:#28a745}
+.btn.green:hover{box-shadow:0 2px 10px rgba(40,167,69,0.4)}
+.btn.blue{background:#3498db}
+.btn.blue:hover{box-shadow:0 2px 10px rgba(52,152,219,0.4)}
+.btn.purple{background:#9b59b6}
+.btn.purple:hover{box-shadow:0 2px 10px rgba(155,89,182,0.4)}
 .empty{padding:20px;text-align:center;color:#a0a0b0}
-#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:8px 16px;border:2px solid #FFD700;font-size:12px;z-index:999;display:none}
+#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:8px 16px;border:2px solid #FFD700;border-radius:8px;font-size:12px;z-index:999;display:none;text-align:center;min-width:200px}
+.float-text{position:fixed;pointer-events:none;font-size:16px;font-weight:bold;animation:floatUp 1s ease-out forwards;z-index:1000}
+#notif-area{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:998;display:flex;flex-direction:column;gap:5px;align-items:center}
+.notif-item{background:#16213e;color:#FFD700;padding:6px 14px;border:2px solid #FFD700;border-radius:20px;font-size:11px;animation:slideIn 0.3s ease-out}
+.equip-slot{padding:8px;margin:5px 0;background:#16213e;border:2px dashed #333;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.equip-slot.owned{border-color:#28a745;border-style:solid}
+.equip-slot.locked{opacity:0.5;border-color:#555}
+.stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a3e}
+.stat-label{color:#a0a0b0}
+.stat-value{color:#FFD700}
+.mood-bar{width:60px;height:8px;background:#333;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.mood-fill{height:100%;transition:width 0.5s}
+.mood-high .mood-fill{background:#28a745}
+.mood-med .mood-fill{background:#FFD700}
+.mood-low .mood-fill{background:#FF6347}
+.level-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:bold}
+.l1{background:#666}.l2{background:#95a5a6}.l3{background:#3498db}
+.l4{background:#9b59b6}.l5{background:#e74c3c}.l6{background:#FFD700;color:#000}
+#daynight{position:absolute;top:5px;right:10px;font-size:20px}
+.section-title{color:#FFD700;margin:15px 0 8px 0;font-size:13px;border-left:3px solid #FFD700;padding-left:8px}
+.customer-avatar{font-size:24px;margin-right:8px}
+.tip-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1001}
+.tip-content{background:#16213e;border:3px solid #FFD700;border-radius:12px;padding:20px;max-width:350px;text-align:center;animation:sparkle 0.5s ease-out}
+.tip-content h3{color:#FFD700;margin-bottom:10px}
+.tip-content p{color:#e8e8e8;margin-bottom:15px;line-height:1.6}
+.reputation-stars{color:#FFD700;letter-spacing:2px}
 </style>
 </head>
 <body>
 <div id="notif"></div>
+<div id="notif-area"></div>
 
-<div id="hdr">
+<div id="hdr" style="position:relative">
   <span>💰 <span class="gold" id="coins">500</span></span>
-  <span>Lv<span class="gold" id="lv">1</span> | Rep <span class="gold" id="rep">50</span></span>
+  <span style="flex:1;text-align:center">
+    Lv<span class="gold level-badge" id="lv-badge">1</span> 
+    <span class="gold" id="lv-text">Lv1</span>
+    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+  </span>
+  <span>⭐ Rep: <span class="reputation-stars" id="rep-stars">☆☆☆☆☆</span></span>
 </div>
 
 <div id="tabs">
-  <button class="tab active" data-tab="orders">📋Orders</button>
+  <button class="tab active" data-tab="orders">📋 Orders</button>
   <button class="tab" data-tab="menu">🍽️Menu</button>
   <button class="tab" data-tab="stats">📊Stats</button>
   <button class="tab" data-tab="staff">👥Staff</button>
+  <button class="tab" data-tab="equip">🔧Equip</button>
   <button class="tab" data-tab="shop">🛒Shop</button>
 </div>
 
@@ -42,220 +94,749 @@ body{font-family:'Courier New',monospace;background:#1a1a2e;color:#e8e8e8;max-wi
   <div id="panel-menu" style="display:none"></div>
   <div id="panel-stats" style="display:none"></div>
   <div id="panel-staff" style="display:none"></div>
+  <div id="panel-equip" style="display:none"></div>
   <div id="panel-shop" style="display:none"></div>
 </div>
 
 <script>
-// GAME STATE
+// ============ GAME CONFIGURATION ============
+const CONFIG = {
+  xpPerLevel: [0, 100, 300, 600, 1000, 1600, 2400],
+  maxStaff: 8,
+  maxOrders: 6,
+  orderInterval: [5000, 4000, 3500, 3000, 2500, 2000], // ms between orders per level
+  moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8], // mood decay per auto-serve per level
+  baseServeTime: 8000, // ms between auto-serve attempts
+  repThresholds: [0, 10, 30, 60, 100, 150, 220],
+  maxRep: 220
+};
+
+// ============ MENU ITEMS ============
+const MENU = [
+  {id:'coffee',name:'Black Coffee',icon:'☕',price:[15,20],cost:5,rarity:1},
+  {id:'milk_coffee',name:'Milk Coffee',icon:'🥛',price:[20,28],cost:8,rarity:1},
+  {id:'espresso',name:'Espresso',icon:'☕',price:[25,35],cost:10,rarity:1},
+  {id:'latte',name:'Caramel Latte',icon:'🥤',price:[30,42],cost:12,rarity:2},
+  {id:'matcha',name:'Matcha Tea',icon:'🍵',price:[35,45],cost:15,rarity:2},
+  {id:'bubble_tea',name:'Bubble Tea',icon:'🧋',price:[38,55],cost:18,rarity:3},
+  {id:'smoothie',name:'Berry Smoothie',icon:'🫐',price:[40,50],cost:15,rarity:2},
+  {id:'mocha',name:'Mocha Frappe',icon:'🍫',price:[45,60],cost:20,rarity:3},
+  {id:'cheesecake',name:'Cheesecake',icon:'🍰',price:[30,40],cost:12,rarity:3},
+  {id:'croissant',name:'Butter Croissant',icon:'🥐',price:[25,35],cost:10,rarity:2},
+  {id:'waffle',name:'Strawberry Waffle',icon:'🧇',price:[40,55],cost:18,rarity:3},
+  {id:'tiramisu',name:'Tiramisu',icon:'🍮',price:[50,65],cost:22,rarity:4},
+  {id:'special',name:'Chef Special',icon:'✨',price:[60,80],cost:25,rarity:5}
+];
+
+// ============ STAFF ============
+const STAFF = [
+  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],desc:'Basic helper'},
+  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],desc:'Skilled coffee maker'},
+  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],desc:'Expert cook'},
+  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],desc:'Top performer'},
+  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],desc:'Legendary skill'},
+  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],desc:'Business wizard'}
+];
+
+// ============ EQUIPMENT ============
+const EQUIPMENT = [
+  {id:'espresso_mach',name:'Espresso Machine',icon:'☕',cost:200,maxLv:3,desc:'+5% revenue/lv',revenueBonus:0.05},
+  {id:'seating',name:'Cozy Seating',icon:'🪑',cost:300,maxLv:3,desc:'+1 max order/lv',orderBonus:1},
+  {id:'decoration',name:'Wall Decoration',icon:'🎨',cost:400,maxLv:3,desc:'+5 rep/lv',repBonus:5},
+  {id:'speaker',name:'Bluetooth Speaker',icon:'🎵',cost:250,maxLv:2,desc:'+3% customer mood',moodBonus:0.03},
+  {id:'fridge',name:'Premium Fridge',icon:'🧊',cost:600,maxLv:2,desc:'+10% order speed',speedBonus:0.10},
+  {id:'wifi',name:'WiFi Hotspot',icon:'📶',cost:150,maxLv:2,desc:'+2 rep/lv',repBonus2:2},
+  {id:'bakery',name:'Bakery Corner',icon:'🏪',cost:800,maxLv:2,desc:'+unlocks croissant/waffle',newMenu:2},
+  {id:'bar_counter',name:'Bar Counter',icon:'🍸',cost:1200,maxLv:2,desc:'+unlocks mocha/tiramisu',newMenu2:2}
+];
+
+// ============ TREND DECORATIONS ============
+const TRENDS = [
+  {id:'t_doge',name:'Golden Doge',icon:'🐕',r:'common',cost:300,desc:'+5% revenue'},
+  {id:'t_cat',name:'Stray Cat',icon:'🐱',r:'common',cost:200,desc:'+3% revenue'},
+  {id:'t_plant',name:'Succulent Plant',icon:'🌱',r:'common',cost:150,desc:'+2 rep'},
+  {id:'t_girl',name:'Girly Corner',icon:'💖',r:'rare',cost:1000,desc:'+10% revenue'},
+  {id:'t_art',name:'Art Gallery',icon:'🖼️',r:'rare',cost:1500,desc:'+8 rep'},
+  {id:'t_piano',name:'Piano Corner',icon:'🎹',r:'epic',cost:3000,desc:'+15% revenue'},
+  {id:'t_sky',name:'Sky Lounge',icon:'🌃',r:'epic',cost:5000,desc:'+20% revenue'},
+  {id:'t_chef',name:'Chef Statue',icon:'🗿',r:'legend',cost:10000,desc:'+30% revenue'}
+];
+
+// ============ LEVEL REWARDS ============
+const LEVEL_REWARDS = {
+  2: {coins:200,desc:'Unlock latte & matcha',rewardItems:['latte','matcha']},
+  3: {coins:400,desc:'Unlock equipment shop',rewardItems:['seating','decoration']},
+  4: {coins:600,desc:'Unlock bakery corner',rewardItems:['bakery']},
+  5: {coins:1000,desc:'Unlock bar counter & master',rewardItems:['bar_counter','master']},
+  6: {coins:2000,desc:'🎉 Grand Opening! All items unlocked',rewardItems:['special']}
+};
+
+// ============ GAME STATE ============
 var G = {
   coins: 500,
   lv: 1,
+  xp: 0,
   rep: 50,
+  repStars: 0,
   tab: 'orders',
   staff: [],
   items: {},
-  orders: [
-    {id: 1, name: 'Black Coffee', icon: '☕', price: 25},
-    {id: 2, name: 'Milk Coffee', icon: '🥛', price: 30},
-    {id: 3, name: 'Espresso', icon: '☕', price: 35}
-  ]
+  equipment: {espresso_mach:0,seating:0,decoration:0,speaker:0,fridge:0,wifi:0,bakery:0,bar_counter:0},
+  orders: [],
+  totalServed: 0,
+  totalRevenue: 0,
+  totalTips: 0,
+  ordersToday: 0,
+  bestDay: 0,
+  lastOrderTime: Date.now(),
+  trendItems: [],
+  unlockedMenu: ['coffee','milk_coffee','espresso'],
+  saveVersion: 6
 };
 
-var MENU = [
-  {id: 'coffee', name: 'Black Coffee', icon: '☕', price: 25, cost: 5},
-  {id: 'milk_coffee', name: 'Milk Coffee', icon: '🥛', price: 30, cost: 8},
-  {id: 'espresso', name: 'Espresso', icon: '☕', price: 35, cost: 5},
-  {id: 'matcha', name: 'Matcha Tea', icon: '🍵', price: 40, cost: 10},
-  {id: 'bubble_tea', name: 'Bubble Tea', icon: '🧋', price: 50, cost: 12},
-  {id: 'smoothie', name: 'Smoothie', icon: '🥤', price: 45, cost: 12}
-];
+// ============ AUDIO ENGINE ============
+const AudioEngine = {
+  ctx: null,
+  init: function() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+  },
+  play: function(freq, dur, type='sine') {
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + dur);
+    } catch(e) {}
+  },
+  coin: function() { this.play(880, 0.15); setTimeout(()=>this.play(1100, 0.1), 80); },
+  serve: function() { this.play(660, 0.1); setTimeout(()=>this.play(880, 0.1), 60); setTimeout(()=>this.play(1100, 0.15), 120); },
+  buy: function() { this.play(440, 0.2); setTimeout(()=>this.play(660, 0.15), 100); },
+  levelUp: function() { 
+    [523,659,784,1047].forEach((f,i) => setTimeout(()=>this.play(f,0.2,'square'), i*100)); 
+  },
+  error: function() { this.play(220, 0.3, 'sawtooth'); },
+  click: function() { this.play(500, 0.05); },
+  orderNew: function() { this.play(700, 0.1); setTimeout(()=>this.play(900, 0.1), 80); }
+};
 
-var TREND = [
-  {id: 't_dog', name: 'Golden Doge', r: 'common', cost: 200, desc: '+5% revenue'},
-  {id: 't_cat', name: 'Stray Cat', r: 'common', cost: 150, desc: '+3% revenue'},
-  {id: 't_girl', name: 'Girly Style', r: 'rare', cost: 1000, desc: '+10% revenue'},
-  {id: 't_sieu', name: 'Super Speed', r: 'epic', cost: 8000, desc: '+5 customers'}
-];
+// ============ UTILITY FUNCTIONS ============
+function rand(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+function clamp(v,min,max) { return Math.max(min,Math.min(max,v)); }
+function pick(arr) { return arr[rand(0,arr.length-1)]; }
 
-var STAFF = [
-  {id: 'barista', name: '☕ Barista', cost: 300, sk: 0.6},
-  {id: 'chef', name: '👨‍🍳 Chef', cost: 400, sk: 0.7},
-  {id: 'senior', name: '🧑‍💼 Senior', cost: 800, sk: 0.9}
-];
-
-// === SHOW NOTIFICATION ===
-function show(msg) {
-  var el = document.getElementById('notif');
-  if (!el) return;
+function notify(msg, duration=2000) {
+  const area = document.getElementById('notif-area');
+  const el = document.createElement('div');
+  el.className = 'notif-item';
   el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(function() { el.style.display = 'none'; }, 2000);
+  area.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, duration);
 }
 
-// === RENDER FUNCTIONS ===
+function floatText(x, y, text, color='#FFD700') {
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  el.style.left = x+'px';
+  el.style.top = y+'px';
+  el.style.color = color;
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
+}
+
+// ============ ORDER GENERATION ============
+function generateOrder() {
+  const availableMenu = MENU.filter(m => G.unlockedMenu.includes(m.id));
+  const menu = pick(availableMenu);
+  const price = rand(menu.price[0], menu.price[1]);
+  const customers = [
+    {name:'Tourist',icon:'👤'},
+    {name:'Student',icon:'🎒'},
+    {name:'Office Worker',icon:'👔'},
+    {name:'Girlfriend Date',icon:'💑'},
+    {name:'Regular Customer',icon:'😊'},
+    {name:'Food Blogger',icon:'📱'},
+    {name:'Business Person',icon:'💼'},
+    {name:'Artist',icon:'🎨'}
+  ];
+  const customer = pick(customers);
+  
+  const tipChance = G.rep / CONFIG.maxRep;
+  const tipAmount = Math.random() < tipChance ? rand(5, 20) : 0;
+  
+  return {
+    id: Date.now() + Math.random(),
+    name: menu.name,
+    icon: menu.icon,
+    menuId: menu.id,
+    price: price,
+    cost: menu.cost,
+    customer: customer,
+    tip: tipAmount,
+    patience: CONFIG.baseServeTime * (1 + (6-G.lv)*0.1), // more patience at higher levels
+    timeLeft: CONFIG.baseServeTime * (1 + (6-G.lv)*0.1),
+    created: Date.now()
+  };
+}
+
+function autoGenerateOrder() {
+  if (G.orders.length >= CONFIG.maxOrders + G.equipment.seating) return;
+  
+  const interval = CONFIG.orderInterval[G.lv-1] || 5000;
+  const now = Date.now();
+  
+  if (now - G.lastOrderTime > interval) {
+    const order = generateOrder();
+    G.orders.push(order);
+    G.lastOrderTime = now;
+    AudioEngine.orderNew();
+    updateUI();
+  }
+}
+
+// ============ GAME ACTIONS ============
+function serveOrder(idx) {
+  if (idx < 0 || idx >= G.orders.length) return;
+  const o = G.orders[idx];
+  const revenue = o.price + o.tip;
+  
+  G.coins += revenue;
+  G.totalRevenue += revenue;
+  G.totalServed++;
+  G.ordersToday++;
+  G.totalTips += o.tip;
+  
+  // XP gain
+  const xpGain = Math.floor(o.price * 0.5) + (o.tip > 0 ? 5 : 0);
+  G.xp += xpGain;
+  
+  // Reputation gain
+  const repGain = 1 + Math.floor(G.repStars * 0.3);
+  G.rep = Math.min(CONFIG.maxRep, G.rep + repGain);
+  
+  // Revenue bonus from trends
+  let bonus = 1;
+  G.trendItems.forEach(t => {
+    if (t.revenueBonus) bonus += t.revenueBonus;
+  });
+  
+  // Revenue bonus from equipment
+  bonus += G.equipment.espresso_mach * CONFIG.EQUIPMENT[0].revenueBonus;
+  
+  const finalRevenue = Math.floor(revenue * bonus);
+  G.coins = G.coins - revenue + finalRevenue;
+  
+  G.orders.splice(idx, 1);
+  
+  AudioEngine.serve();
+  notify(`✅ Served ${o.customer.icon} ${o.name}! +${finalRevenue}₫ (XP+${xpGain})`);
+  
+  // Check level up
+  checkLevelUp();
+  
+  updateUI();
+}
+
+function checkLevelUp() {
+  const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
+  if (G.xp >= nextXp && G.lv < 6) {
+    G.lv++;
+    G.xp -= nextXp;
+    AudioEngine.levelUp();
+    
+    const reward = LEVEL_REWARDS[G.lv];
+    if (reward) {
+      G.coins += reward.coins;
+      reward.rewardItems.forEach(id => {
+        if (!G.unlockedMenu.includes(id)) G.unlockedMenu.push(id);
+      });
+      notify(`🎉 LEVEL ${G.lv}! +${reward.coins}₫ coins! ${reward.desc}`, 4000);
+    } else {
+      notify(`🎉 LEVEL ${G.lv}! Great job!`, 3000);
+    }
+    
+    // Update unlocked menu based on equipment
+    if (G.equipment.bakery >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+    if (G.equipment.bakery >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+    if (G.equipment.bar_counter >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+    if (G.equipment.bar_counter >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+    if (G.lv >= 2 && !G.unlockedMenu.includes('latte')) G.unlockedMenu.push('latte');
+    if (G.lv >= 2 && !G.unlockedMenu.includes('matcha')) G.unlockedMenu.push('matcha');
+    if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
+    if (G.lv >= 6 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
+  }
+}
+
+function hireStaff(idx) {
+  if (G.staff.length >= CONFIG.maxStaff) { notify('❌ Staff full!'); return; }
+  const s = STAFF[idx];
+  if (G.coins < s.cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= s.cost;
+  const skillRange = s.sk;
+  G.staff.push({
+    id: s.id,
+    name: s.name,
+    skill: (skillRange[0] + skillRange[1]) / 2 + (Math.random() * (skillRange[1]-skillRange[0]) / 2),
+    mood: 100,
+    hired: Date.now()
+  });
+  
+  AudioEngine.buy();
+  notify(`✅ Hired ${s.name}!`);
+  updateUI();
+}
+
+function buyEquipment(id, event) {
+  const eq = EQUIPMENT.find(e => e.id === id);
+  if (!eq) return;
+  
+  const currentLv = G.equipment[id] || 0;
+  if (currentLv >= eq.maxLv) { notify('❌ Max level!'); return; }
+  
+  const cost = Math.floor(eq.cost * (currentLv + 1));
+  if (G.coins < cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= cost;
+  G.equipment[id] = currentLv + 1;
+  
+  AudioEngine.buy();
+  notify(`🔧 ${eq.name} upgraded to Lv${G.equipment[id]}!`);
+  
+  // Check menu unlocks
+  if (id === 'bakery' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+  if (id === 'bakery' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+  if (id === 'bar_counter' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+  if (id === 'bar_counter' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+  
+  updateUI();
+}
+
+function buyTrend(id, event) {
+  const t = TRENDS.find(x => x.id === id);
+  if (!t || G.trendItems.find(x => x.id === id)) return;
+  if (G.coins < t.cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= t.cost;
+  
+  const revenueBonus = t.id === 't_doge' ? 0.05 :
+                       t.id === 't_cat' ? 0.03 :
+                       t.id === 't_girl' ? 0.10 :
+                       t.id === 't_piano' ? 0.15 :
+                       t.id === 't_sky' ? 0.20 :
+                       t.id === 't_chef' ? 0.30 : 0;
+  
+  const repBonus = t.id === 't_plant' ? 2 :
+                   t.id === 't_art' ? 8 : 0;
+  
+  G.trendItems.push({...t, revenueBonus, repBonus});
+  G.rep = Math.min(CONFIG.maxRep, G.rep + repBonus);
+  
+  AudioEngine.buy();
+  notify(`🛒 Bought ${t.icon} ${t.name}! ${t.desc}`);
+  updateUI();
+}
+
+function restStaff(idx) {
+  if (idx < 0 || idx >= G.staff.length) return;
+  G.staff[idx].mood = Math.min(100, G.staff[idx].mood + 30);
+  notify(`☕ ${G.staff[idx].name} is resting! Mood restored.`);
+  AudioEngine.click();
+  updateUI();
+}
+
+// ============ RENDERING ============
+function getRepStars(rep) {
+  let stars = 0;
+  for (let i = 0; i < 5; i++) {
+    if (rep >= CONFIG.repThresholds[i+1]) stars++;
+  }
+  return stars;
+}
+
+function getEquipCost(eq, currentLv) {
+  return Math.floor(eq.cost * (currentLv + 1));
+}
+
 function renderOrders() {
-  var el = document.getElementById('panel-orders');
+  const el = document.getElementById('panel-orders');
   if (!el) return;
-  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders</h3>';
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders (${G.orders.length}/${CONFIG.maxOrders + G.equipment.seating})</h3>`;
+  
   if (G.orders.length === 0) {
-    html += '<div class="empty">⏳ No orders yet...</div>';
+    html += '<div class="empty">⏳ Waiting for customers...</div>';
   } else {
-    for (var i = 0; i < G.orders.length; i++) {
-      var o = G.orders[i];
-      html += '<div class="card">' +
-        '<div><strong>' + o.icon + ' ' + o.name + '</strong></div>' +
-        '<div><span class="gold">' + o.price + '₫</span> ' +
-        '<button class="btn green" onclick="serveOrder(' + i + ')">SERVE</button></div></div>';
+    for (let i = 0; i < G.orders.length; i++) {
+      const o = G.orders[i];
+      const tipClass = o.tip > 0 ? 'style="color:#28a745;font-size:10px"' : 'style="display:none"';
+      const patiencePct = Math.max(0, (o.timeLeft / o.patience) * 100);
+      const patienceColor = patiencePct > 60 ? '#28a745' : patiencePct > 30 ? '#FFD700' : '#FF6347';
+      
+      html += `<div class="card">
+        <div>
+          <div style="display:flex;align-items:center;margin-bottom:4px">
+            <span class="customer-avatar">${o.customer.icon}</span>
+            <strong>${o.name}</strong>
+          </div>
+          <div style="color:#a0a0b0;font-size:10px">${o.customer.name}</div>
+          <div style="margin-top:4px">
+            <div style="color:#a0a0b0;font-size:9px">Patience</div>
+            <div style="width:80px;height:6px;background:#333;border-radius:3px;overflow:hidden">
+              <div style="width:${patiencePct}%;height:100%;background:${patienceColor};border-radius:3px"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div><span class="gold">${o.price}₫</span></div>
+          <div style="color:#28a745;font-size:10px" ${tipClass}>+${o.tip}₫ tip!</div>
+          <button class="btn green" onclick="serveOrder(${i})">SERVE</button>
+        </div>
+      </div>`;
     }
   }
+  
+  html += `<div style="margin-top:10px;padding:8px;background:#16213e;border-radius:6px;font-size:11px">
+    <span style="color:#a0a0b0">Next order:</span> <span class="gold">${Math.ceil((CONFIG.order_interval || 5000)/1000)}s</span>
+  </div>`;
+  
   el.innerHTML = html;
 }
 
 function renderMenu() {
-  var el = document.getElementById('panel-menu');
+  const el = document.getElementById('panel-menu');
   if (!el) return;
-  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🍽️ Menu</h3>';
-  for (var i = 0; i < MENU.length; i++) {
-    var m = MENU[i];
-    html += '<div class="card"><div><strong>' + m.icon + ' ' + m.name + '</strong><div style="color:#a0a0b0;font-size:10px">Cost: ' + m.cost + '₫</div></div><div><span class="gold">~' + m.price + '₫</span></div></div>';
-  }
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🍽️ Menu (${G.unlockedMenu.length}/${MENU.length})</h3>`;
+  
+  MENU.forEach(m => {
+    const unlocked = G.unlockedMenu.includes(m.id);
+    const rarityColor = m.rarity === 5 ? '#FFD700' : m.rarity === 4 ? '#e74c3c' : m.rarity >= 3 ? '#9b59b6' : m.rarity >= 2 ? '#3498db' : '#a0a0b0';
+    
+    html += `<div class="card" style="${unlocked ? '' : 'opacity:0.4'}">
+      <div>
+        <strong>${m.icon} ${m.name}</strong>
+        <div style="color:${rarityColor};font-size:9px">★${'★'.repeat(m.rarity)}</div>
+        <div style="color:#a0a0b0;font-size:10px">Cost: ${m.cost}₫ | Price: ${m.price[0]}-${m.price[1]}₫</div>
+      </div>
+      <div>
+        ${unlocked ? '<span style="color:#28a745">✅ Unlocked</span>' : '<span style="color:#FF6347;font-size:10px">🔒 Locked</span>'}
+      </div>
+    </div>`;
+  });
+  
   el.innerHTML = html;
 }
 
 function renderStats() {
-  var el = document.getElementById('panel-stats');
+  const el = document.getElementById('panel-stats');
   if (!el) return;
-  var html = '<h3 style="color:#FFD700;margin-bottom:8px">📊 Statistics</h3>' +
-    '<div style="font-size:12px;line-height:2">' +
-    '<span style="color:#a0a0b0">Coins:</span> <span class="gold">' + G.coins + '₫</span><br>' +
-    '<span style="color:#a0a0b0">Level:</span> <span class="gold">Lv' + G.lv + '</span><br>' +
-    '<span style="color:#a0a0b0">Reputation:</span> <span class="gold">' + G.rep + '</span><br>' +
-    '<span style="color:#a0a0b0">Staff:</span> <span class="gold">' + G.staff.length + '/6</span><br>' +
-    '<span style="color:#a0a0b0">Items:</span> <span class="gold">' + Object.keys(G.items).length + '</span></div>';
+  
+  const stars = getRepStars(G.rep);
+  const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
+  const xpPct = (G.xp / nextXp) * 100;
+  const lvl = G.lv;
+  const badgeClass = 'l'+lvl;
+  
+  let html = `<div class="section-title">📊 Statistics</div>`;
+  html += `<div class="stat-row"><span class="stat-label">💰 Coins</span><span class="stat-value">${G.coins}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📈 Total Revenue</span><span class="stat-value">${G.totalRevenue}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💎 Total Tips</span><span class="stat-value">${G.totalTips}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">☕ Orders Served</span><span class="stat-value">${G.totalServed}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📋 Orders Today</span><span class="stat-value">${G.ordersToday}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📊 Best Day Record</span><span class="stat-value">${G.bestDay} orders</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">⭐ Reputation</span><span class="stat-value">${G.rep} (${'★'.repeat(stars)}${'☆'.repeat(5-stars)})</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📦 Equipment Lv</span><span class="stat-value">${Object.values(G.equipment).reduce((a,b)=>a+b,0)}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">🎨 Trend Items</span><span class="stat-value">${G.trendItems.length}/${TRENDS.length}</span></div>`;
+  
+  html += `<div class="section-title">🎯 Level Progress</div>`;
+  html += `<div class="stat-row"><span class="stat-label">Current Level</span><span class="stat-value level-badge ${badgeClass}">Lv${G.lv}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">XP Progress</span><span class="stat-value">${G.xp}/${nextXp}</span></div>`;
+  html += `<div style="width:100%;height:10px;background:#333;border-radius:5px;overflow:hidden;margin:8px 0">
+    <div style="width:${xpPct}%;height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width 0.5s;border-radius:5px"></div>
+  </div>`;
+  
+  if (LEVEL_REWARDS[G.lv+1]) {
+    const next = LEVEL_REWARDS[G.lv+1];
+    html += `<div class="section-title">🎁 Next Level Reward</div>`;
+    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#28a745">`;
+    html += `Lv${G.lv+1}: +${next.coins}₫ coins<br>${next.desc}</div>`;
+  }
+  
   el.innerHTML = html;
 }
 
 function renderStaff() {
-  var el = document.getElementById('panel-staff');
+  const el = document.getElementById('panel-staff');
   if (!el) return;
-  var html = '<h3 style="color:#FFD700;margin-bottom:8px">👥 Hire Staff (' + G.staff.length + '/6)</h3>';
-  for (var i = 0; i < STAFF.length; i++) {
-    var s = STAFF[i];
-    html += '<div class="card">' +
-      '<div><strong>' + s.name + '</strong><div style="color:#a0a0b0;font-size:10px">Skill: ' + Math.floor(s.sk * 100) + '%</div></div>' +
-      '<div><span class="gold">' + s.cost + '₫</span> ' +
-      '<button class="btn green" onclick="hireStaff(\'' + s.id + '\')">HIRE</button></div></div>';
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">👥 Hire Staff (${G.staff.length}/${CONFIG.maxStaff})</h3>`;
+  
+  html += `<div class="section-title">📋 Available Staff</div>`;
+  STAFF.forEach((s, idx) => {
+    const canHire = G.coins >= s.cost && G.staff.length < CONFIG.maxStaff;
+    html += `<div class="card">
+      <div>
+        <strong>${s.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${s.desc}</div>
+        <div style="color:#3498db;font-size:10px">Skill: ${Math.floor(s.sk[0]*100)}-${Math.floor(s.sk[1]*100)}%</div>
+      </div>
+      <div>
+        <span class="gold">${s.cost}₫</span><br>
+        <button class="btn green" ${canHire ? '' : 'disabled'} onclick="hireStaff(${idx})">HIRE</button>
+      </div>
+    </div>`;
+  });
+  
+  if (G.staff.length > 0) {
+    html += `<div class="section-title">👨‍💼 Your Staff</div>`;
+    G.staff.forEach((s, idx) => {
+      const moodClass = s.mood > 60 ? 'mood-high' : s.mood > 30 ? 'mood-med' : 'mood-low';
+      html += `<div class="card">
+        <div>
+          <strong>${s.name}</strong>
+          <div style="color:#a0a0b0;font-size:10px">Skill: ${Math.floor(s.skill*100)}%</div>
+          <div style="font-size:11px">Mood: 
+            <span class="mood-bar ${moodClass}">
+              <span class="mood-fill" style="width:${s.mood}%"></span>
+            </span>
+            <span style="font-size:10px">${Math.floor(s.mood)}%</span>
+          </div>
+        </div>
+        <div>
+          <button class="btn blue" onclick="restStaff(${idx})">REST</button>
+        </div>
+      </div>`;
+    });
   }
+  
   el.innerHTML = html;
+}
+
+function renderEquip() {
+  const el = document.getElementById('panel-equip');
+  if (!el) return;
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🔧 Equipment Shop</h3>`;
+  
+  EQUIPMENT.forEach(eq => {
+    const currentLv = G.equipment[eq.id] || 0;
+    const maxed = currentLv >= eq.maxLv;
+    const cost = getEquipCost(eq, currentLv);
+    const canBuy = G.coins >= cost && !maxed;
+    
+    html += `<div class="card" style="${currentLv > 0 ? '' : ''}">
+      <div>
+        <strong>${eq.icon} ${eq.name} Lv${currentLv}/${eq.maxLv}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${eq.desc}</div>
+        ${!maxed ? `<div style="color:#FFD700;font-size:10px">Upgrade: ${cost}₫</div>` : '<div style="color:#28a745;font-size:10px">MAX LEVEL</div>'}
+      </div>
+      <div>
+        <button class="btn purple" ${canBuy ? '' : 'disabled'} onclick="buyEquipment('${eq.id}')">${maxed ? 'MAX' : 'UPGRADE'}</button>
+      </div>
+    </div>`;
+  });
+  
+  html += `<div class="section-title">📦 Current Equipment</div>`;
+  let eqHtml = '<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;line-height:1.8">';
+  EQUIPMENT.forEach(eq => {
+    const lv = G.equipment[eq.id] || 0;
+    eqHtml += `${eq.icon} ${eq.name}: <span class="gold">Lv${lv}</span> ${'█'.repeat(lv)}${'░'.repeat(eq.maxLv-lv)}<br>`;
+  });
+  eqHtml += '</div>';
+  el.innerHTML = html + eqHtml;
 }
 
 function renderShop() {
-  var el = document.getElementById('panel-shop');
+  const el = document.getElementById('panel-shop');
   if (!el) return;
-  var html = '<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Shop</h3>';
-  for (var i = 0; i < TREND.length; i++) {
-    var t = TREND[i];
-    var bought = G.items[t.id];
-    html += '<div class="card">' +
-      '<div><strong>' + t.name + '</strong><div style="color:#a0a0b0;font-size:10px">' + t.desc + '</div></div>' +
-      '<div><span class="gold">' + t.cost + '₫</span> ' +
-      '<button class="btn" onclick="buyItem(\'' + t.id + '\')" ' + (bought ? 'disabled' : '') + '>' + (bought ? 'OWNED' : 'BUY') + '</button></div></div>';
-  }
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Decorations</h3>`;
+  
+  TRENDS.forEach(t => {
+    const owned = G.trendItems.find(x => x.id === t.id);
+    const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : '#FFD700';
+    
+    html += `<div class="card ${owned ? 'epic' : ''}">
+      <div>
+        <strong style="color:${rarityColor}">${t.icon} ${t.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${t.desc}</div>
+      </div>
+      <div>
+        ${owned ? '<span style="color:#28a745">✅ OWNED</span>' : `<span class="gold">${t.cost}₫</span><br><button class="btn" onclick="buyTrend('${t.id}')">BUY</button>`}
+      </div>
+    </div>`;
+  });
+  
   el.innerHTML = html;
 }
 
-// === ACTIONS ===
-function serveOrder(idx) {
-  if (idx < 0 || idx >= G.orders.length) return;
-  var o = G.orders[idx];
-  G.coins += o.price;
-  G.orders.splice(idx, 1);
-  show('✅ Served: ' + o.name + ' (+' + o.price + '₫)');
-  updateUI();
-}
-
-function buyItem(id) {
-  var t = TREND.filter(function(x) { return x.id === id; })[0];
-  if (!t || G.coins < t.cost || G.items[id]) return;
-  G.coins -= t.cost;
-  G.items[id] = 1;
-  show('✅ Bought: ' + t.name);
-  updateUI();
-}
-
-function hireStaff(id) {
-  if (G.staff.length >= 6) { show('❌ Staff full!'); return; }
-  var s = STAFF.filter(function(x) { return x.id === id; })[0];
-  if (!s) return;
-  if (G.coins < s.cost) { show('❌ Not enough coins!'); return; }
-  G.coins -= s.cost;
-  G.staff.push({id: id, name: s.name, skill: s.sk, mood: 100});
-  show('✅ Hired: ' + s.name);
-  updateUI();
-}
-
-// === UPDATE UI ===
+// ============ UPDATE UI ============
 function updateUI() {
-  document.getElementById('coins').textContent = G.coins;
-  document.getElementById('lv').textContent = G.lv;
-  document.getElementById('rep').textContent = G.rep;
+  const coins = document.getElementById('coins');
+  if (coins) coins.textContent = G.coins;
   
-  if (G.tab === 'orders') renderOrders();
-  else if (G.tab === 'menu') renderMenu();
-  else if (G.tab === 'stats') renderStats();
-  else if (G.tab === 'staff') renderStaff();
-  else if (G.tab === 'shop') renderShop();
+  const lvBadge = document.getElementById('lv-badge');
+  if (lvBadge) {
+    lvBadge.textContent = G.lv;
+    lvBadge.className = 'gold level-badge l'+G.lv;
+  }
+  
+  const lvText = document.getElementById('lv-text');
+  if (lvText) lvText.textContent = 'Lv'+G.lv;
+  
+  const xpFill = document.getElementById('xp-fill');
+  if (xpFill) {
+    const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
+    const pct = Math.min(100, (G.xp / nextXp) * 100);
+    xpFill.style.width = pct + '%';
+  }
+  
+  const stars = getRepStars(G.rep);
+  const repStars = document.getElementById('rep-stars');
+  if (repStars) repStars.textContent = '★'.repeat(stars) + '☆'.repeat(5-stars);
+  
+  const tabs = document.querySelectorAll('.tab');
+  for (let i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab') === G.tab);
+  }
+  
+  const panels = document.querySelectorAll('[id^="panel-"]');
+  panels.forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel-' + G.tab);
+  if (panel) panel.style.display = 'block';
+  
+  switch(G.tab) {
+    case 'orders': renderOrders(); break;
+    case 'menu': renderMenu(); break;
+    case 'stats': renderStats(); break;
+    case 'staff': renderStaff(); break;
+    case 'equip': renderEquip(); break;
+    case 'shop': renderShop(); break;
+  }
 }
 
-// === TAB SWITCHING ===
-var tabs = document.querySelectorAll('.tab');
-for (var i = 0; i < tabs.length; i++) {
-  (function(tab) {
-    tab.addEventListener('click', function() {
-      var tabName = this.getAttribute('data-tab');
-      G.tab = tabName;
-      
-      // Update tab buttons
-      for (var j = 0; j < tabs.length; j++) {
-        tabs[j].classList.remove('active');
-      }
-      this.classList.add('active');
-      
-      // Update panels
-      var panels = document.querySelectorAll('[id^="panel-"]');
-      for (var k = 0; k < panels.length; k++) {
-        panels[k].style.display = 'none';
-      }
-      var panel = document.getElementById('panel-' + tabName);
-      if (panel) panel.style.display = 'block';
-      
-      updateUI();
-    });
-  })(tabs[i]);
-}
+// ============ TAB SWITCHING ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    G.tab = this.getAttribute('data-tab');
+    AudioEngine.click();
+    updateUI();
+  });
+});
 
-// === AUTO SERVE (every 8s if staff hired) ===
+// ============ AUTO SERVE (staff) ============
 setInterval(function() {
   if (G.staff.length === 0 || G.orders.length === 0) return;
-  for (var i = 0; i < G.staff.length; i++) {
-    var s = G.staff[i];
-    var served = Math.floor(s.skill * (s.mood / 100));
-    if (served > 0) {
-      var o = G.orders[0];
-      G.coins += Math.floor(o.price * 0.8);
+  
+  G.staff.forEach((s, idx) => {
+    if (s.mood < 10) return;
+    
+    const served = Math.floor(s.skill * (s.mood / 100));
+    if (served > 0 && G.orders.length > 0) {
+      const o = G.orders[0];
+      const revenue = Math.floor(o.price * 0.7);
+      
+      G.coins += revenue;
+      G.totalRevenue += revenue;
+      G.totalServed++;
+      G.ordersToday++;
+      G.xp += Math.floor(o.price * 0.3);
+      G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
+      
+      // Decay mood
+      const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
+      s.mood = Math.max(0, s.mood - decay);
+      
       G.orders.splice(0, 1);
-      s.mood = Math.max(0, s.mood - 3);
-      show('🤖 Auto: ' + s.name + ' served ' + o.name);
+      notify(`🤖 ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}₫`);
+      
+      checkLevelUp();
       updateUI();
     }
-  }
-}, 8000);
+  });
+}, CONFIG.baseServeTime);
 
-// === START ===
-console.log('✅ Game started!');
-console.log('✅ Tabs:', tabs.length);
-console.log('✅ Orders:', G.orders.length);
+// ============ AUTO ORDER GENERATION ============
+setInterval(function() {
+  autoGenerateOrder();
+}, 1000);
+
+// ============ MOOD RECOVERY ============
+setInterval(function() {
+  G.staff.forEach(s => {
+    if (s.mood < 100) {
+      s.mood = Math.min(100, s.mood + 1);
+    }
+  });
+}, 30000); // Every 30s
+
+// ============ SAVE / LOAD ============
+function saveGame() {
+  try {
+    localStorage.setItem('trendyCafeV6', JSON.stringify(G));
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const data = localStorage.getItem('trendyCafeV6');
+    if (data) {
+      const saved = JSON.parse(data);
+      // Merge with defaults
+      Object.keys(saved).forEach(key => {
+        if (G.hasOwnProperty(key)) {
+          G[key] = saved[key];
+        }
+      });
+      
+      // Ensure trend items have bonus fields
+      G.trendItems.forEach(t => {
+        const trendDef = TRENDS.find(x => x.id === t.id);
+        if (trendDef) {
+          t.revenueBonus = trendDef.id === 't_doge' ? 0.05 :
+                           trendDef.id === 't_cat' ? 0.03 :
+                           trendDef.id === 't_girl' ? 0.10 :
+                           trendDef.id === 't_piano' ? 0.15 :
+                           trendDef.id === 't_sky' ? 0.20 :
+                           trendDef.id === 't_chef' ? 0.30 : 0;
+          t.repBonus = trendDef.id === 't_plant' ? 2 :
+                       trendDef.id === 't_art' ? 8 : 0;
+        }
+      });
+      
+      notify('💾 Game loaded!', 1500);
+    }
+  } catch(e) {}
+}
+
+setInterval(saveGame, 30000); // Auto-save every 30s
+
+// ============ START GAME ============
+loadGame();
+CONFIG.order_interval = CONFIG.orderInterval[G.lv-1] || 5000;
+
+// Initialize audio on first user interaction
+document.addEventListener('click', function initAudio() {
+  AudioEngine.init();
+  document.removeEventListener('click', initAudio);
+}, {once: true});
+
+console.log('✅ Trendy Cafe V6 started!');
+console.log('✅ Unlocked menu:', G.unlockedMenu);
+console.log('✅ Staff:', G.staff.length);
+console.log('✅ Equipment:', G.equipment);
+console.log('✅ Trends:', G.trendItems.length);
 updateUI();
+
 </script>
 </body>
 </html>
