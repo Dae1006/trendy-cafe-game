@@ -349,7 +349,7 @@ function generateOrder() {
 }
 
 function autoGenerateOrder() {
-  if (G.orders.length >= CONFIG.maxOrders + G.equipment.seating) return;
+  if (G.orders.length >= calculateMaxOrders()) return;
   
   const interval = CONFIG.orderInterval[G.lv-1] || 5000;
   const now = Date.now();
@@ -382,7 +382,10 @@ function serveOrder(idx) {
   });
   
   // Revenue bonus from equipment
-  bonus += (G.equipment.espresso_mach || 0) * CONFIG.EQUIPMENT[0].revenueBonus;
+  bonus += (G.equipment.espresso_mach || 0) * 0.05;
+  
+  // Revenue bonus from venue
+  bonus += getVenueBonus() - 1;
   
   revenue = Math.floor(revenue * bonus);
   
@@ -572,9 +575,74 @@ function calculateStaffSalaries() {
 }
 
 function calculateFixedCharges() {
-  const charges = CONFIG.fixedCharges || { rent: 150, electricity: 80, water: 40, internet: 30, insurance: 50, maintenance: 60 };
-  return charges.rent + charges.electricity + charges.water + charges.internet + charges.insurance + charges.maintenance;
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  const base = CONFIG.fixedCharges || { rent: 80, electricity: 40, water: 20, internet: 15, insurance: 25, maintenance: 30 };
+  const baseTotal = base.rent + base.electricity + base.water + base.internet + base.insurance + base.maintenance;
+  return baseTotal + venue.bonusRent;
 }
+
+function calculateMaxOrders() {
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  return CONFIG.maxOrders + G.equipment.seating + venue.maxOrders - 8;
+}
+
+function getVenueBonus() {
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  return venue.bonusRevenue;
+}
+
+function getNextVenue() {
+  return G.venueLevel + 1 < VENUE_TYPES.length ? VENUE_TYPES[G.venueLevel + 1] : null;
+}
+
+function upgradeVenue() {
+  const next = getNextVenue();
+  if (!next) { notify('🏆 Đã nâng cấp hết!'); return; }
+  if (G.coins < next.cost) { notify('❌ Không đủ tiền!'); AudioEngine.error(); return; }
+  if (!confirm(`🏪 Nâng cấp lên ${next.icon} ${next.name}?\nChi phí: ${next.cost}₫\n+${next.maxOrders - 8} max orders\n+${next.bonusRent}₫ fixed charges`)) return;
+  
+  G.coins -= next.cost;
+  G.venueLevel++;
+  AudioEngine.levelUp();
+  notify(`🎉 Đã nâng cấp lên ${next.icon} ${next.name}!`);
+  updateUI();
+}
+
+function renderExpand() {
+  const el = document.getElementById('panel-expand');
+  if (!el) return;
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🏪 Mở Rộng Quán</h3>`;
+  
+  VENUE_TYPES.forEach((v, i) => {
+    const isCurrent = i === G.venueLevel;
+    const isNext = i === G.venueLevel + 1;
+    const isLocked = i > G.venueLevel + 1;
+    let cardClass = 'venue-card';
+    if (isCurrent) cardClass += ' current';
+    else if (isNext) cardClass += ' upgrade';
+    else if (isLocked) cardClass += ' locked';
+    
+    html += `<div class="${cardClass}" ${isNext ? `onclick="upgradeVenue()"` : ''}>
+      <div>
+        <strong>${v.icon} ${v.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${v.desc}</div>
+        <div class="venue-stats">
+          <span>📦 Max Orders: <span class="gold">${v.maxOrders}</span></span>
+          <span>🏦 Fixed/90s: <span class="gold">${210 + v.bonusRent}₫</span></span>
+          <span>💰 Revenue Bonus: <span class="gold">${((v.bonusRevenue - 1) * 100).toFixed(0)}%</span></span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        ${isCurrent ? '<span style="color:#28a745">✅ HIỆN TẠI</span>' :
+          isLocked ? '<span style="color:#555">🔒 KHÓA</span>' :
+          `<span class="gold">${v.cost.toLocaleString()}₫</span><br><button class="btn green" onclick="upgradeVenue()">UPGRADE</button>`}
+      </div>
+    </div>`;
+  });
+  
+  el.innerHTML = html;
+}
+
 
 function processFinancialCycles() {
   const now = Date.now();
@@ -661,7 +729,7 @@ function getEquipCost(eq, currentLv) {
 function renderOrders() {
   const el = document.getElementById('panel-orders');
   if (!el) return;
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders (${G.orders.length}/${CONFIG.maxOrders + G.equipment.seating})</h3>`;
+let html = `<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders (${G.orders.length}/${calculateMaxOrders()})</h3>`;
   
   if (G.orders.length === 0) {
     html += '<div class="empty">⏳ Waiting for customers...</div>';
@@ -752,6 +820,9 @@ function renderStats() {
   html += `<div class="stat-row"><span class="stat-label">⭐ Reputation</span><span class="stat-value">${G.rep} (${'★'.repeat(stars)}${'☆'.repeat(5-stars)})</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">📦 Equipment Lv</span><span class="stat-value">${Object.values(G.equipment).reduce((a,b)=>a+b,0)}</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">🎨 Trend Items</span><span class="stat-value">${G.trendItems.length}/${TRENDS.length}</span></div>`;
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  html += `<div class="stat-row"><span class="stat-label">${venue.icon} Quán</span><span class="stat-value">${venue.name}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💰 Revenue Bonus</span><span class="stat-value">${((venue.bonusRevenue - 1) * 100).toFixed(0)}%</span></div>`;
   
   html += `<div class="section-title">🎯 Level Progress</div>`;
   html += `<div class="stat-row"><span class="stat-label">Current Level</span><span class="stat-value level-badge ${badgeClass}">Lv${G.lv}</span></div>`;
@@ -931,6 +1002,7 @@ function updateUI() {
     case 'staff': renderStaff(); break;
     case 'equip': renderEquip(); break;
     case 'shop': renderShop(); break;
+    case 'expand': renderExpand(); break;
   }
 }
 
