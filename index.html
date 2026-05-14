@@ -5,8 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>☕ Trendy Cafe - V6 Enhanced</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px;overflow-x:hidden}
+*{margin:0;padding:0;box-sizing:border-box;overflow-x:hidden}
+html{overflow-x:hidden;position:relative}
+body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px;overflow-x:hidden;position:relative}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
@@ -350,10 +351,13 @@ function serveOrder(idx) {
 }
 
 function checkLevelUp() {
-  const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
-  if (G.xp >= nextXp && G.lv < 6) {
-    G.lv++;
+  // DÙNG do...while để up nhiều level nếu XP dư
+  while (G.lv < 6) {
+    const nextXp = CONFIG.xpPerLevel[G.lv];
+    if (G.xp < nextXp) break;
+    
     G.xp -= nextXp;
+    G.lv++;
     AudioEngine.levelUp();
     
     const reward = LEVEL_REWARDS[G.lv];
@@ -757,26 +761,30 @@ setInterval(function() {
 }, 1000);
 
 // ============ AUTO SERVE (staff) ============
+let lastAutoServe = 0;
 setInterval(function() {
+  const now = Date.now();
+  if (now - lastAutoServe < 3500) return; // throttle 3.5s
+  
   if (G.staff.length === 0 || G.orders.length === 0) return;
   
-  let served = false;
+  let servedAny = false;
   
-  // DÙNG for thay vì forEach để kiểm soát tốt hơn
   for (let si = 0; si < G.staff.length; si++) {
-    const s = G.staff[si];
-    if (s.mood < 5) continue; // Cần ít nhất 5% mood
     if (G.orders.length === 0) break;
     
-    // Tính cơ hội serve: skill * mood factor
-    const serveChance = s.skill * (s.mood / 100);
-    const servedCount = Math.ceil(serveChance);
+    const s = G.staff[si];
+    if (s.mood < 5) continue;
     
-    if (servedCount >= 1) {
-      const o = G.orders[0]; // Luôn serve đơn đầu tiên
+    // Tính skill thực tế
+    const skillValue = s.skill * (s.mood / 100);
+    const servedCount = Math.max(1, Math.floor(skillValue * 2)); // tối thiểu 1 nếu có skill
+    
+    for (let srv = 0; srv < servedCount && G.orders.length > 0; srv++) {
+      const o = G.orders[0];
       let bonus = 1;
       G.trendItems.forEach(t => { if(t.revenueBonus) bonus += t.revenueBonus; });
-      bonus += G.equipment.espresso_mach * CONFIG.EQUIPMENT[0].revenueBonus;
+      bonus += (G.equipment.espresso_mach || 0) * 0.05;
       
       const revenue = Math.floor((o.price + o.tip) * bonus);
       
@@ -785,23 +793,25 @@ setInterval(function() {
       G.totalServed++;
       G.ordersToday++;
       G.totalTips += o.tip;
-      G.xp += Math.floor(o.price * 1.0);
+      G.xp += Math.floor(o.price * 1.5);
       G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
       
-      // Giảm mood
       const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
       s.mood = Math.max(0, s.mood - decay);
       
       G.orders.splice(0, 1);
-      notify(`🤖 ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}₫`);
+      notify(`🤖 ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}₫ (XP+${Math.floor(o.price*1.5)})`);
       AudioEngine.serve();
-      served = true;
-      checkLevelUp();
+      servedAny = true;
+      lastAutoServe = Date.now();
     }
   }
   
-  if (served) updateUI();
-}, Math.floor(CONFIG.baseServeTime * 0.5)); // Every 4s
+  if (servedAny) {
+    checkLevelUp();
+    updateUI();
+  }
+}, 3500); // Every 3.5s
 
 // ============ MOOD RECOVERY ============
 setInterval(function() {
