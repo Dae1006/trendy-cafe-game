@@ -506,7 +506,7 @@ function renderOrders() {
   }
   
   html += `<div style="margin-top:10px;padding:8px;background:#16213e;border-radius:6px;font-size:11px">
-    <span style="color:#a0a0b0">Next order:</span> <span class="gold">${Math.ceil((CONFIG.order_interval || 5000)/1000)}s</span>
+    <span style="color:#a0a0b0">Next order:</span> <span class="gold">${Math.ceil((CONFIG.orderInterval[G.lv-1] || 5000)/1000)}s</span>
   </div>`;
   
   el.innerHTML = html;
@@ -733,22 +733,49 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
+// ============ PATIENCE TIMER ============
+setInterval(function() {
+  // Decrease patience for all orders
+  for (let i = G.orders.length - 1; i >= 0; i--) {
+    G.orders[i].timeLeft -= 1000;
+    if (G.orders[i].timeLeft <= 0) {
+      const lost = G.orders[i];
+      G.orders.splice(i, 1);
+      G.rep = Math.max(0, G.rep - 3);
+      notify(`😡 ${lost.customer.icon} ${lost.customer.name} left! Rep -3`, 3000);
+    }
+  }
+  // Update UI if on orders tab
+  if (G.tab === 'orders') renderOrders();
+}, 1000);
+
+// ============ AUTO ORDER GENERATION ============
+setInterval(function() {
+  autoGenerateOrder();
+}, 1000);
+
 // ============ AUTO SERVE (staff) ============
 setInterval(function() {
   if (G.staff.length === 0 || G.orders.length === 0) return;
   
+  let served = false;
   G.staff.forEach((s, idx) => {
     if (s.mood < 10) return;
     
-    const served = Math.floor(s.skill * (s.mood / 100));
-    if (served > 0 && G.orders.length > 0) {
+    const servedCount = Math.ceil(s.skill * (s.mood / 100));
+    if (servedCount > 0 && G.orders.length > 0) {
       const o = G.orders[0];
-      const revenue = Math.floor(o.price * 0.7);
+      let bonus = 1;
+      G.trendItems.forEach(t => { if(t.revenueBonus) bonus += t.revenueBonus; });
+      bonus += G.equipment.espresso_mach * CONFIG.EQUIPMENT[0].revenueBonus;
+      
+      const revenue = Math.floor((o.price + o.tip) * bonus);
       
       G.coins += revenue;
       G.totalRevenue += revenue;
       G.totalServed++;
       G.ordersToday++;
+      G.totalTips += o.tip;
       G.xp += Math.floor(o.price * 0.3);
       G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
       
@@ -758,26 +785,23 @@ setInterval(function() {
       
       G.orders.splice(0, 1);
       notify(`🤖 ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}₫`);
-      
+      AudioEngine.serve();
+      served = true;
       checkLevelUp();
-      updateUI();
     }
   });
-}, CONFIG.baseServeTime);
-
-// ============ AUTO ORDER GENERATION ============
-setInterval(function() {
-  autoGenerateOrder();
-}, 1000);
+  
+  if (served) updateUI();
+}, Math.floor(CONFIG.baseServeTime * 0.5)); // Every 4s
 
 // ============ MOOD RECOVERY ============
 setInterval(function() {
   G.staff.forEach(s => {
     if (s.mood < 100) {
-      s.mood = Math.min(100, s.mood + 1);
+      s.mood = Math.min(100, s.mood + 2);
     }
   });
-}, 30000); // Every 30s
+}, 10000); // Every 10s
 
 // ============ SAVE / LOAD ============
 function saveGame() {
@@ -822,7 +846,8 @@ setInterval(saveGame, 30000); // Auto-save every 30s
 
 // ============ START GAME ============
 loadGame();
-CONFIG.order_interval = CONFIG.orderInterval[G.lv-1] || 5000;
+CONFIG.orderInterval = [5000, 4000, 3500, 3000, 2500, 2000];
+G.lastOrderTime = Date.now();
 
 // Initialize audio on first user interaction
 document.addEventListener('click', function initAudio() {
