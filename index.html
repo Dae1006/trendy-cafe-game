@@ -106,12 +106,12 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
 <script>
 // ============ GAME CONFIGURATION ============
 const CONFIG = {
-  xpPerLevel: [0, 50, 150, 350, 700, 1200, 2400],
-  maxStaff: 8,
-  maxOrders: 6,
-  orderInterval: [5000, 4000, 3500, 3000, 2500, 2000], // ms between orders per level
-  moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8], // mood decay per auto-serve per level
-  baseServeTime: 8000, // ms between auto-serve attempts
+  xpPerLevel: [0, 100, 250, 500, 900, 1500, 2400, 3600, 5200, 7200, 10000, 13500, 18000, 24000, 32000, 42000, 55000, 72000, 95000, 125000, 165000, 220000, 290000, 380000, 500000, 660000, 880000, 1200000, 1600000, 2100000, 2800000, 3700000, 4900000, 6500000, 8700000, 11500000, 15000000, 20000000, 26000000, 35000000, 46000000, 60000000, 78000000, 100000000, 130000000, 170000000, 220000000, 290000000, 380000000, 500000000],
+  maxStaff: 12,
+  maxOrders: 8,
+  orderInterval: [5000, 4500, 4000, 3500, 3000, 2500, 2200, 2000, 1800, 1600, 1400, 1200, 1000, 900, 800, 700, 600, 500, 400, 300],
+  moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8, 0.6, 0.5, 0.4, 0.3],
+  baseServeTime: 8000,
   repThresholds: [0, 10, 30, 60, 100, 150, 220],
   maxRep: 220
 };
@@ -173,7 +173,16 @@ const LEVEL_REWARDS = {
   3: {coins:400,desc:'Unlock equipment shop',rewardItems:['seating','decoration']},
   4: {coins:600,desc:'Unlock bakery corner',rewardItems:['bakery']},
   5: {coins:1000,desc:'Unlock bar counter & master',rewardItems:['bar_counter','master']},
-  6: {coins:2000,desc:'🎉 Grand Opening! All items unlocked',rewardItems:['special']}
+  6: {coins:2000,desc:'🎉 Grand Opening! All items unlocked',rewardItems:['special']},
+  10: {coins:3000,desc:'Unlock pastry menu: croissant+waffle early',rewardItems:['croissant','waffle']},
+  15: {coins:5000,desc:'Unlock espresso machine Lv3 & premium fridge',rewardItems:['espresso_mach_3','fridge_2']},
+  20: {coins:8000,desc:'Unlock latte art corner (+15% revenue)',rewardItems:['t_girl']},
+  30: {coins:15000,desc:'Unlock sky lounge decoration',rewardItems:['t_sky']},
+  40: {coins:25000,desc:'Unlock piano corner (+15% revenue)',rewardItems:['t_piano']},
+  50: {coins:50000,desc:'Unlock Chef Statue (+30% revenue)',rewardItems:['t_chef']},
+  60: {coins:80000,desc:'Unlock all trend decorations',rewardItems:['t_doge','t_cat','t_plant','t_art']},
+  75: {coins:150000,desc:'🌟 Legendary status! All equipment maxed',rewardItems:['all_equipment']},
+  100: {coins:500000,desc:'👑☕ LEGENDARY CAFE OWNER! Congratulations!',rewardItems:[]}
 };
 
 // ============ GAME STATE ============
@@ -356,7 +365,7 @@ function serveOrder(idx) {
 
 function checkLevelUp() {
   // DÙNG do...while để up nhiều level nếu XP dư
-  while (G.lv < 6) {
+  while (G.lv < 100) {
     const nextXp = CONFIG.xpPerLevel[G.lv];
     if (G.xp < nextXp) break;
     
@@ -368,14 +377,22 @@ function checkLevelUp() {
     if (reward) {
       G.coins += reward.coins;
       reward.rewardItems.forEach(id => {
-        if (!G.unlockedMenu.includes(id)) G.unlockedMenu.push(id);
+        if (id === 'all_equipment') {
+          EQUIPMENT.forEach(eq => { G.equipment[eq.id] = eq.maxLv; });
+        } else if (id === 'espresso_mach_3') {
+          G.equipment.espresso_mach = Math.max(G.equipment.espresso_mach, 3);
+        } else if (id === 'fridge_2') {
+          G.equipment.fridge = Math.max(G.equipment.fridge, 2);
+        } else if (!G.unlockedMenu.includes(id)) {
+          G.unlockedMenu.push(id);
+        }
       });
-      notify(`🎉 LEVEL ${G.lv}! +${reward.coins}₫ coins! ${reward.desc}`, 4000);
+      notify(`🎉 LEVEL ${G.lv}! +${reward.coins.toLocaleString()}₫ coins! ${reward.desc}`, 4000);
     } else {
-      notify(`🎉 LEVEL ${G.lv}! Great job!`, 3000);
+      notify(`🎉 LEVEL ${G.lv}! Great progress!`, 3000);
     }
     
-    // Update unlocked menu based on equipment
+    // Auto-unlock menu based on equipment
     if (G.equipment.bakery >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
     if (G.equipment.bakery >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
     if (G.equipment.bar_counter >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
@@ -384,6 +401,13 @@ function checkLevelUp() {
     if (G.lv >= 2 && !G.unlockedMenu.includes('matcha')) G.unlockedMenu.push('matcha');
     if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
     if (G.lv >= 6 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
+    // Auto-unlock menu based on level
+    if (G.lv >= 10 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+    if (G.lv >= 10 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+    if (G.lv >= 20 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+    if (G.lv >= 20 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+    if (G.lv >= 30 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
+    if (G.lv >= 50 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
   }
 }
 
@@ -463,6 +487,21 @@ function restStaff(idx) {
   notify(`☕ ${G.staff[idx].name} is resting! Mood restored.`);
   AudioEngine.click();
   updateUI();
+}
+
+function fireStaff(idx) {
+  if (idx < 0 || idx >= G.staff.length) return;
+  const s = G.staff[idx];
+  const staffDef = STAFF.find(st => st.id === s.id);
+  const refund = staffDef ? Math.floor(staffDef.cost * 0.5) : 0;
+  
+  if (confirm(`🔥 Sa thải ${s.name}? Nhận lại ${refund}₫`)) {
+    G.coins += refund;
+    G.staff.splice(idx, 1);
+    AudioEngine.error();
+    notify(`🔥 Fired ${s.name}! Refund: ${refund}₫`);
+    updateUI();
+  }
 }
 
 // ============ RENDERING ============
@@ -624,8 +663,9 @@ function renderStaff() {
             <span style="font-size:10px">${Math.floor(s.mood)}%</span>
           </div>
         </div>
-        <div>
+        <div style="text-align:right">
           <button class="btn blue" onclick="restStaff(${idx})">REST</button>
+          <button class="btn" style="background:#e74c3c" onclick="fireStaff(${idx})">FIRE</button>
         </div>
       </div>`;
     });
