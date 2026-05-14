@@ -76,7 +76,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
 <div id="notif-area"></div>
 
 <div id="hdr" style="position:relative">
-  <span>💰 <span class="gold" id="coins">500</span></span>
+  <span>💰 <span class="gold" id="coins">2000</span></span>
   <span style="flex:1;text-align:center">
     Lv<span class="gold level-badge" id="lv-badge">1</span> 
     <span class="gold" id="lv-text">Lv1</span>
@@ -121,6 +121,7 @@ const CONFIG = {
   fixedChargesInterval: 90000,  // Fixed charges mỗi 90s game (ít hơn)
   bankruptcyWarningTime: 15000, // Cảnh báo: âm coins 15s
   bankruptcyTime: 45000,        // Bankruptcy: âm coins 45s (có thời gian xoay)
+  bankruptcyThreshold: 0,       // Threshold for bankruptcy check
   fixedCharges: {
     rent: 80,                    // Thuê mặt bằng/cycle (giảm từ 200)
     electricity: 40,             // Điện/cycle (giảm từ 100)
@@ -224,6 +225,7 @@ var G = {
   saveVersion: 7,
   // === FINANCIAL MANAGEMENT ===
   bankruptcyWatchdog: null, // timeout ID
+  bankruptcyStartTime: null,
   lastSalaryPaid: 0,
   lastChargesPaid: 0,
   isBankrupt: false,
@@ -614,104 +616,17 @@ function checkBankruptcy() {
 
 function gameOver() {
   AudioEngine.error();
+  const safeRev = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue : 0;
+  const safeExp = typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses : 0;
+  const safeServed = typeof G.totalServed === 'number' && !isNaN(G.totalServed) ? G.totalServed : 0;
   setTimeout(() => {
-    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${G.totalRevenue.toLocaleString()}₫\n- Total Expenses: ${G.totalExpenses.toLocaleString()}₫\n- Net Profit: ${(G.totalRevenue - G.totalExpenses).toLocaleString()}₫\n- Orders Served: ${G.totalServed}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\n💡 Tips for next time:\n- Fire unnecessary staff\n- Monitor fixed charges\n- Keep coins positive!\n\nTry harder next time! 🕵️`);
+    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${safeRev.toLocaleString()}₫\n- Total Expenses: ${safeExp.toLocaleString()}₫\n- Net Profit: ${(safeRev - safeExp).toLocaleString()}₫\n- Orders Served: ${safeServed.toLocaleString()}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\n💡 Tips: Fire unnecessary staff, Monitor fixed charges, Keep coins positive!`);
     localStorage.removeItem('trendyCafeV7');
     location.reload();
   }, 100);
 }
 
-// ============ FINANCIAL MANAGEMENT ============
-function calculateFixedCharges() {
-  // Fixed charges: rent + utilities + insurance + tax
-  return CONFIG.rent + CONFIG.utilities + CONFIG.insurance + CONFIG.tax;
-}
-
-function calculateStaffSalary() {
-  // Calculate total salary for all staff
-  let total = 0;
-  G.staff.forEach(s => {
-    const staffDef = STAFF.find(st => st.id === s.id);
-    if (staffDef) {
-      total += staffDef.salary;
-    }
-  });
-  return total;
-}
-
-function processFinancialCycles() {
-  const now = Date.now();
-  
-  // Pay staff salary
-  if (now - G.lastSalaryPaid >= CONFIG.staffSalaryInterval) {
-    const salary = calculateStaffSalary();
-    if (salary > 0) {
-      G.coins -= salary;
-      G.totalExpenses += salary;
-      G.lastSalaryPaid = now;
-      notify(`💸 Lương nhân viên: -${salary}₫`, 3000);
-    }
-  }
-  
-  // Pay fixed charges
-  if (now - G.lastChargesPaid >= CONFIG.fixedChargesInterval) {
-    const charges = calculateFixedCharges();
-    G.coins -= charges;
-    G.totalExpenses += charges;
-    G.lastChargesPaid = now;
-    notify(`🏦 Fixed charges: -${charges}₫ (rent+utilities+insurance+tax)`, 3000);
-  }
-  
-  // Check bankruptcy
-  checkBankruptcy();
-  
-  // Update daily profit
-  if (now - G.lastProfitCheck >= 60000) { // Every 60s = 1 game-day
-    G.dailyProfit = G.totalRevenue - G.totalExpenses;
-    G.lastProfitCheck = now;
-    if (G.dailyProfit > G.bestDay) G.bestDay = G.dailyProfit;
-  }
-}
-
-function checkBankruptcy() {
-  if (G.coins < 0) {
-    if (!G.bankruptcyWatchdog) {
-      G.bankruptcyWatchdog = setTimeout(() => {
-        if (G.coins < 0) {
-          // Bankruptcy!
-          G.isBankrupt = true;
-          gameOver();
-        } else {
-          G.bankruptcyWatchdog = null;
-          notify(`✅ Survived! Coins recovered to positive.`, 3000);
-        }
-      }, CONFIG.bankruptcyTime);
-      
-      // Warning at 10s
-      setTimeout(() => {
-        if (G.coins < 0) {
-          notify(`⚠️ WARNING! Coins negative! ${Math.ceil((CONFIG.bankruptcyTime - 10000)/1000)}s until bankruptcy!`, 5000);
-        }
-      }, CONFIG.bankruptcyWarningTime);
-    }
-  } else {
-    if (G.bankruptcyWatchdog) {
-      clearTimeout(G.bankruptcyWatchdog);
-      G.bankruptcyWatchdog = null;
-    }
-  }
-}
-
-function gameOver() {
-  AudioEngine.error();
-  setTimeout(() => {
-    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${G.totalRevenue.toLocaleString()}₫\n- Total Expenses: ${G.totalExpenses.toLocaleString()}₫\n- Orders Served: ${G.totalServed}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\nTry harder next time! 🕵️`);
-    localStorage.removeItem('trendyCafeV7');
-    location.reload();
-  }, 100);
-}
-
-// ============ RENDERING ============
+// ============ RENDERING ===============
 function getRepStars(rep) {
   let stars = 0;
   for (let i = 0; i < 5; i++) {
@@ -806,9 +721,12 @@ function renderStats() {
   const badgeClass = 'l'+lvl;
   
   let html = `<div class="section-title">📊 Statistics</div>`;
-  html += `<div class="stat-row"><span class="stat-label">💰 Coins</span><span class="stat-value">${G.coins}₫</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">📈 Total Revenue</span><span class="stat-value">${G.totalRevenue}₫</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">💎 Total Tips</span><span class="stat-value">${G.totalTips}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💰 Coins</span><span class="stat-value">${typeof G.coins === 'number' && !isNaN(G.coins) ? G.coins.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📈 Total Revenue</span><span class="stat-value">${typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💎 Total Tips</span><span class="stat-value">${typeof G.totalTips === 'number' && !isNaN(G.totalTips) ? G.totalTips.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💸 Total Expenses</span><span class="stat-value">${typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses.toLocaleString() : 0}₫</span></div>`;
+  const netP = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) && typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalRevenue - G.totalExpenses : 0;
+  html += `<div class="stat-row"><span class="stat-label">📊 Net Profit</span><span class="stat-value">${netP.toLocaleString()}₫</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">☕ Orders Served</span><span class="stat-value">${G.totalServed}</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">📋 Orders Today</span><span class="stat-value">${G.ordersToday}</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">📊 Best Day Record</span><span class="stat-value">${G.bestDay} orders</span></div>`;
@@ -1109,13 +1027,13 @@ setInterval(function() {
 // ============ SAVE / LOAD ============
 function saveGame() {
   try {
-    localStorage.setItem('trendyCafeV6', JSON.stringify(G));
+    localStorage.setItem('trendyCafeV7', JSON.stringify(G));
   } catch(e) {}
 }
 
 function loadGame() {
   try {
-    const data = localStorage.getItem('trendyCafeV6');
+    const data = localStorage.getItem('trendyCafeV7');
     if (data) {
       const saved = JSON.parse(data);
       // Merge with defaults
@@ -1149,7 +1067,6 @@ setInterval(saveGame, 30000); // Auto-save every 30s
 
 // ============ START GAME ============
 loadGame();
-CONFIG.orderInterval = [5000, 4000, 3500, 3000, 2500, 2000];
 G.lastOrderTime = Date.now();
 
 // Initialize audio on first user interaction
