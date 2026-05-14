@@ -115,16 +115,20 @@ const CONFIG = {
   repThresholds: [0, 10, 30, 60, 100, 150, 220],
   maxRep: 220,
   // === DIFFICULTY SETTINGS ===
-  profitMultiplier: 0.6,       // Revenue chỉ còn 60% so với trước
-  ingredientInflation: 1.4,     // Cost nguyên liệu tăng 40%
-  staffSalaryInterval: 30000,   // Lương nhân viên mỗi 30s game
-  fixedChargesInterval: 60000,  // Fixed charges mỗi 60s game
-  bankruptcyWarningTime: 10000, // Cảnh báo: âm coins 10s
-  bankruptcyTime: 20000,        // Bankruptcy: âm coins 20s
-  rent: 200,                    // Thuê mặt bằng/cycle
-  utilities: 100,               // Điện nước/cycle
-  insurance: 80,                // Bảo hiểm/cycle
-  tax: 50                       // Thuế/cycle
+  profitMultiplier: 0.8,       // Revenue 80% (tăng margin, chỗ nào lãi)
+  ingredientInflation: 1.2,     // Cost nguyên liệu tăng 20% (giảm inflation)
+  staffSalaryInterval: 45000,   // Lương nhân viên mỗi 45s game (giảm tần suất)
+  fixedChargesInterval: 90000,  // Fixed charges mỗi 90s game (ít hơn)
+  bankruptcyWarningTime: 15000, // Cảnh báo: âm coins 15s
+  bankruptcyTime: 45000,        // Bankruptcy: âm coins 45s (có thời gian xoay)
+  fixedCharges: {
+    rent: 80,                    // Thuê mặt bằng/cycle (giảm từ 200)
+    electricity: 40,             // Điện/cycle (giảm từ 100)
+    water: 20,                   // Nước/cycle (giảm từ 40)
+    internet: 15,                // WiFi/cycle (giảm từ 30)
+    insurance: 25,               // Bảo hiểm/cycle (giảm từ 80)
+    maintenance: 30              // Bảo trì/cycle (giảm từ 60)
+  }
 };
 
 // ============ MENU ITEMS ============
@@ -146,12 +150,12 @@ const MENU = [
 
 // ============ STAFF ============
 const STAFF = [
-  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],salary:15,desc:'Basic helper - 15₫ salary/cycle'},
-  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],salary:40,desc:'Skilled coffee maker - 40₫ salary/cycle'},
-  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],salary:70,desc:'Expert cook - 70₫ salary/cycle'},
-  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],salary:120,desc:'Top performer - 120₫ salary/cycle'},
-  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],salary:200,desc:'Legendary skill - 200₫ salary/cycle'},
-  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],salary:300,desc:'Business wizard - 300₫ salary/cycle'}
+  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],salary:8,desc:'Basic helper'},
+  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],salary:18,desc:'Skilled coffee maker'},
+  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],salary:28,desc:'Expert cook'},
+  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],salary:45,desc:'Top performer'},
+  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],salary:65,desc:'Legendary skill'},
+  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],salary:85,desc:'Business wizard'}
 ];
 
 // ============ EQUIPMENT ============
@@ -198,7 +202,7 @@ const LEVEL_REWARDS = {
 
 // ============ GAME STATE ============
 var G = {
-  coins: 500,
+  coins: 2000,
   lv: 1,
   xp: 0,
   rep: 50,
