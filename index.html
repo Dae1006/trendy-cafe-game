@@ -826,7 +826,20 @@ function renderStats() {
     html += `Lv${G.lv+1}: +${next.coins}₫ coins<br>${next.desc}</div>`;
   }
   
+  // === RESTART BUTTON ===
+  html += `<div class="section-title">🔧 Game Control</div>`;
+  html += `<div style="text-align:center;padding:10px 0">
+    <button class="btn" style="background:#e74c3c;padding:12px 24px;font-size:14px;font-weight:bold">🔄 Game Over - Chơi Lại</button>
+  </div>`;
+  
   el.innerHTML = html;
+}
+
+function restartGame() {
+  if (confirm('🔥 Chơi lại từ đầu? Mọi tiến độ sẽ bị mất!')) {
+    localStorage.removeItem('trendyCafeV7');
+    location.reload();
+  }
 }
 
 function renderStaff() {
