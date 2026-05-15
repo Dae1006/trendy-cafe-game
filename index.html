@@ -1297,6 +1297,9 @@ setInterval(function() {
   
   let servedAny = false;
   
+  // === DYNAMIC DIFFICULTY ===
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  
   // CALCULATE ACTIVE BUFFS
   let allSpeedBuff = 0;
   let tipsBuff = 0;
@@ -1322,6 +1325,8 @@ setInterval(function() {
   if (G.equipment.cooling_sys) moodRecoverBuff = G.equipment.cooling_sys * 0.15;
   
   G.staffBuffs = { all_speed: allSpeedBuff, tips: tipsBuff, highroll: highrollBuff, reputation: repBuff, coop: coopBuff };
+  
+  let tickServed = 0;
   
   for (let si = 0; si < G.staff.length; si++) {
     if (G.orders.length === 0) break;
@@ -1357,7 +1362,7 @@ setInterval(function() {
       if (G.equipment.chandelier) bonus += (G.equipment.chandelier || 0) * 0.05;
       
       // HIGH ROLLER buff
-      let revenue = Math.floor((o.price + o.tip) * CONFIG.profitMultiplier * bonus);
+      let revenue = Math.floor((o.price + o.tip) * phase.profitMult * bonus);
       if (highrollBuff > 0 && o.price > 50) {
         revenue = Math.floor(revenue * 1.15);
       }
@@ -1365,29 +1370,41 @@ setInterval(function() {
       // PREMIUM STORAGE
       const costReduction = 1 - (G.equipment.premium_store || 0) * 0.10;
       const menuDef = MENU.find(m => m.id === o.menuId);
-      const finalCost = menuDef ? Math.floor(menuDef.cost * CONFIG.ingredientInflation * costReduction) : 0;
+      const finalCost = menuDef ? Math.floor(menuDef.cost * phase.inflation * costReduction) : 0;
       
-      G.coins += (revenue - finalCost);
+      const netProfit = revenue - finalCost;
+      G.coins += netProfit;
       G.totalRevenue += revenue;
+      G.totalExpenses += finalCost;
       G.totalServed++;
       G.ordersToday++;
-      G.totalTips += o.tip;
-      G.xp += Math.floor(o.price * 1.5);
+      
+      // SMART POS + Senior tips buff
+      const tipMult = 1 + (G.equipment.smart_pos || 0) * 0.20;
+      const finalTip = Math.floor(o.tip * tipMult);
+      const finalTipWithBuff = tipsBuff > 0 ? Math.floor(finalTip * (1 + tipsBuff)) : finalTip;
+      G.totalTips += finalTipWithBuff;
+      
+      // XP gain
+      const xpGain = Math.floor(o.price * 1.5) + (finalTipWithBuff > 0 ? 5 : 0);
+      G.xp += xpGain;
       G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
       
       // Mood decay with cooling system
       const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
-      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoveryBuff * 2));
+      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoverBuff * 2));
       
       G.orders.splice(0, 1);
-      notify(`🤖 ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}₫ (-${finalCost}₫ = ${revenue-finalCost}₫ net)`);
-      AudioEngine.serve();
-      servedAny = true;
-      lastAutoServe = Date.now();
+      tickServed++;
     }
   }
   
-  if (servedAny) {
+  if (tickServed > 0) {
+    servedAny = true;
+    lastAutoServe = Date.now();
+    if (tickServed > 1) {
+      notify(`🤖 ${tickServed} staff served ${tickServed} orders!`);
+    }
     checkLevelUp();
     updateUI();
   }
