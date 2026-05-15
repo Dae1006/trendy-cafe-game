@@ -101,6 +101,8 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <button class="tab" data-tab="equip">🔧Equip</button>
   <button class="tab" data-tab="shop">🛒Shop</button>
   <button class="tab" data-tab="expand">🏪Expand</button>
+  <button class="tab" data-tab="trends">🌟Trends</button>
+  <button class="tab" data-tab="events">📅Events</button>
 </div>
 
 <div id="content">
@@ -111,6 +113,8 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <div id="panel-equip" style="display:none"></div>
   <div id="panel-shop" style="display:none"></div>
   <div id="panel-expand" style="display:none"></div>
+  <div id="panel-trends" style="display:none"></div>
+  <div id="panel-events" style="display:none"></div>
 </div>
 
 <script>
@@ -222,16 +226,27 @@ const EQUIPMENT = [
 
 // ============ TREND DECORATIONS ============
 const TRENDS = [
-  // Common
+  // === COMMON (Lv1+) ===
   {id:'t_doge',name:'Golden Doge',icon:'🐕',r:'common',cost:300,desc:'+5% revenue'},
   {id:'t_cat',name:'Stray Cat',icon:'🐱',r:'common',cost:200,desc:'+3% revenue'},
   {id:'t_plant',name:'Succulent Plant',icon:'🌱',r:'common',cost:150,desc:'+2 rep'},
-  // Rare
+  {id:'t_neongirl',name:'Neon Girly Sign',icon:'💜',r:'common',cost:400,desc:'+6% revenue'},
+  {id:'t_fairy',name:'Fairy Light String',icon:'✨',r:'common',cost:500,desc:'+5% ambiance'},
+  {id:'t_miniplant',name:'Mini Plant Set',icon:'🪴',r:'common',cost:250,desc:'+3 rep'},
+  // === RARE (Lv20+) ===
   {id:'t_girl',name:'Girly Corner',icon:'💖',r:'rare',cost:1000,desc:'+10% revenue'},
   {id:'t_art',name:'Art Gallery',icon:'🖼️',r:'rare',cost:1500,desc:'+8 rep'},
   {id:'t_neon',name:'Neon Sign',icon:'🪧',r:'rare',cost:2500,desc:'+12% revenue'},
   {id:'t_book',name:'Book Corner',icon:'📚',r:'rare',cost:5000,desc:'+10% revenue +10 rep'},
-  // Epic
+  {id:'t_mirror',name:'Mirror Room',icon:'🪞',r:'rare',cost:3000,desc:'+8% revenue, khách selfie'},
+  {id:'t_aesthetic',name:'Aesop Aesthetic Corner',icon:'🤍',r:'rare',cost:4000,desc:'+12% revenue, high-end'},
+  {id:'t_minimalist',name:'Minimalist Corner',icon:'🤍',r:'rare',cost:3500,desc:'+10% revenue, clean vibe'},
+  {id:'t_boho',name:'Bohemian Corner',icon:'🪷',r:'rare',cost:4000,desc:'+8% rep, artistic'},
+  {id:'t_kencoffe',name:'Egg Coffee Station',icon:'🥚',r:'rare',cost:5000,desc:'+10% revenue, viral VN'},
+  {id:'t_saltcoffee',name:'Salt Coffee Set',icon:'🧂',r:'rare',cost:4500,desc:'+8% revenue, trending'},
+  {id:'t_duriant',name:'Durian Coffee Station',icon:'🍈',r:'rare',cost:6000,desc:'+15% revenue, viral VN'},
+  {id:'t_kpop',name:'K-Pop Cafe Corner',icon:'🎤',r:'rare',cost:7000,desc:'+15% young customers'},
+  // === EPIC (Lv40+) ===
   {id:'t_piano',name:'Piano Corner',icon:'🎹',r:'epic',cost:3000,desc:'+15% revenue'},
   {id:'t_sky',name:'Sky Lounge',icon:'🌃',r:'epic',cost:5000,desc:'+20% revenue'},
   {id:'t_rooftop',name:'Rooftop Bar',icon:'🌆',r:'epic',cost:8000,desc:'+25% revenue'},
@@ -239,37 +254,173 @@ const TRENDS = [
   {id:'t_privroom',name:'Private Room',icon:'🚪',r:'epic',cost:15000,desc:'+18% revenue +8 rep'},
   {id:'t_petzone',name:'Pet Café Zone',icon:'🐾',r:'epic',cost:10000,desc:'+15% revenue +15 rep'},
   {id:'t_gaming',name:'Gaming Corner',icon:'🎮',r:'epic',cost:12000,desc:'+22% revenue'},
-  // Legendary
+  {id:'t_japanese',name:'Japanese Zen Corner',icon:'🎎',r:'epic',cost:8000,desc:'+10% rep, zen vibe'},
+  {id:'t_industrial',name:'Industrial Corner',icon:'🔧',r:'epic',cost:6000,desc:'+8% revenue, edgy'},
+  {id:'t_karaoke',name:'Karaoke Room',icon:'🎤',r:'epic',cost:10000,desc:'+15% evening customers'},
+  {id:'t_boardgame',name:'Board Game Corner',icon:'🎲',r:'epic',cost:7000,desc:'+12% young customers'},
+  {id:'t_cowork',name:'Co-Working Corner',icon:'💻',r:'epic',cost:6000,desc:'+8% remote workers'},
+  {id:'t_date',name:'Date Night Corner',icon:'💑',r:'epic',cost:8000,desc:'+10% couples'},
+  {id:'t_yoga',name:'Yoga Corner',icon:'🧘',r:'epic',cost:5000,desc:'+8% health customers'},
+  {id:'t_anime',name:'Anime Manga Corner',icon:'🎌',r:'epic',cost:9000,desc:'+12% young customers'},
+  {id:'t_lofig',name:'Lo-Fi Study Corner',icon:'🎧',r:'epic',cost:6000,desc:'+10% study customers'},
+  {id:'t_genshin',name:'Genshin Impact Corner',icon:'🌟',r:'epic',cost:11000,desc:'+12% young customers'},
+  {id:'t_mlbb',name:'Mobile Legends Corner',icon:'⚔️',r:'epic',cost:9000,desc:'+10% VN young customers'},
+  {id:'t_instawall',name:'Instagram Photo Wall',icon:'📸',r:'epic',cost:7500,desc:'+10% customers, photo ops'},
+  {id:'t_tiktok',name:'TikTok Dance Floor',icon:'🕺',r:'epic',cost:10000,desc:'+15% young customers, viral'},
+  {id:'t_duriancoffee',name:'Durian Latte Bar',icon:'🍈',r:'epic',cost:8000,desc:'+12% revenue, VN specialty'},
+  {id:'t_coconutcoffee',name:'Coconut Coffee Bar',icon:'🥥',r:'epic',cost:7000,desc:'+8% revenue, healthy trend'},
+  {id:'t_yuzucoffee',name:'Yuzu Coffee Station',icon:'🍋',r:'epic',cost:9000,desc:'+12% revenue, premium'},
+  {id:'t_rose',name:'Rose Latte Bar',icon:'🌹',r:'epic',cost:8000,desc:'+10% revenue, Instagrammable'},
+  {id:'t_avocado',name:'Avocado Toast Station',icon:'🥑',r:'epic',cost:6000,desc:'+10% revenue, healthy trend'},
+  // === LEGEND (Lv70+) ===
   {id:'t_chef',name:'Chef Statue',icon:'🗿',r:'legend',cost:10000,desc:'+30% revenue'},
   {id:'t_livemusic',name:'Live Music Stage',icon:'🎸',r:'legend',cost:25000,desc:'+35% revenue +10 rep'},
   {id:'t_aromatherapy',name:'Aromatherapy Bar',icon:'🌿',r:'legend',cost:30000,desc:'+40% revenue +12 rep'},
   {id:'t_rooftopgarden',name:'Rooftop Garden',icon:'🌺',r:'legend',cost:50000,desc:'+50% revenue +15 rep'},
   {id:'t_smartorder',name:'Smart Order System',icon:'📱',r:'legend',cost:75000,desc:'+45% revenue +20 rep'},
-  {id:'t_secretmenu',name:'Secret Menu',icon:'✨',r:'legend',cost:100000,desc:'+60% revenue +25 rep'}
+  {id:'t_secretmenu',name:'Secret Menu',icon:'✨',r:'legend',cost:100000,desc:'+60% revenue +25 rep'},
+  {id:'t_goldespresso',name:'Gold Espresso Machine',icon:'☕',r:'legend',cost:50000,desc:'+50% revenue +20 rep'},
+  {id:'t_diamondseating',name:'Diamond Seating',icon:'💎',r:'legend',cost:80000,desc:'+40% ambiance +25 rep'},
+  {id:'t_privatevip',name:'Private VIP Room',icon:'🚪',r:'legend',cost:100000,desc:'+35% revenue, VIP only'},
+  {id:'t_michelin',name:'Michelin Kitchen',icon:'🍳',r:'legend',cost:200000,desc:'+50% menu items +30 rep'},
+  // === SPORTS (Lv60+ / Event-Only) ===
+  {id:'t_inter',name:'Inter Milan Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+15% fan Inter +10% tips'},
+  {id:'t_real',name:'Real Madrid Jersey',icon:'⚪',r:'legend',cost:15000,desc:'+12% fan Real +8% tips'},
+  {id:'t_barca',name:'Barcelona Jersey',icon:'🔴',r:'legend',cost:15000,desc:'+10% fan Barca +8% tips'},
+  {id:'t_psg',name:'PSG Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+12% fan PSG +10% tips'},
+  {id:'t_vnm',name:'Vietnam National Team',icon:'🟡',r:'legend',cost:10000,desc:'+25% VN customers'},
+  {id:'t_ucl',name:'UCL Trophy Display',icon:'🏆',r:'legend',cost:30000,desc:'+20% all customers'},
+  {id:'t_worldcup',name:'World Cup 2026',icon:'⚽',r:'legend',cost:40000,desc:'+20% all customers +15 rep'},
+  {id:'t_taylor',name:'Taylor Swift Corner',icon:'🎵',r:'legend',cost:20000,desc:'+12% young female customers'},
+  {id:'t_netflix',name:'Netflix Series Corner',icon:'📺',r:'legend',cost:15000,desc:'+8% ambiance'},
+  // === MYTHIC (Lv90+) ===
+  {id:'t_helipad',name:'Private Helipad',icon:'🚁',r:'mythic',cost:500000,desc:'+100% revenue, world-class'},
+  {id:'t_infinity',name:'Rooftop Infinity Pool',icon:'🏊',r:'mythic',cost:150000,desc:'+60% revenue, tourist hotspot'},
+  {id:'t_smarthome',name:'Smart Home System',icon:'🏠',r:'mythic',cost:40000,desc:'+20% efficiency -10% costs'},
+  {id:'t_jazz',name:'Jazz Corner',icon:'🎷',r:'mythic',cost:25000,desc:'+12% ambiance, upscale'},
+  {id:'t_dj',name:'DJ Booth',icon:'🎧',r:'mythic',cost:20000,desc:'+12% nightlife customers'},
 ];
 
 // ============ LEVEL REWARDS ============
-const LEVEL_REWARDS = {
+// ============ LEVEL REWARDS V8 ============
+const LEVEL_REWARDS_V8 = {
   2: {coins:200,desc:'Unlock latte & matcha',rewardItems:['latte','matcha']},
   3: {coins:400,desc:'Unlock equipment shop',rewardItems:['seating','decoration']},
   4: {coins:600,desc:'Unlock bakery corner',rewardItems:['bakery']},
   5: {coins:1000,desc:'Unlock bar counter & master',rewardItems:['bar_counter','master']},
-  6: {coins:2000,desc:'🎉 Grand Opening! All items unlocked',rewardItems:['special']},
-  10: {coins:3000,desc:'Unlock pastry menu: croissant+waffle early',rewardItems:['croissant','waffle']},
-  15: {coins:5000,desc:'Unlock espresso machine Lv3 & premium fridge',rewardItems:['espresso_mach_3','fridge_2']},
-  20: {coins:8000,desc:'Unlock latte art corner (+15% revenue)',rewardItems:['t_girl']},
-  30: {coins:15000,desc:'Unlock sky lounge decoration',rewardItems:['t_sky']},
-  40: {coins:25000,desc:'Unlock piano corner (+15% revenue)',rewardItems:['t_piano']},
-  50: {coins:50000,desc:'Unlock Chef Statue (+30% revenue)',rewardItems:['t_chef']},
-  60: {coins:80000,desc:'Unlock all trend decorations',rewardItems:['t_doge','t_cat','t_plant','t_art']},
-  70: {coins:100000,desc:'🌟 New trends: Neon Sign, Book Corner, Pet Zone',rewardItems:['t_neon','t_book','t_petzone']},
-  75: {coins:150000,desc:'🌟 Legendary status! Auto Espresso + Cooling unlock',rewardItems:['auto_espresso','cooling_sys']},
-  80: {coins:200000,desc:'🌟 New trends: Rooftop Bar, Art Wall, Private Room',rewardItems:['t_rooftop','t_artwall','t_privroom']},
-  85: {coins:250000,desc:'🌟 Premium Storage unlock! Giảm chi phí nguyên liệu!',rewardItems:['premium_store']},
-  90: {coins:300000,desc:'🌟 Live Music + Smart Order + Outdoor Tent',rewardItems:['t_livemusic','smart_pos','outdoor_tent']},
-  95: {coins:500000,desc:'🌟 Rooftop Garden + Aromatherapy Bar',rewardItems:['t_rooftopgarden','t_aromatherapy']},
-  100: {coins:1000000,desc:'👑☕ LEGENDARY CAFE OWNER! Secret Menu + ALL maxed!',rewardItems:['t_secretmenu','all_equipment','all_trends']}
+  6: {coins:2000,desc:'🎉 Grand Opening!',rewardItems:['special']},
+  10: {coins:3000,desc:'Croissant+waffle',rewardItems:['croissant','waffle']},
+  15: {coins:5000,desc:'Espresso Lv3 + Fridge Lv2',rewardItems:['espresso_mach_3','fridge_2']},
+  20: {coins:8000,desc:'🔓 Rare items unlock',rewardItems:['t_girl','t_mirror','t_aesthetic','t_minimalist','t_kencoffe','t_saltcoffee','t_neongirl','t_fairy']},
+  30: {coins:15000,desc:'Sky Lounge',rewardItems:['t_sky']},
+  40: {coins:25000,desc:'🔓 Epic items unlock',rewardItems:['t_piano','t_japanese','t_jazz','t_boho','t_industrial','t_karaoke','t_boardgame','t_cowork','t_date','t_yoga','t_anime','t_lofig','t_genshin','t_mlbb','t_instawall','t_tiktok','t_duriancoffee','t_coconutcoffee','t_yuzucoffee','t_rose','t_avocado']},
+  50: {coins:50000,desc:'Chef Statue',rewardItems:['t_chef']},
+  60: {coins:100000,desc:'🔓 Sports items unlock',rewardItems:['t_inter','t_real','t_barca','t_psg','t_vnm','t_ucl','t_worldcup','t_taylor','t_netflix']},
+  65: {coins:120000,desc:'🔓 Seasonal menu system active',rewardItems:[]},
+  70: {coins:150000,desc:'🔓 Legendary items',rewardItems:['t_livemusic','t_aromatherapy','t_goldespresso']},
+  75: {coins:200000,desc:'Auto Espresso + Cooling + Premium Storage',rewardItems:['auto_espresso','cooling_sys','premium_store']},
+  80: {coins:250000,desc:'🔓 Epic seasonal menu items',rewardItems:['t_rooftop','t_rooftopgarden']},
+  85: {coins:300000,desc:'Smart Order + Secret Menu',rewardItems:['t_smartorder','t_secretmenu']},
+  90: {coins:500000,desc:'🔓 Mythic items',rewardItems:['t_helipad','t_infinity','t_smarthome','t_diamondseating','t_privatevip','t_michelin','t_worldcup']},
+  100: {coins:1000000,desc:'👑☕ LEGENDARY CAFE OWNER! All items maxed!',rewardItems:['all_equipment','all_trends']}
 };
+
+// Keep LEVEL_REWARDS for backward compat (alias)
+const LEVEL_REWARDS = LEVEL_REWARDS_V8;
+
+// ============ SPORTS EVENTS SYSTEM ============
+const SPORTS_EVENTS = [
+  {id:'inter_scudetto',name:'Inter Milan Scudetto!',team:'inter',icon:'🏆',duration:30,desc:'Inter vô địch Serie A!',fanRate:0.15,tipBonus:0.10},
+  {id:'ucl_final',name:'Champions League Final!',team:'all',icon:'🏆',duration:20,desc:'UCL Final — fan tăng 20%!',fanRate:0.20,tipBonus:0.15},
+  {id:'worldcup_2026',name:'World Cup 2026!',team:'all',icon:'⚽',duration:45,desc:'World Cup — khách tăng 25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'aff_cup_2026',name:'AFF Cup 2026!',team:'vnm',icon:'🏆',duration:30,desc:'AFF Cup — VN khách +25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'messigoat',name:'Messi G.O.A.T.!',team:'argentina',icon:'🐐',duration:60,desc:'Messi G.O.A.T. — khách +20%!',fanRate:0.20,tipBonus:0.25},
+  {id:'ronaldogoat',name:'Ronaldo G.O.A.T.!',team:'real',icon:'🐐',duration:60,desc:'Ronaldo G.O.A.T. — khách +18%!',fanRate:0.18,tipBonus:0.20},
+  {id:'neymar_return',name:'Neymar Returns!',team:'psg',icon:'⭐',duration:30,desc:'Neymar trở lại — khách +15%!',fanRate:0.15,tipBonus:0.12},
+  {id:'euro_2028',name:'Euro 2028!',team:'europe',icon:'🏆',duration:35,desc:'Euro 2028 — khách châu Âu!',fanRate:0.18,tipBonus:0.15}
+];
+let currentSportsEvent = null;
+let sportsEventTimer = 0;
+
+function triggerRandomSportsEvent() {
+  if (currentSportsEvent) return;
+  if (Math.random() < 0.02) {
+    const event = SPORTS_EVENTS[Math.floor(Math.random() * SPORTS_EVENTS.length)];
+    currentSportsEvent = {...event, daysLeft: event.duration};
+    sportsEventTimer = event.duration;
+    notify(`⚽ ${event.desc}`, 5000);
+  }
+}
+
+function tickSportsEvent() {
+  if (!currentSportsEvent) return;
+  currentSportsEvent.daysLeft--;
+  if (currentSportsEvent.daysLeft <= 0) {
+    notify(`📅 ${currentSportsEvent.name} kết thúc!`, 3000);
+    currentSportsEvent = null;
+    sportsEventTimer = 0;
+  }
+}
+
+function getFanCustomerModifier() {
+  return currentSportsEvent ? 1.0 + currentSportsEvent.fanRate : 1.0;
+}
+function getFanTipBonus() {
+  return currentSportsEvent ? currentSportsEvent.tipBonus : 0;
+}
+
+// ============ SEASONAL MENU ROTATION ============
+const SEASONAL_MENUS = {
+  spring: {name:'Xuân',emoji:'🌸',shift:{latte:1.3,matcha:1.2,smoothie:1.5,cheesecake:1.2},desc:'Xuân về — trà & đồ nhẹ hot!'},
+  summer: {name:'Hè',emoji:'☀️',shift:{iced:1.8,bubble_tea:1.4,smoothie:1.6,mocha:1.3},desc:'Hè nắng — đồ lạnh cháy hàng!'},
+  autumn: {name:'Thu',emoji:'🍂',shift:{hot:1.5,espresso:1.4,tiramisu:1.3,black_coffee:1.3},desc:'Thu về — cà phê nóng & bánh hot!'},
+  winter: {name:'Đông',emoji:'❄️',shift:{hot:1.8,caramel_latte:1.6,cheesecake:1.4,croissant:1.3},desc:'Đông lạnh — đồ nóng & bánh hot!'}
+};
+let currentSeason = 'spring';
+function getCurrentSeason(day) {
+  const c = day % 360;
+  if (c < 90) return 'spring';
+  if (c < 180) return 'summer';
+  if (c < 270) return 'autumn';
+  return 'winter';
+}
+function getSeasonalDemand(menuId) {
+  return SEASONAL_MENUS[currentSeason]?.shift[menuId] || 1.0;
+}
+function getSeasonEmoji() { return SEASONAL_MENUS[currentSeason]?.emoji || '🌸'; }
+function getSeasonName() { return SEASONAL_MENUS[currentSeason]?.name || 'Xuân'; }
+function getSeasonDescription() { return SEASONAL_MENUS[currentSeason]?.desc || ''; }
+
+// ============ FAN CUSTOMERS SYSTEM ============
+const FAN_CUSTOMERS = {
+  coffee_fan:{icon:'☕',tipMult:1.15,revenueMult:1.05},
+  healthy_fan:{icon:'🥗',tipMult:1.1,revenueMult:1.0},
+  art_fan:{icon:'🎨',tipMult:1.05,revenueMult:1.0},
+  music_fan:{icon:'🎶',tipMult:1.08,revenueMult:1.0},
+  inter_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  real_fan:{icon:'⚪',tipMult:1.08,revenueMult:1.05},
+  barca_fan:{icon:'🔴',tipMult:1.08,revenueMult:1.05},
+  psg_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  vnm_fan:{icon:'🟡',tipMult:1.15,revenueMult:1.0},
+  ucl_fan:{icon:'🏆',tipMult:1.12,revenueMult:1.05},
+  taylor_fan:{icon:'🎵',tipMult:1.1,revenueMult:1.0},
+  netflix_fan:{icon:'📺',tipMult:1.05,revenueMult:1.0},
+  kpop_fan:{icon:'🎤',tipMult:1.08,revenueMult:1.0},
+  anime_fan:{icon:'🎌',tipMult:1.05,revenueMult:1.0},
+  genshin_fan:{icon:'🌟',tipMult:1.05,revenueMult:1.0},
+  mlbb_fan:{icon:'⚔️',tipMult:1.08,revenueMult:1.0}
+};
+function getAvailableFanTypes() {
+  const types = ['coffee_fan','healthy_fan','art_fan','music_fan'];
+  if (currentSportsEvent) types.push('inter_fan','real_fan','barca_fan','psg_fan','vnm_fan','ucl_fan');
+  if (G.trendItems.find(t=>t.id==='t_taylor')) types.push('taylor_fan');
+  if (G.trendItems.find(t=>t.id==='t_netflix')) types.push('netflix_fan');
+  if (G.trendItems.find(t=>t.id==='t_kpop')) types.push('kpop_fan');
+  if (G.trendItems.find(t=>t.id==='t_anime')) types.push('anime_fan');
+  if (G.trendItems.find(t=>t.id==='t_genshin')) types.push('genshin_fan');
+  if (G.trendItems.find(t=>t.id==='t_mlbb')) types.push('mlbb_fan');
+  return types;
+}
 
 // ============ GAME STATE ============
 var G = {
@@ -304,6 +455,7 @@ var G = {
   dailyProfit: 0,
   monthlyProfit: 0,
   lastDayChange: Date.now(),
+  sportsEvent: null,  // V8: current active sports event
   // === STAFF BUFF TRACKING ===
   staffBuffs: { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 },
   // === DIFFICULTY TRACKING ===
@@ -387,6 +539,12 @@ function generateOrder() {
     {name:'Business Person',icon:'💼'},
     {name:'Artist',icon:'🎨'}
   ];
+  // V8: Add dynamic fan customers based on active event/trends
+  const fanTypes = getAvailableFanTypes();
+  fanTypes.forEach(ft => {
+    const fc = FAN_CUSTOMERS[ft];
+    if (fc) customers.push({name:ft.replace('_fan','')+' Fan',icon:fc.icon, fanType:ft, tipMult:fc.tipMult, revenueMult:fc.revenueMult});
+  });
   const customer = pick(customers);
   
   const tipChance = G.rep / CONFIG.maxRep;
@@ -440,6 +598,9 @@ function autoGenerateOrder() {
   // Nếu tốc độ phục vụ > tốc độ order → rep cao nhận thêm khách thưởng
   const repMod = getRepCustomerModifier();
   
+  // Fan customer modifier (sports events)
+  const fanMod = getFanCustomerModifier();
+  
   // Calculate service capacity (orders per minute)
   let totalSkill = 0;
   G.staff.forEach(s => {
@@ -462,7 +623,7 @@ function autoGenerateOrder() {
     balanceMod = Math.min(1.5, serviceCapacity / orderRate); // > 1, tối đa 1.5x
   }
   
-  const effectiveRepMod = repMod * balanceMod;
+  const effectiveRepMod = repMod * balanceMod * fanMod;
   const interval = Math.floor(baseInterval * phase.orderMult / effectiveRepMod);
   
   const now = Date.now();
@@ -515,6 +676,14 @@ function serveOrder(idx) {
   // MASTER buff: +15% profit on orders > 50₫
   if (G.staffBuffs.highroll > 0 && o.price > 50) {
     revenue = Math.floor(revenue * 1.15);
+  }
+  
+  // FAN customer tip bonus
+  if (o.fanType && FAN_CUSTOMERS[o.fanType]) {
+    const fan = FAN_CUSTOMERS[o.fanType];
+    revenue = Math.floor(revenue * (fan.revenueMult || 1));
+    const fanTipBonus = Math.floor(finalTip * (fan.tipMult || 1));
+    G.totalTips += (fanTipBonus - finalTip);
   }
   
   // SMART POS buff: tip bonus
@@ -1190,17 +1359,26 @@ function renderShop() {
   
   let html = `<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Decorations (${G.trendItems.length}/${TRENDS.length})</h3>`;
   
+  // V8: Show categories
+  const categories = [
+    {label:'⚽ Sports Fans',r:'legend'},
+    {label:'🌟 Aesthetic',r:'rare'},
+    {label:'🎵 Music/Lifestyle',r:'epic'},
+    {label:'🎮 Pop Culture',r:'epic'},
+    {label:'👑 Mythic',r:'mythic'}
+  ];
+  
   TRENDS.forEach(t => {
     const owned = G.trendItems.find(x => x.id === t.id);
-    const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : '#FFD700';
-    const rarityEmoji = t.r === 'common' ? '⬜' : t.r === 'rare' ? '🟪' : t.r === 'epic' ? '🟥' : '🟨';
+    const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : t.r === 'legend' ? '#FFD700' : '#FF6347';
+    const rarityEmoji = t.r === 'common' ? '⬜' : t.r === 'rare' ? '🟪' : t.r === 'epic' ? '🟥' : t.r === 'legend' ? '🟨' : '🟧';
     
-    // Hide legendary items until level 70
-    if (t.r === 'legend' && G.lv < 70 && !owned) return;
-    // Hide new rare items until level 70
-    if (['t_neon','t_book','t_petzone'].includes(t.id) && G.lv < 70 && !owned) return;
-    // Hide new epic items until level 80
-    if (['t_rooftop','t_artwall','t_privroom','t_gaming'].includes(t.id) && G.lv < 80 && !owned) return;
+    // Hide legendary items until level 60
+    if (t.r === 'legend' && G.lv < 60 && !owned) return;
+    // Hide epic items until level 40
+    if (t.r === 'epic' && G.lv < 40 && !owned) return;
+    // Hide mythic items until level 90
+    if (t.r === 'mythic' && G.lv < 90 && !owned) return;
     
     html += `<div class="card ${owned ? 'epic' : ''}">
       <div>
@@ -1212,12 +1390,6 @@ function renderShop() {
       </div>
     </div>`;
   });
-  
-  if (G.lv < 70) {
-    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#a0a0b0;margin-top:8px">`;
-    html += `🔒 Cần Lv70+ để mở khóa trend items mới!`;
-    html += `</div>`;
-  }
   
   el.innerHTML = html;
 }
@@ -1265,6 +1437,8 @@ function updateUI() {
     case 'equip': renderEquip(); break;
     case 'shop': renderShop(); break;
     case 'expand': renderExpand(); break;
+    case 'trends': renderTrends(); break;
+    case 'events': renderEvents(); break;
   }
 }
 
@@ -1288,6 +1462,13 @@ setInterval(function() {
   if (Date.now() - G.lastDayChange >= 60000) {
     G.gameDay++;
     G.lastDayChange = Date.now();
+    
+    // V8: Season tracking
+    currentSeason = getCurrentSeason(G.gameDay);
+    
+    // V8: Sports events
+    tickSportsEvent();
+    triggerRandomSportsEvent();
     
     // Legend Chef reputation buff trigger
     if (G.staffBuffs.reputation > 0) {
@@ -1487,6 +1668,8 @@ setInterval(function() {
 // ============ SAVE / LOAD ============
 function saveGame() {
   try {
+    // Sync sports event to game state
+    if (currentSportsEvent) G.sportsEvent = {...currentSportsEvent};
     const saveData = JSON.stringify(G);
     localStorage.setItem('trendyCafeV7', saveData);
   } catch(e) {}
@@ -1549,7 +1732,13 @@ function loadGame() {
         if (!G.equipment[eq]) G.equipment[eq] = 0;
       });
       
-      notify('💾 Game loaded! V7 Ultimate', 1500);
+      // Sync currentSportsEvent
+      currentSportsEvent = G.sportsEvent || null;
+      
+      // V8: Season tracking
+      if (G.gameDay) currentSeason = getCurrentSeason(G.gameDay);
+      
+      notify('💾 Game loaded! V8 Ultimate', 1500);
     }
   } catch(e) {}
 }
