@@ -407,13 +407,63 @@ function generateOrder() {
   };
 }
 
+function getRepCustomerModifier() {
+  // Rep thấp → khách đến ít (auto-balance: cần speed phục vụ kịp)
+  // Rep 0-30:  0.3x (rất ít khách)
+  // Rep 30-50: 0.5x
+  // Rep 50-70: 0.7x
+  // Rep 70-90: 1.0x (bình thường)
+  // Rep 90-120: 1.3x (khách đông)
+  // Rep 120-160: 1.6x
+  // Rep 160-220: 1.9x
+  // Rep 220+: 2.2x (full)
+  const r = G.rep;
+  if (r < 30) return 0.3;
+  if (r < 50) return 0.5;
+  if (r < 70) return 0.7;
+  if (r < 90) return 0.9;
+  if (r < 120) return 1.1;
+  if (r < 160) return 1.4;
+  if (r < 220) return 1.8;
+  return 2.2;
+}
+
 function autoGenerateOrder() {
   if (G.orders.length >= calculateMaxOrders()) return;
   
   // Apply difficulty scaling to order interval
   const phase = getDifficultyPhase(G.gameDay || 1);
   const baseInterval = CONFIG.orderInterval[G.lv-1] || 5000;
-  const interval = Math.floor(baseInterval * phase.orderMult);
+  
+  // REP-BASED CUSTOMER SCALING
+  // Nếu tốc độ phục vụ < tốc độ order → rep thấp sẽ tự động tăng khách (cân bằng)
+  // Nếu tốc độ phục vụ > tốc độ order → rep cao nhận thêm khách thưởng
+  const repMod = getRepCustomerModifier();
+  
+  // Calculate service capacity (orders per minute)
+  let totalSkill = 0;
+  G.staff.forEach(s => {
+    const sDef = STAFF.find(st => st.id === s.id);
+    if (sDef && s.mood > 5) {
+      let speedBuff = 0;
+      if (sDef.buff === 'all_speed') speedBuff += sDef.buffVal;
+      totalSkill += s.skill * (s.mood / 100) * (1 + speedBuff);
+    }
+  });
+  const serviceCapacity = totalSkill * (60 / 3.5); // orders per minute
+  const orderRate = 60 / (baseInterval * phase.orderMult / 1000); // orders per minute incoming
+  
+  // Balance factor: nếu service capacity < incoming order rate → giảm repMod để khách không quá tải
+  // Nếu service capacity > incoming → tăng repMod để có nhiều khách hơn
+  let balanceMod = 1.0;
+  if (orderRate > serviceCapacity && serviceCapacity > 0) {
+    balanceMod = serviceCapacity / orderRate; // < 1, giảm khách để phù hợp
+  } else if (serviceCapacity > 0) {
+    balanceMod = Math.min(1.5, serviceCapacity / orderRate); // > 1, tối đa 1.5x
+  }
+  
+  const effectiveRepMod = repMod * balanceMod;
+  const interval = Math.floor(baseInterval * phase.orderMult / effectiveRepMod);
   
   const now = Date.now();
   
@@ -1350,9 +1400,10 @@ setInterval(function() {
     // Mood recovery bonus from Cooling System
     const moodRecoveryRate = 2 + moodRecoverBuff * 2;
     
-    // Tính skill thực tế
+    // Tính skill thực tế → bao nhiêu đơn mỗi staff có thể serve mỗi 3.5s
+    // Tăng scale: skill cao = serve nhiều hơn
     const skillValue = s.skill * (s.mood / 100) * speedMult;
-    const servedCount = Math.max(1, Math.floor(skillValue * 2)); // tối thiểu 1 nếu có skill
+    const servedCount = Math.max(1, Math.ceil(skillValue * 3)); // scale lên 3x để multi-staff hữu ích
     
     for (let srv = 0; srv < servedCount && G.orders.length > 0; srv++) {
       const o = G.orders[0];
@@ -1402,8 +1453,16 @@ setInterval(function() {
   if (tickServed > 0) {
     servedAny = true;
     lastAutoServe = Date.now();
+    // Hiển thị danh sách staff đã serve
+    const servingStaffNames = G.staff
+      .filter(s => s.mood > 5)
+      .slice(0, Math.min(tickServed, G.staff.length))
+      .map(s => s.name.split(' ')[0])
+      .join(', ');
     if (tickServed > 1) {
-      notify(`🤖 ${tickServed} staff served ${tickServed} orders!`);
+      notify(`🤖 ${tickServed} đơn: ${servingStaffNames} — phục vụ xong!`);
+    } else {
+      notify(`🤖 ${servingStaffNames} — phục vụ 1 đơn!`);
     }
     checkLevelUp();
     updateUI();
