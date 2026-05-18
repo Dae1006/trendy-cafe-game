@@ -1309,6 +1309,12 @@ function renderCafe() {
   const el = document.getElementById('panel-cafe');
   if (!el) return;
   
+  // Safety: if TRENDS not defined yet, show placeholder
+  if (typeof TRENDS === 'undefined') {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:#a0a0b0">Đang tải dữ liệu...</div>';
+    return;
+  }
+  
   const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
   const owned = G.trendItems;
   const ownedIds = owned.map(t => t.id);
