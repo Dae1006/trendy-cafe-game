@@ -101,7 +101,8 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <button class="tab" data-tab="equip">🔧Equip</button>
   <button class="tab" data-tab="shop">🛒Shop</button>
   <button class="tab" data-tab="expand">🏪Expand</button>
-  <button class="tab" data-tab="cafe">☕Cafe</button>
+  <button class="tab" data-tab="trends">🌟Trends</button>
+  <button class="tab" data-tab="events">📅Events</button>
 </div>
 
 <div id="content">
@@ -112,7 +113,8 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <div id="panel-equip" style="display:none"></div>
   <div id="panel-shop" style="display:none"></div>
   <div id="panel-expand" style="display:none"></div>
-  <div id="panel-cafe" style="display:none"></div>
+  <div id="panel-trends" style="display:none"></div>
+  <div id="panel-events" style="display:none"></div>
 </div>
 
 <script>
@@ -281,7 +283,17 @@ const TRENDS = [
   {id:'t_diamondseating',name:'Diamond Seating',icon:'💎',r:'legend',cost:80000,desc:'+40% ambiance +25 rep'},
   {id:'t_privatevip',name:'Private VIP Room',icon:'🚪',r:'legend',cost:100000,desc:'+35% revenue, VIP only'},
   {id:'t_michelin',name:'Michelin Kitchen',icon:'🍳',r:'legend',cost:200000,desc:'+50% menu items +30 rep'},
-  // === LEGEND (Lv70+) ===
+  // === SPORTS (Lv60+ / Event-Only) ===
+  {id:'t_inter',name:'Inter Milan Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+15% fan Inter +10% tips'},
+  {id:'t_real',name:'Real Madrid Jersey',icon:'⚪',r:'legend',cost:15000,desc:'+12% fan Real +8% tips'},
+  {id:'t_barca',name:'Barcelona Jersey',icon:'🔴',r:'legend',cost:15000,desc:'+10% fan Barca +8% tips'},
+  {id:'t_psg',name:'PSG Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+12% fan PSG +10% tips'},
+  {id:'t_vnm',name:'Vietnam National Team',icon:'🟡',r:'legend',cost:10000,desc:'+25% VN customers'},
+  {id:'t_ucl',name:'UCL Trophy Display',icon:'🏆',r:'legend',cost:30000,desc:'+20% all customers'},
+  {id:'t_worldcup',name:'World Cup 2026',icon:'⚽',r:'legend',cost:40000,desc:'+20% all customers +15 rep'},
+  {id:'t_taylor',name:'Taylor Swift Corner',icon:'🎵',r:'legend',cost:20000,desc:'+12% young female customers'},
+  {id:'t_netflix',name:'Netflix Series Corner',icon:'📺',r:'legend',cost:15000,desc:'+8% ambiance'},
+  // === MYTHIC (Lv90+) ===
   {id:'t_helipad',name:'Private Helipad',icon:'🚁',r:'mythic',cost:500000,desc:'+100% revenue, world-class'},
   {id:'t_infinity',name:'Rooftop Infinity Pool',icon:'🏊',r:'mythic',cost:150000,desc:'+60% revenue, tourist hotspot'},
   {id:'t_smarthome',name:'Smart Home System',icon:'🏠',r:'mythic',cost:40000,desc:'+20% efficiency -10% costs'},
@@ -303,20 +315,61 @@ const LEVEL_REWARDS_V8 = {
   30: {coins:15000,desc:'Sky Lounge',rewardItems:['t_sky']},
   40: {coins:25000,desc:'🔓 Epic items unlock',rewardItems:['t_piano','t_japanese','t_jazz','t_boho','t_industrial','t_karaoke','t_boardgame','t_cowork','t_date','t_yoga','t_anime','t_lofig','t_genshin','t_mlbb','t_instawall','t_tiktok','t_duriancoffee','t_coconutcoffee','t_yuzucoffee','t_rose','t_avocado']},
   50: {coins:50000,desc:'Chef Statue',rewardItems:['t_chef']},
-  60: {coins:100000,desc:'🔓 Legendary items unlock',rewardItems:['t_livemusic','t_aromatherapy','t_goldespresso']},
+  60: {coins:100000,desc:'🔓 Sports items unlock',rewardItems:['t_inter','t_real','t_barca','t_psg','t_vnm','t_ucl','t_worldcup','t_taylor','t_netflix']},
   65: {coins:120000,desc:'🔓 Seasonal menu system active',rewardItems:[]},
   70: {coins:150000,desc:'🔓 Legendary items',rewardItems:['t_livemusic','t_aromatherapy','t_goldespresso']},
   75: {coins:200000,desc:'Auto Espresso + Cooling + Premium Storage',rewardItems:['auto_espresso','cooling_sys','premium_store']},
   80: {coins:250000,desc:'🔓 Epic seasonal menu items',rewardItems:['t_rooftop','t_rooftopgarden']},
   85: {coins:300000,desc:'Smart Order + Secret Menu',rewardItems:['t_smartorder','t_secretmenu']},
-  90: {coins:500000,desc:'🔓 Mythic items',rewardItems:['t_helipad','t_infinity','t_smarthome','t_diamondseating','t_privatevip','t_michelin']},
+  90: {coins:500000,desc:'🔓 Mythic items',rewardItems:['t_helipad','t_infinity','t_smarthome','t_diamondseating','t_privatevip','t_michelin','t_worldcup']},
   100: {coins:1000000,desc:'👑☕ LEGENDARY CAFE OWNER! All items maxed!',rewardItems:['all_equipment','all_trends']}
 };
 
 // Keep LEVEL_REWARDS for backward compat (alias)
 const LEVEL_REWARDS = LEVEL_REWARDS_V8;
 
-// Seasonal menu stays for seasonal demand
+// ============ SPORTS EVENTS SYSTEM ============
+const SPORTS_EVENTS = [
+  {id:'inter_scudetto',name:'Inter Milan Scudetto!',team:'inter',icon:'🏆',duration:30,desc:'Inter vô địch Serie A!',fanRate:0.15,tipBonus:0.10},
+  {id:'ucl_final',name:'Champions League Final!',team:'all',icon:'🏆',duration:20,desc:'UCL Final — fan tăng 20%!',fanRate:0.20,tipBonus:0.15},
+  {id:'worldcup_2026',name:'World Cup 2026!',team:'all',icon:'⚽',duration:45,desc:'World Cup — khách tăng 25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'aff_cup_2026',name:'AFF Cup 2026!',team:'vnm',icon:'🏆',duration:30,desc:'AFF Cup — VN khách +25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'messigoat',name:'Messi G.O.A.T.!',team:'argentina',icon:'🐐',duration:60,desc:'Messi G.O.A.T. — khách +20%!',fanRate:0.20,tipBonus:0.25},
+  {id:'ronaldogoat',name:'Ronaldo G.O.A.T.!',team:'real',icon:'🐐',duration:60,desc:'Ronaldo G.O.A.T. — khách +18%!',fanRate:0.18,tipBonus:0.20},
+  {id:'neymar_return',name:'Neymar Returns!',team:'psg',icon:'⭐',duration:30,desc:'Neymar trở lại — khách +15%!',fanRate:0.15,tipBonus:0.12},
+  {id:'euro_2028',name:'Euro 2028!',team:'europe',icon:'🏆',duration:35,desc:'Euro 2028 — khách châu Âu!',fanRate:0.18,tipBonus:0.15}
+];
+let currentSportsEvent = null;
+let sportsEventTimer = 0;
+
+function triggerRandomSportsEvent() {
+  if (currentSportsEvent) return;
+  if (Math.random() < 0.02) {
+    const event = SPORTS_EVENTS[Math.floor(Math.random() * SPORTS_EVENTS.length)];
+    currentSportsEvent = {...event, daysLeft: event.duration};
+    sportsEventTimer = event.duration;
+    notify(`⚽ ${event.desc}`, 5000);
+  }
+}
+
+function tickSportsEvent() {
+  if (!currentSportsEvent) return;
+  currentSportsEvent.daysLeft--;
+  if (currentSportsEvent.daysLeft <= 0) {
+    notify(`📅 ${currentSportsEvent.name} kết thúc!`, 3000);
+    currentSportsEvent = null;
+    sportsEventTimer = 0;
+  }
+}
+
+function getFanCustomerModifier() {
+  return currentSportsEvent ? 1.0 + currentSportsEvent.fanRate : 1.0;
+}
+function getFanTipBonus() {
+  return currentSportsEvent ? currentSportsEvent.tipBonus : 0;
+}
+
+// ============ SEASONAL MENU ROTATION ============
 const SEASONAL_MENUS = {
   spring: {name:'Xuân',emoji:'🌸',shift:{latte:1.3,matcha:1.2,smoothie:1.5,cheesecake:1.2},desc:'Xuân về — trà & đồ nhẹ hot!'},
   summer: {name:'Hè',emoji:'☀️',shift:{iced:1.8,bubble_tea:1.4,smoothie:1.6,mocha:1.3},desc:'Hè nắng — đồ lạnh cháy hàng!'},
@@ -335,7 +388,39 @@ function getSeasonalDemand(menuId) {
   return SEASONAL_MENUS[currentSeason]?.shift[menuId] || 1.0;
 }
 function getSeasonEmoji() { return SEASONAL_MENUS[currentSeason]?.emoji || '🌸'; }
-let currentSeason = 'spring';
+function getSeasonName() { return SEASONAL_MENUS[currentSeason]?.name || 'Xuân'; }
+function getSeasonDescription() { return SEASONAL_MENUS[currentSeason]?.desc || ''; }
+
+// ============ FAN CUSTOMERS SYSTEM ============
+const FAN_CUSTOMERS = {
+  coffee_fan:{icon:'☕',tipMult:1.15,revenueMult:1.05},
+  healthy_fan:{icon:'🥗',tipMult:1.1,revenueMult:1.0},
+  art_fan:{icon:'🎨',tipMult:1.05,revenueMult:1.0},
+  music_fan:{icon:'🎶',tipMult:1.08,revenueMult:1.0},
+  inter_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  real_fan:{icon:'⚪',tipMult:1.08,revenueMult:1.05},
+  barca_fan:{icon:'🔴',tipMult:1.08,revenueMult:1.05},
+  psg_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  vnm_fan:{icon:'🟡',tipMult:1.15,revenueMult:1.0},
+  ucl_fan:{icon:'🏆',tipMult:1.12,revenueMult:1.05},
+  taylor_fan:{icon:'🎵',tipMult:1.1,revenueMult:1.0},
+  netflix_fan:{icon:'📺',tipMult:1.05,revenueMult:1.0},
+  kpop_fan:{icon:'🎤',tipMult:1.08,revenueMult:1.0},
+  anime_fan:{icon:'🎌',tipMult:1.05,revenueMult:1.0},
+  genshin_fan:{icon:'🌟',tipMult:1.05,revenueMult:1.0},
+  mlbb_fan:{icon:'⚔️',tipMult:1.08,revenueMult:1.0}
+};
+function getAvailableFanTypes() {
+  const types = ['coffee_fan','healthy_fan','art_fan','music_fan'];
+  if (currentSportsEvent) types.push('inter_fan','real_fan','barca_fan','psg_fan','vnm_fan','ucl_fan');
+  if (G.trendItems.find(t=>t.id==='t_taylor')) types.push('taylor_fan');
+  if (G.trendItems.find(t=>t.id==='t_netflix')) types.push('netflix_fan');
+  if (G.trendItems.find(t=>t.id==='t_kpop')) types.push('kpop_fan');
+  if (G.trendItems.find(t=>t.id==='t_anime')) types.push('anime_fan');
+  if (G.trendItems.find(t=>t.id==='t_genshin')) types.push('genshin_fan');
+  if (G.trendItems.find(t=>t.id==='t_mlbb')) types.push('mlbb_fan');
+  return types;
+}
 
 // ============ GAME STATE ============
 var G = {
@@ -370,6 +455,7 @@ var G = {
   dailyProfit: 0,
   monthlyProfit: 0,
   lastDayChange: Date.now(),
+  sportsEvent: null,  // V8: current active sports event
   // === STAFF BUFF TRACKING ===
   staffBuffs: { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 },
   // === DIFFICULTY TRACKING ===
@@ -453,13 +539,12 @@ function generateOrder() {
     {name:'Business Person',icon:'💼'},
     {name:'Artist',icon:'🎨'}
   ];
-  // Simple customer types
-  const customers = [
-    {name:'Coffee Lover',icon:'☕'},
-    {name:'Student',icon:'📚'},
-    {name:'Office Worker',icon:'💼'},
-    {name:'Artist',icon:'🎨'}
-  ];
+  // V8: Add dynamic fan customers based on active event/trends
+  const fanTypes = getAvailableFanTypes();
+  fanTypes.forEach(ft => {
+    const fc = FAN_CUSTOMERS[ft];
+    if (fc) customers.push({name:ft.replace('_fan','')+' Fan',icon:fc.icon, fanType:ft, tipMult:fc.tipMult, revenueMult:fc.revenueMult});
+  });
   const customer = pick(customers);
   
   const tipChance = G.rep / CONFIG.maxRep;
@@ -514,7 +599,7 @@ function autoGenerateOrder() {
   const repMod = getRepCustomerModifier();
   
   // Fan customer modifier (sports events)
-  const fanMod = 1.0; // removed sports events
+  const fanMod = getFanCustomerModifier();
   
   // Calculate service capacity (orders per minute)
   let totalSkill = 0;
@@ -594,7 +679,12 @@ function serveOrder(idx) {
   }
   
   // FAN customer tip bonus
-
+  if (o.fanType && FAN_CUSTOMERS[o.fanType]) {
+    const fan = FAN_CUSTOMERS[o.fanType];
+    revenue = Math.floor(revenue * (fan.revenueMult || 1));
+    const fanTipBonus = Math.floor(finalTip * (fan.tipMult || 1));
+    G.totalTips += (fanTipBonus - finalTip);
+  }
   
   // SMART POS buff: tip bonus
   const tipMult = 1 + (G.equipment.smart_pos || 0) * 0.20;
@@ -1304,83 +1394,6 @@ function renderShop() {
   el.innerHTML = html;
 }
 
-// ============ RENDER CAFE (Design + Decoration) =========
-function renderCafe() {
-  const el = document.getElementById('panel-cafe');
-  if (!el) return;
-  
-  // Safety: if TRENDS not defined yet, show placeholder
-  if (typeof TRENDS === 'undefined') {
-    el.innerHTML = '<div style="padding:20px;text-align:center;color:#a0a0b0">Đang tải dữ liệu...</div>';
-    return;
-  }
-  
-  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-  const owned = G.trendItems;
-  const ownedIds = owned.map(t => t.id);
-  
-  // Categorize trends
-  const categories = [
-    {label:'🏠 Cơ sở (Lv1+)', r:'common', items: TRENDS.filter(t => t.r === 'common')},
-    {label:'🌟 Hiếm (Lv20+)', r:'rare', items: TRENDS.filter(t => t.r === 'rare')},
-    {label:'🔥 Cực Hiếm (Lv40+)', r:'epic', items: TRENDS.filter(t => t.r === 'epic')},
-    {label:'👑 Huyền Thoại (Lv70+)', r:'legend', items: TRENDS.filter(t => t.r === 'legend')},
-    {label:'💎 Thần Thoại (Lv90+)', r:'mythic', items: TRENDS.filter(t => t.r === 'mythic')}
-  ];
-  
-  let html = '<h3 style="color:#FFD700;margin-bottom:8px">☕ Quán Của Bạn</h3>';
-  
-  // Show cafe info
-  html += '<div style="padding:12px;background:linear-gradient(145deg,#0f3460,#16213e);border-radius:8px;margin-bottom:12px;border:1px solid #333">';
-  html += '<div style="font-size:24px;margin-bottom:4px">' + venue.icon + ' ' + venue.name + '</div>';
-  html += '<div style="color:#a0a0b0;font-size:10px">' + G.trendItems.length + ' decorations | ' + G.staff.length + ' staff | ' + G.unlockedMenu.length + ' menu items</div>';
-  
-  // Revenue bonus breakdown
-  let totalBonus = getVenueBonus() - 1;
-  owned.forEach(t => { if(t.revenueBonus) totalBonus += t.revenueBonus; });
-  totalBonus += (G.equipment.espresso_mach || 0) * 0.05;
-  if (G.equipment.chandelier) totalBonus += (G.equipment.chandelier || 0) * 0.05;
-  html += '<div style="color:#28a745;font-size:11px;margin-top:4px">💰 Revenue Bonus: +' + (totalBonus * 100).toFixed(0) + '%</div>';
-  html += '</div>';
-  
-  // Categories
-  categories.forEach(cat => {
-    if (cat.items.length === 0) return;
-    
-    const minLv = cat.r === 'common' ? 1 : cat.r === 'rare' ? 20 : cat.r === 'epic' ? 40 : cat.r === 'legend' ? 70 : 90;
-    if (G.lv < minLv) return;
-    
-    html += '<div class="section-title">' + cat.label + '</div>';
-    cat.items.forEach(t => {
-      const isOwned = ownedIds.includes(t.id);
-      const canBuy = G.lv >= minLv;
-      const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : t.r === 'legend' ? '#FFD700' : '#FF6347';
-      const rarityEmoji = t.r === 'common' ? '⬜' : t.r === 'rare' ? '🟪' : t.r === 'epic' ? '🟥' : t.r === 'legend' ? '🟨' : '🟧';
-      
-      if (isOwned) {
-        html += '<div class="card epic">';
-        html += '<div><strong style="color:' + rarityColor + '">' + rarityEmoji + ' ' + t.icon + ' ' + t.name + '</strong>';
-        html += '<div style="color:#a0a0b0;font-size:10px">' + t.desc + '</div></div>';
-        html += '<div><span style="color:#28a745">✅ ĐÃ CÓ</span></div></div>';
-      } else if (canBuy) {
-        html += '<div class="card">';
-        html += '<div><strong style="color:' + rarityColor + '">' + rarityEmoji + ' ' + t.icon + ' ' + t.name + '</strong>';
-        html += '<div style="color:#a0a0b0;font-size:10px">' + t.desc + '</div></div>';
-        html += '<div><span class="gold">' + t.cost.toLocaleString() + '₫</span><br>';
-        html += '<button class="btn" onclick="buyTrend(\'' + t.id + '\')">MUA</button></div></div>';
-      } else {
-        html += '<div class="card" style="opacity:0.4">';
-        html += '<div><strong style="color:#555">' + t.icon + ' ' + t.name + '</strong>';
-        html += '<div style="color:#555;font-size:10px">🔒 Lv' + minLv + '+</div></div>';
-        html += '<div></div></div>';
-      }
-    });
-  });
-  
-  el.innerHTML = html;
-}
-
-
 // ============ UPDATE UI ============
 function updateUI() {
   const coins = document.getElementById('coins');
@@ -1424,7 +1437,8 @@ function updateUI() {
     case 'equip': renderEquip(); break;
     case 'shop': renderShop(); break;
     case 'expand': renderExpand(); break;
-    case 'cafe': renderCafe(); break;
+    case 'trends': renderTrends(); break;
+    case 'events': renderEvents(); break;
   }
 }
 
@@ -1448,6 +1462,13 @@ setInterval(function() {
   if (Date.now() - G.lastDayChange >= 60000) {
     G.gameDay++;
     G.lastDayChange = Date.now();
+    
+    // V8: Season tracking
+    currentSeason = getCurrentSeason(G.gameDay);
+    
+    // V8: Sports events
+    tickSportsEvent();
+    triggerRandomSportsEvent();
     
     // Legend Chef reputation buff trigger
     if (G.staffBuffs.reputation > 0) {
@@ -1674,6 +1695,7 @@ setInterval(function() {
 function saveGame() {
   try {
     // Sync sports event to game state
+    if (currentSportsEvent) G.sportsEvent = {...currentSportsEvent};
     const saveData = JSON.stringify(G);
     localStorage.setItem('trendyCafeV7', saveData);
   } catch(e) {}
@@ -1736,7 +1758,8 @@ function loadGame() {
         if (!G.equipment[eq]) G.equipment[eq] = 0;
       });
       
-      // Equipment sync done
+      // Sync currentSportsEvent
+      currentSportsEvent = G.sportsEvent || null;
       
       // V8: Season tracking
       if (G.gameDay) currentSeason = getCurrentSeason(G.gameDay);
@@ -1767,344 +1790,6 @@ console.log('✅ Staff:', G.staff.length);
 console.log('✅ Equipment:', G.equipment);
 console.log('✅ Trends:', G.trendItems.length);
 updateUI();
-
-// ============ CAFE SCENE CANVAS ============
-// Animated cafe visualization - main motivation for playing!
-const CafeScene = {
-  canvas: null,
-  ctx: null,
-  animFrame: null,
-  time: 0,
-  customers: [],
-  waiters: [],
-  particles: [],
-  
-  init() {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'cafe-scene';
-    canvas.width = 450;
-    canvas.height = 280;
-    canvas.style.width = '100%';
-    canvas.style.height = '280px';
-    canvas.style.borderRadius = '12px';
-    canvas.style.marginBottom = '12px';
-    canvas.style.border = '2px solid #333';
-    canvas.style.background = '#0d0d1a';
-    
-    const wrapper = document.createElement('div');
-    wrapper.id = 'scene-wrapper';
-    wrapper.style.cssText = 'margin:10px 0;border-radius:12px;overflow:hidden;position:relative;background:linear-gradient(180deg,#1a1a2e,#16213e);padding:10px';
-    wrapper.appendChild(canvas);
-    
-    // Insert before panels
-    const content = document.getElementById('content');
-    if (content) {
-      content.insertBefore(wrapper, content.firstChild);
-    }
-    
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
-    
-    this.startTime = Date.now();
-    this.loop();
-  },
-  
-  // Get time-based colors
-  getSkyColors() {
-    const hour = (G.gameDay % 24); // simplified
-    if (hour >= 6 && hour < 8) return ['#FF6B35', '#FFB347', '#87CEEB']; // sunrise
-    if (hour >= 8 && hour < 17) return ['#87CEEB', '#B0E0E6', '#E0F7FA']; // day
-    if (hour >= 17 && hour < 19) return ['#FF6347', '#FF8C00', '#FFD700']; // sunset
-    if (hour >= 19 && hour < 21) return ['#2C3E50', '#4A6FA5', '#1a1a2e']; // dusk
-    return ['#0a0a1a', '#1a1a3e', '#0d0d2a']; // night
-  },
-  
-  // Weather based on game day
-  getWeatherEmoji() {
-    const weatherDay = G.gameDay || 1;
-    const r = weatherDay % 7;
-    if (r < 3) return '☀️'; // sunny
-    if (r < 5) return '🌧️'; // rainy
-    return '⛅'; // cloudy
-  },
-  
-  // Calculate cafe state based on progress
-  getCafeState() {
-    const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-    const decorCount = G.trendItems.length;
-    const staffCount = G.staff.length;
-    const customerCount = G.orders.length;
-    
-    return {
-      venue,
-      decorCount,
-      staffCount,
-      customerCount,
-      totalBonus: getVenueBonus() - 1
-    };
-  },
-  
-  // Draw the cafe scene
-  draw() {
-    const ctx = this.ctx;
-    const w = this.canvas.width;
-    const h = this.canvas.height;
-    const state = this.getCafeState();
-    
-    ctx.clearRect(0, 0, w, h);
-    
-    // === BACKGROUND (sky + ground) ===
-    const skyColors = this.getSkyColors();
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.6);
-    skyColors.forEach((color, i) => skyGrad.addColorStop(i / (skyColors.length - 1), color));
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h * 0.6);
-    
-    // Ground
-    const groundGrad = ctx.createLinearGradient(0, h * 0.6, 0, h);
-    groundGrad.addColorStop(0, '#3d2b1f');
-    groundGrad.addColorStop(1, '#2a1a0f');
-    ctx.fillStyle = groundGrad;
-    ctx.fillRect(0, h * 0.6, w, h * 0.4);
-    
-    // === WEATHER EFFECTS ===
-    const weather = this.getWeatherEmoji();
-    if (weather === '🌧️') {
-      this.drawRain(ctx, w, h);
-    }
-    
-    // === CAFE BUILDING ===
-    const cafeX = 50;
-    const cafeY = h * 0.2;
-    const cafeW = 350;
-    const cafeH = h * 0.4;
-    
-    // Building body
-    const buildGrad = ctx.createLinearGradient(cafeX, cafeY, cafeX + cafeW, cafeY + cafeH);
-    buildGrad.addColorStop(0, '#4a3728');
-    buildGrad.addColorStop(0.5, '#6b5240');
-    buildGrad.addColorStop(1, '#4a3728');
-    ctx.fillStyle = buildGrad;
-    
-    // Draw building with curved top
-    ctx.beginPath();
-    ctx.moveTo(cafeX + 20, cafeY + cafeH);
-    ctx.lineTo(cafeX + 20, cafeY + 40);
-    ctx.quadraticCurveTo(cafeX + cafeW / 2, cafeY - 10, cafeX + cafeW - 20, cafeY + 40);
-    ctx.lineTo(cafeX + cafeW - 20, cafeY + cafeH);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = '#8B7355';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // === WINDOWS ===
-    const winSize = 40;
-    const winSpacing = 50;
-    const startX = cafeX + 60;
-    for (let i = 0; i < 3; i++) {
-      const wx = startX + i * winSpacing;
-      const wy = cafeY + 60;
-      
-      // Window frame
-      ctx.fillStyle = '#2a1f15';
-      ctx.fillRect(wx, wy, winSize, winSize);
-      
-      // Window glow (yellow = open, dim = quiet)
-      const glowIntensity = Math.max(0.3, 0.5 + (state.customerCount / 8) * 0.5);
-      ctx.fillStyle = `rgba(255, 215, 0, ${glowIntensity})`;
-      ctx.fillRect(wx + 3, wy + 3, winSize - 6, winSize - 6);
-      
-      // Window cross
-      ctx.strokeStyle = '#5a4530';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(wx + winSize / 2, wy);
-      ctx.lineTo(wx + winSize / 2, wy + winSize);
-      ctx.moveTo(wx, wy + winSize / 2);
-      ctx.lineTo(wx + winSize, wy + winSize / 2);
-      ctx.stroke();
-    }
-    
-    // === DOOR ===
-    const doorX = cafeX + cafeW / 2 - 20;
-    const doorY = cafeY + cafeH - 60;
-    ctx.fillStyle = '#5a3a1a';
-    ctx.fillRect(doorX, doorY, 40, 60);
-    ctx.strokeStyle = '#8B7355';
-    ctx.strokeRect(doorX, doorY, 40, 60);
-    
-    // Door light
-    const doorLight = 10 + Math.sin(this.time * 0.003) * 5;
-    ctx.fillStyle = `rgba(255, 200, 100, ${0.3 + Math.sin(this.time * 0.003) * 0.1})`;
-    ctx.beginPath();
-    ctx.arc(doorX + 20, doorY + 30, doorLight, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // === SIGN ===
-    ctx.fillStyle = '#FFD700';
-    ctx.font = 'bold 16px Courier New';
-    ctx.textAlign = 'center';
-    ctx.fillText('☕ ' + state.venue.name, cafeX + cafeW / 2, cafeY + 35);
-    
-    // === DECORATIONS ===
-    if (state.decorCount > 0) {
-      // Draw decorative items around the building
-      const decorIcons = ['🌱', '🪴', '✨', '💡', '🎵', '📚'];
-      for (let i = 0; i < Math.min(state.decorCount, 10); i++) {
-        const dx = cafeX + (i % 5) * 80 + 20;
-        const dy = cafeY + cafeH + 10 + (Math.floor(i / 5)) * 25;
-        ctx.font = '16px serif';
-        ctx.fillText(decorIcons[i % decorIcons.length], dx, dy);
-      }
-    }
-    
-    // === CUSTOMERS (people sitting and walking) ===
-    if (state.customerCount > 0) {
-      this.drawCustomers(ctx, cafeX, cafeY, cafeW, cafeH, state.customerCount);
-    }
-    
-    // === WAITERS (staff walking) ===
-    if (state.staffCount > 0) {
-      this.drawWaiters(ctx, cafeX, cafeY, cafeW, cafeH, state.staffCount);
-    }
-    
-    // === AMBIENT PARTICLES (steam, sparkles) ===
-    if (this.particles.length === 0 || Math.random() < 0.05) {
-      this.particles.push({
-        x: cafeX + Math.random() * cafeW,
-        y: cafeY + cafeH - 10,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: -0.5 - Math.random() * 0.5,
-        life: 1,
-        type: Math.random() > 0.5 ? 'steam' : 'sparkle'
-      });
-    }
-    
-    this.particles = this.particles.filter(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.02;
-      
-      if (p.type === 'steam') {
-        ctx.fillStyle = `rgba(200, 200, 200, ${p.life * 0.3})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3 + (1 - p.life) * 3, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.fillStyle = `rgba(255, 215, 0, ${p.life * 0.6})`;
-        ctx.font = '8px serif';
-        ctx.fillText('✨', p.x, p.y);
-      }
-      
-      return p.life > 0;
-    });
-    
-    // === STATUS OVERLAY ===
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(10, h - 30, 200, 22);
-    ctx.fillStyle = '#FFD700';
-    ctx.font = '11px Courier New';
-    ctx.textAlign = 'left';
-    ctx.fillText(
-      `👥 ${state.customerCount} đang ngồi | ${weather} | ${state.decorCount} đồ họa`,
-      18, h - 15
-    );
-  },
-  
-  drawRain(ctx, w, h) {
-    ctx.strokeStyle = 'rgba(150, 180, 255, 0.3)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 40; i++) {
-      const x = (i * 12 + this.time * 0.1) % w;
-      const y = (i * 17 + this.time * 0.3) % h;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x - 3, y + 10);
-      ctx.stroke();
-    }
-  },
-  
-  drawCustomers(ctx, cafeX, cafeY, cafeW, cafeH, count) {
-    const emojis = ['☕', '🧋', '🍵', '🧉', '🥤', '🍶'];
-    const seatPositions = [];
-    
-    // Generate table positions
-    for (let i = 0; i < Math.min(count, 6); i++) {
-      const tx = cafeX + 60 + (i % 3) * 120;
-      const ty = cafeY + cafeH + 20;
-      seatPositions.push({ x: tx, y: ty });
-      
-      // Table
-      ctx.fillStyle = '#5a4530';
-      ctx.fillRect(tx - 15, ty, 30, 3);
-      
-      // Customer emoji
-      const bob = Math.sin(this.time * 0.005 + i) * 2;
-      ctx.font = '14px serif';
-      ctx.fillText(emojis[i % emojis.length], tx - 7, ty + bob + 18);
-    }
-    
-    // Walking customer (arriving)
-    if (count > 0) {
-      const walkX = cafeX - 30 + (this.time * 0.05) % (cafeW + 60);
-      const walkY = cafeY + cafeH + 10;
-      ctx.font = '16px serif';
-      ctx.fillText('🚶', walkX, walkY);
-    }
-  },
-  
-  drawWaiters(ctx, cafeX, cafeY, cafeW, cafeH, count) {
-    for (let i = 0; i < Math.min(count, 4); i++) {
-      const walkOffset = Math.sin(this.time * 0.003 + i * 2) * 60;
-      const wx = cafeX + cafeW / 2 + walkOffset;
-      const wy = cafeY + cafeH - 5;
-      
-      ctx.font = '16px serif';
-      ctx.fillText('🏃', wx, wy);
-    }
-  },
-  
-  // Animation loop
-  loop() {
-    this.time = Date.now() - this.startTime;
-    this.draw();
-    this.animFrame = requestAnimationFrame(() => this.loop());
-  }
-};
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Insert scene wrapper before panels
-  const content = document.getElementById('content');
-  if (!content) return;
-  
-  var wrapper = document.createElement('div');
-  wrapper.id = 'scene-wrapper';
-  wrapper.style.cssText = 'margin:10px 0;border-radius:12px;overflow:hidden;position:relative;background:linear-gradient(180deg,#1a1a2e,#16213e);padding:10px';
-  
-  var canvas = document.createElement('canvas');
-  canvas.id = 'cafe-scene';
-  canvas.width = 450;
-  canvas.height = 280;
-  canvas.style.width = '100%';
-  canvas.style.height = '280px';
-  canvas.style.borderRadius = '12px';
-  canvas.style.border = '2px solid #333';
-  canvas.style.background = '#0d0d1a';
-  wrapper.appendChild(canvas);
-  
-  // Insert before first panel
-  content.insertBefore(wrapper, content.firstChild);
-  
-  // Init after a small delay to ensure DOM is ready
-  setTimeout(function() {
-    try { CafeScene.init(); } catch(e) { 
-      console.error('CafeScene init error:', e); 
-    }
-  }, 100);
-});
-
 
 </script>
 </body>
