@@ -1562,6 +1562,23 @@ setInterval(function() {
   
   G.staffBuffs = { all_speed: allSpeedBuff, tips: tipsBuff, highroll: highrollBuff, reputation: repBuff, coop: coopBuff };
   
+  // === AUTO SERVE speed bonus (must calculate before patience check) ===
+  let autoServeRate = lastAutoServeInterval * (1 - autoServeBuff);
+  if (autoServeRate < 1000) autoServeRate = 1000;
+  
+  // === FIX: Ensure all orders have sufficient patience for staff to actually serve ===
+  // If any order's patience is less than serve interval, restore it to the proper level
+  const minPatience = CONFIG.baseServeTime * (1 + (G.lv - 1) * 0.05);
+  const minServeBuffer = autoServeRate * 1.2; // 20% buffer over serve interval
+  const requiredPatience = Math.max(minPatience, minServeBuffer);
+  G.orders.forEach(o => {
+    if (o.timeLeft > requiredPatience) {
+      // Cap timeLeft to prevent orders from having impossible patience
+      o.timeLeft = requiredPatience;
+    }
+    o.patience = Math.max(o.patience, requiredPatience);
+  });
+  
   let tickServed = 0;
   
   for (let si = 0; si < G.staff.length; si++) {
@@ -1577,25 +1594,11 @@ setInterval(function() {
       if (nextStaff && nextStaff.mood > 20) serveMod = 0.5;
     }
     
-    // AUTO SERVE speed bonus
+    // === AUTO SERVE speed bonus ===
     let autoServeRate = lastAutoServeInterval * (1 - autoServeBuff);
     if (autoServeRate < 1000) autoServeRate = 1000;
     
-    // === FIX: Reduce serve interval as difficulty increases so staff can keep up ===
-    // At low difficulty, serve every 3500ms. At extreme difficulty, serve every 2000ms.
-    const difficultyServeReduction = phase.orderMult; // 1.0 -> 0.9 -> 0.8 -> 0.7
-    const difficultyServeInterval = Math.floor(autoServeRate * difficultyServeReduction);
-    
-    // Calculate minimum required patience for staff to actually serve in time
-    // Ensure patience >= serveInterval so staff can complete the serve before customer leaves
-    const minRequiredPatience = Math.max(o.patience, difficultyServeInterval * 1.2); // 20% buffer
-    
-    // If patience was shrunk below what's needed for staff to serve, restore it
-    if (o.timeLeft < minRequiredPatience) {
-      o.timeLeft = minRequiredPatience;
-      o.patience = minRequiredPatience;
-    }
-    
+    // === DYNAMIC SERVE COUNT based on staff skill ===
     // All speed buff from Manager
     const speedMult = 1 + allSpeedBuff;
     
@@ -1603,11 +1606,11 @@ setInterval(function() {
     const moodRecoveryRate = 2 + moodRecoverBuff * 2;
     
     // Tính skill thực tế → bao nhiêu đơn mỗi staff có thể serve mỗi tick
-    // Tăng scale: skill cao = serve nhiều hơn
+    // Công thức: skill * mood% * speedBuff * scaleFactor
+    // Base scaleFactor = 2, tăng lên khi difficulty cao để multi-staff vẫn hữu ích
+    const difficultyServeBonus = (1.0 - phase.orderMult) * 2; // 0.0 -> 0.2 -> 0.4 -> 0.6
     const skillValue = s.skill * (s.mood / 100) * speedMult;
-    // Dynamic served count: factor in difficulty to keep multi-staff useful
-    const baseServedCount = Math.max(1, Math.ceil(skillValue * 3));
-    const servedCount = difficultyServeReduction >= 0.8 ? baseServedCount : Math.max(1, Math.ceil(baseServedCount * (1.0 - (1.0 - difficultyServeReduction) * 0.5)));
+    const servedCount = Math.max(1, Math.ceil(skillValue * (2 + difficultyServeBonus)));
     
     for (let srv = 0; srv < servedCount && G.orders.length > 0; srv++) {
       const o = G.orders[0];
