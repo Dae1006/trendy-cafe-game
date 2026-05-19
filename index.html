@@ -1771,6 +1771,175 @@ function loadGame() {
 
 setInterval(saveGame, 30000); // Auto-save every 30s
 
+// ============ RENDER: TRENDS TAB ============
+function renderTrends() {
+  const panel = document.getElementById('panel-trends');
+  if (!panel) return;
+  
+  const owned = G.trendItems || [];
+  const ownedIds = owned.map(t => t.id);
+  const day = G.gameDay || 1;
+  
+  // Filter trends based on level unlocks
+  let available = TRENDS.filter(t => {
+    if (t.r === 'common') return day >= 1;
+    if (t.r === 'rare') return day >= 20;
+    if (t.r === 'epic') return day >= 40;
+    if (t.r === 'legend') return day >= 60;
+    if (t.r === 'mythic') return day >= 90;
+    return false;
+  });
+  
+  // Calculate trend revenue stats for ranking
+  const trendStats = {};
+  owned.forEach(t => {
+    const base = TRENDS.find(x => x.id === t.id);
+    trendStats[t.id] = {
+      ...t,
+      base: base,
+      revenue: Math.floor((t.revenueBonus || 0) * 10000),
+      rep: t.repBonus || 0,
+      isOwned: true
+    };
+  });
+  
+  // Hot trends = owned trends with highest revenue bonus
+  const hotTrends = Object.values(trendStats)
+    .filter(t => t.isOwned)
+    .sort((a, b) => (b.revenueBonus || 0) - (a.revenueBonus || 0))
+    .slice(0, 3);
+  
+  let html = '';
+  
+  // === HOT TRENDS ===
+  if (hotTrends.length > 0) {
+    html += '<div class="section-title">🔥 Hot Trends (Top Revenue)</div>';
+    hotTrends.forEach(t => {
+      html += `<div class="card ${t.r === 'epic' ? 'epic' : t.r === 'rare' ? 'rare' : ''}">`;
+      html += `<div><strong>${t.icon} ${t.name}</strong><br>`;
+      html += `<span class="gold">+${Math.floor((t.revenueBonus || 0) * 100)}% revenue</span>`;
+      if (t.rep) html += ` | +${t.rep} rep`;  
+      html += `</div><span style="font-size:10px;color:#28a745">✅ OWNED</span></div>`;
+    });
+  }
+  
+  // === OWNED TRENDS ===
+  html += `<div class="section-title">🛒 Đã Mua (${owned.length}/${TRENDS.length})</div>`;
+  if (owned.length > 0) {
+    owned.forEach(t => {
+      html += `<div class="card">`;
+      html += `<div><strong>${t.icon} ${t.name}</strong> <span class="gold" style="font-size:10px">[${t.r.toUpperCase()}]</span><br>`;
+      html += `<span style="font-size:11px">${t.desc}</span></div>`;
+      html += `<span style="font-size:10px;color:#FFD700">+${Math.floor((t.revenueBonus||0)*100)}% rev</span></div>`;
+    });
+  } else {
+    html += '<div class="empty">Chưa mua xu hướng nào. Mua từ danh sách bên dưới!</div>';
+  }
+  
+  // === MARKETPLACE - trends for sale ===
+  html += '<div class="section-title">📈 Xu Hướng Mới</div>';
+  available.forEach(t => {
+    const isOwned = ownedIds.includes(t.id);
+    const canAfford = G.coins >= t.cost;
+    if (isOwned) {
+      html += `<div class="card new-card"><div>`;
+      html += `<strong>${t.icon} ${t.name}</strong> <span class="gold" style="font-size:10px">[${t.r.toUpperCase()}]</span><br>`;
+      html += `<span style="font-size:11px">${t.desc}</span></div>`;
+      html += `<span style="font-size:11px;color:#28a745">✅ ĐÃ MUA</span></div>`;
+    } else {
+      html += `<div class="card new-card"><div>`;
+      html += `<strong>${t.icon} ${t.name}</strong> <span class="gold" style="font-size:10px">[${t.r.toUpperCase()}]</span><br>`;
+      html += `<span style="font-size:11px">${t.desc}</span></div>`;
+      html += `<button class="btn ${canAfford ? 'green' : ''}" onclick="buyTrend('${t.id}')" ${!canAfford ? 'disabled' : ''}>${t.cost.toLocaleString()}₫</button></div>`;
+    }
+  });
+  
+  panel.innerHTML = html;
+}
+
+// ============ RENDER: EVENTS TAB ============
+function renderEvents() {
+  const panel = document.getElementById('panel-events');
+  if (!panel) return;
+  
+  const day = G.gameDay || 1;
+  const season = getCurrentSeason(day);
+  let html = '';
+  
+  // === CURRENT SEASON ===
+  html += '<div class="section-title">🌤️ Mùa Hiện Tại</div>';
+  html += `<div class="card">`;
+  html += `<div><strong>${getSeasonEmoji()} ${getSeasonName()} Season</strong><br>`;
+  html += `<span style="font-size:11px">${getSeasonDescription()}</span></div></div>`;
+  
+  // === SEASONAL DEMAND BONUS ===
+  const sMenu = SEASONAL_MENUS[season];
+  if (sMenu && sMenu.shift) {
+    html += '<div class="section-title">📊 Mùa Này Hot Món</div>';
+    Object.entries(sMenu.shift).forEach(([menuId, mult]) => {
+      const menu = MENU.find(m => m.id === menuId);
+      if (menu) {
+        html += `<div class="card"><div>`;
+        html += `<strong>${menu.icon} ${menu.name}</strong><br>`;
+        html += `<span class="gold">+${Math.floor((mult-1)*100)}% demand mùa này</span></div>`;
+        html += `<span style="font-size:11px">${mult.toFixed(1)}x</span></div>`;
+      }
+    });
+  }
+  
+  // === ACTIVE SPORTS EVENT ===
+  const activeEvent = G.sportsEvent || currentSportsEvent;
+  html += '<div class="section-title">⚽ Sự Kiện Thể Thao</div>';
+  if (activeEvent && activeEvent.daysLeft > 0) {
+    html += `<div class="card epic"><div>`;
+    html += `<strong>${activeEvent.icon} ${activeEvent.name}</strong><br>`;
+    html += `<span style="font-size:11px">${activeEvent.desc}</span><br>`;
+    html += `<span class="gold">Còn ${activeEvent.daysLeft} ngày!</span></div>`;
+    html += `<span style="font-size:11px;color:#e74c3c">🔴 ACTIVE</span></div>`;
+  } else {
+    html += '<div class="card"><span style="color:#a0a0b0">Không có sự kiện thể thao nào đang diễn ra</span></div>';
+  }
+  
+  // === UPCOMING EVENTS ===
+  html += '<div class="section-title">📅 Sự Kiện Sắp Tới</div>';
+  
+  // Level milestone events
+  const nextMilestone = Object.entries(LEVEL_REWARDS).find(([lv, r]) => parseInt(lv) > day && r);
+  if (nextMilestone) {
+    const lv = nextMilestone[0];
+    const reward = nextMilestone[1];
+    html += `<div class="card new-card"><div>`;
+    html += `<strong>🎯 Lv.${lv} Reward</strong><br>`;
+    html += `<span style="font-size:11px">${reward.desc}</span></div>`;
+    html += `<span class="gold">+${reward.coins.toLocaleString()}₫</span></div>`;
+  }
+  
+  // Seasonal transition
+  const c = day % 360;
+  let nextSeason = '', nextEmoji = '';
+  if (c < 90) { nextSeason = 'Summer'; nextEmoji = '☀️'; }
+  else if (c < 180) { nextSeason = 'Autumn'; nextEmoji = '🍂'; }
+  else if (c < 270) { nextSeason = 'Winter'; nextEmoji = '❄️'; }
+  else { nextSeason = 'Spring'; nextEmoji = '🌸'; }
+  
+  const seasonDays = [90-c, 90, 90, 90];
+  const daysToNext = seasonDays[['spring','summer','autumn','winter'].indexOf(season.name.toLowerCase())] || 90;
+  html += `<div class="card new-card"><div>`;
+  html += `<strong>${nextEmoji} Chuyển mùa: ${nextSeason}</strong><br>`;
+  html += `<span style="font-size:11px">Sau ${Math.abs((day % 90) === 0 ? 90 : 90 - (day % 90))} ngày</span></div></div>`;
+  
+  // === SPORTS EVENTS PREVIEW ===
+  html += '<div class="section-title">🏆 Sự Kiện Thể Thao Có Sẵn</div>';
+  SPORTS_EVENTS.slice(0, 5).forEach(ev => {
+    html += `<div class="card" style="font-size:11px"><div>`;
+    html += `<strong>${ev.icon} ${ev.name}</strong><br>`;
+    html += `<span>${ev.desc}</span></div>`;
+    html += `<span style="color:#a0a0b0">${ev.duration} ngày</span></div>`;
+  });
+  
+  panel.innerHTML = html;
+}
+
 // ============ START GAME ============
 loadGame();
 G.lastOrderTime = Date.now();
