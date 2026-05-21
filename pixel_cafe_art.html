@@ -1,306 +1,577 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Pixel Art Cafe - Premium Scene</title>
+<title>☕ Trendy Cafe - Pixel Art Premium</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d0d1a;color:#e8e8e8;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden}
-#gameCanvas{image-rendering:pixelated;image-rendering:crisp-edges;border:2px solid #FFD700;border-radius:8px;margin:10px 0}
-#ui-panel{display:flex;gap:20px;padding:10px 20px;background:linear-gradient(135deg,#16213e,#1a1a4e);border:2px solid #FFD700;border-radius:8px;margin:8px 0;flex-wrap:wrap;justify-content:center}
-.ui-stat{text-align:center;min-width:80px}
-.ui-stat .label{font-size:10px;color:#a0a0b0}
-.ui-stat .value{font-size:14px;color:#FFD700;font-weight:bold}
+body {
+  margin: 0;
+  background: #0d0d1a;
+  font-family: 'Courier New', monospace;
+  color: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+h1 {
+  color: #FFD700;
+  margin: 20px 0;
+  text-align: center;
+}
+canvas {
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+.controls {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+button {
+  background: #16213e;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-family: 'Courier New', monospace;
+  border-radius: 5px;
+}
+button:hover {
+  background: #FFD700;
+  color: #0d0d1a;
+}
+.info {
+  margin: 20px 0;
+  text-align: center;
+  color: #a0a0b0;
+}
 </style>
 </head>
 <body>
-<div id="ui-panel">
-<div class="ui-stat"><div class="label">Coins</div><div class="value" id="ui-coins">1000</div></div>
-<div class="ui-stat"><div class="label">Customers</div><div class="value" id="ui-customers">0</div></div>
-<div class="ui-stat"><div class="label">Orders</div><div class="value" id="ui-orders">0</div></div>
-<div class="ui-stat"><div class="label">Level</div><div class="value" id="ui-level">1</div></div>
-<div class="ui-stat"><div class="label">Reputation</div><div class="value" id="ui-rep">⭐⭐⭐</div></div>
+<h1>☕ Trendy Cafe - Pixel Art Premium</h1>
+<canvas id="cafeCanvas" width="800" height="480"></canvas>
+<div class="controls">
+  <button onclick="addCustomer()">+ Khách hàng</button>
+  <button onclick="addTable()">+ Bàn</button>
+  <button onclick="toggleDayNight()">🌙/☀️</button>
 </div>
-<canvas id="gameCanvas" width="100" height="60"></canvas>
+<div class="info">
+  <p>Click "Khách hàng" để thêm nhân vật | Click "Bàn" để thêm bàn</p>
+  <p>Animation: Steam rising, barista walking, customers idle sway</p>
+</div>
 
 <script>
-// === PREMIUM PIXEL ART CAFÉ SCENE (Coffee Talk / Stardew Valley Inspired) ===
-const P=2,W=100,H=60;
-let af=0;
+const canvas = document.getElementById('cafeCanvas');
+const ctx = canvas.getContext('2d');
+let af = 0;
+let isNight = false;
+let customers = [];
+let tables = [];
+let steamParticles = [];
+let barista = {x: 400, y: 300, targetX: 400, phase: 0};
 
-const COL={
-  bg:'#0d0d1a',wall:'#16213e',floor:'#1a1a3e',
-  counter:'#5C3317',counterTop:'#8B4513',counterEdge:'#3d2010',
-  machine:'#777',machineDark:'#555',machineGold:'#FFD700',
-  shelf:'#3d2b1f',shelfItem:'#F5DEB3',cup:'#fff8dc',coffee:'#3c2415',
-  window:'#87CEEB',moon:'#fffde7',lampGlow:'rgba(255,215,0,0.03)',
-  plant:'#27ae60',plantDark:'#1e8449',
-  table:'#8B4513',tableTop:'#A0522D',tableLeg:'#5C3317',
-  chair:'#3d2b1f',chairSeat:'#5C3317',
-  skinTone:'#FFDBAC',skinShadow:'#E5B88A',
-  neonPink:'#FF1493',neonGlow:'rgba(255,20,147,0.15)',
-  payment:'#28a745',shadow:'rgba(0,0,0,0.2)',steam:'rgba(255,255,255,0.3)'
+// Color palette - premium cafe theme
+const COLORS = {
+  bg: '#0d0d1a',
+  wall: '#16213e',
+  floor: '#1a1a3e',
+  counter: '#5C3317',
+  counterTop: '#8B4513',
+  machine: '#777',
+  machineDark: '#555',
+  machineGold: '#FFD700',
+  shelf: '#3d2b1f',
+  shelfItem: '#F5DEB3',
+  cup: '#fff8dc',
+  coffee: '#3c2415',
+  window: '#87CEEB',
+  moon: '#f0f8ff',
+  plant: '#27ae60',
+  plantDark: '#1e8449',
+  table: '#8B4513',
+  tableTop: '#A0522D',
+  tableLeg: '#5C3317',
+  chair: '#3d2b1f',
+  chairSeat: '#5C3317',
+  skinTone: '#FFDBAC',
+  neonPink: '#FF1493',
+  neonBlue: '#00BFFF',
+  lampGlow: 'rgba(255, 215, 0, 0.3)',
+  shadow: 'rgba(0, 0, 0, 0.2)'
 };
 
-let customers=[],steamParticles=[];
-let barista={x:80,y:65,phase:0};
-
-function px(rx,ry,rw,rh,c){
-  ctx.fillStyle=c;
-  ctx.fillRect(Math.floor(rx*P),Math.floor(ry*P),Math.max(1,Math.floor(rw*P)),Math.max(1,Math.floor(rh*P)));
-}
-
-function drawBackground(){
-  px(0,0,W,H,COL.bg);
-  px(0,0,W,H/2,COL.wall);
-  px(0,H/2,W,H/2,COL.floor);
+function drawBackground() {
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, 0, 480);
+  gradient.addColorStop(0, isNight ? '#0a0a1a' : COLORS.wall);
+  gradient.addColorStop(0.5, isNight ? '#1a1a2a' : COLORS.wall);
+  gradient.addColorStop(1, isNight ? '#0d0d1a' : COLORS.floor);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 800, 480);
   
-  for(let i=0;i<W;i+=8){
-    for(let j=Math.floor(H/2);j<H;j+=8){
-      const highlight=(i+j)%16===0;
-      px(i,j,7,7,highlight?'#22224a':'#16163e');
+  // Floor pattern
+  for (let i = 0; i < 800; i += 40) {
+    for (let j = 240; j < 480; j += 40) {
+      const isHighlight = (i + j) % 80 === 0;
+      ctx.fillStyle = isHighlight ? '#22224a' : '#16163e';
+      ctx.fillRect(i, j, 38, 38);
     }
   }
   
-  px(0,H/2-2,W,2,'rgba(255,255,255,0.1)');
-  px(0,H/2-3,W,1,'rgba(255,215,0,0.1)');
+  // Floor reflection
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.fillRect(0, 240, 800, 2);
 }
 
-function drawWindow(){
-  px(10,12,35,30,'rgba(0,0,0,0.8)');
-  px(12,14,31,26,COL.window);
-  px(11,13,33,28,COL.tableLeg);
-  px(11,13,33,2,COL.tableLeg);
-  px(11,13,2,28,COL.tableLeg);
-  px(42,13,2,28,COL.tableLeg);
-  px(11,39,33,2,COL.tableLeg);
+function drawWindow() {
+  // Window frame
+  ctx.fillStyle = '#000';
+  ctx.fillRect(50, 80, 120, 100);
   
-  px(27,13,2,26,COL.tableLeg);
-  px(11,26,33,2,COL.tableLeg);
+  // Window glass
+  ctx.fillStyle = COLORS.window;
+  ctx.fillRect(52, 82, 116, 96);
   
-  px(15,17,3,3,COL.moon);
-  px(20,20,1,1,COL.moon);
-  px(25,22,1,1,COL.moon);
-  px(30,18,1,1,COL.moon);
+  // Window frame details
+  ctx.strokeStyle = '#3d2b1f';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(50, 80, 120, 100);
   
-  px(8,12,4,32,'#16213e');
-  px(44,12,4,32,'#16213e');
+  // Window cross bars
+  ctx.strokeStyle = '#3d2b1f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(110, 80);
+  ctx.lineTo(110, 180);
+  ctx.moveTo(50, 130);
+  ctx.lineTo(170, 130);
+  ctx.stroke();
+  
+  // Moon and stars through window
+  ctx.fillStyle = COLORS.moon;
+  ctx.beginPath();
+  ctx.arc(80, 100, 8, 0, Math.PI * 2);
+  ctx.fill();
+  
+  // Stars
+  for (let i = 0; i < 5; i++) {
+    const x = 60 + Math.random() * 80;
+    const y = 90 + Math.random() * 70;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(x, y, 2, 2);
+  }
+  
+  // Curtains
+  ctx.fillStyle = '#16213e';
+  ctx.fillRect(40, 75, 15, 110);
+  ctx.fillRect(165, 75, 15, 110);
 }
 
-function drawCounter(){
-  px(45,55,70,15,COL.counter);
-  px(45,55,70,2,COL.counterTop);
-  px(45,55,70,1,'rgba(255,255,255,0.1)');
-  px(45,70,70,1,COL.shadow);
+function drawCounter() {
+  // Counter body
+  ctx.fillStyle = COLORS.counter;
+  ctx.fillRect(250, 280, 300, 60);
   
-  for(let i=45;i<115;i+=3){
-    px(i,57,1,12,'rgba(0,0,0,0.05)');
+  // Counter top
+  ctx.fillStyle = COLORS.counterTop;
+  ctx.fillRect(250, 280, 300, 10);
+  
+  // Counter edge highlight
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(250, 280, 300, 2);
+  
+  // Counter shadow
+  ctx.fillStyle = COLORS.shadow;
+  ctx.fillRect(250, 340, 300, 5);
+  
+  // Wood grain effect
+  for (let i = 250; i < 550; i += 15) {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    ctx.fillRect(i, 290, 1, 50);
   }
 }
 
-function drawEspressoMachine(){
-  px(105,35,15,20,COL.machine);
-  px(107,33,11,2,COL.machineDark);
-  px(108,31,9,2,'#666');
+function drawEspressoMachine() {
+  const mx = 450, my = 200;
   
-  px(108,45,3,5,COL.machineDark);
-  px(112,45,3,5,COL.machineDark);
+  // Machine body
+  ctx.fillStyle = COLORS.machine;
+  ctx.fillRect(mx, my, 60, 80);
   
-  px(106,48,2,8,'#888');
+  // Machine top
+  ctx.fillStyle = COLORS.machineDark;
+  ctx.fillRect(mx + 5, my - 5, 50, 10);
   
-  px(115,38,2,3,COL.cup);
-  px(115,41,2,3,COL.cup);
-  px(115,44,2,3,COL.cup);
+  // Machine front panel
+  ctx.fillStyle = COLORS.machineDark;
+  ctx.fillRect(mx + 5, my + 10, 50, 20);
   
-  px(106,55,3,4,COL.cup);
-  px(107,56,2,1,COL.coffee);
+  // Group heads
+  ctx.fillStyle = COLORS.machineDark;
+  ctx.fillRect(mx + 10, my + 35, 15, 25);
+  ctx.fillRect(mx + 35, my + 35, 15, 25);
   
-  px(108,36,7,1,COL.machineGold);
-  px(109,37,1,1,COL.machineGold);
-  px(110,37,1,1,COL.machineGold);
+  // Steam wand
+  ctx.fillStyle = '#888';
+  ctx.fillRect(mx - 5, my + 45, 8, 35);
+  
+  // Stacked cups
+  ctx.fillStyle = COLORS.cup;
+  ctx.fillRect(mx + 65, my + 10, 15, 15);
+  ctx.fillRect(mx + 65, my + 25, 15, 15);
+  ctx.fillRect(mx + 65, my + 40, 15, 15);
+  
+  // Coffee cup on machine
+  ctx.fillStyle = COLORS.cup;
+  ctx.fillRect(mx + 10, my + 55, 20, 25);
+  ctx.fillStyle = COLORS.coffee;
+  ctx.fillRect(mx + 12, my + 57, 16, 5);
+  
+  // Machine gold details
+  ctx.fillStyle = COLORS.machineGold;
+  ctx.fillRect(mx + 15, my + 15, 30, 2);
+  ctx.fillRect(mx + 15, my + 20, 2, 2);
+  ctx.fillRect(mx + 15, my + 25, 2, 2);
 }
 
-function drawShelves(){
-  px(50,25,50,2,COL.shelf);
-  px(50,23,50,1,'rgba(255,255,255,0.1)');
+function drawShelves() {
+  // Shelf board
+  ctx.fillStyle = COLORS.shelf;
+  ctx.fillRect(300, 180, 200, 8);
   
-  px(52,18,3,7,COL.shelfItem);
-  px(57,16,2,9,'#333');
-  px(61,17,4,8,COL.shelfItem);
-  px(67,15,3,10,'#27ae60');
-  px(72,18,2,7,COL.cup);
-  px(75,20,4,5,'#8e44ad');
-  px(80,17,3,8,COL.cup);
-  px(84,16,2,9,'#2980b9');
-  px(88,18,4,7,COL.shelfItem);
-  px(93,19,3,6,'#e74c3c');
-  px(97,20,5,3,COL.cup);
-  px(103,17,2,8,'#f39c12');
-}
-
-function drawLamps(){
-  for(let i=0;i<3;i++){
-    const lx=55+i*25;
-    px(lx,8,1,47,'#444');
-    px(lx-4,54,9,4,'#FFD700');
-    px(lx-3,52,7,2,'#ddd');
-    px(lx-4,52,9,2,'#ddd');
-    
-    const glow=0.03+Math.sin(af*0.05+i*1.5)*0.02;
-    ctx.fillStyle='rgba(255,215,0,'+glow+')';
-    ctx.fillRect((lx-6)*P,54*P,12*P,30*P);
-    
-    ctx.fillStyle='rgba(255,215,0,'+(glow+0.01)+')';
-    ctx.fillRect((lx-4)*P,58*P,8*P,42*P);
-  }
-}
-
-function drawTables(){
-  const tablePositions=[
-    {x:25,y:70},{x:60,y:70},{x:95,y:70},{x:130,y:70}
+  // Shelf items
+  const items = [
+    {x: 310, y: 150, w: 15, h: 30, c: COLORS.shelfItem},
+    {x: 330, y: 145, w: 10, h: 35, c: '#333'},
+    {x: 350, y: 155, w: 20, h: 25, c: COLORS.shelfItem},
+    {x: 375, y: 140, w: 12, h: 40, c: '#27ae60'},
+    {x: 395, y: 150, w: 10, h: 30, c: COLORS.cup},
+    {x: 410, y: 155, w: 15, h: 25, c: '#8e44ad'},
+    {x: 430, y: 145, w: 12, h: 35, c: COLORS.cup},
+    {x: 450, y: 140, w: 10, h: 40, c: '#2980b9'},
+    {x: 465, y: 155, w: 15, h: 25, c: COLORS.shelfItem},
+    {x: 485, y: 150, w: 10, h: 30, c: '#e74c3c'},
+    {x: 500, y: 155, w: 20, h: 25, c: COLORS.shelfItem},
+    {x: 525, y: 145, w: 10, h: 35, c: '#f39c12'}
   ];
   
-  for(let t of tablePositions){
-    px(t.x+1,t.y+1,25,15,COL.shadow);
-    px(t.x,t.y,25,3,COL.table);
-    px(t.x,t.y-1,25,1,COL.tableTop);
-    px(t.x+1,t.y,23,1,'rgba(255,255,255,0.1)');
-    px(t.x+3,t.y+3,2,12,COL.tableLeg);
-    px(t.x+20,t.y+3,2,12,COL.tableLeg);
-    px(t.x+1,t.y-1,23,1,'rgba(255,255,255,0.15)');
+  items.forEach(item => {
+    ctx.fillStyle = item.c;
+    ctx.fillRect(item.x, item.y, item.w, item.h);
+  });
+}
+
+function drawLamps() {
+  for (let i = 0; i < 4; i++) {
+    const lx = 200 + i * 100;
     
-    px(t.x+2,t.y-15,8,3,COL.chair);
-    px(t.x+2,t.y-12,8,2,COL.chairSeat);
-    px(t.x+15,t.y-15,8,3,COL.chair);
-    px(t.x+15,t.y-12,8,2,COL.chairSeat);
+    // Lamp chain
+    ctx.fillStyle = '#444';
+    ctx.fillRect(lx, 20, 2, 160);
     
-    px(t.x+2,t.y-12,1,3,COL.chair);
-    px(t.x+9,t.y-12,1,3,COL.chair);
-    px(t.x+15,t.y-12,1,3,COL.chair);
-    px(t.x+22,t.y-12,1,3,COL.chair);
+    // Lamp shade
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(lx - 15, 180, 30, 15);
+    ctx.fillRect(lx - 10, 175, 20, 5);
     
-    px(t.x+10,t.y-3,3,3,COL.cup);
-    px(t.x+10.5,t.y-2.5,2,1,COL.coffee);
+    // Lamp glow
+    const glow = 0.3 + Math.sin(af * 0.05 + i * 1.5) * 0.15;
+    const gradient = ctx.createRadialGradient(lx, 200, 0, lx, 200, 150);
+    gradient.addColorStop(0, `rgba(255, 215, 0, ${glow})`);
+    gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(lx - 150, 180, 300, 300);
   }
 }
 
-function drawDecorations(){
-  px(125,40,10,12,'#2c3e50');
-  px(126,41,8,10,'#1a2744');
-  px(127,42,6,1,COL.cup);
-  px(127,44,4,1,COL.cup);
-  px(127,46,5,1,COL.cup);
-  px(127,48,3,1,COL.cup);
-  
-  px(75,10,20,2,COL.neonPink);
-  px(75,12,20,2,COL.neonPink);
-  const neonGlow=0.3+Math.sin(af*0.08)*0.2;
-  ctx.fillStyle=COL.neonGlow+neonGlow+')';
-  ctx.fillRect(75*P,10*P,20*P,4*P);
-  
-  px(125,55,15,10,'#e74c3c');
-  px(126,56,13,8,'rgba(255,255,255,0.1)');
-  
-  px(100,50,4,6,COL.cup);
-  px(101,51,2,3,'#FFD700');
-  px(100,56,4,2,'#888');
-  
-  for(let i=0;i<4;i++){
-    const pxPos=15+i*35;
-    px(pxPos,60,6,8,COL.plant);
-    px(pxPos+2,60,2,10,COL.plantDark);
-    px(pxPos-2,58,10,3,COL.plant);
-    px(pxPos+1,55,4,4,COL.plant);
-    px(pxPos-1,52,8,4,COL.plant);
-    px(pxPos+1,48,6,4,COL.plant);
-    px(pxPos+2,44,4,4,COL.plant);
-  }
-}
-
-function drawCustomers(){
-  const time=af*0.1;
-  for(let i=0;i<customers.length;i++){
-    const c=customers[i];
-    const bob=Math.sin(time+i*Math.PI/2)*0.3;
-    const cx=c.x+Math.sin(time*0.3+i)*2;
-    const cy=c.y+bob;
+function drawTables() {
+  tables.forEach(table => {
+    const {x, y} = table;
     
-    px(cx,cy,8,10,c.shirt);
-    px(cx-1,cy+2,1,6,COL.skinTone);
-    px(cx+8,cy+2,1,6,COL.skinTone);
-    px(cx+1,cy+10,3,4,'#333');
-    px(cx+5,cy+10,3,4,'#333');
-    px(cx+1,cy-10,6,6,COL.skinTone);
-    px(cx+1,cy-13,6,3,c.hair);
-    px(cx+2,cy-8,1,1,'#333');
-    px(cx+5,cy-8,1,1,'#333');
-    if(c.mood>0.7)px(cx+2,cy-6,4,1,'#e74c3c');
-    else px(cx+2,cy-6,4,0.5,'#333');
+    // Table shadow
+    ctx.fillStyle = COLORS.shadow;
+    ctx.fillRect(x + 5, y + 5, 80, 60);
     
-    const patienceX=cx-2;
-    px(patienceX,cy-16,10,1,'#333');
-    const patienceColor=c.mood>0.7?'#28a745':c.mood>0.3?'#FFD700':'#e74c3c';
-    px(patienceX,cy-16,10*c.mood,1,patienceColor);
+    // Table top
+    ctx.fillStyle = COLORS.tableTop;
+    ctx.fillRect(x, y, 80, 10);
+    
+    // Table edge
+    ctx.fillStyle = COLORS.table;
+    ctx.fillRect(x, y + 10, 80, 5);
+    
+    // Table legs
+    ctx.fillStyle = COLORS.tableLeg;
+    ctx.fillRect(x + 10, y + 15, 5, 40);
+    ctx.fillRect(x + 65, y + 15, 5, 40);
+    
+    // Table top reflection
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fillRect(x + 5, y + 1, 70, 2);
+    
+    // Chairs
+    ctx.fillStyle = COLORS.chair;
+    ctx.fillRect(x - 15, y - 20, 25, 10);
+    ctx.fillRect(x - 15, y - 10, 25, 5);
+    ctx.fillRect(x + 70, y - 20, 25, 10);
+    ctx.fillRect(x + 70, y - 10, 25, 5);
+    
+    // Chair legs
+    ctx.fillRect(x - 10, y - 10, 3, 15);
+    ctx.fillRect(x + 5, y - 10, 3, 15);
+    ctx.fillRect(x + 75, y - 10, 3, 15);
+    ctx.fillRect(x + 90, y - 10, 3, 15);
+    
+    // Cup on table
+    ctx.fillStyle = COLORS.cup;
+    ctx.fillRect(x + 30, y - 8, 15, 18);
+    ctx.fillStyle = COLORS.coffee;
+    ctx.fillRect(x + 32, y - 6, 11, 3);
+  });
+}
+
+function drawDecorations() {
+  // Menu board
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(650, 120, 60, 80);
+  ctx.fillStyle = '#1a2744';
+  ctx.fillRect(652, 122, 56, 76);
+  
+  // Menu text
+  ctx.fillStyle = COLORS.cup;
+  ctx.fillRect(655, 130, 50, 2);
+  ctx.fillRect(655, 135, 40, 2);
+  ctx.fillRect(655, 140, 45, 2);
+  ctx.fillRect(655, 145, 35, 2);
+  ctx.fillRect(655, 150, 42, 2);
+  
+  // Neon signs
+  ctx.fillStyle = COLORS.neonPink;
+  ctx.fillRect(300, 60, 200, 8);
+  ctx.fillRect(300, 70, 200, 8);
+  
+  // Neon glow effect
+  const neonGlow = 0.3 + Math.sin(af * 0.08) * 0.2;
+  ctx.fillStyle = `rgba(255, 20, 147, ${neonGlow})`;
+  ctx.fillRect(300, 60, 200, 20);
+  
+  // Floor mat
+  ctx.fillStyle = '#e74c3c';
+  ctx.fillRect(650, 300, 80, 40);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(652, 302, 76, 36);
+  
+  // Tip jar
+  ctx.fillStyle = COLORS.cup;
+  ctx.fillRect(600, 260, 25, 35);
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(602, 265, 21, 8);
+  ctx.fillStyle = '#888';
+  ctx.fillRect(600, 295, 25, 5);
+  
+  // Plants
+  for (let i = 0; i < 3; i++) {
+    const px = 100 + i * 250;
+    // Plant pot
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(px, 380, 30, 25);
+    // Plant leaves
+    ctx.fillStyle = COLORS.plant;
+    ctx.fillRect(px + 5, 350, 20, 30);
+    ctx.fillRect(px + 10, 330, 10, 20);
+    ctx.fillStyle = COLORS.plantDark;
+    ctx.fillRect(px + 12, 360, 6, 15);
   }
 }
 
-function drawBarista(){
-  const bx=barista.x+Math.sin(af*0.1)*3;
-  const by=barista.y+Math.cos(af*0.15)*0.5;
-  
-  px(bx,by,10,12,'#2c3e50');
-  px(bx+1,by+1,8,10,'#2c3e50');
-  
-  const armWave=Math.sin(af*0.2)*0.5;
-  px(bx-1,by+2+armWave,1,6,COL.skinTone);
-  px(bx+10,by+2-armWave,1,6,COL.skinTone);
-  px(bx+2,by+12,3,4,'#2c3e50');
-  px(bx+6,by+12,3,4,'#2c3e50');
-  px(bx+2,by-12,6,6,COL.skinTone);
-  px(bx+2,by-14,6,3,'#2c1810');
-  px(bx+2,by-10,6,1,'#4a3728');
-  px(bx+3,by-8,1,1,'#333');
-  px(bx+6,by-8,1,1,'#333');
-  px(bx+4,by+3,2,2,'#FFD700');
-  px(bx+3,by+7,4,1,'#FFD700');
+function drawCustomers() {
+  customers.forEach((customer, index) => {
+    const time = af * 0.1;
+    const bob = Math.sin(time + index * Math.PI / 2) * 0.3;
+    const cx = customer.x + Math.sin(time * 0.3 + index) * 2;
+    const cy = customer.y + bob;
+    
+    // Body
+    ctx.fillStyle = customer.shirt;
+    ctx.fillRect(cx, cy, 40, 50);
+    
+    // Arms
+    ctx.fillStyle = COLORS.skinTone;
+    ctx.fillRect(cx - 5, cy + 10, 5, 30);
+    ctx.fillRect(cx + 40, cy + 10, 5, 30);
+    
+    // Legs
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx + 5, cy + 50, 15, 20);
+    ctx.fillRect(cx + 20, cy + 50, 15, 20);
+    
+    // Head
+    ctx.fillStyle = COLORS.skinTone;
+    ctx.fillRect(cx + 5, cy - 30, 30, 30);
+    ctx.fillStyle = customer.hair;
+    ctx.fillRect(cx + 5, cy - 35, 30, 15);
+    
+    // Eyes
+    ctx.fillStyle = '#333';
+    ctx.fillRect(cx + 10, cy - 20, 5, 5);
+    ctx.fillRect(cx + 25, cy - 20, 5, 5);
+    
+    // Mouth
+    if (customer.mood > 0.7) {
+      ctx.fillStyle = '#e74c3c';
+      ctx.fillRect(cx + 12, cy - 12, 16, 3);
+    } else {
+      ctx.fillStyle = '#333';
+      ctx.fillRect(cx + 12, cy - 12, 16, 2);
+    }
+    
+    // Mood indicator
+    const patienceX = cx - 10;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(patienceX, cy - 45, 60, 5);
+    const patienceColor = customer.mood > 0.7 ? '#28a745' : customer.mood > 0.3 ? '#FFD700' : '#e74c3c';
+    ctx.fillStyle = patienceColor;
+    ctx.fillRect(patienceX, cy - 45, 60 * customer.mood, 5);
+  });
 }
 
-function drawSteam(){
-  for(let i=steamParticles.length-1;i>=0;i--){
-    const s=steamParticles[i];
-    s.x+=s.vx;s.y+=s.vy;s.life-=0.015;
-    if(s.life<=0){steamParticles.splice(i,1);continue;}
-    const alpha=s.life*0.5;
-    ctx.fillStyle='rgba(255,255,255,'+alpha+')';
-    ctx.fillRect(s.x*P,s.y*P,s.size*P,s.size*P);
+function drawBarista() {
+  const bx = barista.x + Math.sin(af * 0.1) * 3;
+  const by = barista.y + Math.cos(af * 0.15) * 0.5;
+  
+  // Body
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(bx, by, 50, 60);
+  
+  // Apron
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(bx + 5, by + 5, 40, 50);
+  
+  // Arms
+  const armWave = Math.sin(af * 0.2) * 0.5;
+  ctx.fillStyle = COLORS.skinTone;
+  ctx.fillRect(bx - 5, by + 10 + armWave, 5, 30);
+  ctx.fillRect(bx + 50, by + 10 - armWave, 5, 30);
+  
+  // Legs
+  ctx.fillStyle = '#2c3e50';
+  ctx.fillRect(bx + 10, by + 60, 15, 20);
+  ctx.fillRect(bx + 25, by + 60, 15, 20);
+  
+  // Head
+  ctx.fillStyle = COLORS.skinTone;
+  ctx.fillRect(bx + 10, by - 20, 30, 30);
+  ctx.fillStyle = '#2c1810';
+  ctx.fillRect(bx + 10, by - 25, 30, 15);
+  
+  // Mustache
+  ctx.fillStyle = '#4a3728';
+  ctx.fillRect(bx + 15, by - 8, 20, 3);
+  
+  // Eyes
+  ctx.fillStyle = '#333';
+  ctx.fillRect(bx + 15, by - 15, 5, 5);
+  ctx.fillRect(bx + 25, by - 15, 5, 5);
+  
+  // Apron details
+  ctx.fillStyle = '#FFD700';
+  ctx.fillRect(bx + 20, by + 15, 10, 10);
+  ctx.fillRect(bx + 15, by + 35, 20, 3);
+}
+
+function drawSteam() {
+  steamParticles.forEach((particle, index) => {
+    const alpha = particle.life * 0.5;
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
+  });
+}
+
+function updateCustomers() {
+  customers.forEach(customer => {
+    customer.mood -= 0.0003;
+    if (customer.mood < 0.2) customer.mood = 0.2;
+  });
+}
+
+function updateSteam() {
+  // Add new steam particles
+  if (Math.random() > 0.9) {
+    steamParticles.push({
+      x: 470 + Math.random() * 10,
+      y: 200,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: -0.3 - Math.random() * 0.3,
+      life: 1,
+      size: 2
+    });
   }
-  if(Math.random()>0.92)steamParticles.push({x:107,y:30,vx:(Math.random()-0.5)*0.2,vy:-0.3-Math.random()*0.3,life:1,size:2});
-  if(Math.random()>0.95)steamParticles.push({x:107,y:30,vx:(Math.random()-0.5)*0.2,vy:-0.2-Math.random()*0.2,life:1,size:3});
+  
+  // Update existing steam
+  for (let i = steamParticles.length - 1; i >= 0; i--) {
+    const p = steamParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.015;
+    if (p.life <= 0) {
+      steamParticles.splice(i, 1);
+    }
+  }
 }
 
-function updateCustomers(){
-  for(let c of customers){c.mood-=0.0003;if(c.mood<0.2)c.mood=0.2;}
-}
-
-function createCustomer(){
-  const shirts=['#e74c3c','#2980b9','#27ae60','#8e44ad','#f39c12','#1abc9c','#3498db','#e67e22'];
-  const hairs=['#4a3728','#2c1810','#DAA520','#8B4513','#FF8C00','#C0C0C0'];
+function createCustomer() {
+  const shirts = ['#e74c3c', '#2980b9', '#27ae60', '#8e44ad', '#f39c12', '#1abc9c', '#3498db', '#e67e22'];
+  const hairs = ['#4a3728', '#2c1810', '#DAA520', '#8B4513', '#FF8C00', '#C0C0C0'];
+  
   return {
-    x:Math.random()*120+20,
-    y:75+Math.random()*10,
-    shirt:shirts[Math.floor(Math.random()*shirts.length)],
-    hair:hairs[Math.floor(Math.random()*hairs.length)],
-    mood:0.5+Math.random()*0.5
+    x: 200 + Math.random() * 400,
+    y: 350 + Math.random() * 50,
+    shirt: shirts[Math.floor(Math.random() * shirts.length)],
+    hair: hairs[Math.floor(Math.random() * hairs.length)],
+    mood: 0.5 + Math.random() * 0.5
   };
 }
 
-function init(){
-  for(let i=0;i<4;i++)customers.push(createCustomer());
+function addCustomer() {
+  customers.push(createCustomer());
 }
 
-function render(){
-  ctx.clearRect(0,0,cv.width,cv.height);
+function addTable() {
+  if (tables.length < 6) {
+    tables.push({
+      x: 100 + tables.length * 120,
+      y: 320
+    });
+  }
+}
+
+function toggleDayNight() {
+  isNight = !isNight;
+}
+
+function init() {
+  // Initial customers
+  for (let i = 0; i < 4; i++) {
+    customers.push(createCustomer());
+  }
+  
+  // Initial tables
+  for (let i = 0; i < 3; i++) {
+    tables.push({x: 150 + i * 150, y: 320});
+  }
+}
+
+function render() {
+  // Clear canvas
+  ctx.clearRect(0, 0, 800, 480);
+  
+  // Draw all scene elements
   drawBackground();
   drawWindow();
   drawCounter();
@@ -313,24 +584,23 @@ function render(){
   drawBarista();
   drawSteam();
   updateCustomers();
+  updateSteam();
 }
 
-function loop(){
+function loop() {
   af++;
   render();
   requestAnimationFrame(loop);
 }
 
+// Initialize and start
 init();
 loop();
 
-window.updateGameScene=function(coins,level,customers,n,orders,n,reputation){
-  if(coins)COL.payment=coins>1000?'#28a745':'#FFD700';
-};
-
-window.toggleScene=function(){
-  const b=document.getElementById('scene-toggle');
-  cv.classList.toggle('hidden');
-  b.textContent=cv.classList.contains('hidden')?'Show Scene ☕':'☕ Hide Scene';
-};
-})();
+// Global functions for buttons
+window.addCustomer = addCustomer;
+window.addTable = addTable;
+window.toggleDayNight = toggleDayNight;
+</script>
+</body>
+</html>
