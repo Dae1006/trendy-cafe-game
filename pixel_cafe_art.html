@@ -3,457 +3,1022 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Trendy Cafe - Pixel Art Edition</title>
+<title>Trendy Cafe Game - Pixel Art</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d0d1a;color:#e8e8e8;font-family:'Courier New',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh;overflow-x:hidden}
-#gameCanvas{image-rendering:pixelated;image-rendering:crisp-edges;border:2px solid #FFD700;border-radius:8px;margin:10px 0}
-#ui-panel{display:flex;gap:20px;padding:10px 20px;background:linear-gradient(135deg,#16213e,#1a1a4e);border:2px solid #FFD700;border-radius:8px;margin:8px 0;flex-wrap:wrap;justify-content:center}
-.ui-stat{text-align:center;min-width:80px}
-.ui-stat .label{font-size:10px;color:#a0a0b0}
-.ui-stat .value{font-size:14px;color:#FFD700;font-weight:bold}
-#controls{display:flex;gap:8px;padding:10px;flex-wrap:wrap;justify-content:center}
-.btn{padding:8px 16px;border:2px solid #FFD700;background:#16213e;color:#FFD700;cursor:pointer;font-family:inherit;font-size:11px;border-radius:5px;transition:all 0.2s}
-.btn:hover{background:#FFD700;color:#0d0d1a}
-.btn:active{transform:scale(0.95)}
-#scene-info{font-size:11px;color:#a0a0b0;padding:5px;text-align:center}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Courier New', monospace;
+    color: #FFD700;
+    overflow: hidden;
+  }
+  #ui-panel {
+    background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    z-index: 10;
+  }
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .stat-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .stat-value {
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 16px;
+    min-width: 40px;
+  }
+  .stat-label {
+    color: #8888aa;
+    font-size: 11px;
+  }
+  .divider {
+    width: 1px;
+    height: 30px;
+    background: #FFD700;
+    opacity: 0.3;
+  }
+  #gameCanvas {
+    border: 2px solid #FFD700;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(0,0,0,0.5);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+  #title-bar {
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  #title-bar h1 {
+    font-size: 20px;
+    color: #FFD700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    letter-spacing: 3px;
+  }
+  #title-bar .subtitle {
+    font-size: 11px;
+    color: #666688;
+    letter-spacing: 2px;
+  }
 </style>
 </head>
 <body>
+
+<div id="title-bar">
+  <h1>☕ TRENDY CAFE</h1>
+  <div class="subtitle">--- PIXEL ART EDITION ---</div>
+</div>
+
 <div id="ui-panel">
-<div class="ui-stat"><div class="label">Coins</div><div class="value" id="ui-coins">1000</div></div>
-<div class="ui-stat"><div class="label">Customers</div><div class="value" id="ui-customers">0</div></div>
-<div class="ui-stat"><div class="label">Orders</div><div class="value" id="ui-orders">0</div></div>
-<div class="ui-stat"><div class="label">Level</div><div class="value" id="ui-level">1</div></div>
-<div class="ui-stat"><div class="label">Reputation</div><div class="value" id="ui-rep">⭐⭐⭐</div></div>
+  <div class="stat">
+    <canvas class="stat-icon" id="coinIcon" width="16" height="16"></canvas>
+    <div>
+      <div class="stat-value" id="coinCount">1,250</div>
+      <div class="stat-label">COINS</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <canvas class="stat-icon" id="custIcon" width="16" height="16"></canvas>
+    <div>
+      <div class="stat-value" id="custCount">3</div>
+      <div class="stat-label">CUSTOMERS</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <canvas class="stat-icon" id="starIcon" width="16" height="16"></canvas>
+    <div>
+      <div class="stat-value" id="scoreCount">98</div>
+      <div class="stat-label">RATING</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <div class="stat-value" id="statusText" style="color: #00ff88;">OPEN</div>
+    <div class="stat-label">STATUS</div>
+  </div>
+  <div class="divider"></div>
+  <div class="stat">
+    <canvas class="stat-icon" id="cupIcon" width="16" height="16"></canvas>
+    <div>
+      <div class="stat-value" id="servedCount">12</div>
+      <div class="stat-label">SERVED</div>
+    </div>
+  </div>
 </div>
-<canvas id="gameCanvas"></canvas>
-<div id="scene-info">Trendy Cafe - Pixel Art Edition | Click seats to serve customers</div>
-<div id="controls">
-<button class="btn" onclick="game.addCustomer()">+ Customer</button>
-<button class="btn" onclick="game.serveRandom()">Serve All</button>
-<button class="btn" onclick="game.addTable()">+ Table</button>
-<button class="btn" onclick="game.toggleDayNight()">🌙/☀️</button>
-<button class="btn" onclick="game.clearCustomers()">Clear</button>
-</div>
+
+<canvas id="gameCanvas" width="480" height="320"></canvas>
 
 <script>
-// ===== PIXEL ART GAME ENGINE =====
-const P = 3; // pixel scale
-const W = 100;
-const H = 70;
+// ============ CONFIGURATION ============
+const SCALE = 3; // Pixel scale factor
+const COLS = 80; // Pixel grid columns
+const ROWS = 60; // Pixel grid rows
+const W = COLS * SCALE;
+const H = ROWS * SCALE;
 
 const canvas = document.getElementById('gameCanvas');
-canvas.width = W * P;
-canvas.height = H * P;
 const ctx = canvas.getContext('2d');
+canvas.width = W;
+canvas.height = H;
 ctx.imageSmoothingEnabled = false;
 
-const COLORS = {
-  bg: '#0d0d1a', bgWall: '#16213e', floor: '#1a1a4e',
-  gold: '#FFD700', goldDim: '#b8960f', red: '#FF6347',
-  green: '#28a745', blue: '#3498db', brown: '#8B4513',
-  darkBrown: '#5C3317', cream: '#F5DEB3', white: '#ffffff',
-  skin: '#FFDBAC', hairBrown: '#4a3728', hairDark: '#2c1810',
-  hairBlonde: '#DAA520', shirtRed: '#e74c3c', shirtBlue: '#2980b9',
-  shirtGreen: '#27ae60', shirtPurple: '#8e44ad',
-  counter: '#5C3317', counterTop: '#8B4513', machine: '#666666',
-  window: '#87CEEB', lamp: '#FFD700', plant: '#2ecc71',
-  plate: '#ffffff', cup: '#f5f5dc', coffee: '#3c2415',
-  night: '#0a0a1a', nightWall: '#0f1a3e'
+// ============ COLOR PALETTE ============
+const C = {
+  bg: '#0d0d1a',
+  bgLight: '#1a1a2e',
+  gold: '#FFD700',
+  goldDim: '#b8960a',
+  brown: '#5c3a1e',
+  brownDark: '#3a2410',
+  brownLight: '#8b6914',
+  white: '#f0e6d3',
+  black: '#000000',
+  red: '#cc3333',
+  green: '#00cc44',
+  greenDark: '#006622',
+  pink: '#ff6699',
+  pinkDark: '#cc3366',
+  blue: '#4488cc',
+  blueDark: '#225588',
+  skin: '#ffb88a',
+  skinDark: '#d4906b',
+  skinLight: '#ffd0b0',
+  hairBrown: '#3a2410',
+  hairBlack: '#1a1a1a',
+  hairBlonde: '#d4a424',
+  hairRed: '#aa3322',
+  wall: '#2a1f14',
+  wallDark: '#1e1610',
+  floor: '#4a3628',
+  floorDark: '#3a2820',
+  counter: '#6b4a2a',
+  counterTop: '#8b6914',
+  espresso: '#2a1a0a',
+  espressoMetal: '#888888',
+  shelf: '#5a3a1a',
+  cup: '#f0f0f0',
+  cupDark: '#cccccc',
+  plant: '#22aa44',
+  plantDark: '#118833',
+  window: '#1a2a3a',
+  windowFrame: '#3a2a1a',
+  steam: '#ffffff',
+  steamGlow: 'rgba(255,255,255,0.3)',
+  light: '#ffee88',
+  lightGlow: 'rgba(255,238,136,0.15)',
+  neonPink: '#ff6699',
+  neonBlue: '#44aaff',
 };
 
-// ===== GAME STATE =====
-let game = {
-  coins: 1000,
-  level: 1,
-  reputation: 3,
-  ordersServed: 0,
-  nightMode: false,
-  tables: [],
-  customers: [],
-  steamParticles: [],
-  animFrame: 0,
-  lastServeTime: 0,
-  
-  init() {
-    this.tables = [
-      {x:15, y:45, seatX:18, seatY:50, seated:false, customer:null},
-      {x:35, y:45, seatX:38, seatY:50, seated:false, customer:null},
-      {x:55, y:45, seatX:58, seatY:50, seated:false, customer:null},
-      {x:75, y:45, seatX:78, seatY:50, seated:false, customer:null}
-    ];
-    this.spawnInitialCustomers();
-    this.loop();
-  },
+// ============ PIXEL DRAWING HELPER ============
+function px(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+}
 
-  spawnInitialCustomers() {
-    for(let i = 0; i < 2; i++) this.addCustomer();
-  },
+function pxBlock(x1, y1, x2, y2, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x1 * SCALE, y1 * SCALE, (x2 - x1 + 1) * SCALE, (y2 - y1 + 1) * SCALE);
+}
 
-  addCustomer() {
-    const shirtColors = [COLORS.shirtRed, COLORS.shirtBlue, COLORS.shirtGreen, COLORS.shirtPurple];
-    const hairColors = [COLORS.hairBrown, COLORS.hairDark, COLORS.hairBlonde];
-    const c = {
-      x: -5,
-      y: 38,
-      targetX: 0,
-      seated: false,
-      seatedAt: -1,
-      shirt: shirtColors[Math.floor(Math.random()*shirtColors.length)],
-      hair: hairColors[Math.floor(Math.random()*hairColors.length)],
-      skinTone: COLORS.skin,
-      mood: 0.7 + Math.random()*0.3,
-      waiting: 0,
-      animated: false,
-      animT: 0
-    };
-    // Find empty seat
-    for(let i = 0; i < this.tables.length; i++) {
-      if(!this.tables[i].seated) {
-        this.tables[i].seated = true;
-        this.tables[i].customer = c;
-        c.seated = true;
-        c.seatedAt = i;
-        c.targetX = this.tables[i].seatX;
-        c.y = this.tables[i].seatY;
-        break;
+function pxLine(x1, y1, x2, y2, color, thickness) {
+  ctx.fillStyle = color;
+  for (let t = 0; t <= 1; t += 0.02) {
+    const x = Math.round(x1 + (x2 - x1) * t);
+    const y = Math.round(y1 + (y2 - y1) * t);
+    for (let dx = -(thickness-1)/2; dx <= (thickness-1)/2; dx++) {
+      for (let dy = -(thickness-1)/2; dy <= (thickness-1)/2; dy++) {
+        px(x + dx, y + dy, color);
       }
     }
-    if(!c.seated) {
-      c.targetX = 5;
-    }
-    this.customers.push(c);
-    this.updateUI();
-  },
+  }
+}
 
-  serveRandom() {
-    let served = 0;
-    for(let i = this.customers.length-1; i >= 0; i--) {
-      const c = this.customers[i];
-      if(c.seated && c.waiting > 0.5) {
-        // Animate serving
-        c.animated = true;
-        c.animT = 0;
-        this.addSteam(c.targetX, c.y - 12);
-        this.coins += 25;
-        this.ordersServed++;
-        c.waiting = 0;
-        served++;
-        setTimeout(() => {
-          const idx = this.customers.indexOf(c);
-          if(idx > -1) {
-            this.customers.splice(idx, 1);
-            if(c.seatedAt >= 0 && this.tables[c.seatedAt]) {
-              this.tables[c.seatedAt].seated = false;
-              this.tables[c.seatedAt].customer = null;
-            }
-          }
-          this.updateUI();
-        }, 1500);
+// ============ ANIMATION STATE ============
+let frame = 0;
+let steamParticles = [];
+let animTime = 0;
+let coinCount = 1250;
+let customerCount = 3;
+let rating = 98;
+let servedCount = 12;
+let status = 'OPEN';
+let statusColor = '#00ff88';
+
+// ============ CUSTOMER DATA ============
+const customers = [
+  { x: 12, y: 38, dir: 1, hair: C.hairBrown, shirt: C.blue, pants: '#333366', name: 'Bob', mood: 'happy', state: 'sitting', stateTimer: 0 },
+  { x: 30, y: 40, dir: -1, hair: C.hairBlonde, shirt: C.pink, pants: '#553366', name: 'Amy', mood: 'excited', state: 'walking', stateTimer: 0, targetX: 28, targetY: 42 },
+  { x: 55, y: 36, dir: -1, hair: C.hairBlack, shirt: C.green, pants: '#222244', name: 'Zack', mood: 'waiting', state: 'waiting', stateTimer: 0 },
+];
+
+let servingBarista = { x: 38, y: 36, dir: -1, state: 'idle', stateTimer: 0, carriedCup: false, targetX: 0, targetY: 0 };
+
+// ============ DRAW BACKGROUND ============
+function drawBackground() {
+  // Main background
+  pxBlock(0, 0, COLS-1, ROWS-1, C.bg);
+
+  // Wall (top portion)
+  pxBlock(0, 0, COLS-1, 22, C.wall);
+  // Wall texture
+  for (let i = 0; i < 30; i++) {
+    const wx = Math.floor(Math.random() * COLS);
+    const wy = Math.floor(Math.random() * 22);
+    px(wx, wy, C.wallDark);
+  }
+  // Wall lower section (wainscoting)
+  pxBlock(0, 22, COLS-1, 24, C.wallDark);
+  // Floor
+  pxBlock(0, 24, COLS-1, ROWS-1, C.floor);
+  // Floor pattern
+  for (let fx = 0; fx < COLS; fx += 4) {
+    for (let fy = 25; fy < ROWS; fy += 3) {
+      px(fx, fy, C.floorDark);
+      px(fx + 2, fy, C.floorDark);
+    }
+  }
+}
+
+// ============ DRAW WINDOW ============
+function drawWindow(cx, cy) {
+  // Window frame
+  pxBlock(cx-2, cy-3, cx+10, cy+13, C.windowFrame);
+  pxBlock(cx-1, cy-2, cx+9, cy+12, C.window);
+
+  // Moon
+  px(cx+3, cy-1, C.light);
+  px(cx+4, cy-1, C.light);
+  px(cx+2, cy, C.light);
+  px(cx+3, cy, C.light);
+  px(cx+4, cy, C.light);
+  px(cx+5, cy, C.light);
+  px(cx+2, cy+1, C.light);
+  px(cx+3, cy+1, C.light);
+  px(cx+4, cy+1, C.light);
+  px(cx+3, cy+2, C.light);
+
+  // Stars
+  px(cx+7, cy-1, '#ffffff');
+  px(cx+8, cy+3, '#ffffff');
+  px(cx+1, cy+5, '#ffffff');
+
+  // Window cross bars
+  pxBlock(cx+4, cy-2, cx+4, cy+12, C.windowFrame);
+  pxBlock(cx-1, cy+5, cx+9, cy+5, C.windowFrame);
+
+  // Curtain left
+  pxBlock(cx-2, cy-3, cx-2, cy+12, '#cc4444');
+  pxBlock(cx-2, cy+8, cx+1, cy+10, '#cc4444');
+
+  // Curtain right
+  pxBlock(cx+10, cy-3, cx+10, cy+12, '#cc4444');
+  pxBlock(cx+8, cy+8, cx+11, cy+10, '#cc4444');
+}
+
+// ============ DRAW COUNTER ============
+function drawCounter() {
+  const cx = 55, cy = 18;
+  // Counter body
+  pxBlock(cx, cy, cx+23, cy+8, C.counter);
+  // Counter top
+  pxBlock(cx-1, cy, cx+24, cy+1, C.counterTop);
+  // Counter front detail
+  pxBlock(cx, cy+2, cx+23, cy+7, C.brownDark);
+  // Counter front panels
+  for (let i = 0; i < 4; i++) {
+    const px2 = cx + 1 + i * 6;
+    pxBlock(px2, cy+3, px2+3, cy+6, C.brown);
+    pxBlock(px2+1, cy+4, px2+2, cy+5, '#5a3a1a');
+  }
+  // Counter edge highlight
+  pxBlock(cx, cy+1, cx+23, cy+1, '#9a7a3a');
+}
+
+// ============ DRAW ESPRESSO MACHINE ============
+function drawEspressoMachine() {
+  const ex = 58, ey = 8;
+  // Machine body
+  pxBlock(ex, ey, ex+10, ey+10, C.espressoMetal);
+  // Top
+  pxBlock(ex-1, ey-1, ex+11, ey, '#666666');
+  pxBlock(ex, ey-2, ex+10, ey-1, '#777777');
+  // Top dome
+  px(ex+3, ey-3, '#888');
+  px(ex+4, ey-4, '#888');
+  px(ex+5, ey-4, '#888');
+  px(ex+6, ey-3, '#888');
+
+  // Front panel
+  pxBlock(ex+1, ey+1, ex+9, ey+9, '#777777');
+
+  // Group heads
+  for (let i = 0; i < 3; i++) {
+    const gx = ex + 2 + i * 3;
+    pxBlock(gx, ey+7, gx+1, ey+8, '#444');
+    pxBlock(gx, ey+9, gx+1, ey+10, C.espresso);
+  }
+
+  // Portafilter handles
+  px(ex+2, ey+8, '#aaa');
+  px(ex+5, ey+8, '#aaa');
+  px(ex+8, ey+8, '#aaa');
+
+  // Steam wand
+  pxBlock(ex+10, ey+4, ex+10, ey+7, '#999');
+  px(ex+11, ey+5, '#aaa');
+  px(ex+11, ey+6, '#aaa');
+
+  // Cup on machine
+  pxBlock(ex-2, ey+8, ex, ey+9, C.cup);
+  px(ex-2, ey+7, C.cupDark);
+  px(ex, ey+7, C.cupDark);
+
+  // Cups stack
+  for (let i = 0; i < 3; i++) {
+    const cy2 = ey + 3 + i;
+    pxBlock(ex+3, cy2, ex+6, cy2+1, C.cup);
+    px(ex+3, cy2-1, C.cupDark);
+    px(ex+6, cy2-1, C.cupDark);
+  }
+}
+
+// ============ DRAW SHELVES ============
+function drawShelves() {
+  const sx = 2, sy = 6;
+  // Shelf boards
+  for (let i = 0; i < 3; i++) {
+    const sy2 = sy + i * 5;
+    pxBlock(sx, sy2, sx+22, sy2, C.shelf);
+    pxBlock(sx+1, sy2+1, sx+21, sy2+1, '#4a2a10');
+  }
+
+  // Items on shelves
+  // Shelf 1 (top): jars and bottles
+  // Jar 1
+  pxBlock(sx+1, sy+2, sx+3, sy+3, '#44aa44');
+  px(sx+1, sy+1, '#55bb55');
+  px(sx+3, sy+1, '#55bb55');
+  px(sx+2, sy+1, '#66cc66');
+  // Jar 2
+  pxBlock(sx+5, sy+2, sx+7, sy+3, '#aa6633');
+  px(sx+5, sy+1, '#bb7744');
+  px(sx+7, sy+1, '#bb7744');
+  // Bottle
+  pxBlock(sx+9, sy+1, sx+10, sy+3, '#4444aa');
+  px(sx+9, sy, '#5555bb');
+  px(sx+10, sy, '#5555bb');
+  // Another jar
+  pxBlock(sx+12, sy+2, sx+15, sy+3, '#884488');
+  px(sx+12, sy+1, '#995599');
+  px(sx+15, sy+1, '#995599');
+
+  // Shelf 2: cups and plates
+  for (let i = 0; i < 5; i++) {
+    const cx2 = sx + 1 + i * 4;
+    pxBlock(cx2, sy+5, cx2+2, sy+5, C.cup);
+    pxBlock(cx2, sy+6, cx2+3, sy+6, C.cup);
+    pxBlock(cx2+1, sy+7, cx2+2, sy+7, C.cupDark);
+  }
+  // Plates
+  for (let i = 0; i < 3; i++) {
+    const cx2 = sx + 10 + i * 5;
+    pxBlock(cx2, sy+9, cx2+3, sy+9, C.cup);
+    px(cx2+1, sy+8, C.cupDark);
+    px(cx2+2, sy+8, C.cupDark);
+  }
+
+  // Shelf 3: plants and decorations
+  // Small plant
+  pxBlock(sx+1, sy+10, sx+3, sy+11, '#338833');
+  pxBlock(sx+1, sy+12, sx+3, sy+13, '#8b6914');
+  px(sx+2, sy+9, '#44bb44');
+  px(sx+1, sy+9, '#33aa33');
+  px(sx+3, sy+9, '#33aa33');
+  // Picture frame
+  pxBlock(sx+8, sy+10, sx+12, sy+13, C.brown);
+  pxBlock(sx+9, sy+11, sx+11, sy+12, '#5588aa');
+  px(sx+10, sy+11, '#ffcc44');
+  px(sx+10, sy+12, '#ffcc44');
+  // Coffee bag
+  pxBlock(sx+15, sy+10, sx+17, sy+13, '#8b4513');
+  pxBlock(sx+15, sy+11, sx+17, sy+12, '#6b3513');
+  pxBlock(sx+16, sy+12, sx+16, sy+12, '#FFD700');
+
+  // Top shelf: neon sign
+  pxBlock(sx+5, sy-2, sx+16, sy-2, C.neonPink);
+  pxBlock(sx+5, sy-3, sx+16, sy-3, C.neonPink);
+  pxBlock(sx+7, sy-4, sx+14, sy-4, C.neonPink);
+  // Glow
+  for (let i = 0; i < 11; i++) {
+    px(sx+5+i, sy-1, C.neonPink);
+  }
+}
+
+// ============ DRAW TABLES ============
+function drawTable(tx, ty) {
+  // Table top
+  pxBlock(tx, ty, tx+9, ty, C.brownLight);
+  pxBlock(tx+1, ty-1, tx+8, ty-1, '#9a7a3a');
+  pxBlock(tx+2, ty-2, tx+7, ty-2, '#aa8a4a');
+
+  // Table legs
+  px(tx, ty+1, C.brown);
+  px(tx+1, ty+1, C.brown);
+  px(tx+8, ty+1, C.brown);
+  px(tx+9, ty+1, C.brown);
+  pxBlock(tx+1, ty+2, tx+8, ty+2, C.brownDark);
+
+  // Table surface
+  pxBlock(tx+1, ty+3, tx+8, ty+3, '#6b4a2a');
+  pxBlock(tx+2, ty+4, tx+7, ty+4, '#7b5a3a');
+
+  // Items on table
+  pxBlock(tx+2, ty-3, tx+4, ty-3, C.cup);
+  px(tx+3, ty-4, C.cupDark);
+}
+
+// ============ DRAW CHAIR ============
+function drawChair(cx, cy, dir) {
+  // Chair back
+  pxBlock(cx, cy, cx, cy+3, C.brown);
+  pxBlock(cx + dir, cy, cx + dir, cy+2, C.brown);
+  // Chair seat
+  pxBlock(cx, cy+3, cx, cy+4, C.brownLight);
+  // Chair legs
+  px(cx, cy+5, C.brownDark);
+  px(cx, cy+5, C.brownDark);
+  if (dir === -1) {
+    px(cx-1, cy+3, C.brown);
+    px(cx-1, cy+4, C.brown);
+    px(cx-1, cy+5, C.brownDark);
+    px(cx-1, cy+5, C.brownDark);
+  }
+}
+
+// ============ DRAW LAMPS ============
+function drawLamp(lx, ly) {
+  // Lamp cord
+  px(lx, ly, C.black);
+  px(lx, ly+1, C.black);
+  px(lx, ly+2, C.black);
+  // Lamp shade
+  pxBlock(lx-1, ly+3, lx+1, ly+3, '#cc8844');
+  pxBlock(lx-2, ly+4, lx+2, ly+4, '#dd9955');
+  pxBlock(lx-3, ly+5, lx+3, ly+5, '#eeaa66');
+  pxBlock(lx-2, ly+6, lx+2, ly+6, '#bb8844');
+  // Bulb glow
+  px(lx, ly+7, C.light);
+  // Light cone effect
+  pxBlock(lx-1, ly+8, lx+1, ly+8, C.lightGlow);
+  pxBlock(lx-2, ly+9, lx+2, ly+9, C.lightGlow);
+  pxBlock(lx-3, ly+10, lx+3, ly+10, 'rgba(255,238,136,0.07)');
+}
+
+// ============ DRAW CUSTOMER ============
+function drawCustomer(c, offsetY) {
+  const x = c.x, y = c.y;
+  const dir = c.dir;
+
+  // Mood expressions
+  let headColor = C.skin;
+  let mouthY = 0;
+  let mouthWidth = 2;
+
+  if (c.mood === 'happy') {
+    mouthY = 1; mouthWidth = 2;
+  } else if (c.mood === 'excited') {
+    mouthY = 1; mouthWidth = 3;
+  } else if (c.mood === 'waiting') {
+    mouthY = 0; mouthWidth = 1;
+  }
+
+  // Hair
+  pxBlock(x-1, y-3, x+1, y-3, c.hair);
+  pxBlock(x-2, y-2, x+2, y-2, c.hair);
+  pxBlock(x-2, y-1, x-2, y, c.hair);
+  pxBlock(x+2, y-1, x+2, y, c.hair);
+
+  // Head
+  pxBlock(x-1, y, x+1, y+1, headColor);
+  px(x, y+2, headColor);
+
+  // Eyes
+  px(x - dir, y, C.black);
+  px(x, y, C.white);
+  // Eye highlight
+  px(x - dir, y, C.white);
+
+  // Mouth
+  if (mouthWidth === 3) {
+    pxBlock(x-1, y+mouthY+1, x+1, y+mouthY+1, C.red);
+  } else {
+    px(x, y+mouthY+1, c.mood === 'waiting' ? C.red : C.pinkDark);
+  }
+
+  // Nose
+  px(x + dir, y+1, C.skinDark);
+
+  // Body (shirt)
+  pxBlock(x-1, y+3, x+1, y+5, c.shirt);
+  px(x, y+6, c.shirt);
+
+  // Arms
+  px(x - dir, y+4, C.skin);
+  px(x + dir*2, y+4, C.skin);
+
+  // Pants
+  pxBlock(x-1, y+7, x+1, y+8, c.pants);
+
+  // Legs
+  px(x-1, y+9, c.pants);
+  px(x+1, y+9, c.pants);
+
+  // Shoes
+  px(x-1, y+10, c.mood === 'waiting' ? '#333' : '#222');
+  px(x+1, y+10, c.mood === 'waiting' ? '#333' : '#222');
+
+  // Mood indicator
+  if (c.mood === 'excited') {
+    // Sparkle above head
+    const sparkleY = y - 5 + Math.sin(animTime * 3) * 0.5;
+    px(x, sparkleY, C.gold);
+    px(x - 1, sparkleY + 1, C.gold);
+    px(x + 1, sparkleY + 1, C.gold);
+    px(x, sparkleY + 2, C.gold);
+  } else if (c.mood === 'waiting') {
+    // Exclamation
+    const exY = y - 4 + Math.sin(animTime * 4) * 1;
+    px(x, exY, C.red);
+    px(x, exY + 2, C.red);
+    px(x, exY + 3, C.red);
+  }
+}
+
+// ============ DRAW BARISTA ============
+function drawBarista(bx, by) {
+  const dir = servingBarista.dir;
+
+  // Apron string
+  px(bx, by-2, C.white);
+  px(bx+dir, by-2, C.white);
+
+  // Head
+  pxBlock(bx-1, by-3, bx+1, by-3, C.hairBlack);
+  pxBlock(bx-2, by-2, bx+2, by-2, C.hairBlack);
+  pxBlock(bx-1, by-1, bx+1, by+1, C.skin);
+  px(bx, by+2, C.skin);
+
+  // Eyes
+  px(bx - dir, by, C.black);
+  px(bx - dir, by, C.white);
+
+  // Smile
+  px(bx - 1, by+2, C.pinkDark);
+  px(bx, by+2, C.red);
+  px(bx + 1, by+2, C.pinkDark);
+
+  // Mustache
+  pxBlock(bx-1, by+1, bx+1, by+1, C.hairBlack);
+
+  // Body
+  pxBlock(bx-1, by+3, bx+1, by+6, C.white);
+  // Apron
+  pxBlock(bx-1, by+4, bx+1, by+6, C.neonPink);
+  pxBlock(bx, by+3, bx, by+3, C.neonPink);
+
+  // Arms
+  const armWave = Math.sin(animTime * 5) * 0.5;
+  px(bx - dir*2, by+4, C.skin);
+  px(bx + dir*2, by+4 + Math.floor(armWave), C.skin);
+
+  // Pants
+  pxBlock(bx-1, by+7, bx+1, by+8, C.brownDark);
+
+  // Shoes
+  px(bx-1, by+9, '#222');
+  px(bx+1, by+9, '#222');
+
+  // Carried cup animation
+  if (servingBarista.carriedCup) {
+    const cupX = bx + dir * 3;
+    const cupY = by + 2 + Math.sin(animTime * 4) * 0.5;
+    pxBlock(cupX-1, cupY, cupX+1, cupY+1, C.cup);
+    px(cupX, cupY-1, C.cupDark);
+    px(cupX+1, cupY-1, C.cupDark);
+  }
+}
+
+// ============ STEAM PARTICLES ============
+function initSteam() {
+  steamParticles = [];
+  // Steam from espresso machine
+  for (let i = 0; i < 8; i++) {
+    steamParticles.push({
+      x: 67, y: 6 + Math.random() * 2,
+      vx: (Math.random() - 0.5) * 0.03,
+      vy: -0.02 - Math.random() * 0.02,
+      life: Math.random(),
+      maxLife: 0.6 + Math.random() * 0.4,
+      size: 1 + Math.floor(Math.random() * 2)
+    });
+  }
+  // Steam from cups
+  for (let i = 0; i < 4; i++) {
+    steamParticles.push({
+      x: 54 + i * 2, y: 26 + Math.random(),
+      vx: (Math.random() - 0.5) * 0.02,
+      vy: -0.015 - Math.random() * 0.015,
+      life: Math.random(),
+      maxLife: 0.5 + Math.random() * 0.3,
+      size: 1
+    });
+  }
+}
+
+function updateAndDrawSteam() {
+  steamParticles.forEach(p => {
+    p.life += 0.008;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx += (Math.random() - 0.5) * 0.005;
+
+    if (p.life > p.maxLife) {
+      p.life = 0;
+      p.x = Math.round(p.x);
+      p.y = p.y < 10 ? 25 : p.y;
+      if (p.x < 40) { p.x = 54 + Math.floor(Math.random() * 4 * 2); p.y = 26; }
+      else { p.x = 67; p.y = 6; }
+    }
+
+    const alpha = Math.max(0, 1 - p.life / p.maxLife);
+    if (alpha > 0.05) {
+      const sz = p.size + Math.sin(p.life * 10) * 0.3;
+      if (sz > 0.3) {
+        ctx.globalAlpha = alpha * 0.4;
+        px(p.x, p.y, C.steam);
+        ctx.globalAlpha = 1;
       }
     }
-    if(served === 0) this.addCustomer();
-    this.updateUI();
-  },
+  });
+}
 
-  addTable() {
-    const idx = this.tables.length;
-    if(idx >= 8) return;
-    const x = 10 + idx * 10;
-    this.tables.push({x, y:45, seatX:x+3, seatY:50, seated:false, customer:null});
-    this.updateUI();
-  },
+// ============ DRAW DECORATIONS ============
+function drawDecorations() {
+  // Menu board on wall
+  const mx = 40, my = 4;
+  pxBlock(mx, my, mx+10, my+8, C.brownDark);
+  pxBlock(mx+1, my+1, mx+9, my+7, '#2a1a0a');
+  // Menu text lines
+  for (let i = 0; i < 5; i++) {
+    const lw = 3 + Math.random() * 5;
+    pxBlock(mx+2, my+2+i*1.2, mx+2+lw, my+2+i*1.2, '#8b6914');
+  }
 
-  clearCustomers() {
-    for(let c of this.customers) {
-      if(c.seatedAt >= 0 && this.tables[c.seatedAt]) {
-        this.tables[c.seatedAt].seated = false;
-        this.tables[c.seatedAt].customer = null;
-      }
-    }
-    this.customers = [];
-    this.updateUI();
-  },
+  // Plants
+  // Large plant left
+  pxBlock(3, 26, 5, 29, '#8b6914');
+  pxBlock(2, 27, 6, 27, '#33aa44');
+  pxBlock(2, 28, 6, 28, '#22aa44');
+  px(1, 26, '#44bb44');
+  px(7, 26, '#44bb44');
+  px(1, 27, '#33aa33');
+  px(7, 27, '#33aa33');
+  px(2, 25, '#55cc55');
+  px(6, 25, '#55cc55');
 
-  toggleDayNight() {
-    this.nightMode = !this.nightMode;
-    this.updateUI();
-  },
+  // Wall art right
+  const artX = 72, artY = 6;
+  pxBlock(artX, artY, artX+5, artY+5, C.brown);
+  pxBlock(artX+1, artY+1, artX+4, artY+4, '#336699');
+  // Sun in art
+  px(artX+2, artY+2, C.gold);
+  px(artX+3, artY+2, C.gold);
+  px(artX+2, artY+3, C.gold);
+  px(artX+3, artY+3, C.gold);
+  // Mountains
+  pxBlock(artX+1, artY+4, artX+2, artY+4, '#225533');
+  pxBlock(artX+3, artY+4, artX+4, artY+4, '#114422');
 
-  addSteam(x, y) {
-    for(let i = 0; i < 3; i++) {
-      this.steamParticles.push({
-        x: x + (Math.random()-0.5)*3,
-        y: y,
-        vx: (Math.random()-0.5)*0.3,
-        vy: -0.3 - Math.random()*0.3,
-        life: 1.0,
-        size: 1 + Math.floor(Math.random()*2)
-      });
-    }
-  },
+  // Floor mat near counter
+  pxBlock(55, 26, 78, 27, '#663333');
+  pxBlock(56, 27, 77, 27, '#774444');
+  pxBlock(57, 28, 76, 28, '#663333');
 
-  updateUI() {
-    document.getElementById('ui-coins').textContent = this.coins;
-    document.getElementById('ui-customers').textContent = this.customers.length;
-    document.getElementById('ui-orders').textContent = this.ordersServed;
-    document.getElementById('ui-level').textContent = this.level;
-    const stars = '⭐'.repeat(Math.min(5, this.reputation));
-    document.getElementById('ui-rep').textContent = stars;
-  },
+  // Neon sign
+  const neonY = 2;
+  pxBlock(30, neonY, 48, neonY, C.gold);
+  pxBlock(31, neonY-1, 47, neonY-1, C.gold);
+  pxBlock(32, neonY-2, 46, neonY-2, C.goldDim);
+  // Glow
+  for (let i = 0; i < 18; i++) {
+    px(31+i, neonY+1, 'rgba(255,215,0,0.15)');
+  }
+}
 
-  // ===== DRAWING FUNCTIONS =====
-  drawPixel(x, y, w, h, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(Math.floor(x*P), Math.floor(y*P), Math.max(1,Math.floor(w*P)), Math.max(1,Math.floor(h*P)));
-  },
+// ============ DRAW COUNTER ITEMS ============
+function drawCounterItems() {
+  // Sugar shaker
+  pxBlock(52, 24, 53, 25, '#eee');
+  px(52, 23, '#ddd');
+  px(53, 23, '#ddd');
 
-  drawRect(x, y, w, h, color) {
-    this.drawPixel(x, y, w, h, color);
-  },
+  // Napkin holder
+  pxBlock(72, 24, 73, 25, C.pink);
+  pxBlock(71, 25, 74, 25, C.cup);
 
-  drawCafeScene() {
-    const bg = this.nightMode ? COLORS.night : COLORS.bgWall;
-    const floor = this.nightMode ? '#0a0a2e' : COLORS.floor;
-    
-    // Background wall
-    this.drawRect(0, 0, W, H, this.nightMode ? COLORS.night : COLORS.bg);
-    this.drawRect(0, 0, W, H/2, bg); // wall
-    this.drawRect(0, H/2, W, H/2, floor); // floor
-    
-    // Floor pattern
-    for(let i = 0; i < W; i += 6) {
-      for(let j = Math.floor(H/2); j < H; j += 6) {
-        this.drawRect(i/1, j/1, 5/1, 5/1, (i+j)%12===0 ? '#1e1e5e' : '#16163e');
-      }
-    }
-    
-    // Wall trim
-    this.drawRect(0, H/2-0.5, W, 1, '#333366');
-    
-    // Window on left wall
-    const winX = 5, winY = 8;
-    this.drawRect(winX, winY, 12, 10, this.nightMode ? '#0a1530' : COLORS.window);
-    this.drawRect(winX-0.5, winY-0.5, 13, 11, '#4a3728');
-    this.drawRect(winX+5.5, winY-0.5, 1, 11, '#4a3728');
-    this.drawRect(winX-0.5, winY+4.5, 13, 1, '#4a3728');
-    
-    // Window light beam
-    if(!this.nightMode) {
-      ctx.fillStyle = 'rgba(255,215,0,0.03)';
-      ctx.fillRect((winX+12)*P, winY*P, 30*P, 20*P);
-    }
-    
-    // Moon/stars if night
-    if(this.nightMode) {
-      this.drawRect(winX+2, winY+2, 2, 2, '#fffde7');
-      this.drawRect(winX+6, winY+3, 1, 1, '#fffde7');
-      this.drawRect(winX+8, winY+6, 1, 1, '#fffde7');
-    }
-    
-    // Counter (back wall)
-    this.drawRect(20, H/2-4, 55, 4, COLORS.counter);
-    this.drawRect(20, H/2-4, 55, 0.5, COLORS.counterTop);
-    
-    // Espresso machine on counter
-    this.drawRect(65, H/2-8, 4, 4, COLORS.machine);
-    this.drawRect(66, H/2-9, 2, 1, COLORS.machine);
-    // Machine details
-    this.drawRect(67, H/2-7, 1, 2, '#FFD700');
-    // Steam from machine
-    if(Math.random() > 0.7) {
-      this.addSteam(67, H/2-10);
-    }
-    
-    // Shelves above counter
-    this.drawRect(25, H/2-12, 45, 0.5, '#3d2b1f');
-    // Items on shelves (cups, bottles)
-    for(let i = 0; i < 10; i++) {
-      const sx = 27 + i * 4.3;
-      this.drawRect(sx, H/2-14, 1.5, 1.5, i%3===0 ? COLORS.cream : '#95a5a6');
-      if(i%3===0) this.drawRect(sx+0.5, H/2-15, 0.5, 0.5, COLORS.brown);
-    }
-    
-    // Barista station
-    this.drawRect(50, H/2-6, 6, 2, '#2c3e50');
-    this.drawRect(51, H/2-8, 1, 2, '#34495e');
-    
-    // Hanging lamps
-    for(let i = 0; i < 3; i++) {
-      const lx = 25 + i * 20;
-      this.drawRect(lx, 5, 0.3, H/2-10, '#333366'); // chain
-      this.drawRect(lx-1, H/2-8, 3, 1.5, COLORS.gold); // lamp shade
-      // Lamp glow
-      if(!this.nightMode) {
-        const glow = 0.02 + Math.sin(this.animFrame*0.05 + i)*0.01;
-        ctx.fillStyle = `rgba(255,215,0,${glow})`;
-        ctx.fillRect((lx-2)*P, ((H/2-6.5)*P), 5*P, 15*P);
-      } else {
-        ctx.fillStyle = `rgba(255,215,0,${0.08+Math.sin(this.animFrame*0.08+i)*0.03})`;
-        ctx.fillRect((lx-2)*P, ((H/2-6.5)*P), 5*P, 15*P);
-      }
-    }
-    
-    // Plant in corner
-    this.drawRect(90, H/2-10, 3, 3, '#27ae60');
-    this.drawRect(91, H/2-7, 1, 1, COLORS.brown);
-    this.drawRect(88, H/2-7, 7, 1, '#5C3317');
-    
-    // Tables and seats
-    for(let i = 0; i < this.tables.length; i++) {
-      const t = this.tables[i];
-      if(t.x > W) continue;
-      
-      // Table
-      this.drawRect(t.x, t.y, 5, 0.5, COLORS.brown);
-      this.drawRect(t.x+2, t.y+0.5, 1, 3, COLORS.darkBrown);
-      this.drawRect(t.x+1, t.y+3.5, 3, 0.5, COLORS.darkBrown);
-      
-      // Table top
-      this.drawRect(t.x+0.5, t.y-0.3, 4, 0.3, COLORS.counterTop);
-      
-      // Cup on table
-      if(t.seated && t.customer) {
-        this.drawRect(t.x+2, t.y-1.5, 1, 1.2, COLORS.cup);
-        this.drawRect(t.x+2.3, t.y-1.2, 0.4, 0.3, COLORS.coffee);
-      }
-      
-      // Seat (chair)
-      this.drawRect(t.seatX-1, t.y+4, 3, 1, COLORS.darkBrown);
-      this.drawRect(t.seatX-0.5, t.y+5, 0.3, 1.5, COLORS.darkBrown);
-      this.drawRect(t.seatX+1.2, t.y+5, 0.3, 1.5, COLORS.darkBrown);
-    }
-    
-    // Cash register
-    this.drawRect(82, H/2-7, 3, 3, '#555555');
-    this.drawRect(83, H/2-8, 2, 1, '#666666');
-    
-    // Decorative items
-    this.drawRect(8, H/2-6, 2, 2, '#8e44ad'); // flower vase
-    this.drawRect(9, H/2-7, 1, 1, '#e74c3c'); // flower
-  },
+  // Tip jar
+  pxBlock(80, 23, 82, 25, '#66aa66');
+  px(81, 22, '#77bb77');
+  px(80, 22, '#66aa66');
+  px(82, 22, '#66aa66');
+}
 
-  drawCustomer(c) {
-    const {x, y, shirt, hair, skinTone, animT} = c;
-    
-    if(animT !== undefined && animT < 1) {
-      // Serve animation - cup flies to table
-      c.animT += 0.05;
-    }
-    
-    // Head
-    this.drawRect(x, y-6, 2.5, 2.5, skinTone);
-    // Hair
-    this.drawRect(x+0.2, y-7, 2, 1, hair);
-    
-    // Eyes
-    this.drawRect(x+0.5, y-5, 0.3, 0.3, '#333');
-    this.drawRect(x+1.5, y-5, 0.3, 0.3, '#333');
-    
-    // Body/shirt
-    this.drawRect(x, y-3.5, 2.5, 3, shirt);
-    
-    // Arms
-    this.drawRect(x-0.5, y-2.5, 0.5, 2, skinTone);
-    this.drawRect(x+2.5, y-2.5, 0.5, 2, skinTone);
-    
-    // Legs
-    this.drawRect(x+0.3, y-0.5, 0.7, 2.5, '#2c3e50');
-    this.drawRect(x+1.3, y-0.5, 0.7, 2.5, '#2c3e50');
-    
-    // Feet
-    this.drawRect(x+0.2, y+2, 0.8, 0.5, '#333');
-    this.drawRect(x+1.2, y+2, 0.8, 0.5, '#333');
-    
-    // Mood indicator (patience bar)
-    if(c.seated) {
-      const patience = Math.max(0, c.waiting);
-      this.drawRect(x-1, y-9, 3, 0.3, '#333');
-      const moodColor = patience > 0.7 ? '#28a745' : patience > 0.3 ? '#FFD700' : '#e74c3c';
-      this.drawRect(x-1, y-9, 3*patience, 0.3, moodColor);
-    }
-  },
+// ============ DRAW FLOOR DETAILS ============
+function drawFloorDetails() {
+  // Floor tile lines
+  for (let fx = 0; fx < COLS; fx += 4) {
+    px(fx, 25, '#3a2820');
+    px(fx, 28, '#3a2820');
+    px(fx, 31, '#3a2820');
+    px(fx, 34, '#3a2820');
+  }
+  // Shadow under tables
+  for (let i = 0; i < 3; i++) {
+    const tx2 = 10 + i * 24;
+    pxBlock(tx2, 32, tx2+10, 32, '#2a1a10');
+  }
+}
 
-  drawWalkingCustomer(c) {
-    const {x, y, shirt, hair, skinTone} = c;
-    const walkBob = Math.sin(this.animFrame * 0.2) * 0.2;
-    
-    this.drawRect(x, y-6+walkBob, 2.5, 2.5, skinTone);
-    this.drawRect(x+0.2, y-7+walkBob, 2, 1, hair);
-    this.drawRect(x+0.5, y-5+walkBob, 0.3, 0.3, '#333');
-    this.drawRect(x+1.5, y-5+walkBob, 0.3, 0.3, '#333');
-    this.drawRect(x, y-3.5+walkBob, 2.5, 3, shirt);
-    this.drawRect(x-0.5, y-2.5+walkBob, 0.5, 2, skinTone);
-    this.drawRect(x+2.5, y-2.5+walkBob, 0.5, 2, skinTone);
-    this.drawRect(x+0.3, y-0.5+walkBob, 0.7, 2.5, '#2c3e50');
-    this.drawRect(x+1.3, y-0.5+walkBob, 0.7, 2.5, '#2c3e50');
-  },
+// ============ DRAW WINDOW OUTSIDE ============
+function drawWindowScene() {
+  // Window night sky
+  pxBlock(2, 2, 4, 21, C.window);
+  // Stars outside
+  px(3, 4, '#ffffff');
+  px(5, 7, '#ffffff');
+  px(2, 12, '#ffffff');
+  px(6, 3, '#ffffff');
+  // Moon outside
+  px(4, 5, C.light);
+  px(5, 5, C.light);
+  px(3, 6, C.light);
+  px(4, 6, C.light);
+  px(5, 6, C.light);
+  px(3, 7, C.light);
+  px(4, 7, C.light);
+  // Distant buildings
+  pxBlock(1, 14, 3, 21, '#111122');
+  pxBlock(4, 16, 6, 21, '#0a0a1a');
+  pxBlock(7, 12, 9, 21, '#111122');
+  // Window lights in buildings
+  px(2, 16, '#ffcc44');
+  px(2, 18, '#ffcc44');
+  px(5, 18, '#ffcc44');
+  px(8, 14, '#ffcc44');
+  px(8, 16, '#ffcc44');
+  px(8, 18, '#ffcc44');
+}
 
-  drawSteamParticles() {
-    for(let i = this.steamParticles.length-1; i >= 0; i--) {
-      const s = this.steamParticles[i];
-      s.x += s.vx;
-      s.y += s.vy;
-      s.life -= 0.02;
-      if(s.life <= 0) { this.steamParticles.splice(i, 1); continue; }
-      const alpha = s.life * 0.5;
-      this.drawRect(s.x, s.y, s.size, s.size, `rgba(255,255,255,${alpha})`);
-    }
-  },
+// ============ MAIN DRAW ============
+function draw() {
+  frame++;
+  animTime = frame / 60;
 
-  update() {
-    this.animFrame++;
-    
-    // Update customers walking in
-    for(let c of this.customers) {
-      if(!c.seated) {
-        c.x += (c.targetX - c.x) * 0.05;
-        if(Math.abs(c.x - c.targetX) < 0.3) c.x = c.targetX;
-      } else {
-        c.waiting += 0.002;
-        // Update seat position
-        if(c.seatedAt >= 0 && this.tables[c.seatedAt]) {
-          c.targetX = this.tables[c.seatedAt].seatX + 1;
-          c.y = this.tables[c.seatedAt].seatY - 2;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  drawBackground();
+  drawWindowScene();
+
+  // Floor details
+  drawFloorDetails();
+
+  // Shelves
+  drawShelves();
+
+  // Window
+  drawWindow(20, 10);
+
+  // Wall art
+  drawDecorations();
+
+  // Lamps
+  drawLamp(15, 2);
+  drawLamp(42, 2);
+  drawLamp(65, 2);
+
+  // Tables
+  for (let i = 0; i < 3; i++) {
+    drawTable(10 + i * 24, 30);
+  }
+
+  // Counter
+  drawCounter();
+
+  // Counter items
+  drawCounterItems();
+
+  // Espresso machine
+  drawEspressoMachine();
+
+  // Steam
+  updateAndDrawSteam();
+
+  // Customers
+  customers.forEach(c => drawCustomer(c, 0));
+
+  // Barista
+  drawBarista(servingBarista.x, servingBarista.y);
+
+  // Neon glow overlay
+  ctx.globalAlpha = 0.05 + Math.sin(animTime * 2) * 0.02;
+  pxBlock(0, 0, COLS-1, 3, C.neonPink);
+  pxBlock(0, 0, 3, ROWS-1, C.neonBlue);
+  ctx.globalAlpha = 1;
+
+  // Ambient light pools (subtle)
+  const lights = [{x:15, y:28},{x:42, y:28},{x:65, y:28}];
+  lights.forEach(l => {
+    for (let r = 0; r < 5; r++) {
+      const a = 0.04 * (1 - r/5);
+      ctx.globalAlpha = a;
+      for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+          px(l.x+dx, l.y+dy, C.light);
         }
       }
     }
-  },
+    ctx.globalAlpha = 1;
+  });
+}
 
-  render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    this.drawCafeScene();
-    
-    // Draw seated customers
-    for(let c of this.customers) {
-      if(c.seated) this.drawCustomer(c);
+// ============ UPDATE GAME STATE ============
+function updateGame() {
+  // Update customer states
+  customers.forEach(c => {
+    if (c.state === 'walking') {
+      c.stateTimer += 0.02;
+      const progress = Math.sin(c.stateTimer * Math.PI);
+      c.x = c.targetX;
+      c.y = c.targetY;
+      if (c.stateTimer > 1) {
+        c.state = 'sitting';
+        c.stateTimer = 0;
+        c.mood = Math.random() > 0.5 ? 'happy' : 'waiting';
+      }
     }
-    
-    // Draw walking customers (not seated)
-    for(let c of this.customers) {
-      if(!c.seated) this.drawWalkingCustomer(c);
+    if (c.state === 'waiting') {
+      c.stateTimer += 0.016;
+      if (c.stateTimer > 8) {
+        c.mood = 'excited';
+        setTimeout(() => { if(c.mood === 'excited') c.mood = 'happy'; }, 2000);
+      }
     }
-    
-    this.drawSteamParticles();
-    
-    // Night overlay
-    if(this.nightMode) {
-      ctx.fillStyle = 'rgba(0,0,20,0.3)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-  },
+    // Idle sway
+    c.y += Math.sin(animTime * 1.5 + c.x) * 0.002;
+  });
 
-  loop() {
-    this.update();
-    this.render();
-    requestAnimationFrame(() => this.loop());
+  // Barista animation
+  servingBarista.stateTimer += 0.016;
+  if (servingBarista.state === 'idle') {
+    if (Math.random() < 0.005) {
+      servingBarista.state = 'walking';
+      servingBarista.targetX = 30 + Math.random() * 30;
+      servingBarista.targetY = servingBarista.y;
+      servingBarista.dir = servingBarista.targetX > servingBarista.x ? 1 : -1;
+      servingBarista.carriedCup = true;
+    }
+  } else if (servingBarista.state === 'walking') {
+    const dx = servingBarista.targetX - servingBarista.x;
+    const dy = servingBarista.targetY - servingBarista.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist > 0.5) {
+      servingBarista.x += (dx / dist) * 0.15;
+      servingBarista.y += (dy / dist) * 0.15;
+    } else {
+      servingBarista.state = 'idle';
+      servingBarista.stateTimer = 0;
+      servingBarista.carriedCup = false;
+      servedCount++;
+      document.getElementById('servedCount').textContent = servedCount;
+    }
   }
-};
 
-game.init();
-game.updateUI();
+  // Random customer count changes
+  if (frame % 600 === 0) {
+    customerCount = 2 + Math.floor(Math.random() * 4);
+    document.getElementById('custCount').textContent = customerCount;
+  }
+
+  // Coin fluctuations
+  if (frame % 300 === 0) {
+    coinCount += Math.floor(Math.random() * 50);
+    document.getElementById('coinCount').textContent = coinCount.toLocaleString();
+  }
+
+  // Rating fluctuation
+  rating = Math.min(99, Math.max(80, rating + (Math.random() - 0.5) * 2));
+  document.getElementById('scoreCount').textContent = Math.round(rating);
+
+  // Status based on rating
+  if (rating > 90) { status = 'OPEN'; statusColor = '#00ff88'; }
+  else if (rating > 70) { status = 'BUSY'; statusColor = '#FFD700'; }
+  else { status = 'TIRING'; statusColor = '#ff4444'; }
+  const stEl = document.getElementById('statusText');
+  stEl.textContent = status;
+  stEl.style.color = statusColor;
+}
+
+// ============ DRAW STAT ICONS ============
+function drawStatIcons() {
+  // Coin icon
+  const coinCanvas = document.getElementById('coinIcon');
+  const coinCtx = coinCanvas.getContext('2d');
+  coinCtx.fillStyle = '#FFD700';
+  coinCtx.beginPath();
+  coinCtx.arc(8, 8, 6, 0, Math.PI * 2);
+  coinCtx.fill();
+  coinCtx.fillStyle = '#b8960a';
+  coinCtx.font = '8px monospace';
+  coinCtx.textAlign = 'center';
+  coinCtx.textBaseline = 'middle';
+  coinCtx.fillText('$', 8, 9);
+
+  // Customer icon
+  const custCanvas = document.getElementById('custIcon');
+  const custCtx = custCanvas.getContext('2d');
+  custCtx.fillStyle = '#ffb88a';
+  custCtx.beginPath();
+  custCtx.arc(8, 5, 3, 0, Math.PI * 2);
+  custCtx.fill();
+  custCtx.fillStyle = '#4488cc';
+  custCtx.fillRect(5, 9, 6, 5);
+  custCtx.fillStyle = '#333';
+  custCtx.fillRect(6, 14, 2, 2);
+  custCtx.fillRect(8, 14, 2, 2);
+
+  // Star icon
+  const starCanvas = document.getElementById('starIcon');
+  const starCtx = starCanvas.getContext('2d');
+  starCtx.fillStyle = '#FFD700';
+  starCtx.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+    const r = i === 0 ? 6 : 6;
+    if (i === 0) starCtx.moveTo(8 + Math.cos(angle) * 5, 8 + Math.sin(angle) * 5);
+    else starCtx.lineTo(8 + Math.cos(angle) * 5, 8 + Math.sin(angle) * 5);
+    const angle2 = angle + 2 * Math.PI / 5;
+    starCtx.lineTo(8 + Math.cos(angle2) * 2.5, 8 + Math.sin(angle2) * 2.5);
+  }
+  starCtx.closePath();
+  starCtx.fill();
+
+  // Cup icon
+  const cupCanvas = document.getElementById('cupIcon');
+  const cupCtx = cupCanvas.getContext('2d');
+  cupCtx.fillStyle = '#f0f0f0';
+  cupCtx.fillRect(3, 3, 6, 7);
+  cupCtx.fillRect(4, 1, 4, 2);
+  cupCtx.fillStyle = '#ccc';
+  cupCtx.fillRect(3, 10, 6, 2);
+  cupCtx.strokeStyle = '#ccc';
+  cupCtx.lineWidth = 1;
+  cupCtx.beginPath();
+  cupCtx.arc(10, 5, 2, -Math.PI/2, Math.PI/2);
+  cupCtx.stroke();
+}
+
+// ============ GAME LOOP ============
+function gameLoop() {
+  updateGame();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+// ============ INIT ============
+initSteam();
+drawStatIcons();
+gameLoop();
 </script>
 </body>
 </html>
