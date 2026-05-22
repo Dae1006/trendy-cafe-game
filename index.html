@@ -152,10 +152,11 @@ const WEATHER_MAP={
 };
 
 // ======== CANVAS SETUP ========
-const canvas = document.getElementById('gameCanvas');
-const canvasCtx = canvas.getContext('2d');
+const canvasEl = document.getElementById('gameCanvas');
+const canvasCtx = canvasEl.getContext('2d');
 const CW=480,CH=300;
 canvasCtx.imageSmoothingEnabled=false;
+canvasEl.style.background='#87CEEB';
 
 // ======== PIXEL ART HELPERS ========
 function dr(x,y,w,h,color){canvasCtx.fillStyle=color;canvasCtx.fillRect(Math.round(x),Math.round(y),w,h);}
@@ -289,20 +290,15 @@ function gameLoop(ts=0){
 // ======== RENDER CANVAS ========
 function renderCanvas(){
   const c=canvasCtx;
-  c.clearRect(0,0,CW,CH);
+  if(!c)return;
 
   const loc=LOCATIONS[GS.currentLocation];
   const weather=getWeather();
 
   // Background based on location
-  const bgGrad=c.createLinearGradient(0,0,0,CH);
-  bgGrad.addColorStop(0,weather.emoji==='🌧️'?'#4A5568':loc.bg);
-  bgGrad.addColorStop(1,'#F5E6CA');
-  c.fillStyle=bgGrad;c.fillRect(0,0,CW,CH);
-
-  // Sky area (top portion)
-  c.fillStyle=weather.emoji==='🌧️'?'#2D3748':(weather.emoji==='🔥'?'#FF8C00':'#87CEEB');
-  c.fillRect(0,0,CW,60);
+  c.fillStyle='#87CEEB';c.fillRect(0,0,CW,60);
+  c.fillStyle='#F5E6CA';c.fillRect(0,60,CW,140);
+  c.fillStyle='#C4A882';c.fillRect(0,200,CW,100);
 
   // Sun or Moon
   const hour=(GS.animFrame/60)%24;
@@ -612,10 +608,13 @@ QUESTS.forEach(q=>{if(typeof q.progress==='undefined')q.progress=0;});
 updateUI();renderTab('location');
 
 // Initial customers on canvas
-for(let i=0;i<3;i++){setTimeout(()=>spawnCustomer(),i*1500);}
+setTimeout(()=>spawnCustomer(),1000);
+setTimeout(()=>spawnCustomer(),2000);
+setTimeout(()=>spawnCustomer(),3000);
 
 // Start the game loop
-gameLoop();
+console.log('Game init!');
+try{requestAnimationFrame(function(ts){gameLoop(ts);});}catch(e){console.log('Game loop error:',e);}
 </script>
 </body>
 </html>
