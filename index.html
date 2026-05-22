@@ -225,75 +225,61 @@ function spawnCustomer(){
   });
 }
 
-// ======== MAIN GAME LOOP ========
-function gameLoop(){
+// ======== MAIN GAME LOOP (throttled to 10fps) ========
+let lastLoop=0;
+const TICK_MS=100; // game tick every 100ms = 10 ticks/sec
+function gameLoop(ts=0){
+  if(ts-lastLoop<TICK_MS){requestAnimationFrame(gameLoop);return;}
+  lastLoop=ts;
+
   GS.animFrame++;GS.tick++;
 
-  // Revenue tick every 60 frames (1 sec)
-  if(GS.tick%60===0){
+  // Revenue tick every 6 ticks = 600ms
+  if(GS.tick%6===0){
     const rev=getRevenuePerMin();
-    GS.dailyRevenue+=rev;GS.totalRevenue+=rev;
-    GS.lastServeRevenue=rev;
+    GS.dailyRevenue+=rev;GS.totalRevenue+=rev;GS.lastServeRevenue=rev;
     addXP(3);checkQuests();
-    updateUI();
   }
 
-  // Auto serve from staff
-  if(GS.autoServeRate>0&&GS.tick%60===0){
-    const served=GS.autoServeRate;
-    GS.coins+=Math.floor(revPerMin*0.3*served);
-    GS.totalServed+=served;
-    addXP(served*2);
-    checkQuests();
-    // Add staff animated customer
-    GS.animCustomers.push({x:CW+20,y:240,auto:true,targetX:100+Math.random()*200,targetY:240+Math.random()*20,state:'entering',timer:0,hit:0,color:'#27AE60',skin:'#FDBCB4',hair:'#2C1810',hat:null,name:'Staff',speed:2});
-  }
-
-  // Day change
-  if(GS.tick%300===0){GS.gameDay++;GS.dailyRevenue=0;showNotif(`📅 Ngày ${GS.gameDay}!`);}
-
-  // Spawn customers based on location
-  const maxCustomers=getCustomerCount();
-  const currentGS=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting'||c.state==='leaving');
-  if(currentGS.length<maxCustomers&&GS.tick%90===0){
-    const count=GS.currentLocation==='festival'?3:GS.currentLocation==='rooftop'?2:1;
-    for(let i=0;i<count&&GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length<maxCustomers;i++){
-      spawnCustomer();
-    }
-  }
-
-  // Auto serve visual
-  if(GS.autoServeRate>0&&GS.tick%45===0){
+  // Auto serve every 6 ticks (600ms)
+  if(GS.autoServeRate>0&&GS.tick%6===0){
     const served=GS.autoServeRate;
     const autoRev=Math.floor(getRevenuePerMin()*0.3*served);
-    GS.coins+=autoRev;
-    GS.totalRevenue+=autoRev;GS.totalServed+=served;addXP(served*2);checkQuests();
-    showNotif(`🤖 Staff phục vụ ${served} khách! +${autoRev}K`);
+    GS.coins+=autoRev;GS.totalRevenue+=autoRev;GS.totalServed+=served;addXP(served*2);checkQuests();
+  }
+
+  // Day change every 600 ticks = 60 seconds
+  if(GS.tick%600===0){GS.gameDay++;GS.dailyRevenue=0;showNotif(`📅 Ngày ${GS.gameDay}!`);}
+
+  // Spawn customers
+  const maxCustomers=getCustomerCount();
+  const activeCount=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length;
+  if(activeCount<maxCustomers&&GS.tick%15===0){
+    const count=GS.currentLocation==='festival'?2:GS.currentLocation==='rooftop'?1:1;
+    for(let i=0;i<count;i++)if(GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length<maxCustomers)spawnCustomer();
+  }
+
+  // Auto serve visual: add served customers
+  if(GS.autoServeRate>0&&GS.tick%6===0){
+    const served=GS.autoServeRate;
+    for(let s=0;s<served;s++){
+      GS.animCustomers.push({x:80+Math.random()*200,y:160,auto:true,targetX:80+Math.random()*300,targetY:230+Math.random()*20,state:'entering',timer:0,hit:0,color:'#27AE60',skin:'#FDBCB4',hair:'#2C1810',hat:null,name:'Staff',speed:2.5});
+    }
   }
 
   // Update animated customers
   for(let i=GS.animCustomers.length-1;i>=0;i--){
     const c=GS.animCustomers[i];
     if(c.state==='entering'){
-      c.timer++;
-      const dx=c.targetX-c.x,dy=c.targetY-c.y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist>2){c.x+=dx/dist*c.speed;c.y+=dy/dist*c.speed;}
-      else{c.state='sitting';c.timer=0;c.drinkTime=0;GS.animCustomers[i].state='sitting';}
+      const dx=c.targetX-c.x,dy=c.targetY-c.y;const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist>2){c.x+=dx/dist*c.speed;c.y+=dy/dist*c.speed;}else{c.state='sitting';c.drinkTime=0;}
     }else if(c.state==='sitting'){
       c.drinkTime=(c.drinkTime||0)+1;
-      if(c.drinkTime>120){c.state='leaving';c.timer=0;}
-      // Auto serve removes customer
-      if(c.auto&&GS.tick%45===0){c.state='leaving';c.timer=0;}
-    }else if(c.state==='leaving'){
-      c.timer++;c.x+=c.speed+1;
-      if(c.x>CW+40)GS.animCustomers.splice(i,1);
-    }
+      if(c.drinkTime>90){c.state='leaving';c.timer=0;GS.coins+=getRevenuePerMin()/getCustomerCount();GS.totalServed++;addXP(1);checkQuests();c.hit=10;}
+    }else if(c.state==='leaving'){c.timer++;c.x+=c.speed+1;if(c.x>CW+40)GS.animCustomers.splice(i,1);}
     if(c.hit>0)c.hit--;
   }
-
-  // Clean old customers
-  while(GS.animCustomers.length>20)GS.animCustomers.shift();
+  while(GS.animCustomers.length>15)GS.animCustomers.shift();
 
   updateUI();
   renderCanvas();
@@ -337,11 +323,11 @@ function renderCanvas(){
     });
   }
 
-  // Rain
+  // Rain (reduce to 15 drops)
   if(weather.emoji==='🌧️'){
-    for(let i=0;i<30;i++){
-      const rx=(GS.animFrame*3+i*16)%CW;
-      const ry=(GS.animFrame*4+i*10)%60+62;
+    for(let i=0;i<15;i++){
+      const rx=(GS.animFrame*3+i*32)%CW;
+      const ry=(GS.animFrame*4+i*20)%60+62;
       c.strokeStyle='rgba(100,149,237,.6)';c.lineWidth=1;
       c.beginPath();c.moveTo(rx,ry);c.lineTo(rx-1,ry+6);c.stroke();
     }
@@ -352,9 +338,9 @@ function renderCanvas(){
   // Wall pattern
   for(let x=0;x<CW;x+=25){c.fillStyle='rgba(139,105,20,.06)';c.fillRect(x,60,1,120);}
 
-  // Floor tiles
-  for(let x=0;x<CW;x+=20){for(let y=180;y<CH;y+=20){
-    c.fillStyle=(x+y)%40===0?'#D2B48C':'#C4A882';c.fillRect(x,y,20,20);
+  // Floor tiles (reduce loop)
+  for(let x=0;x<CW;x+=30){for(let y=200;y<CH;y+=30){
+    c.fillStyle=(x+y)%60===0?'#D2B48C':'#C4A882';c.fillRect(x,y,30,30);
   }}
 
   // Counter
