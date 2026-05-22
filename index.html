@@ -10,8 +10,8 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 #top-bar{width:100%;max-width:480px;display:flex;justify-content:space-around;padding:6px 8px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:2px solid #FFD700;font-size:12px;flex-wrap:wrap;gap:2px}
 .stat{padding:3px 6px;border:1px solid #333;border-radius:3px;font-size:11px}
 .gold{color:#FFD700;font-weight:bold}
-#canvas-wrap{width:100%;max-width:480px;position:relative}
-#gameCanvas{width:100%;height:200px;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+#canvas-wrap{width:100%;max-width:480px;background:#000;position:relative}
+#gameCanvas{width:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 #main{max-width:480px;margin:0 auto;padding:8px}
 #tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460;background:#0f3460}
 .tab{padding:8px 10px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:11px}
@@ -20,8 +20,6 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 #content{min-height:300px;padding:8px;background:#1a1a2e;max-height:42vh;overflow-y:auto}
 .card{padding:8px;margin:5px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:1px solid #2a3a5e;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
 .card.rare{border-color:#9b59b6}
-.card.epic{border-color:#e74c3c}
-.card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
 .btn{padding:6px 12px;border:1px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:11px;border-radius:4px}
 .btn:hover{box-shadow:0 2px 8px rgba(255,99,71,0.4)}
 .btn:disabled{background:#555;cursor:not-allowed}
@@ -30,25 +28,16 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 .btn.gold{background:#DAA520;color:#000}
 .notif{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:5px 12px;border:1px solid #FFD700;border-radius:6px;font-size:11px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}
 .notif.show{opacity:1}
-.location-bar{display:flex;gap:4px;overflow-x:auto;padding:6px;background:#0d0d1a;flex-wrap:wrap}
-.loc-btn{padding:5px 8px;border:1px solid #333;border-radius:4px;background:#16213e;color:#ccc;font-family:inherit;font-size:10px;cursor:pointer;white-space:nowrap}
-.loc-btn.active{border-color:#FFD700;color:#FFD700;background:rgba(255,215,0,.1)}
-.loc-btn:disabled{opacity:.4;cursor:not-allowed}
+.weather-bar{padding:4px 8px;background:#0d0d1a;border-bottom:1px solid #333;font-size:11px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .upgrade-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px;display:flex;justify-content:space-between;align-items:center;font-size:11px}
 .quest-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px}
 .quest-card.done{border-color:#28a745;background:rgba(40,167,69,.1)}
 .progress-bar{width:100%;height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
 .progress-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width .5s}
 .trend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px}
-.trend-card{padding:6px;background:#16213e;border:1px solid #333;border-radius:4px;font-size:10px;cursor:pointer;text-align:center}
-.trend-card.common{border-color:#aaa}
-.trend-card.rare{border-color:#9b59b6}
-.trend-card.epic{border-color:#e74c3c}
-.trend-card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
-.weather-bar{padding:4px 8px;background:#0d0d1a;border-bottom:1px solid #333;font-size:11px;display:flex;align-items:center;gap:6px}
+.trend-card{padding:6px;text-align:center;font-size:10px;cursor:pointer;border-radius:4px;border:1px solid #333;background:#16213e}
+.trend-card.common{border-color:#aaa}.trend-card.rare{border-color:#9b59b6}.trend-card.epic{border-color:#e74c3c}.trend-card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
 .supplier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px}
-.supplier-item{padding:6px;text-align:center;background:#16213e;border:1px solid #333;border-radius:4px}
-.supplier-item .qty{color:#FFD700;font-size:14px}
 </style>
 </head>
 <body>
@@ -58,12 +47,13 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
   <span class="stat">⭐ <span class="gold" id="level">Lv.1</span></span>
   <span class="stat">📅 Ngày <span id="day">1</span></span>
   <span class="stat">🧑‍🍳 <span id="staff">0</span></span>
+  <span class="stat">👥 <span id="custCount">0</span></span>
 </div>
 
 <div class="weather-bar" id="weather-bar"></div>
 
 <div id="canvas-wrap">
-  <canvas id="gameCanvas" width="480" height="200"></canvas>
+  <canvas id="gameCanvas" width="480" height="300"></canvas>
 </div>
 
 <div id="main">
@@ -83,7 +73,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 
 <script>
 // ======== GAME STATE ========
-let GS = {
+const GS = {
   coins:500, level:1, xp:0, xpNeeded:100,
   currentLocation:'street', unlockedLocations:['street'],
   ownedItems:{}, ownedRecipes:[], menuUnlocked:1,
@@ -91,11 +81,11 @@ let GS = {
   dailyRevenue:0, totalRevenue:0, totalServed:0,
   gameDay:1, lastDayChange:Date.now(),
   supplierStock:{beans:10,milk:20,cups:200},
-  staff:[],
-  customerAnim:{queue:[],served:0},
-  tickTimer:0, serveTimer:0
+  animCustomers:[], animFrame:0, tick:0,
+  lastServeRevenue:0
 };
 
+// ======== DATA ========
 const LOCATIONS={
   street:{name:'Vỉa hè',emoji:'🚶',cost:0,revenueMult:1,customers:3,bg:'#87CEEB'},
   mall:{name:'Trung tâm TM',emoji:'🏬',cost:5000,revenueMult:2.5,customers:5,bg:'#B0E0E6'},
@@ -163,313 +153,359 @@ const WEATHER_MAP={
 
 // ======== CANVAS SETUP ========
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const W=480,H=200;
-ctx.imageSmoothingEnabled=false;
-let animFrame=0;
+const canvasCtx = canvas.getContext('2d');
+const CW=480,CH=300;
+canvasCtx.imageSmoothingEnabled=false;
 
-// ======== GAME HELPERS ========
+// ======== PIXEL ART HELPERS ========
+function dr(x,y,w,h,color){canvasCtx.fillStyle=color;canvasCtx.fillRect(Math.round(x),Math.round(y),w,h);}
+
+// ======== HELPER FUNCTIONS ========
 function getWeather(){
   const cycle=GS.gameDay%180;
   const season=cycle<60?'summer':(cycle<120?'rainy':'cool');
-  const probs=season==='summer'?{sunny:.35,cloudy:.25,rainy:.2,hot:.1,tet:.0}:
-    season==='rainy'?{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1}:
-    {sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.3};
-  const rand=Math.random(),cum=0;
-  let c=0;
+  const probs=season==='summer'?{sunny:.35,cloudy:.25,rainy:.2,hot:.1,tet:0}:season==='rainy'?{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1}:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.3};
+  const rand=Math.random(),cum=0;let c=0;
   for(const[t,p]of Object.entries(probs)){c+=p;if(rand<=c)return WEATHER_MAP[t];}
   return WEATHER_MAP.sunny;
 }
 
 function getRevenuePerMin(){
   const loc=LOCATIONS[GS.currentLocation];
-  let base=loc.customers*30;
-  let mult=loc.revenueMult;
-  for(const[id,cnt]of Object.entries(GS.ownedItems)){
-    const item=TREND_ITEMS.find(i=>i.id===id);
-    if(item&&item.effect==='revenue')mult+=item.value*cnt;
-  }
-  for(const id of GS.upgradesBought){
-    const u=UPGRADES.find(x=>x.id===id);
-    if(u&&u.type==='revenue')mult+=u.value;
-  }
-  const w=getWeather();
-  mult*=w.mod;
+  let base=loc.customers*30,mult=loc.revenueMult;
+  for(const[id,cnt]of Object.entries(GS.ownedItems)){const item=TREND_ITEMS.find(i=>i.id===id);if(item&&item.effect==='revenue')mult+=item.value*cnt;}
+  for(const id of GS.upgradesBought){const u=UPGRADES.find(x=>x.id===id);if(u&&u.type==='revenue')mult+=u.value;}
+  const w=getWeather();mult*=w.mod;
   return Math.floor(base*mult);
 }
 
 function getCustomerCount(){
-  const loc=LOCATIONS[GS.currentLocation];
-  let base=loc.customers;
-  for(const[id,cnt]of Object.entries(GS.ownedItems)){
-    const item=TREND_ITEMS.find(i=>i.id===id);
-    if(item&&item.effect==='customers')base+=item.value*cnt;
-  }
-  for(const id of GS.upgradesBought){
-    const u=UPGRADES.find(x=>x.id===id);
-    if(u&&u.type==='customers')base+=u.value*base;
-  }
+  const loc=LOCATIONS[GS.currentLocation];let base=loc.customers;
+  for(const[id,cnt]of Object.entries(GS.ownedItems)){const item=TREND_ITEMS.find(i=>i.id===id);if(item&&item.effect==='customers')base+=item.value*cnt;}
+  for(const id of GS.upgradesBought){const u=UPGRADES.find(x=>x.id===id);if(u&&u.type==='customers')base+=u.value*base;}
   return Math.floor(base);
 }
 
 function showNotif(text){
-  const n=document.getElementById('notif');
-  n.textContent=text;n.classList.add('show');
-  setTimeout(()=>n.classList.remove('show'),2000);
+  const n=document.getElementById('notif');n.textContent=text;n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2500);
+}
+
+function addXP(n){
+  GS.xp+=n;while(GS.xp>=GS.xpNeeded){GS.xp-=GS.xpNeeded;GS.level++;GS.xpNeeded=Math.floor(GS.xpNeeded*1.5);showNotif(`⭐ Lên cấp ${GS.level}!`);}
 }
 
 function checkQuests(){
   QUESTS.forEach(q=>{
     if(q.done)return;
-    if(q.type==='serve'&&q.progress<q.target){
-      GS.totalServed>=(q.progress+1)&&q.progress<q.target?q.progress++:null;
-      q.progress=Math.min(GS.totalServed,q.target);
-    }
-    if(q.type==='earn'&&q.totalRevenue>=(q.progress+1)*q.target*10)q.progress=Math.min(Math.floor(GS.totalRevenue/100),q.target);
-    if(q.type==='collect'){
-      q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
-    }
-    if(q.type==='collect_all'){
-      q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
-    }
-    if(q.type==='upgrade')q.progress=GS.unlockedLocations.length-1;
-    if(q.type==='complete_all')q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
-    if(q.progress>=q.target){
-      q.done=true;GS.coins+=q.reward.coins;GS.xp+=q.reward.xp;
-      showNotif(`🎉 Nhiệm vụ: ${q.title}! +${q.reward.coins}K +${q.reward.xp}XP`);
-    }
+    if(q.type==='serve')q.progress=Math.min(GS.totalServed,q.target);
+    if(q.type==='earn')q.progress=Math.min(Math.floor(GS.totalRevenue/100),q.target);
+    if(q.type==='collect'||q.type==='collect_all'||q.type==='complete_all')q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
+    if(q.type==='upgrade')q.progress=Math.min(GS.unlockedLocations.length-1,q.target);
+    if(q.progress>=q.target){q.done=true;GS.coins+=q.reward.coins;GS.xp+=q.reward.xp;showNotif(`🎉 ${q.title}! +${q.reward.coins}K +${q.reward.xp}XP`);}
   });
 }
 
-function addXP(n){
-  GS.xp+=n;
-  while(GS.xp>=GS.xpNeeded){
-    GS.xp-=GS.xpNeeded;GS.level++;GS.xpNeeded=Math.floor(GS.xpNeeded*1.5);
-    showNotif(`⭐ Lên cấp ${GS.level}!`);
-  }
+// ======== CUSTOMER SPAWNER ========
+function spawnCustomer(){
+  const loc=LOCATIONS[GS.currentLocation];
+  const skinColors=['#FDBCB4','#D2B48C','#8D5524','#C68642','#FFE0BD'];
+  const hairColors=['#2C1810','#8B4513','#DAA520','#1C1C1C','#A0522D','#C04000'];
+  const shirtColors=['#E74C3C','#3498DB','#2ECC71','#9B59B6','#F39C12','#1ABC9C','#E67E22','#2980B9'];
+  GS.animCustomers.push({
+    x:CW+20,y:240+Math.random()*10,
+    targetX:60+Math.random()*300,targetY:240+Math.random()*20,
+    state:'entering',timer:0,hit:0,
+    color:shirtColors[Math.floor(Math.random()*shirtColors.length)],
+    skin:skinColors[Math.floor(Math.random()*skinColors.length)],
+    hair:hairColors[Math.floor(Math.random()*hairColors.length)],
+    hat:Math.random()>.75?['🎩','🧢','👒'][Math.floor(Math.random()*3)]:null,
+    name:['An','Bình','Chi','Dung','Em','Giang','Hoa','Lan','Mai','Ngọc','Oanh','Phuc','Quang','Son','Tuan'][Math.floor(Math.random()*15)],
+    speed:1.5+Math.random()
+  });
 }
 
-// ======== GAME LOGIC ========
-let gameTick=0;
+// ======== MAIN GAME LOOP ========
 function gameLoop(){
-  animFrame++;
-  gameTick++;
+  GS.animFrame++;GS.tick++;
 
-  // Revenue every 10 seconds = ~6 ticks per min => revenue per tick
-  if(gameTick%60===0){
+  // Revenue tick every 60 frames (1 sec)
+  if(GS.tick%60===0){
     const rev=getRevenuePerMin();
     GS.dailyRevenue+=rev;GS.totalRevenue+=rev;
-    addXP(5);
-    checkQuests();
+    GS.lastServeRevenue=rev;
+    addXP(3);checkQuests();
+    updateUI();
   }
 
-  // Day change every 600 ticks (~10 min real)
-  if(gameTick%600===0){
-    GS.gameDay++;GS.dailyRevenue=0;
-    showNotif(`📅 Ngày ${GS.gameDay} bắt đầu!`);
-  }
-
-  // Auto serve
-  if(GS.autoServeRate>0&&gameTick%60===0){
+  // Auto serve from staff
+  if(GS.autoServeRate>0&&GS.tick%60===0){
     const served=GS.autoServeRate;
-    GS.coins+=getRevenuePerMin()*0.5;
+    GS.coins+=Math.floor(revPerMin*0.3*served);
     GS.totalServed+=served;
-    addXP(served);
-    GS.customerAnim.served+=served;
-    showNotif(`🤖 Staff phục vụ ${served} khách! +${getRevenuePerMin()*.5}K`);
+    addXP(served*2);
+    checkQuests();
+    // Add staff animated customer
+    GS.animCustomers.push({x:CW+20,y:240,auto:true,targetX:100+Math.random()*200,targetY:240+Math.random()*20,state:'entering',timer:0,hit:0,color:'#27AE60',skin:'#FDBCB4',hair:'#2C1810',hat:null,name:'Staff',speed:2});
   }
 
-  // Spawn animated customers
-  if(gameTick%120===0){
-    const count=getCustomerCount();
-    for(let i=0;i<Math.min(count,5);i++){
-      GS.customerAnim.queue.push({
-        id:Date.now()+i,
-        x:W+20,y:120+Math.random()*30,
-        targetX:40+Math.random()*300,targetY:140+Math.random()*30,
-        state:'entering',timer:0,
-        color:['#E74C3C','#3498DB','#2ECC71','#9B59B6','#F39C12','#1ABC9C'][Math.floor(Math.random()*6)],
-        skin:['#FDBCB4','#D2B48C','#8D5524','#C68642'][Math.floor(Math.random()*4)],
-        hair:['#2C1810','#8B4513','#DAA520','#1C1C1C'][Math.floor(Math.random()*4)],
-        hat:Math.random()>.7?['🎩','🧢','👒'][Math.floor(Math.random()*3)]:null
-      });
+  // Day change
+  if(GS.tick%300===0){GS.gameDay++;GS.dailyRevenue=0;showNotif(`📅 Ngày ${GS.gameDay}!`);}
+
+  // Spawn customers based on location
+  const maxCustomers=getCustomerCount();
+  const currentGS=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting'||c.state==='leaving');
+  if(currentGS.length<maxCustomers&&GS.tick%90===0){
+    const count=GS.currentLocation==='festival'?3:GS.currentLocation==='rooftop'?2:1;
+    for(let i=0;i<count&&GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length<maxCustomers;i++){
+      spawnCustomer();
     }
+  }
+
+  // Auto serve visual
+  if(GS.autoServeRate>0&&GS.tick%45===0){
+    const served=GS.autoServeRate;
+    const autoRev=Math.floor(getRevenuePerMin()*0.3*served);
+    GS.coins+=autoRev;
+    GS.totalRevenue+=autoRev;GS.totalServed+=served;addXP(served*2);checkQuests();
+    showNotif(`🤖 Staff phục vụ ${served} khách! +${autoRev}K`);
   }
 
   // Update animated customers
-  GS.customerAnim.queue.forEach((c,i)=>{
+  for(let i=GS.animCustomers.length-1;i>=0;i--){
+    const c=GS.animCustomers[i];
     if(c.state==='entering'){
       c.timer++;
-      if(c.timer<60){
-        c.x-=3;c.y+=(c.targetY-c.y)*.05;
-      }else if(c.timer<120){
-        c.y+=(c.targetY-c.y)*.05;
-      }else{
-        c.state='sitting';c.timer=0;
-        c.drinkTimer=0;
-      }
+      const dx=c.targetX-c.x,dy=c.targetY-c.y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist>2){c.x+=dx/dist*c.speed;c.y+=dy/dist*c.speed;}
+      else{c.state='sitting';c.timer=0;c.drinkTime=0;GS.animCustomers[i].state='sitting';}
     }else if(c.state==='sitting'){
-      c.drinkTimer++;
-      if(c.drinkTimer>80){
-        c.state='leaving';c.timer=0;
-        c.targetX=W+20;c.targetY=140;
-        GS.coins+=getRevenuePerMin()/getCustomerCount();
-        GS.totalServed++;addXP(1);
-        checkQuests();
-      }
+      c.drinkTime=(c.drinkTime||0)+1;
+      if(c.drinkTime>120){c.state='leaving';c.timer=0;}
+      // Auto serve removes customer
+      if(c.auto&&GS.tick%45===0){c.state='leaving';c.timer=0;}
     }else if(c.state==='leaving'){
-      c.timer++;c.x+=3;
-      if(c.x>W+30)GS.customerAnim.queue.splice(i,1);
+      c.timer++;c.x+=c.speed+1;
+      if(c.x>CW+40)GS.animCustomers.splice(i,1);
     }
-  });
-
-  updateUI();
-  requestAnimationFrame(renderCanvas);
-}
-
-// ======== PIXEL ART RENDERER ========
-const PX=2;
-function drawRect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h);}
-
-function drawCafe(){
-  const loc=LOCATIONS[GS.currentLocation];
-  // Sky
-  drawRect(0,0,W,80,'#87CEEB');
-  // Wall
-  drawRect(0,80,W,60,'#F5E6CA');
-  // Wall pattern
-  for(let x=0;x<W;x+=20){drawRect(x,80,1,60,'rgba(139,105,20,.08)');}
-
-  // Window
-  drawRect(180,10,120,70,'#4A3068');
-  drawRect(182,12,116,66,'#5B9BD5');
-  drawRect(239,12,2,66,'#8B6914');
-  drawRect(182,45,116,2,'#8B6914');
-
-  // Sun
-  const hour=(animFrame/60)%24;
-  if(hour<18){
-    drawRect(280+hour*3,20,12,12,'#FFD700');
-    drawRect(282+hour*3,22,8,8,'#FFF8DC');
-  }else{
-    drawRect(295,15,10,10,'#F5F5DC');
-    drawRect(298,13,7,7,'#4A3068');
+    if(c.hit>0)c.hit--;
   }
 
-  // Counter
-  drawRect(20,140,100,50,'#6F4E37');
-  drawRect(20,140,100,6,'#DEB887');
-  drawRect(120,160,15,20,'#444');
-  drawRect(122,158,11,14,'#666');
-  // Machine light
-  const glow=Math.sin(animFrame*.05)*.3+.7;
-  drawRect(121,157,3,3,`rgba(0,255,0,${glow})`);
-  drawRect(126,157,3,3,`rgba(255,100,0,${glow})`);
+  // Clean old customers
+  while(GS.animCustomers.length>20)GS.animCustomers.shift();
 
-  // Shelves
-  drawRect(20,95,100,5,'#8B6914');
-  drawRect(20,125,100,5,'#8B6914');
-  // Items on shelf
-  MENU_ITEMS.slice(0,6).forEach((item,i)=>{
-    drawRect(30+i*14,110,10,14,item.emoji==='☕'?'#6F4E37':item.emoji==='🥛'?'#C4A882':item.emoji==='🍵'?'#6B8E23':'#E74C3C');
-    drawRect(32+i*14,112,6,10,'#FFF');
-  });
+  updateUI();
+  renderCanvas();
+  requestAnimationFrame(gameLoop);
+}
 
-  // Tables
-  const tablePositions=[[160,170],[280,170],[380,170]];
-  tablePositions.forEach(([tx,ty])=>{
-    drawRect(tx,ty,40,4,'#8B6914');
-    drawRect(tx+5,ty+4,3,30,'#6F4E37');
-    drawRect(tx+32,ty+4,3,30,'#6F4E37');
-  });
+// ======== RENDER CANVAS ========
+function renderCanvas(){
+  const c=canvasCtx;
+  c.clearRect(0,0,CW,CH);
 
-  // Entrance
-  drawRect(400,120,50,80,'#5C4033');
-  drawRect(402,122,46,76,'#8B6914');
-  drawRect(440,150,4,4,'#FFD700');
-  // OPEN sign
-  const sg=Math.sin(animFrame*.08)*.3+.7;
-  drawRect(405,130,40,12,`rgba(0,255,0,${sg})`);
-  ctx.fillStyle='#000';ctx.font='8px monospace';ctx.textAlign='center';
-  ctx.fillText('MỞ',425,139);
+  const loc=LOCATIONS[GS.currentLocation];
+  const weather=getWeather();
 
-  // Floor
-  for(let x=0;x<W;x+=15){for(let y=180;y<H;y+=15){
-    drawRect(x,y,15,15,(x+y)%30===0?'#D2B48C':'#C4A882');
+  // Background based on location
+  const bgGrad=c.createLinearGradient(0,0,0,CH);
+  bgGrad.addColorStop(0,weather.emoji==='🌧️'?'#4A5568':loc.bg);
+  bgGrad.addColorStop(1,'#1a1a2e');
+  c.fillStyle=bgGrad;c.fillRect(0,0,CW,CH);
+
+  // Sky area (top portion)
+  c.fillStyle=weather.emoji==='🌧️'?'#2D3748':(weather.emoji==='🔥'?'#FF8C00':'#87CEEB');
+  c.fillRect(0,0,CW,60);
+
+  // Sun or Moon
+  const hour=(GS.animFrame/60)%24;
+  if(hour<18){
+    c.fillStyle='#FFD700';c.beginPath();c.arc(100+hour*12,15,14,0,Math.PI*2);c.fill();
+    c.fillStyle='#FFF8DC';c.beginPath();c.arc(100+hour*12,15,9,0,Math.PI*2);c.fill();
+  }else{
+    c.fillStyle='#F5F5DC';c.beginPath();c.arc(380,12,10,0,Math.PI*2);c.fill();
+    c.fillStyle='#2D3748';c.beginPath();c.arc(384,10,8,0,Math.PI*2);c.fill();
+  }
+
+  // Clouds (weather dependent)
+  if(weather.emoji==='🌧️'||weather.emoji==='⛅'){
+    c.fillStyle='rgba(200,200,200,0.6)';
+    [[50,8],[120,5],[250,10],[350,7]].forEach(([cx,cy])=>{
+      const ox=Math.sin(GS.animFrame*0.01+cx)*5;
+      c.beginPath();c.arc(cx+ox,cy,12,0,Math.PI*2);c.arc(cx+ox+10,cy-3,10,0,Math.PI*2);c.arc(cx+ox+20,cy,12,0,Math.PI*2);c.arc(cx+ox+10,cy+3,8,0,Math.PI*2);c.fill();
+    });
+  }
+
+  // Rain
+  if(weather.emoji==='🌧️'){
+    for(let i=0;i<30;i++){
+      const rx=(GS.animFrame*3+i*16)%CW;
+      const ry=(GS.animFrame*4+i*10)%60+62;
+      c.strokeStyle='rgba(100,149,237,.6)';c.lineWidth=1;
+      c.beginPath();c.moveTo(rx,ry);c.lineTo(rx-1,ry+6);c.stroke();
+    }
+  }
+
+  // Wall
+  c.fillStyle='#F5E6CA';c.fillRect(0,60,CW,120);
+  // Wall pattern
+  for(let x=0;x<CW;x+=25){c.fillStyle='rgba(139,105,20,.06)';c.fillRect(x,60,1,120);}
+
+  // Floor tiles
+  for(let x=0;x<CW;x+=20){for(let y=180;y<CH;y+=20){
+    c.fillStyle=(x+y)%40===0?'#D2B48C':'#C4A882';c.fillRect(x,y,20,20);
   }}
 
-  // Lighting
-  [[100,30],[200,30],[300,30]].forEach(([lx,ly],idx)=>{
-    const g=Math.sin(animFrame*.03+idx)*.15+.85;
-    drawRect(lx-1,ly-1,4,4,`rgba(255,248,220,${g})`);
-    drawRect(lx-1,0,2,ly,'#333');
-    const cone=ctx.createRadialGradient(lx,ly,3,lx,ly+100,50);
-    cone.addColorStop(0,`rgba(255,248,220,${.12*g})`);
-    cone.addColorStop(1,'rgba(255,248,220,0)');
-    ctx.fillStyle=cone;
-    ctx.beginPath();ctx.moveTo(lx-3,ly);ctx.lineTo(lx-50,ly+120);ctx.lineTo(lx+50,ly+120);ctx.fill();
+  // Counter
+  c.fillStyle='#6F4E37';c.fillRect(10,160,140,60);
+  c.fillStyle='#DEB887';c.fillRect(8,156,144,8);
+  c.fillStyle='#8B6914';c.fillRect(10,160,140,4);
+
+  // Coffee machine on counter
+  c.fillStyle='#444';c.fillRect(120,130,30,35);
+  c.fillStyle='#666';c.fillRect(122,132,26,15);
+  const glow=Math.sin(GS.animFrame*.05)*.3+.7;
+  c.fillStyle=`rgba(0,255,0,${glow})`;c.fillRect(122,133,4,4);
+  c.fillStyle=`rgba(255,100,0,${glow})`;c.fillRect(130,133,4,4);
+
+  // Cups on counter
+  for(let i=0;i<5;i++){
+    c.fillStyle='#FFF';c.fillRect(30+i*22,148,12,12);
+    c.fillStyle='#F0F0F0';c.fillRect(32+i*22,150,8,8);
+  }
+
+  // Shelves above counter
+  c.fillStyle='#8B6914';c.fillRect(10,100,140,6);c.fillRect(10,130,140,6);
+  // Menu items on shelf
+  const shelfColors=['#6F4E37','#C4A882','#6B8E23','#E74C3C','#DAA520','#DEB887'];
+  shelfColors.forEach((col,i)=>{
+    c.fillStyle=col;c.fillRect(20+i*18,112,14,18);
+    c.fillStyle='#FFF';c.fillRect(22+i*18,114,10,14);
   });
 
-  // Draw animated customers
-  GS.customerAnim.queue.forEach(c=>{
-    const cx=Math.round(c.x),cy=Math.round(c.y);
-    const f=Math.floor(animFrame)%20;
-    const walk=c.state==='entering'||c.state==='leaving';
-    const ls=walk?Math.sin(f*.4)*2:0;
+  // Display cases
+  c.fillStyle='rgba(100,150,200,.3)';c.fillRect(340,150,80,50);
+  c.strokeStyle='#DEB887';c.lineWidth=2;c.strokeRect(340,150,80,50);
+  // Pastries in display
+  c.fillStyle='#DEB887';c.fillRect(345,160,12,10);c.fillStyle='#8B4513';c.fillRect(347,162,8,6);
+  c.fillStyle='#F5DEB3';c.fillRect(360,165,10,8);c.fillStyle='#D2691E';c.fillRect(362,167,6,4);
+  c.fillStyle='#87CEEB';c.fillRect(375,155,10,12);c.fillStyle='#FFF';c.fillRect(377,157,6,8);
+  c.fillStyle='#DEB887';c.fillRect(355,178,14,8);c.fillStyle='#FFF';c.fillRect(357,180,10,4);
+
+  // Tables
+  const tables=[[170,200],[280,200],[390,200]];
+  tables.forEach(([tx,ty])=>{
+    c.fillStyle='#8B6914';c.fillRect(tx,ty,50,5);c.fillStyle='#A0824A';c.fillRect(tx+2,ty+2,46,1);
+    c.fillStyle='#6F4E37';c.fillRect(tx+5,ty+5,4,55);c.fillRect(tx+41,ty+5,4,55);
+  });
+
+  // Entrance/Door
+  c.fillStyle='#5C4033';c.fillRect(430,130,50,90);
+  c.fillStyle='#8B6914';c.fillRect(432,132,46,86);
+  c.fillStyle='#FFD700';c.fillRect(470,165,4,4);
+  // OPEN sign
+  const sg=Math.sin(GS.animFrame*.08)*.3+.7;
+  c.fillStyle=`rgba(0,255,0,${sg})`;c.fillRect(435,140,40,14);
+  c.fillStyle='#000';c.font='bold 8px monospace';c.textAlign='center';c.fillText('MỞ',455,151);
+
+  // Ceiling lights
+  [[80,5],[240,5],[400,5]].forEach(([lx,ly],idx)=>{
+    const g=Math.sin(GS.animFrame*.03+idx)*.15+.85;
+    c.fillStyle=`rgba(255,248,220,${g})`;c.beginPath();c.arc(lx,ly+2,5,0,Math.PI*2);c.fill();
+    c.fillStyle='#333';c.fillRect(lx-1,0,2,ly);
+    // Light cone
+    const cone=c.createRadialGradient(lx,ly+2,3,lx,ly+120,60);
+    cone.addColorStop(0,`rgba(255,248,220,${.1*g})`);cone.addColorStop(1,'rgba(255,248,220,0)');
+    c.fillStyle=cone;c.beginPath();c.moveTo(lx-3,ly+2);c.lineTo(lx-60,ly+140);c.lineTo(lx+60,ly+140);c.fill();
+  });
+
+  // ======== DRAW CUSTOMERS ========
+  GS.animCustomers.forEach(cust=>{
+    const cx=Math.round(cust.x),cy=Math.round(cust.y);
+    const f=Math.floor(GS.animFrame)%20;
+    const walking=cust.state==='entering'||cust.state==='leaving';
+    const legSpread=walking?Math.sin(f*.4)*3:0;
 
     // Shadow
-    ctx.fillStyle='rgba(0,0,0,.15)';
-    ctx.beginPath();ctx.ellipse(cx+6,cy+30,7,3,0,0,Math.PI*2);ctx.fill();
+    c.fillStyle='rgba(0,0,0,.15)';c.beginPath();c.ellipse(cx+8,cy+38,8,3,0,0,Math.PI*2);c.fill();
 
     // Body
-    drawRect(cx+1,cy+12,12,10,c.color);
+    dr(cx+2,cy+14,16,14,cust.color);
     // Head
-    drawRect(cx+3,cy,9,9,c.skin);
+    dr(cx+4,cy,12,12,cust.skin);
     // Hair
-    drawRect(cx+2,cy-1,11,3,c.hair);
-    drawRect(cx+2,cy,2,5,c.hair);
-    drawRect(cx+11,cy,2,5,c.hair);
+    dr(cx+3,cy-2,14,5,cust.hair);
+    dr(cx+3,cy,2,6,cust.hair);dr(cx+15,cy,2,6,cust.hair);
     // Eyes
-    drawRect(cx+5,cy+3,2,1,'#333');
-    drawRect(cx+9,cy+3,2,1,'#333');
+    c.fillStyle='#333';c.fillRect(cx+6,cy+4,2,2);c.fillRect(cx+11,cy+4,2,2);
     // Mouth
-    drawRect(cx+6,cy+7,3,1,'#C44569');
+    c.fillStyle='#C44569';c.fillRect(cx+8,cy+9,3,1);
     // Legs
-    drawRect(cx+3+ls,cy+22,4,8,'#333');
-    drawRect(cx+9-ls,cy+22,4,8,'#333');
+    c.fillStyle='#333';
+    dr(cx+4+legSpread,cy+28,5,10,'#333');
+    dr(cx+11-legSpread,cy+28,5,10,'#333');
+    // Arms
+    const armSwing=walking?Math.sin(f*.4)*3:0;
+    dr(cx-1-armSwing,cy+14,5,10,cust.color);
+    dr(cx+18+armSwing,cy+14,5,10,cust.color);
 
     // Drinking animation
-    if(c.state==='sitting'&&c.drinkTimer>5&&c.drinkTimer<40){
-      drawRect(cx+12,cy+4,6,6,'#F5F5F5');
-      drawRect(cx+13,cy+5,4,4,'#6F4E37');
+    if(cust.state==='sitting'&&cust.drinkTime>5&&cust.drinkTime<40){
+      dr(cx+18,cy+4,8,8,'#F5F5F5');dr(cx+19,cy+5,6,6,'#6F4E37');
     }
 
     // Hat
-    if(c.hat){
-      drawRect(cx,cy-4,14,4,c.hat==='🎩'?'#333':c.hat==='🧢'?'#E74C3C':'#F5DEB3');
+    if(cust.hat){
+      dr(cx+2,cy-5,16,5,cust.hat==='🎩'?'#333':cust.hat==='🧢'?'#E74C3C':'#F5DEB3');
+      dr(cx-1,cy-3,22,2,cust.hat==='🎩'?'#333':cust.hat==='🧢'?'#E74C3C':'#F5DEB3');
     }
 
-    // Name
-    ctx.fillStyle='#FFF';ctx.font='7px monospace';ctx.textAlign='center';
-    ctx.fillText('👤',cx+6,cy-8);
+    // Name bubble when sitting
+    if(cust.state==='sitting'){
+      const bubbleY=cy-18+Math.sin(GS.animFrame*.1)*2;
+      c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.arc(cx+8,bubbleY,12,0,Math.PI*2);c.fill();
+      c.strokeStyle='#999';c.lineWidth=1;c.stroke();
+      c.fillStyle='#333';c.font='8px monospace';c.textAlign='center';c.fillText(cust.name,cx+8,bubbleY+3);
+    }
+
+    // Money particle when being served
+    if(cust.hit>0){
+      c.fillStyle='#FFD700';c.font='16px serif';c.textAlign='center';c.fillText('💰',cx+8,cy-30);
+      cust.hit--;
+    }
   });
 
-  // Rain
-  const weather=getWeather();
-  if(weather.emoji==='🌧️'){
-    for(let i=0;i<20;i++){
-      const rx=185+Math.random()*115;
-      const ry=(animFrame*2+i*10)%66+12;
-      ctx.strokeStyle='rgba(100,149,237,.5)';ctx.lineWidth=1;
-      ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-1,ry+4);ctx.stroke();
-    }
+  // Auto serve animation barista
+  if(GS.autoServeRate>0){
+    const bx=80+Math.sin(GS.animFrame*.02)*40;
+    const by=165;
+    const bf=Math.floor(GS.animFrame)%20;
+    const walk=GS.animFrame%60<30;
+    const ls=walk?Math.sin(bf*.4)*2:0;
+    c.fillStyle='rgba(0,0,0,.15)';c.beginPath();c.ellipse(bx+8,by+30,6,2,0,0,Math.PI*2);c.fill();
+    c.fillStyle='#FFFFFF';c.fillRect(bx+2,by+8,14,12);
+    c.fillStyle='#1a1a4e';c.fillRect(bx+4,by,10,10);
+    c.fillStyle='#FDBCB4';c.fillRect(bx+4,by-2,10,10);
+    c.fillStyle='#2C1810';c.fillRect(bx+3,by-4,12,4);
+    c.fillStyle='#333';c.fillRect(bx+6,by+1,2,2);c.fillRect(bx+10,by+1,2,2);
+    c.fillStyle='#333';c.fillRect(bx+4+ls,by+20,4,10);c.fillRect(bx+10-ls,by+20,4,10);
+    // Apron
+    c.fillStyle='#FFD700';c.fillRect(bx+6,by+10,6,6);
   }
-}
 
-function renderCanvas(){
-  ctx.clearRect(0,0,W,H);
-  drawCafe();
-  requestAnimationFrame(renderCanvas);
+  // Customer count indicator
+  const active=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length;
+  if(active>0){
+    c.fillStyle='rgba(0,0,0,.6)';c.fillRect(5,5,60,16);
+    c.fillStyle='#FFD700';c.font='bold 10px monospace';c.textAlign='left';c.fillText(`👥 ${active} khách`,10,17);
+  }
+
+  // Revenue indicator
+  c.fillStyle='rgba(0,0,0,.6)';c.fillRect(CW-80,5,75,16);
+  c.fillStyle='#2ECC71';c.font='bold 10px monospace';c.textAlign='right';c.fillText(`💰 +${GS.lastServeRevenue}K/phút`,CW-10,17);
+
+  c.font='10px monospace';c.textAlign='center';
 }
 
 // ======== UI RENDERING ========
@@ -477,157 +513,108 @@ function updateUI(){
   document.getElementById('money').textContent=GS.coins.toLocaleString();
   document.getElementById('level').textContent=`Lv.${GS.level}`;
   document.getElementById('day').textContent=GS.gameDay;
-  document.getElementById('staff').textContent=GS.autoServeRate;
+  document.getElementById('staff').textContent=GS.autoServeRate+' khách/phút';
+  document.getElementById('custCount').textContent=getCustomerCount();
 
   const w=getWeather();
-  document.getElementById('weather-bar').innerHTML=`<span>${w.emoji} ${w.name}</span><span>📊 ${getWeather().name} (${w.mod*100}%)</span><span>👥 ${getCustomerCount()} khách/phút</span><span>💰 ${getRevenuePerMin()}K/phút</span>`;
+  document.getElementById('weather-bar').innerHTML=`<span>${w.emoji} ${w.name}</span><span>📊 Doanh thu: ${getRevenuePerMin()}K/phút</span><span>👥 ${getCustomerCount()} khách/phút</span><span>📅 Ngày ${GS.gameDay}</span>`;
 }
 
 function renderTab(name){
-  const c=document.getElementById('content');
-  let html='';
-
+  const el=document.getElementById('content');let h='';
   if(name==='location'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📍 Chọn vị trí quán</h3>';
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📍 Chọn vị trí quán</h3>';
     for(const[id,loc]of Object.entries(LOCATIONS)){
       const unlocked=GS.unlockedLocations.includes(id);
       const active=GS.currentLocation===id;
-      html+=`<div class="card" style="margin:3px 0">
-        <div><span style="font-size:16px">${loc.emoji}</span> <strong>${loc.name}</strong>
-        <br><small>👥${loc.customings} KH/phút | 💰x${loc.revenueMult}</small></div>
-        <button class="btn ${active?'blue':''}" ${(!unlocked&&GS.coins<loc.cost)?'disabled':''} onclick="changeLocation('${id}')">
-          ${active?'✅ Đang dùng':(!unlocked?`🔒 ${loc.cost}K`:'📍 Chọn')}
-        </button></div>`;
+      h+=`<div class="card" style="margin:3px 0"><div><span style="font-size:16px">${loc.emoji}</span> <strong>${loc.name}</strong><br><small>👥${loc.customings} KH/phút | 💰x${loc.revenueMult}</small></div><button class="btn ${active?'blue':''}" ${(unlocked?'':'')} ${(!unlocked&&GS.coins<loc.cost)?'disabled':''} onclick="changeLocation('${id}')">${active?'✅ Đang dùng':(!unlocked?`🔒 ${loc.cost}K`:'📍 Chọn')}</button></div>`;
     }
   }else if(name==='menu'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">☕ Menu Đồ uống</h3>';
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">☕ Menu Đồ uống</h3>';
     MENU_ITEMS.slice(0,GS.menuUnlocked).forEach(item=>{
-      html+=`<div class="card">
-        <div><span style="font-size:18px">${item.emoji}</span> <strong>${item.name}</strong>
-        <br><small>💰${item.price}K | Giá vốn: ${item.cost}K</small>
-        <br><small>${item.needsBeans?'☕ ':''}${item.needsMilk?'🥛':''}</small></div>
-        <button class="btn green" onclick="sellItem('${item.id}')">Phục vụ</button></div>`;
+      h+=`<div class="card"><div><span style="font-size:18px">${item.emoji}</span> <strong>${item.name}</strong><br><small>💰${item.price}K | Giá vốn: ${item.cost}K | ${item.needsBeans?'☕ ':''}${item.needsMilk?'🥛':''}</small></div><button class="btn green" onclick="sellItem('${item.id}')">Phục vụ</button></div>`;
     });
   }else if(name==='staff'){
-    const autoServeNames=['👨‍🍳 Thuê nhân viên','👩‍🍳 Thêm nhân viên','👨‍🍳👩‍🍳 Đội bếp'];
-    const autoServeCosts=[1000,3000,8000];
-    const autoServeVals=[1,2,5];
-    const bought=GS.upgradesBought.filter(id=>id.startsWith('u_staff'));
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">👥 Tự động phục vụ</h3>';
-    html+=`<div class="card"><div><strong>Tổng staff: ${GS.autoServeRate} khách/phút</strong><br><small>Đang hoạt động: ${bought.length} thiết bị</small></div></div>`;
-    autoServeNames.forEach((name,i)=>{
-      const b=bought.includes('u_staff'+(i+1));
-      html+=`<div class="upgrade-card">
-        <div><strong>${name}</strong><br><small>+${autoServeVals[i]} khách/phút</small></div>
-        <button class="btn gold" ${b||GS.coins<autoServeCosts[i]?'disabled':''} onclick="buyUpgrade('u_staff${i+1}',${autoServeCosts[i]})">
-          ${b?'✅ Mua rồi':autoServeCosts[i]+'K'}
-        </button></div>`;
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">👥 Tự động phục vụ (Staff)</h3>';
+    h+=`<div class="card"><div><strong>Tổng staff: ${GS.autoServeRate} khách/phút</strong><br><small>Staff đang hoạt động trên canvas (áo vàng, di chuyển liên tục)</small></div></div>`;
+    [{n:'👨‍🍳 Thuê nhân viên',d:'+1 khách/phút',c:1000,id:'u_staff1'},{n:'👩‍🍳 Thêm nhân viên',d:'+2 khách/phút',c:3000,id:'u_staff2'},{n:'👨‍🍳👩‍🍳 Đội bếp',d:'+5 khách/phút',c:8000,id:'u_staff3'}].forEach(u=>{
+      const bought=GS.upgradesBought.includes(u.id);
+      h+=`<div class="upgrade-card"><div><strong>${u.n}</strong><br><small>${u.d}</small></div><button class="btn gold" ${bought||GS.coins<u.c?'disabled':''} onclick="buyUpgrade('${u.id}',${u.c},'auto_serve',1)">${bought?'✅ Đã mua':u.c+'K'}</button></div>`;
     });
   }else if(name==='upgrade'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔧 Nâng cấp quán</h3>';
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔧 Nâng cấp quán</h3>';
     UPGRADES.forEach(u=>{
       const bought=GS.upgradesBought.includes(u.id);
-      html+=`<div class="upgrade-card">
-        <div><strong>${u.name}</strong><br><small>${u.desc} (+${u.value*100}%)</small></div>
-        <button class="btn gold" ${bought||GS.coins<u.cost?'disabled':''} onclick="buyUpgrade('${u.id}',${u.cost},'${u.type}',${u.value})">
-          ${bought?'✅ Đã mua':u.cost+'K'}
-        </button></div>`;
+      h+=`<div class="upgrade-card"><div><strong>${u.name}</strong><br><small>${u.desc} (+${u.value*100}%)</small></div><button class="btn gold" ${bought||GS.coins<u.cost?'disabled':''} onclick="buyUpgrade('${u.id}',${u.cost},'${u.type}',${u.value})">${bought?'✅ Đã mua':u.cost+'K'}</button></div>`;
     });
   }else if(name==='trend'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔥 Item Trendy</h3>';
-    html+='<div class="trend-grid">';
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔥 Item Trendy</h3><div class="trend-grid">';
     TREND_ITEMS.forEach(item=>{
       const owned=GS.ownedItems[item.id]>0;
-      html+=`<div class="trend-card ${item.rarity}" onclick="buyTrend('${item.id}')">
-        <strong>${item.name}</strong><br>
-        <small>${item.desc}</small><br>
-        <span class="${owned?'gold':''}">${owned?'✅ sở hữu':item.cost+'K'}</span>
-      </div>`;
+      h+=`<div class="trend-card ${item.rarity}" onclick="buyTrend('${item.id}')"><strong>${item.name}</strong><br><small>${item.desc}</small><br><span style="color:${owned?'#2ECC71':'#FFD700'}">${owned?'✅ sở hữu':item.cost+'K'}</span></div>`;
     });
-    html+='</div>';
+    h+='</div>';
   }else if(name==='supplier'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📦 Vật tư</h3>';
-    html+=`<div class="card">☕ Đậu: <strong class="gold">${GS.supplierStock.beans}</strong> | 🥛 Sữa: <strong class="gold">${GS.supplierStock.milk}</strong> | 🥤 Cốc: <strong class="gold">${GS.supplierStock.cups}</strong></div>`;
-    html+='<div style="display:flex;gap:4px;margin-top:6px">';
-    [{key:'beans',cost:50,amt:10,label:'☕ 10 đậu (50K)'},{key:'milk',cost:40,amt:10,label:'🥛 10 sữa (40K)'},{key:'cups',cost:20,amt:50,label:'🥤 50 cốc (20K)'}].forEach(s=>{
-      html+=`<button class="btn blue" style="flex:1;font-size:10px" ${GS.coins<s.cost?'disabled':''} onclick="buySupply('${s.key}',${s.cost},${s.amt})">${s.label}</button>`;
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📦 Vật tư</h3>';
+    h+=`<div class="card">☕ Đậu: <strong class="gold">${GS.supplierStock.beans}</strong> | 🥛 Sữa: <strong class="gold">${GS.supplierStock.milk}</strong> | 🥤 Cốc: <strong class="gold">${GS.supplierStock.cups}</strong></div>`;
+    h+='<div style="display:flex;gap:4px;margin-top:6px">';
+    [{k:'beans',c:50,a:10,n:'☕ 10 đậu (50K)'},{k:'milk',c:40,a:10,n:'🥛 10 sữa (40K)'},{k:'cups',c:20,a:50,n:'🥤 50 cốc (20K)'}].forEach(s=>{
+      h+=`<button class="btn blue" style="flex:1;font-size:10px" ${GS.coins<s.c?'disabled':''} onclick="buySupply('${s.k}',${s.c},${s.a})">${s.n}</button>`;
     });
-    html+='</div>';
+    h+='</div>';
   }else if(name==='quest'){
-    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📋 Nhiệm vụ</h3>';
+    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📋 Nhiệm vụ</h3>';
     QUESTS.forEach(q=>{
-      html+=`<div class="quest-card ${q.done?'done':''}">
-        <strong>${q.done?'✅':'📌'} ${q.title}</strong><br>
-        <small>${q.desc}</small>
-        <div class="progress-bar"><div class="progress-fill" style="width:${(q.progress/q.target)*100}%"></div></div>
-        <small>${q.progress}/${q.target} | Phần thưởng: ${q.reward.coins}K + ${q.reward.xp}XP</small>
-      </div>`;
+      h+=`<div class="quest-card ${q.done?'done':''}"><strong>${q.done?'✅':'📌'} ${q.title}</strong><br><small>${q.desc}</small><div class="progress-bar"><div class="progress-fill" style="width:${(q.progress/q.target)*100}%"></div></div><small>${q.progress}/${q.target} | TT: ${q.reward.coins}K + ${q.reward.xp}XP</small></div>`;
     });
   }
-  c.innerHTML=html;
+  el.innerHTML=h;
 }
 
 // ======== ACTIONS ========
 window.changeLocation=function(id){
   const loc=LOCATIONS[id];
-  if(GS.unlockedLocations.includes(id)){
-    GS.currentLocation=id;showNotif(`📍 Chuyển đến ${loc.name}`);
-  }else if(GS.coins>=loc.cost){
-    GS.coins-=loc.cost;GS.unlockedLocations.push(id);GS.currentLocation=id;
-    showNotif(`🎉 Mở quán mới: ${loc.name}!`);addXP(100);checkQuests();
-  }else{showNotif('💸 Không đủ tiền!');}
+  if(GS.unlockedLocations.includes(id)){GS.currentLocation=id;showNotif(`📍 Chuyển đến ${loc.name}`);}
+  else if(GS.coins>=loc.cost){GS.coins-=loc.cost;GS.unlockedLocations.push(id);GS.currentLocation=id;showNotif(`🎉 Mở quán: ${loc.name}!`);addXP(100);checkQuests();}
+  else{showNotif('💸 Không đủ tiền!');}
   renderTab(document.querySelector('.tab.active').dataset.tab);
 };
-
 window.buyUpgrade=function(id,cost,type,value){
   if(GS.upgradesBought.includes(id)||GS.coins<cost)return;
   GS.coins-=cost;GS.upgradesBought.push(id);
   if(type==='auto_serve')GS.autoServeRate+=value;
-  if(type==='unlock_menu')GS.menuUnlocked+=value;
+  if(type==='unlock_menu')GS.menuUnlocked=Math.min(GS.menuUnlocked+value,10);
   showNotif(`✅ ${UPGRADES.find(u=>u.id===id).name}!`);
   renderTab(document.querySelector('.tab.active').dataset.tab);
 };
-
 window.sellItem=function(id){
-  const item=MENU_ITEMS.find(i=>i.id===id);
-  if(!item)return;
-  if(GS.supplierStock.beans<=0||GS.supplierStock.milk<=0||GS.supplierStock.cups<=0){
-    showNotif('⚠️ Thiếu vật tư!');return;
-  }
+  const item=MENU_ITEMS.find(i=>i.id===id);if(!item)return;
+  if(GS.supplierStock.beans<=0||GS.supplierStock.milk<=0||GS.supplierStock.cups<=0){showNotif('⚠️ Thiếu vật tư!');return;}
   if(item.needsBeans)GS.supplierStock.beans--;
   if(item.needsMilk)GS.supplierStock.milk--;
   GS.supplierStock.cups--;
   GS.coins+=item.price;GS.totalRevenue+=item.price;GS.totalServed++;
-  addXP(3);showNotif(`+${item.price}K từ ${item.name}! ${item.emoji}`);
-  checkQuests();updateUI();
+  addXP(3);showNotif(`+${item.price}K từ ${item.name}! ${item.emoji}`);checkQuests();updateUI();
 };
-
 window.buyTrend=function(id){
-  const item=TREND_ITEMS.find(i=>i.id===id);
-  if(!item||GS.ownedItems[id]>0||GS.coins<item.cost)return;
-  GS.coins-=item.cost;GS.ownedItems[id]=1;showNotif(`🔥 ${item.name}!`);
-  addXP(item.cost>5000?200:50);checkQuests();
-  renderTab('trend');
+  const item=TREND_ITEMS.find(i=>i.id===id);if(!item||GS.ownedItems[id]>0||GS.coins<item.cost)return;
+  GS.coins-=item.cost;GS.ownedItems[id]=1;showNotif(`🔥 ${item.name}!`);addXP(item.cost>5000?200:50);checkQuests();renderTab('trend');
 };
-
-window.buySupply=function(key,cost,amt){
-  if(GS.coins<cost)return;GS.coins-=cost;GS.supplierStock[key]+=amt;
-  showNotif(`📦 Mua ${amt} ${key}!`);updateUI();
-};
+window.buySupply=function(key,cost,amt){if(GS.coins<cost)return;GS.coins-=cost;GS.supplierStock[key]+=amt;showNotif(`📦 Mua ${amt} ${key}!`);updateUI();};
 
 // ======== TABS ========
 document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    renderTab(btn.dataset.tab);
-  });
+  btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTab(btn.dataset.tab);});
 });
 
-// ======== INIT ========
+// ======== INIT & START ========
 QUESTS.forEach(q=>{if(typeof q.progress==='undefined')q.progress=0;});
-updateUI();
-renderTab('location');
+updateUI();renderTab('location');
+
+// Initial customers on canvas
+for(let i=0;i<3;i++){setTimeout(()=>spawnCustomer(),i*1500);}
+
+// Start the game loop
 gameLoop();
 </script>
 </body>
