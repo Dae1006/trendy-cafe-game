@@ -495,15 +495,29 @@ function renderCanvas(){
 }
 
 // ======== UI RENDERING ========
+let _lastUI={money:'',level:'',day:'',staff:'',cust:'',weather:'',rev:'',perMinute:''};
 function updateUI(){
-  document.getElementById('money').textContent=GS.coins.toLocaleString();
-  document.getElementById('level').textContent=`Lv.${GS.level}`;
-  document.getElementById('day').textContent=GS.gameDay;
-  document.getElementById('staff').textContent=GS.autoServeRate+' khách/phút';
-  document.getElementById('custCount').textContent=getCustomerCount();
-
+  const cm=GS.coins.toLocaleString();
+  const lv='Lv.'+GS.level;
+  const dy=GS.gameDay;
+  const sf=GS.autoServeRate+' khách/phút';
+  const cc=getCustomerCount();
   const w=getWeather();
-  document.getElementById('weather-bar').innerHTML=`<span>${w.emoji} ${w.name}</span><span>📊 Doanh thu: ${getRevenuePerMin()}K/phút</span><span>👥 ${getCustomerCount()} khách/phút</span><span>📅 Ngày ${GS.gameDay}</span>`;
+  const rev=getRevenuePerMin();
+  let dirty=false;
+  if(_lastUI.money!==cm){document.getElementById('money').textContent=cm;_lastUI.money=cm;dirty=true;}
+  if(_lastUI.level!==lv){document.getElementById('level').textContent=lv;_lastUI.level=lv;}
+  if(_lastUI.day!==dy){document.getElementById('day').textContent=dy;_lastUI.day=dy;}
+  if(_lastUI.staff!==sf){document.getElementById('staff').textContent=sf;_lastUI.staff=sf;}
+  if(_lastUI.cust!==cc){document.getElementById('custCount').textContent=cc;_lastUI.cust=cc;}
+  const wText=w.emoji+' '+w.name;
+  const rText='Doanh thu: '+rev+'K/phút';
+  const pText=cc+' khách/phút';
+  const dText='Ngày '+GS.gameDay;
+  if(_lastUI.weather!==wText||_lastUI.rev!==rText||_lastUI.perMinute!==pText||_lastUI.day!==dText){
+    _lastUI.weather=wText;_lastUI.rev=rText;_lastUI.perMinute=pText;_lastUI.day=dText;
+    document.getElementById('weather-bar').innerHTML=`<span>${wText}</span><span>📊 ${rText}</span><span>👥 ${pText}</span><span>📅 ${dText}</span>`;
+  }
 }
 
 function renderTab(name){
