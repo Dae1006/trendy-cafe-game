@@ -3,38 +3,52 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Trendy Cafe - Pixel Art</title>
+<title>☕ Quán Trendy Cafe - Pixel Art</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overflow:hidden;height:100vh;width:100vw;display:flex;flex-direction:column;align-items:center}
-#top-bar{width:100%;max-width:480px;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:2px solid #FFD700;font-size:13px;z-index:10}
-#top-bar .stat{padding:4px 10px;border:1px solid #333;border-radius:4px;font-size:12px}
+body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overflow-x:hidden;min-height:100vh}
+#top-bar{width:100%;max-width:480px;display:flex;justify-content:space-around;padding:6px 8px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:2px solid #FFD700;font-size:12px;flex-wrap:wrap;gap:2px}
+.stat{padding:3px 6px;border:1px solid #333;border-radius:3px;font-size:11px}
 .gold{color:#FFD700;font-weight:bold}
-#game-container{position:relative;width:100%;max-width:480px;flex:1;display:flex;flex-direction:column}
-#canvas-wrap{position:relative;flex:1;overflow:hidden}
-#gameCanvas{width:100%;height:100%;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-#bottom-bar{width:100%;max-width:480px;display:flex;border-top:2px solid #0f3460;background:#0f3460}
-.tab-btn{flex:1;padding:12px 8px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;font-size:13px;transition:all 0.3s}
-.tab-btn.active{color:#FFD700;background:rgba(255,215,0,0.15);border-bottom:3px solid #FFD700}
-#tab-content{width:100%;max-width:480px;max-height:180px;overflow-y:auto;background:#1a1a2e;padding:10px;font-size:11px}
-#tab-content.hidden{display:none}
-.panel{padding:8px;margin:4px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:1px solid #2a3a5e;border-radius:6px}
-.panel h3{color:#FFD700;font-size:12px;margin-bottom:6px}
-.item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
-.item-card{padding:8px;text-align:center;background:#0d1a3a;border:1px solid #333;border-radius:4px;cursor:pointer;transition:all 0.2s}
-.item-card:hover{border-color:#FFD700;transform:scale(1.05)}
-.item-card .emoji{font-size:24px}
-.item-card .name{font-size:10px;color:#ccc;margin-top:4px}
-.item-card .price{font-size:11px;color:#FFD700;margin-top:2px}
-.notif{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:6px 14px;border:1px solid #FFD700;border-radius:6px;font-size:11px;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none}
+#canvas-wrap{width:100%;max-width:480px;position:relative}
+#gameCanvas{width:100%;height:200px;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+#main{max-width:480px;margin:0 auto;padding:8px}
+#tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460;background:#0f3460}
+.tab{padding:8px 10px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:11px}
+.tab.active{color:#FFD700;background:rgba(255,215,0,0.2)}
+.tab:hover{background:rgba(255,215,0,0.1)}
+#content{min-height:300px;padding:8px;background:#1a1a2e;max-height:42vh;overflow-y:auto}
+.card{padding:8px;margin:5px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:1px solid #2a3a5e;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.card.rare{border-color:#9b59b6}
+.card.epic{border-color:#e74c3c}
+.card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
+.btn{padding:6px 12px;border:1px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:11px;border-radius:4px}
+.btn:hover{box-shadow:0 2px 8px rgba(255,99,71,0.4)}
+.btn:disabled{background:#555;cursor:not-allowed}
+.btn.green{background:#28a745}
+.btn.blue{background:#3498db}
+.btn.gold{background:#DAA520;color:#000}
+.notif{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:5px 12px;border:1px solid #FFD700;border-radius:6px;font-size:11px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}
 .notif.show{opacity:1}
-#customer-queue{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-.queue-dot{width:12px;height:12px;border-radius:50%;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.status-bar{display:flex;justify-content:space-around;padding:6px;background:#0d0d1a;border-top:1px solid #333;font-size:10px}
-.status-item{text-align:center}
-.status-item .val{color:#FFD700;font-size:14px}
+.location-bar{display:flex;gap:4px;overflow-x:auto;padding:6px;background:#0d0d1a;flex-wrap:wrap}
+.loc-btn{padding:5px 8px;border:1px solid #333;border-radius:4px;background:#16213e;color:#ccc;font-family:inherit;font-size:10px;cursor:pointer;white-space:nowrap}
+.loc-btn.active{border-color:#FFD700;color:#FFD700;background:rgba(255,215,0,.1)}
+.loc-btn:disabled{opacity:.4;cursor:not-allowed}
+.upgrade-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px;display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.quest-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px}
+.quest-card.done{border-color:#28a745;background:rgba(40,167,69,.1)}
+.progress-bar{width:100%;height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width .5s}
+.trend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px}
+.trend-card{padding:6px;background:#16213e;border:1px solid #333;border-radius:4px;font-size:10px;cursor:pointer;text-align:center}
+.trend-card.common{border-color:#aaa}
+.trend-card.rare{border-color:#9b59b6}
+.trend-card.epic{border-color:#e74c3c}
+.trend-card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
+.weather-bar{padding:4px 8px;background:#0d0d1a;border-bottom:1px solid #333;font-size:11px;display:flex;align-items:center;gap:6px}
+.supplier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px}
+.supplier-item{padding:6px;text-align:center;background:#16213e;border:1px solid #333;border-radius:4px}
+.supplier-item .qty{color:#FFD700;font-size:14px}
 </style>
 </head>
 <body>
@@ -42,848 +56,579 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 <div id="top-bar">
   <span class="stat">💰 <span class="gold" id="money">500</span></span>
   <span class="stat">⭐ <span class="gold" id="level">Lv.1</span></span>
-  <span class="stat">📅 <span id="day-time">06:00</span></span>
+  <span class="stat">📅 Ngày <span id="day">1</span></span>
+  <span class="stat">🧑‍🍳 <span id="staff">0</span></span>
 </div>
 
-<div id="game-container">
-  <div id="canvas-wrap">
-    <canvas id="gameCanvas" width="480" height="360"></canvas>
-  </div>
-  <div class="status-bar">
-    <div class="status-item"><div>🧑‍🍳</div><div class="val" id="served">0</div></div>
-    <div class="status-item"><div>👥</div><div class="val" id="active">0</div></div>
-    <div class="status-item"><div>🎯</div><div class="val" id="income">0</div></div>
-    <div class="status-item"><div>🌡️</div><div class="val" id="temp">25°</div></div>
-  </div>
+<div class="weather-bar" id="weather-bar"></div>
+
+<div id="canvas-wrap">
+  <canvas id="gameCanvas" width="480" height="200"></canvas>
 </div>
 
-<div id="tab-content">
-  <div id="tab-shop">
-    <div class="panel">
-      <h3>🛒 Shop Đồ Uống</h3>
-      <div class="item-grid" id="item-grid"></div>
-    </div>
+<div id="main">
+  <div id="tabs">
+    <button class="tab active" data-tab="location">📍 Vị trí</button>
+    <button class="tab" data-tab="menu">☕ Menu</button>
+    <button class="tab" data-tab="staff">👥 Staff</button>
+    <button class="tab" data-tab="upgrade">🔧 Nâng cấp</button>
+    <button class="tab" data-tab="trend">🔥 Trend</button>
+    <button class="tab" data-tab="supplier">📦 Vật tư</button>
+    <button class="tab" data-tab="quest">📋 Nhiệm vụ</button>
   </div>
-  <div id="tab-stats" class="hidden">
-    <div class="panel">
-      <h3>📊 Thống Kê</h3>
-      <p>🧑‍🍳 Phục vụ: <span id="stat-served">0</span></p>
-      <p>💰 Doanh thu: <span id="stat-income">0</span></p>
-      <p>⭐ Cấp độ: <span id="stat-level">1</span></p>
-      <p>👥 Khách tổng: <span id="stat-customers">0</span></p>
-    </div>
-  </div>
-</div>
-
-<div id="bottom-bar">
-  <button class="tab-btn active" data-tab="shop">☕ Shop</button>
-  <button class="tab-btn" data-tab="stats">📊 Thống kê</button>
+  <div id="content"></div>
 </div>
 
 <div class="notif" id="notif"></div>
 
 <script>
-// ============ GAME STATE ============
-const state = {
-  money: 500, level: 1, served: 0, totalIncome: 0, totalCustomers: 0,
-  dayTime: 360, // minutes from midnight, 360=6AM, 1320=10PM
-  temperature: 28,
-  weather: 'sunny', // sunny, rain
-  day: 1
+// ======== GAME STATE ========
+let GS = {
+  coins:500, level:1, xp:0, xpNeeded:100,
+  currentLocation:'street', unlockedLocations:['street'],
+  ownedItems:{}, ownedRecipes:[], menuUnlocked:1,
+  autoServeRate:0, upgradesBought:[], questsCompleted:[],
+  dailyRevenue:0, totalRevenue:0, totalServed:0,
+  gameDay:1, lastDayChange:Date.now(),
+  supplierStock:{beans:10,milk:20,cups:200},
+  staff:[],
+  customerAnim:{queue:[],served:0},
+  tickTimer:0, serveTimer:0
 };
 
-// ============ ITEMS ============
-const items = [
-  {id:'espresso',name:'Espresso',emoji:'☕',price:30,cost:5,color:'#6F4E37'},
-  {id:'latte',name:'Latte',emoji:'🥛',price:50,cost:10,color:'#C4A882'},
-  {id:'cappuccino',name:'Cappuccino',emoji:'☕',price:60,cost:12,color:'#8B6914'},
-  {id:'mocha',name:'Mocha',emoji:'🍫',price:70,cost:15,color:'#4A2C2A'},
-  {id:'matcha',name:'Matcha',emoji:'🍵',price:65,cost:14,color:'#6B8E23'},
-  {id:'smoothie',name:'Smoothie',emoji:'🥤',price:55,cost:12,color:'#FF6347'},
-  {id:'croissant',name:'Croissant',emoji:'🥐',price:40,cost:8,color:'#DEB887'},
-  {id:'cake',name:'Bánh ngọt',emoji:'🍰',price:80,cost:20,color:'#FFB6C1'},
-  {id:'cookies',name:'Cookie',emoji:'🍪',price:35,cost:7,color:'#CD853F'}
+const LOCATIONS={
+  street:{name:'Vỉa hè',emoji:'🚶',cost:0,revenueMult:1,customers:3,bg:'#87CEEB'},
+  mall:{name:'Trung tâm TM',emoji:'🏬',cost:5000,revenueMult:2.5,customers:5,bg:'#B0E0E6'},
+  garden:{name:'Sân vườn',emoji:'🌳',cost:15000,revenueMult:2,customers:4,bg:'#90EE90'},
+  rooftop:{name:'Rooftop',emoji:'🌃',cost:50000,revenueMult:3.5,customers:6,bg:'#4A3068'},
+  festival:{name:'Lễ hội',emoji:'🎪',cost:100000,revenueMult:4,customers:8,bg:'#FF6347'}
+};
+
+const MENU_ITEMS=[
+  {id:'coffee',name:'Cà phê đen',emoji:'☕',price:25,cost:5,needsBeans:true,needsMilk:false},
+  {id:'milk_coffee',name:'Cà phê sữa',emoji:'🥛',price:30,cost:8,needsBeans:true,needsMilk:true},
+  {id:'espresso',name:'Espresso',emoji:'☕',price:35,cost:5,needsBeans:true,needsMilk:false},
+  {id:'matcha',name:'Trà matcha',emoji:'🍵',price:40,cost:10,needsBeans:false,needsMilk:false},
+  {id:'smoothie',name:'Sinh tố',emoji:'🥤',price:45,cost:12,needsBeans:false,needsMilk:true},
+  {id:'cake',name:'Bánh mì',emoji:'🥪',price:35,cost:8,needsBeans:false,needsMilk:false},
+  {id:'ice_tea',name:'Trà đá',emoji:'🧊',price:15,cost:3,needsBeans:false,needsMilk:false},
+  {id:'bubble_tea',name:'Trà sữa',emoji:'🧋',price:50,cost:12,needsBeans:false,needsMilk:true},
+  {id:'tropical',name:'Nước ép dừa',emoji:'🥥',price:55,cost:15,needsBeans:false,needsMilk:true},
+  {id:'signature',name:'Signature',emoji:'🍸',price:80,cost:20,needsBeans:true,needsMilk:true}
 ];
 
-// ============ CANVAS SETUP ============
+const TREND_ITEMS=[
+  {id:'t_meme_dog',name:'🐶 Meme Chó Vàng',rarity:'common',effect:'revenue',value:.05,desc:'+5% doanh thu',cost:200},
+  {id:'t_meme_cat',name:'🐱 Mèo hoang',rarity:'common',effect:'revenue',value:.03,desc:'+3% doanh thu',cost:150},
+  {id:'t_mu_jersey',name:'⚽ Áo MU',rarity:'common',effect:'customers',value:1,desc:'+1 khách',cost:300},
+  {id:'t_girl_boy',name:'💃 Cô Bé Chú Bé',rarity:'rare',effect:'revenue',value:.1,desc:'+10% doanh thu',cost:1000},
+  {id:'t_ba_tram',name:'💯 Ba Trăm',rarity:'rare',effect:'customers',value:2,desc:'+2 khách',cost:1500},
+  {id:'t_tu_hien',name:'🎤 Tú Hien Style',rarity:'rare',effect:'revenue',value:.15,desc:'+15% doanh thu',cost:2000},
+  {id:'t_lam_pham',name:'🏆 Lam Phẩm',rarity:'epic',effect:'revenue',value:.2,desc:'+20% doanh thu sig',cost:5000},
+  {id:'t_sieu_toc',name:'⚡ Siêu Tốc',rarity:'epic',effect:'customers',value:5,desc:'+5 khách',cost:8000},
+  {id:'t_vua_cafe',name:'👑 Vua Cà Phê',rarity:'legendary',effect:'revenue',value:.5,desc:'+50% doanh thu!',cost:20000},
+  {id:'t_omega',name:'💫 Omega Plus',rarity:'legendary',effect:'all',value:.3,desc:'+30% tất cả!',cost:50000}
+];
+
+const UPGRADES=[
+  {id:'u_staff1',name:'👨‍🍳 Thuê nhân viên',desc:'Tự động phục vụ 1 khách/phút',cost:1000,type:'auto_serve',value:1},
+  {id:'u_staff2',name:'👩‍🍳 Thêm nhân viên',desc:'Tự động phục vụ thêm 2 khách/phút',cost:3000,type:'auto_serve',value:2},
+  {id:'u_staff3',name:'👨‍🍳👩‍🍳 Đội bếp',desc:'Tự động phục vụ thêm 5 khách/phút',cost:8000,type:'auto_serve',value:5},
+  {id:'u_menu1',name:'📋 Mở rộng menu',desc:'Thêm 5 món mới',cost:2000,type:'unlock_menu',value:5},
+  {id:'u_deco1',name:'🪑 Bàn ghế mới',desc:'+10% doanh thu',cost:1500,type:'revenue',value:.1},
+  {id:'u_deco2',name:'🎵 Nhạc nền',desc:'+5% doanh thu',cost:800,type:'revenue',value:.05},
+  {id:'u_sign1',name:'🪧 Bảng hiệu LED',desc:'+20% khách vãng lai',cost:5000,type:'customers',value:.2},
+  {id:'u_wifi1',name:'📶 WiFi miễn phí',desc:'+10% doanh thu',cost:1200,type:'revenue',value:.1},
+  {id:'u_aircon1',name:'❄️ Điều hòa',desc:'+15% doanh thu',cost:3500,type:'revenue',value:.15},
+  {id:'u_parking1',name:'🅿️ Chỗ đỗ xe',desc:'+15% khách xa',cost:4000,type:'customers',value:.15}
+];
+
+const QUESTS=[
+  {id:'q1',title:'Ngày đầu khai trương',desc:'Phục vụ 10 khách',type:'serve',target:10,reward:{coins:200,xp:50},done:false,progress:0},
+  {id:'q2',title:'Thu thập meme',desc:'Sở hữu 1 item trendy',type:'collect',target:1,reward:{coins:300,xp:75},done:false,progress:0},
+  {id:'q3',title:'Triệu phú cà phê',desc:'Kiếm 5000 coin',type:'earn',target:5000,reward:{coins:1000,xp:150},done:false,progress:0},
+  {id:'q4',title:'Nâng cấp quán',desc:'Mở vị trí mới',type:'upgrade',target:1,reward:{coins:2000,xp:200},done:false,progress:0},
+  {id:'q5',title:'Bộ sưu tập',desc:'Có 5 items khác nhau',type:'collect_all',target:5,reward:{coins:3000,xp:300},done:false,progress:0},
+  {id:'q6',title:'Doanh thu khủng',desc:'Kiếm 20000/ngày',type:'daily_earn',target:20000,reward:{coins:5000,xp:500},done:false,progress:0},
+  {id:'q7',title:'Hoàn thành bộ sưu tập',desc:'Sở hữu tất cả items',type:'complete_all',target:TREND_ITEMS.length,reward:{coins:20000,xp:2000},done:false,progress:0}
+];
+
+const WEATHER_MAP={
+  sunny:{emoji:'☀️',name:'Nắng',mod:1.0},
+  cloudy:{emoji:'⛅',name:'Nhiều mây',mod:1.05},
+  rainy:{emoji:'🌧️',name:'Mưa',mod:.75},
+  hot:{emoji:'🔥',name:'Nóng',mod:1.15},
+  tet:{emoji:'🎊',name:'Tết',mod:2.5}
+};
+
+// ======== CANVAS SETUP ========
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const W = 480, H = 360;
-ctx.imageSmoothingEnabled = false;
-let animFrame = 0;
+const W=480,H=200;
+ctx.imageSmoothingEnabled=false;
+let animFrame=0;
 
-// ============ PIXEL ART DRAWING HELPERS ============
-const PX = 3; // pixel size
-
-function drawPixelRect(x, y, w, h, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(Math.round(x), Math.round(y), w * PX, h * PX);
+// ======== GAME HELPERS ========
+function getWeather(){
+  const cycle=GS.gameDay%180;
+  const season=cycle<60?'summer':(cycle<120?'rainy':'cool');
+  const probs=season==='summer'?{sunny:.35,cloudy:.25,rainy:.2,hot:.1,tet:.0}:
+    season==='rainy'?{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1}:
+    {sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.3};
+  const rand=Math.random(),cum=0;
+  let c=0;
+  for(const[t,p]of Object.entries(probs)){c+=p;if(rand<=c)return WEATHER_MAP[t];}
+  return WEATHER_MAP.sunny;
 }
 
-function drawChar(x, y, frame, type) {
-  // Simple pixel art characters using coordinate maps
-  const chars = {
-    barista: [
-      // Head
-      [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0]], // hair top
-      [[0,1],[8,1],[0,2],[8,2],[0,3],[8,3],[0,4],[8,4]], // hair sides
-      [[1,1],[1,2],[1,3],[7,1],[7,2],[7,3]], // face
-      [[3,3],[4,3],[5,3],[6,3]], // eyes
-      [[4,4]], // mouth
-      // Body
-      [[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5]],
-      [[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6]],
-      [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7]],
-      [[2,8],[3,8],[10,8]], // apron
-      [[1,9],[3,9],[5,9],[7,9],[9,9],[11,9]], // legs
-      // Arms animation
-      type === 'walking' ? [[-1,6,8],[12,6,8]] : [[1,6,4],[11,6,8]], // arms
-      // Apron
-      [[4,7],[5,7],[6,7],[7,7],[4,8],[5,8],[6,8],[7,8]],
-    ],
-    customer: (frame) => {
-      const walk = frame % 20 < 10;
-      return {
-        head: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0]],
-        face: [[1,1],[8,1],[1,2],[8,2],[1,3],[8,3],[1,4],[8,4],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[4,4],[5,4]],
-        body: [[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5]],
-        torso: [[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6]],
-        legs: [[2,7],[3,7],[9,7],[10,7],[3,8],[9,8],[walk?2:3,9],[walk?4:2,9],[walk?10:11,9],[walk?8:12,9]],
-        hair: [[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1]],
-        arms: [[0,6,2,8],[11,6,2,8]],
-      };
-    },
-    cup: () => [
-      [[2,0],[3,0],[4,0],[5,0],[6,0],[7,0]],
-      [[1,1],[8,1]],
-      [[1,2],[8,2]],
-      [[1,3],[8,3]],
-      [[1,4],[8,4]],
-      [[2,5],[3,4],[4,5],[5,5],[6,5],[7,4]], // bottom
-      [[9,1],[10,1],[10,2],[10,3],[10,4]], // handle
-    ]
-  };
-  return chars;
-}
-
-// ============ GAME OBJECTS ============
-let barista = { x: 240, y: 260, targetX: 240, targetY: 260, state: 'idle', frame: 0 };
-let customers = [];
-let particles = [];
-let raindrops = [];
-let tables = [
-  {x: 80, y: 280, occupied: null, name: 'Bàn 1'},
-  {x: 240, y: 280, occupied: null, name: 'Bàn 2'},
-  {x: 400, y: 280, occupied: null, name: 'Bàn 3'}
-];
-
-// Counter position
-const counter = {x: 40, y: 200, w: 160, h: 40};
-const shelves = {x: 40, y: 120, w: 160, h: 60};
-const entrance = {x: 420, y: 260};
-const window_area = {x: 280, y: 60, w: 160, h: 100};
-
-// ============ RAIN SYSTEM ============
-function initRain() {
-  raindrops = [];
-  for(let i = 0; i < 40; i++) {
-    raindrops.push({
-      x: window_area.x + Math.random() * window_area.w,
-      y: Math.random() * window_area.h,
-      speed: 1 + Math.random() * 2,
-      len: 3 + Math.random() * 5
-    });
+function getRevenuePerMin(){
+  const loc=LOCATIONS[GS.currentLocation];
+  let base=loc.customers*30;
+  let mult=loc.revenueMult;
+  for(const[id,cnt]of Object.entries(GS.ownedItems)){
+    const item=TREND_ITEMS.find(i=>i.id===id);
+    if(item&&item.effect==='revenue')mult+=item.value*cnt;
   }
-}
-
-// ============ CUSTOMER SPAWNER ============
-let spawnTimer = 0;
-function spawnCustomer() {
-  if(customers.length >= 5) return;
-  const hairColors = ['#2C1810','#8B4513','#DAA520','#1C1C1C','#F4A460'];
-  const shirtColors = ['#E74C3C','#3498DB','#2ECC71','#9B59B6','#F39C12','#E67E22'];
-  const nameList = ['An','Bình','Chi','Dung','Em','Giang','Hoa','Lan','Mai','Ngọc'];
-  const name = nameList[Math.floor(Math.random()*nameList.length)];
-  const item = items[Math.floor(Math.random()*items.length)];
-  const table = tables.find(t => !t.occupied);
-  if(!table) return;
-
-  const c = {
-    x: entrance.x, y: entrance.y,
-    targetX: table.x + 15, targetY: table.y - 20,
-    state: 'entering', // entering, walking, sitting, waiting, drinking, leaving
-    timer: 0,
-    hairColor: hairColors[Math.floor(Math.random()*hairColors.length)],
-    shirtColor: shirtColors[Math.floor(Math.random()*shirtColors.length)],
-    skinTone: ['#FDBCB4','#D2B48C','#8D5524','#C68642'][Math.floor(Math.random()*4)],
-    hat: Math.random() > 0.7 ? ['🎩','🧢','👒'][Math.floor(Math.random()*3)] : null,
-    item: item,
-    table: table,
-    waitTimer: 0,
-    waveTimer: 0,
-    drinkAnim: 0,
-    name: name,
-    id: Date.now() + Math.random(),
-    arrived: Date.now()
-  };
-  table.occupied = c.id;
-  customers.push(c);
-  state.totalCustomers++;
-  showNotif(`${name} bước vào quán ☕`);
-}
-
-// ============ PARTICLES ============
-function addParticle(x, y, type) {
-  for(let i = 0; i < (type==='coin'?3:5); i++) {
-    particles.push({
-      x, y, vx: (Math.random()-0.5)*2, vy: -1-Math.random()*2,
-      life: 30+Math.random()*20, type, text: type==='coin'?'💰':'☕'
-    });
+  for(const id of GS.upgradesBought){
+    const u=UPGRADES.find(x=>x.id===id);
+    if(u&&u.type==='revenue')mult+=u.value;
   }
+  const w=getWeather();
+  mult*=w.mod;
+  return Math.floor(base*mult);
 }
 
-// ============ DRAWING FUNCTIONS ============
-function drawSky() {
-  const hours = Math.floor(state.dayTime / 60);
-  const skyColors = {
-    6: ['#87CEEB','#B0E0E6','#E0F0FF'],
-    8: ['#4A90D9','#87CEEB','#B0E0E6'],
-    10: ['#5B9BD5','#87CEEB','#E0F0FF'],
-    14: ['#4682B4','#5B9BD5','#87CEEB'],
-    17: ['#CD853F','#FFA07A','#FFD700'],
-    19: ['#4A3068','#8B6914','#CD853F'],
-    21: ['#1a1a2e','#16213e','#0f3460'],
-    23: ['#0d0d1a','#0f3460','#16213e']
-  };
-  let key = 6;
-  for(const k of Object.keys(skyColors)) {
-    if(parseInt(k) <= hours) key = parseInt(k);
+function getCustomerCount(){
+  const loc=LOCATIONS[GS.currentLocation];
+  let base=loc.customers;
+  for(const[id,cnt]of Object.entries(GS.ownedItems)){
+    const item=TREND_ITEMS.find(i=>i.id===id);
+    if(item&&item.effect==='customers')base+=item.value*cnt;
   }
-  const sky = skyColors[key];
-  const grad = ctx.createLinearGradient(0,0,0,window_area.y+window_area.h);
-  grad.addColorStop(0, sky[0]);
-  grad.addColorStop(0.5, sky[1]);
-  grad.addColorStop(1, sky[2]);
-  ctx.fillStyle = grad;
-  ctx.fillRect(window_area.x, window_area.y, window_area.w, window_area.h);
-
-  // Sun/Moon
-  if(hours < 18) {
-    const sunX = 320 + (hours-6)*15;
-    const sunY = 80 - (hours-6)*5;
-    ctx.fillStyle = '#FFD700';
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 15, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#FFF8DC';
-    ctx.beginPath();
-    ctx.arc(sunX, sunY, 10, 0, Math.PI*2);
-    ctx.fill();
-  } else {
-    ctx.fillStyle = '#F5F5DC';
-    ctx.beginPath();
-    ctx.arc(370, 70, 12, 0, Math.PI*2);
-    ctx.fill();
-    ctx.fillStyle = '#1a1a2e';
-    ctx.beginPath();
-    ctx.arc(374, 66, 10, 0, Math.PI*2);
-    ctx.fill();
+  for(const id of GS.upgradesBought){
+    const u=UPGRADES.find(x=>x.id===id);
+    if(u&&u.type==='customers')base+=u.value*base;
   }
+  return Math.floor(base);
 }
 
-function drawWindow() {
-  // Window frame
-  drawPixelRect(window_area.x-3, window_area.y-3, window_area.w+6, window_area.h+6, '#8B6914');
-  drawPixelRect(window_area.x-2, window_area.y-2, window_area.w+4, window_area.h+4, '#DAA520');
-  // Window glass
-  drawSky();
-  // Window cross
-  drawPixelRect(window_area.x + window_area.w/2 -1, window_area.y, 2, window_area.h, '#8B6914');
-  drawPixelRect(window_area.x, window_area.y + window_area.h/2 -1, window_area.w, 2, '#8B6914');
-  // Rain
-  if(state.weather === 'rain') {
-    ctx.strokeStyle = 'rgba(100,149,237,0.5)';
-    ctx.lineWidth = 1;
-    raindrops.forEach(r => {
-      ctx.beginPath();
-      ctx.moveTo(r.x, r.y);
-      ctx.lineTo(r.x - 1, r.y + r.len);
-      ctx.stroke();
-      r.y += r.speed;
-      if(r.y > window_area.y + window_area.h) { r.y = window_area.y; r.x = window_area.x + Math.random()*window_area.w; }
-    });
-  }
+function showNotif(text){
+  const n=document.getElementById('notif');
+  n.textContent=text;n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),2000);
 }
 
-function drawFloor() {
-  // Floor tiles
-  for(let x = 0; x < W; x += 20) {
-    for(let y = 260; y < H; y += 20) {
-      ctx.fillStyle = (x+y)%40===0 ? '#D2B48C' : '#C4A882';
-      ctx.fillRect(x, y, 20, 20);
+function checkQuests(){
+  QUESTS.forEach(q=>{
+    if(q.done)return;
+    if(q.type==='serve'&&q.progress<q.target){
+      GS.totalServed>=(q.progress+1)&&q.progress<q.target?q.progress++:null;
+      q.progress=Math.min(GS.totalServed,q.target);
     }
-  }
-}
-
-function drawCounter() {
-  // Counter base
-  ctx.fillStyle = '#6F4E37';
-  ctx.fillRect(counter.x, counter.y, counter.w, counter.h);
-  ctx.fillStyle = '#8B6914';
-  ctx.fillRect(counter.x, counter.y, counter.w, 6);
-  // Counter top
-  ctx.fillStyle = '#DEB887';
-  ctx.fillRect(counter.x-5, counter.y-8, counter.w+10, 8);
-  // Coffee machine
-  ctx.fillStyle = '#444';
-  ctx.fillRect(counter.x+120, counter.y-25, 25, 30);
-  ctx.fillStyle = '#666';
-  ctx.fillRect(counter.x+122, counter.y-23, 21, 10);
-  // Machine lights
-  const glow = Math.sin(animFrame*0.05)*0.3+0.7;
-  ctx.fillStyle = `rgba(0,255,0,${glow})`;
-  ctx.fillRect(counter.x+123, counter.y-22, 3, 3);
-  ctx.fillStyle = `rgba(255,100,0,${glow})`;
-  ctx.fillRect(counter.x+128, counter.y-22, 3, 3);
-  // Cups on counter
-  for(let i=0; i<4; i++) {
-    const cx = counter.x + 30 + i*30;
-    ctx.fillStyle = '#F5F5F5';
-    ctx.fillRect(cx, counter.y-15, 10, 10);
-    ctx.fillStyle = '#E8E8E8';
-    ctx.fillRect(cx+1, counter.y-14, 8, 8);
-  }
-}
-
-function drawShelves() {
-  // Shelf boards
-  ctx.fillStyle = '#8B6914';
-  ctx.fillRect(shelves.x, shelves.y+25, shelves.w, 8);
-  ctx.fillRect(shelves.x, shelves.y-5, shelves.w, 8);
-  // Items on shelves
-  items.forEach((item, i) => {
-    if(i < 8) {
-      const ix = shelves.x + 15 + i * 18;
-      const iy = shelves.y - 2;
-      ctx.fillStyle = item.color;
-      ctx.fillRect(ix, iy, 12, 18);
-      ctx.fillStyle = item.color;
-      ctx.fillRect(ix+2, iy+2, 8, 14);
+    if(q.type==='earn'&&q.totalRevenue>=(q.progress+1)*q.target*10)q.progress=Math.min(Math.floor(GS.totalRevenue/100),q.target);
+    if(q.type==='collect'){
+      q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
+    }
+    if(q.type==='collect_all'){
+      q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
+    }
+    if(q.type==='upgrade')q.progress=GS.unlockedLocations.length-1;
+    if(q.type==='complete_all')q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
+    if(q.progress>=q.target){
+      q.done=true;GS.coins+=q.reward.coins;GS.xp+=q.reward.xp;
+      showNotif(`🎉 Nhiệm vụ: ${q.title}! +${q.reward.coins}K +${q.reward.xp}XP`);
     }
   });
 }
 
-function drawTables() {
-  tables.forEach(t => {
-    // Table top
-    ctx.fillStyle = '#8B6914';
-    ctx.fillRect(t.x, t.y, 50, 6);
-    ctx.fillStyle = '#A0824A';
-    ctx.fillRect(t.x+2, t.y+2, 46, 2);
-    // Table legs
-    ctx.fillStyle = '#6F4E37';
-    ctx.fillRect(t.x+5, t.y+6, 4, 30);
-    ctx.fillRect(t.x+41, t.y+6, 4, 30);
-  });
-}
-
-function drawBarista() {
-  const x = Math.round(barista.x);
-  const y = Math.round(barista.y);
-  const f = Math.floor(barista.frame) % 20;
-  const walking = barista.state === 'walking' || barista.state === 'moving';
-  const armSwing = walking ? Math.sin(f*0.3)*3 : 0;
-
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.beginPath();
-  ctx.ellipse(x+5, y+42, 12, 4, 0, 0, Math.PI*2);
-  ctx.fill();
-
-  // Body
-  ctx.fillStyle = '#FFFFFF'; // apron
-  ctx.fillRect(x+2, y+18, 22, 18);
-  ctx.fillStyle = '#1a1a4e'; // shirt
-  ctx.fillRect(x+4, y+8, 18, 12);
-
-  // Head
-  ctx.fillStyle = '#FDBCB4'; // skin
-  ctx.fillRect(x+5, y, 12, 12);
-
-  // Hair
-  ctx.fillStyle = '#2C1810';
-  ctx.fillRect(x+4, y-2, 14, 5);
-  ctx.fillRect(x+4, y, 3, 6);
-  ctx.fillRect(x+15, y, 3, 6);
-
-  // Eyes
-  ctx.fillStyle = '#333';
-  ctx.fillRect(x+7, y+5, 2, 2);
-  ctx.fillRect(x+12, y+5, 2, 2);
-
-  // Mouth
-  ctx.fillStyle = '#C44569';
-  ctx.fillRect(x+9, y+9, 4, 1);
-
-  // Legs
-  const legSpread = walking ? Math.sin(f*0.4)*4 : 0;
-  ctx.fillStyle = '#333';
-  ctx.fillRect(x+6+legSpread, y+36, 5, 8);
-  ctx.fillRect(x+13-legSpread, y+36, 5, 8);
-
-  // Arms with apron
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(x-2-armSwing, y+10, 6, 12);
-  ctx.fillRect(x+24+armSwing, y+10, 6, 12);
-
-  // Apron detail
-  ctx.fillStyle = '#FFD700';
-  ctx.fillRect(x+8, y+22, 8, 8);
-  ctx.fillStyle = '#8B6914';
-  ctx.fillRect(x+9, y+23, 6, 6);
-
-  // Name tag
-  ctx.fillStyle = '#F5F5F5';
-  ctx.fillRect(x+8, y+14, 8, 4);
-  ctx.fillStyle = '#333';
-  ctx.font = '3px monospace';
-  ctx.fillText('A', x+10, y+17);
-}
-
-function drawCustomer(c) {
-  const x = Math.round(c.x);
-  const y = Math.round(c.y);
-  const f = Math.floor(animFrame) % 20;
-  const walking = c.state === 'entering' || c.state === 'leaving';
-  const legSpread = walking ? Math.sin(f*0.4)*3 : 0;
-
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.15)';
-  ctx.beginPath();
-  ctx.ellipse(x+8, y+38, 8, 3, 0, 0, Math.PI*2);
-  ctx.fill();
-
-  // Body
-  ctx.fillStyle = c.shirtColor;
-  ctx.fillRect(x+2, y+14, 16, 14);
-
-  // Head
-  ctx.fillStyle = c.skinTone;
-  ctx.fillRect(x+4, y, 12, 12);
-
-  // Hair
-  ctx.fillStyle = c.hairColor;
-  ctx.fillRect(x+3, y-2, 14, 5);
-  ctx.fillRect(x+3, y, 2, 6);
-  ctx.fillRect(x+15, y, 2, 6);
-
-  // Eyes
-  ctx.fillStyle = '#333';
-  ctx.fillRect(x+6, y+4, 2, 2);
-  ctx.fillRect(x+11, y+4, 2, 2);
-
-  // Mouth
-  ctx.fillStyle = '#C44569';
-  ctx.fillRect(x+8, y+8, 3, 1);
-
-  // Legs
-  ctx.fillStyle = '#333';
-  ctx.fillRect(x+4+legSpread, y+28, 5, 10);
-  ctx.fillRect(x+11-legSpread, y+28, 5, 10);
-
-  // Arms
-  const armSwing = walking ? Math.sin(f*0.4)*2 : 0;
-  ctx.fillStyle = c.shirtColor;
-  ctx.fillRect(x-1-armSwing, y+14, 5, 10);
-  ctx.fillRect(x+18+armSwing, y+14, 5, 10);
-
-  // State-specific visual
-  if(c.state === 'drinking') {
-    // Arm raised with cup
-    ctx.fillStyle = '#F5F5F5';
-    ctx.fillRect(x+18, y+4, 8, 8);
-    ctx.fillStyle = '#E8E8E8';
-    ctx.fillRect(x+19, y+5, 6, 6);
-    ctx.fillStyle = '#6F4E37';
-    ctx.fillRect(x+20, y+6, 4, 4);
-  }
-
-  // Waiting wave
-  if(c.state === 'waiting') {
-    c.waveTimer += 0.05;
-    const waveY = Math.sin(c.waveTimer)*4;
-    ctx.fillStyle = c.skinTone;
-    ctx.fillRect(x+19, y+8+waveY, 4, 6);
-  }
-
-  // Hat
-  if(c.hat) {
-    ctx.fillStyle = c.hat === '🎩' ? '#333' : c.hat === '🧢' ? '#E74C3C' : '#F5DEB3';
-    ctx.fillRect(x+2, y-5, 16, 5);
-    ctx.fillRect(x-1, y-3, 22, 2);
-  }
-
-  // Name bubble
-  if(c.state === 'waiting' && c.waveTimer > 0.5) {
-    const bubbleY = y - 15 + Math.sin(animFrame*0.1)*2;
-    ctx.fillStyle = '#FFF';
-    ctx.beginPath();
-    ctx.arc(x+8, bubbleY, 12, 0, Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle = '#333';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.fillStyle = '#333';
-    ctx.font = '9px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText(c.name, x+8, bubbleY+3);
+function addXP(n){
+  GS.xp+=n;
+  while(GS.xp>=GS.xpNeeded){
+    GS.xp-=GS.xpNeeded;GS.level++;GS.xpNeeded=Math.floor(GS.xpNeeded*1.5);
+    showNotif(`⭐ Lên cấp ${GS.level}!`);
   }
 }
 
-function drawLighting() {
-  const hours = Math.floor(state.dayTime / 60);
-  const darkness = hours < 6 || hours > 20 ? 0.4 : hours < 8 ? 0.4-(hours-6)*0.2 : hours > 18 ? (hours-18)*0.1 : 0;
-
-  // Light cones from ceiling
-  const lights = [
-    {x: 120, y: 40, radius: 80},
-    {x: 240, y: 40, radius: 60},
-    {x: 360, y: 40, radius: 80}
-  ];
-
-  lights.forEach((l, i) => {
-    // Bulb
-    const glow = Math.sin(animFrame*0.03 + i)*0.15 + 0.85;
-    ctx.fillStyle = `rgba(255,248,220,${glow})`;
-    ctx.beginPath();
-    ctx.arc(l.x, l.y, 5, 0, Math.PI*2);
-    ctx.fill();
-
-    // Light cone
-    const coneGrad = ctx.createRadialGradient(l.x, l.y, 5, l.x, l.y+80, l.radius);
-    coneGrad.addColorStop(0, `rgba(255,248,220,${0.15*glow})`);
-    coneGrad.addColorStop(1, 'rgba(255,248,220,0)');
-    ctx.fillStyle = coneGrad;
-    ctx.beginPath();
-    ctx.moveTo(l.x-5, l.y);
-    ctx.lineTo(l.x-l.radius, l.y+160);
-    ctx.lineTo(l.x+l.radius, l.y+160);
-    ctx.closePath();
-    ctx.fill();
-
-    // Cord
-    ctx.fillStyle = '#333';
-    ctx.fillRect(l.x-1, 0, 2, l.y);
-  });
-
-  // Ambient darkness overlay
-  if(darkness > 0) {
-    ctx.fillStyle = `rgba(0,0,20,${darkness})`;
-    ctx.fillRect(0, 0, W, H);
-  }
-}
-
-function drawEntrance() {
-  // Door
-  ctx.fillStyle = '#5C4033';
-  ctx.fillRect(entrance.x-20, 200, 40, 80);
-  ctx.fillStyle = '#8B6914';
-  ctx.fillRect(entrance.x-18, 202, 36, 76);
-  // Door handle
-  ctx.fillStyle = '#FFD700';
-  ctx.fillRect(entrance.x+10, 240, 4, 4);
-  // Door frame
-  ctx.fillStyle = '#6F4E37';
-  ctx.fillRect(entrance.x-25, 195, 50, 85);
-  // "OPEN" sign
-  const signGlow = Math.sin(animFrame*0.08)*0.3+0.7;
-  ctx.fillStyle = `rgba(0,255,0,${signGlow})`;
-  ctx.fillRect(entrance.x-15, 210, 30, 10);
-  ctx.fillStyle = '#000';
-  ctx.font = '7px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('MỞ', entrance.x, 218);
-}
-
-function drawFloorDecals() {
-  // Welcome mat
-  ctx.fillStyle = '#8B4513';
-  ctx.fillRect(410, 280, 40, 12);
-  ctx.fillStyle = '#A0522D';
-  ctx.fillRect(412, 282, 36, 8);
-  ctx.fillStyle = '#FFD700';
-  ctx.font = '6px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('WELCOME', 430, 289);
-}
-
-// ============ GAME LOGIC ============
-function updateGame() {
+// ======== GAME LOGIC ========
+let gameTick=0;
+function gameLoop(){
   animFrame++;
+  gameTick++;
 
-  // Time progression (1 game minute per 2 seconds)
-  if(animFrame % 120 === 0) {
-    state.dayTime += 2;
-    if(state.dayTime >= 1440) { state.dayTime = 360; state.day++; }
-    updateClock();
+  // Revenue every 10 seconds = ~6 ticks per min => revenue per tick
+  if(gameTick%60===0){
+    const rev=getRevenuePerMin();
+    GS.dailyRevenue+=rev;GS.totalRevenue+=rev;
+    addXP(5);
+    checkQuests();
   }
 
-  // Temperature fluctuation
-  if(animFrame % 300 === 0) {
-    state.temperature = 22 + Math.floor(Math.random()*12);
-    document.getElementById('temp').textContent = state.temperature + '°';
+  // Day change every 600 ticks (~10 min real)
+  if(gameTick%600===0){
+    GS.gameDay++;GS.dailyRevenue=0;
+    showNotif(`📅 Ngày ${GS.gameDay} bắt đầu!`);
   }
 
-  // Customer spawning
-  spawnTimer++;
-  const spawnRate = state.level >= 3 ? 150 : state.level >= 2 ? 200 : 280;
-  if(spawnTimer >= spawnRate) {
-    spawnTimer = 0;
-    spawnCustomer();
+  // Auto serve
+  if(GS.autoServeRate>0&&gameTick%60===0){
+    const served=GS.autoServeRate;
+    GS.coins+=getRevenuePerMin()*0.5;
+    GS.totalServed+=served;
+    addXP(served);
+    GS.customerAnim.served+=served;
+    showNotif(`🤖 Staff phục vụ ${served} khách! +${getRevenuePerMin()*.5}K`);
   }
 
-  // Update customers
-  customers.forEach((c, ci) => {
-    const dx = c.targetX - c.x;
-    const dy = c.targetY - c.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
+  // Spawn animated customers
+  if(gameTick%120===0){
+    const count=getCustomerCount();
+    for(let i=0;i<Math.min(count,5);i++){
+      GS.customerAnim.queue.push({
+        id:Date.now()+i,
+        x:W+20,y:120+Math.random()*30,
+        targetX:40+Math.random()*300,targetY:140+Math.random()*30,
+        state:'entering',timer:0,
+        color:['#E74C3C','#3498DB','#2ECC71','#9B59B6','#F39C12','#1ABC9C'][Math.floor(Math.random()*6)],
+        skin:['#FDBCB4','#D2B48C','#8D5524','#C68642'][Math.floor(Math.random()*4)],
+        hair:['#2C1810','#8B4513','#DAA520','#1C1C1C'][Math.floor(Math.random()*4)],
+        hat:Math.random()>.7?['🎩','🧢','👒'][Math.floor(Math.random()*3)]:null
+      });
+    }
+  }
 
-    if(c.state === 'entering' && dist > 3) {
-      c.x += (dx/dist) * 1.5;
-      c.y += (dy/dist) * 1.5;
+  // Update animated customers
+  GS.customerAnim.queue.forEach((c,i)=>{
+    if(c.state==='entering'){
       c.timer++;
-    } else if(c.state === 'entering' && dist <= 3) {
-      c.state = 'waiting';
-      c.waveTimer = 0;
-      c.waitTimer = 0;
-    }
-
-    if(c.state === 'waiting') {
-      c.waitTimer++;
-      // After waiting, barista comes to serve
-      if(c.waitTimer > 180 && barista.state === 'idle') {
-        c.state = 'drinking';
-        c.drinkAnim = 0;
-        barista.targetX = c.x;
-        barista.targetY = c.y;
-        barista.state = 'serving';
+      if(c.timer<60){
+        c.x-=3;c.y+=(c.targetY-c.y)*.05;
+      }else if(c.timer<120){
+        c.y+=(c.targetY-c.y)*.05;
+      }else{
+        c.state='sitting';c.timer=0;
+        c.drinkTimer=0;
       }
-    }
-
-    if(c.state === 'drinking') {
-      c.drinkAnim++;
-      if(c.drinkAnim > 200) {
-        c.state = 'leaving';
-        c.targetX = entrance.x;
-        c.targetY = entrance.y;
-        // Earn money
-        const income = c.item.price;
-        state.money += income;
-        state.totalIncome += income;
-        state.served++;
-        updateUI();
-        addParticle(c.x, c.y-10, 'coin');
-        showNotif(`+${income}K từ ${c.name} ☕`);
-        c.table.occupied = null;
+    }else if(c.state==='sitting'){
+      c.drinkTimer++;
+      if(c.drinkTimer>80){
+        c.state='leaving';c.timer=0;
+        c.targetX=W+20;c.targetY=140;
+        GS.coins+=getRevenuePerMin()/getCustomerCount();
+        GS.totalServed++;addXP(1);
+        checkQuests();
       }
-    }
-
-    if(c.state === 'leaving') {
-      const ldx = c.targetX - c.x;
-      const ldy = c.targetY - c.y;
-      const ldist = Math.sqrt(ldx*ldx + ldy*ldy);
-      if(ldist > 3) {
-        c.x += (ldx/ldist) * 1.5;
-        c.y += (ldy/ldist) * 1.5;
-      } else {
-        customers.splice(ci, 1);
-      }
+    }else if(c.state==='leaving'){
+      c.timer++;c.x+=3;
+      if(c.x>W+30)GS.customerAnim.queue.splice(i,1);
     }
   });
 
-  // Update barista
-  const bdx = barista.targetX - barista.x;
-  const bdy = barista.targetY - barista.y;
-  const bdist = Math.sqrt(bdx*bdx + bdy*bdy);
-  if(bdist > 3) {
-    barista.x += (bdx/bdist) * 1.2;
-    barista.y += (bdy/bdist) * 1.2;
-    barista.state = 'walking';
-  } else {
-    if(barista.state === 'serving') {
-      barista.state = 'idle';
-      barista.targetX = 200 + Math.random()*100;
-      barista.targetY = 250 + Math.random()*10;
-    }
-  }
-  barista.frame++;
-
-  // Update particles
-  particles.forEach((p, pi) => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
-    if(p.life <= 0) particles.splice(pi, 1);
-  });
-
-  // Weather change
-  if(animFrame % 6000 === 0) {
-    state.weather = state.weather === 'sunny' ? 'rain' : 'sunny';
-    if(state.weather === 'rain') initRain();
-  }
+  updateUI();
+  requestAnimationFrame(renderCanvas);
 }
 
-function render() {
-  ctx.clearRect(0, 0, W, H);
+// ======== PIXEL ART RENDERER ========
+const PX=2;
+function drawRect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(x,y,w,h);}
 
-  // Background wall
-  ctx.fillStyle = '#F5E6CA';
-  ctx.fillRect(0, 0, W, 260);
-
+function drawCafe(){
+  const loc=LOCATIONS[GS.currentLocation];
+  // Sky
+  drawRect(0,0,W,80,'#87CEEB');
+  // Wall
+  drawRect(0,80,W,60,'#F5E6CA');
   // Wall pattern
-  for(let x = 0; x < W; x += 30) {
-    ctx.strokeStyle = 'rgba(139,105,20,0.1)';
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 260);
-    ctx.stroke();
-  }
-
-  // Floor
-  drawFloor();
+  for(let x=0;x<W;x+=20){drawRect(x,80,1,60,'rgba(139,105,20,.08)');}
 
   // Window
-  drawWindow();
+  drawRect(180,10,120,70,'#4A3068');
+  drawRect(182,12,116,66,'#5B9BD5');
+  drawRect(239,12,2,66,'#8B6914');
+  drawRect(182,45,116,2,'#8B6914');
 
-  // Entrance
-  drawEntrance();
-
-  // Floor decals
-  drawFloorDecals();
-
-  // Shelves
-  drawShelves();
-
-  // Counter
-  drawCounter();
-
-  // Tables
-  drawTables();
-
-  // Customers
-  customers.forEach(c => {
-    if(c.table) {
-      // Sit customers at their table position
-      c.targetX = c.table.x + 15;
-      c.targetY = c.table.y - 20;
-    }
-    drawCustomer(c);
-  });
-
-  // Barista
-  drawBarista();
-
-  // Lighting
-  drawLighting();
-
-  // Particles
-  particles.forEach(p => {
-    ctx.globalAlpha = p.life / 50;
-    ctx.font = '14px serif';
-    ctx.fillText(p.text, p.x, p.y);
-  });
-  ctx.globalAlpha = 1;
-
-  // Customer queue indicator
-  const waiting = customers.filter(c => c.state === 'waiting');
-  if(waiting.length > 0) {
-    ctx.fillStyle = '#FFD700';
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`⏳ Đợi: ${waiting.length}`, 10, 20);
+  // Sun
+  const hour=(animFrame/60)%24;
+  if(hour<18){
+    drawRect(280+hour*3,20,12,12,'#FFD700');
+    drawRect(282+hour*3,22,8,8,'#FFF8DC');
+  }else{
+    drawRect(295,15,10,10,'#F5F5DC');
+    drawRect(298,13,7,7,'#4A3068');
   }
 
-  updateGame();
-  requestAnimationFrame(render);
-}
+  // Counter
+  drawRect(20,140,100,50,'#6F4E37');
+  drawRect(20,140,100,6,'#DEB887');
+  drawRect(120,160,15,20,'#444');
+  drawRect(122,158,11,14,'#666');
+  // Machine light
+  const glow=Math.sin(animFrame*.05)*.3+.7;
+  drawRect(121,157,3,3,`rgba(0,255,0,${glow})`);
+  drawRect(126,157,3,3,`rgba(255,100,0,${glow})`);
 
-// ============ UI FUNCTIONS ============
-function updateClock() {
-  const h = Math.floor(state.dayTime / 60) % 24;
-  const m = Math.floor(state.dayTime % 60);
-  document.getElementById('day-time').textContent =
-    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
-}
-
-function updateUI() {
-  document.getElementById('money').textContent = state.money.toLocaleString();
-  document.getElementById('level').textContent = `Lv.${state.level}`;
-  document.getElementById('served').textContent = state.served;
-  document.getElementById('active').textContent = customers.length;
-  document.getElementById('income').textContent = state.totalIncome.toLocaleString();
-  document.getElementById('stat-served').textContent = state.served;
-  document.getElementById('stat-income').textContent = state.totalIncome.toLocaleString();
-  document.getElementById('stat-level').textContent = state.level;
-  document.getElementById('stat-customers').textContent = state.totalCustomers;
-}
-
-function showNotif(text) {
-  const n = document.getElementById('notif');
-  n.textContent = text;
-  n.classList.add('show');
-  setTimeout(() => n.classList.remove('show'), 2000);
-}
-
-// ============ SHOP RENDER ============
-function renderShop() {
-  const grid = document.getElementById('item-grid');
-  grid.innerHTML = '';
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'item-card';
-    card.innerHTML = `<div class="emoji">${item.emoji}</div><div class="name">${item.name}</div><div class="price">${item.price}K</div>`;
-    card.addEventListener('click', () => {
-      if(state.money >= item.cost) {
-        state.money -= item.cost;
-        state.totalIncome += item.price;
-        state.served++;
-        updateUI();
-        showNotif(`Phục vụ ${item.name}! +${item.price}K`);
-        addParticle(240, 200, 'coin');
-      } else {
-        showNotif('Không đủ tiền! 💸');
-      }
-    });
-    grid.appendChild(card);
+  // Shelves
+  drawRect(20,95,100,5,'#8B6914');
+  drawRect(20,125,100,5,'#8B6914');
+  // Items on shelf
+  MENU_ITEMS.slice(0,6).forEach((item,i)=>{
+    drawRect(30+i*14,110,10,14,item.emoji==='☕'?'#6F4E37':item.emoji==='🥛'?'#C4A882':item.emoji==='🍵'?'#6B8E23':'#E74C3C');
+    drawRect(32+i*14,112,6,10,'#FFF');
   });
+
+  // Tables
+  const tablePositions=[[160,170],[280,170],[380,170]];
+  tablePositions.forEach(([tx,ty])=>{
+    drawRect(tx,ty,40,4,'#8B6914');
+    drawRect(tx+5,ty+4,3,30,'#6F4E37');
+    drawRect(tx+32,ty+4,3,30,'#6F4E37');
+  });
+
+  // Entrance
+  drawRect(400,120,50,80,'#5C4033');
+  drawRect(402,122,46,76,'#8B6914');
+  drawRect(440,150,4,4,'#FFD700');
+  // OPEN sign
+  const sg=Math.sin(animFrame*.08)*.3+.7;
+  drawRect(405,130,40,12,`rgba(0,255,0,${sg})`);
+  ctx.fillStyle='#000';ctx.font='8px monospace';ctx.textAlign='center';
+  ctx.fillText('MỞ',425,139);
+
+  // Floor
+  for(let x=0;x<W;x+=15){for(let y=180;y<H;y+=15){
+    drawRect(x,y,15,15,(x+y)%30===0?'#D2B48C':'#C4A882');
+  }}
+
+  // Lighting
+  [[100,30],[200,30],[300,30]].forEach(([lx,ly],idx)=>{
+    const g=Math.sin(animFrame*.03+idx)*.15+.85;
+    drawRect(lx-1,ly-1,4,4,`rgba(255,248,220,${g})`);
+    drawRect(lx-1,0,2,ly,'#333');
+    const cone=ctx.createRadialGradient(lx,ly,3,lx,ly+100,50);
+    cone.addColorStop(0,`rgba(255,248,220,${.12*g})`);
+    cone.addColorStop(1,'rgba(255,248,220,0)');
+    ctx.fillStyle=cone;
+    ctx.beginPath();ctx.moveTo(lx-3,ly);ctx.lineTo(lx-50,ly+120);ctx.lineTo(lx+50,ly+120);ctx.fill();
+  });
+
+  // Draw animated customers
+  GS.customerAnim.queue.forEach(c=>{
+    const cx=Math.round(c.x),cy=Math.round(c.y);
+    const f=Math.floor(animFrame)%20;
+    const walk=c.state==='entering'||c.state==='leaving';
+    const ls=walk?Math.sin(f*.4)*2:0;
+
+    // Shadow
+    ctx.fillStyle='rgba(0,0,0,.15)';
+    ctx.beginPath();ctx.ellipse(cx+6,cy+30,7,3,0,0,Math.PI*2);ctx.fill();
+
+    // Body
+    drawRect(cx+1,cy+12,12,10,c.color);
+    // Head
+    drawRect(cx+3,cy,9,9,c.skin);
+    // Hair
+    drawRect(cx+2,cy-1,11,3,c.hair);
+    drawRect(cx+2,cy,2,5,c.hair);
+    drawRect(cx+11,cy,2,5,c.hair);
+    // Eyes
+    drawRect(cx+5,cy+3,2,1,'#333');
+    drawRect(cx+9,cy+3,2,1,'#333');
+    // Mouth
+    drawRect(cx+6,cy+7,3,1,'#C44569');
+    // Legs
+    drawRect(cx+3+ls,cy+22,4,8,'#333');
+    drawRect(cx+9-ls,cy+22,4,8,'#333');
+
+    // Drinking animation
+    if(c.state==='sitting'&&c.drinkTimer>5&&c.drinkTimer<40){
+      drawRect(cx+12,cy+4,6,6,'#F5F5F5');
+      drawRect(cx+13,cy+5,4,4,'#6F4E37');
+    }
+
+    // Hat
+    if(c.hat){
+      drawRect(cx,cy-4,14,4,c.hat==='🎩'?'#333':c.hat==='🧢'?'#E74C3C':'#F5DEB3');
+    }
+
+    // Name
+    ctx.fillStyle='#FFF';ctx.font='7px monospace';ctx.textAlign='center';
+    ctx.fillText('👤',cx+6,cy-8);
+  });
+
+  // Rain
+  const weather=getWeather();
+  if(weather.emoji==='🌧️'){
+    for(let i=0;i<20;i++){
+      const rx=185+Math.random()*115;
+      const ry=(animFrame*2+i*10)%66+12;
+      ctx.strokeStyle='rgba(100,149,237,.5)';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx-1,ry+4);ctx.stroke();
+    }
+  }
 }
 
-// ============ TABS ============
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+function renderCanvas(){
+  ctx.clearRect(0,0,W,H);
+  drawCafe();
+  requestAnimationFrame(renderCanvas);
+}
+
+// ======== UI RENDERING ========
+function updateUI(){
+  document.getElementById('money').textContent=GS.coins.toLocaleString();
+  document.getElementById('level').textContent=`Lv.${GS.level}`;
+  document.getElementById('day').textContent=GS.gameDay;
+  document.getElementById('staff').textContent=GS.autoServeRate;
+
+  const w=getWeather();
+  document.getElementById('weather-bar').innerHTML=`<span>${w.emoji} ${w.name}</span><span>📊 ${getWeather().name} (${w.mod*100}%)</span><span>👥 ${getCustomerCount()} khách/phút</span><span>💰 ${getRevenuePerMin()}K/phút</span>`;
+}
+
+function renderTab(name){
+  const c=document.getElementById('content');
+  let html='';
+
+  if(name==='location'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📍 Chọn vị trí quán</h3>';
+    for(const[id,loc]of Object.entries(LOCATIONS)){
+      const unlocked=GS.unlockedLocations.includes(id);
+      const active=GS.currentLocation===id;
+      html+=`<div class="card" style="margin:3px 0">
+        <div><span style="font-size:16px">${loc.emoji}</span> <strong>${loc.name}</strong>
+        <br><small>👥${loc.customings} KH/phút | 💰x${loc.revenueMult}</small></div>
+        <button class="btn ${active?'blue':''}" ${(!unlocked&&GS.coins<loc.cost)?'disabled':''} onclick="changeLocation('${id}')">
+          ${active?'✅ Đang dùng':(!unlocked?`🔒 ${loc.cost}K`:'📍 Chọn')}
+        </button></div>`;
+    }
+  }else if(name==='menu'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">☕ Menu Đồ uống</h3>';
+    MENU_ITEMS.slice(0,GS.menuUnlocked).forEach(item=>{
+      html+=`<div class="card">
+        <div><span style="font-size:18px">${item.emoji}</span> <strong>${item.name}</strong>
+        <br><small>💰${item.price}K | Giá vốn: ${item.cost}K</small>
+        <br><small>${item.needsBeans?'☕ ':''}${item.needsMilk?'🥛':''}</small></div>
+        <button class="btn green" onclick="sellItem('${item.id}')">Phục vụ</button></div>`;
+    });
+  }else if(name==='staff'){
+    const autoServeNames=['👨‍🍳 Thuê nhân viên','👩‍🍳 Thêm nhân viên','👨‍🍳👩‍🍳 Đội bếp'];
+    const autoServeCosts=[1000,3000,8000];
+    const autoServeVals=[1,2,5];
+    const bought=GS.upgradesBought.filter(id=>id.startsWith('u_staff'));
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">👥 Tự động phục vụ</h3>';
+    html+=`<div class="card"><div><strong>Tổng staff: ${GS.autoServeRate} khách/phút</strong><br><small>Đang hoạt động: ${bought.length} thiết bị</small></div></div>`;
+    autoServeNames.forEach((name,i)=>{
+      const b=bought.includes('u_staff'+(i+1));
+      html+=`<div class="upgrade-card">
+        <div><strong>${name}</strong><br><small>+${autoServeVals[i]} khách/phút</small></div>
+        <button class="btn gold" ${b||GS.coins<autoServeCosts[i]?'disabled':''} onclick="buyUpgrade('u_staff${i+1}',${autoServeCosts[i]})">
+          ${b?'✅ Mua rồi':autoServeCosts[i]+'K'}
+        </button></div>`;
+    });
+  }else if(name==='upgrade'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔧 Nâng cấp quán</h3>';
+    UPGRADES.forEach(u=>{
+      const bought=GS.upgradesBought.includes(u.id);
+      html+=`<div class="upgrade-card">
+        <div><strong>${u.name}</strong><br><small>${u.desc} (+${u.value*100}%)</small></div>
+        <button class="btn gold" ${bought||GS.coins<u.cost?'disabled':''} onclick="buyUpgrade('${u.id}',${u.cost},'${u.type}',${u.value})">
+          ${bought?'✅ Đã mua':u.cost+'K'}
+        </button></div>`;
+    });
+  }else if(name==='trend'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔥 Item Trendy</h3>';
+    html+='<div class="trend-grid">';
+    TREND_ITEMS.forEach(item=>{
+      const owned=GS.ownedItems[item.id]>0;
+      html+=`<div class="trend-card ${item.rarity}" onclick="buyTrend('${item.id}')">
+        <strong>${item.name}</strong><br>
+        <small>${item.desc}</small><br>
+        <span class="${owned?'gold':''}">${owned?'✅ sở hữu':item.cost+'K'}</span>
+      </div>`;
+    });
+    html+='</div>';
+  }else if(name==='supplier'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📦 Vật tư</h3>';
+    html+=`<div class="card">☕ Đậu: <strong class="gold">${GS.supplierStock.beans}</strong> | 🥛 Sữa: <strong class="gold">${GS.supplierStock.milk}</strong> | 🥤 Cốc: <strong class="gold">${GS.supplierStock.cups}</strong></div>`;
+    html+='<div style="display:flex;gap:4px;margin-top:6px">';
+    [{key:'beans',cost:50,amt:10,label:'☕ 10 đậu (50K)'},{key:'milk',cost:40,amt:10,label:'🥛 10 sữa (40K)'},{key:'cups',cost:20,amt:50,label:'🥤 50 cốc (20K)'}].forEach(s=>{
+      html+=`<button class="btn blue" style="flex:1;font-size:10px" ${GS.coins<s.cost?'disabled':''} onclick="buySupply('${s.key}',${s.cost},${s.amt})">${s.label}</button>`;
+    });
+    html+='</div>';
+  }else if(name==='quest'){
+    html+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📋 Nhiệm vụ</h3>';
+    QUESTS.forEach(q=>{
+      html+=`<div class="quest-card ${q.done?'done':''}">
+        <strong>${q.done?'✅':'📌'} ${q.title}</strong><br>
+        <small>${q.desc}</small>
+        <div class="progress-bar"><div class="progress-fill" style="width:${(q.progress/q.target)*100}%"></div></div>
+        <small>${q.progress}/${q.target} | Phần thưởng: ${q.reward.coins}K + ${q.reward.xp}XP</small>
+      </div>`;
+    });
+  }
+  c.innerHTML=html;
+}
+
+// ======== ACTIONS ========
+window.changeLocation=function(id){
+  const loc=LOCATIONS[id];
+  if(GS.unlockedLocations.includes(id)){
+    GS.currentLocation=id;showNotif(`📍 Chuyển đến ${loc.name}`);
+  }else if(GS.coins>=loc.cost){
+    GS.coins-=loc.cost;GS.unlockedLocations.push(id);GS.currentLocation=id;
+    showNotif(`🎉 Mở quán mới: ${loc.name}!`);addXP(100);checkQuests();
+  }else{showNotif('💸 Không đủ tiền!');}
+  renderTab(document.querySelector('.tab.active').dataset.tab);
+};
+
+window.buyUpgrade=function(id,cost,type,value){
+  if(GS.upgradesBought.includes(id)||GS.coins<cost)return;
+  GS.coins-=cost;GS.upgradesBought.push(id);
+  if(type==='auto_serve')GS.autoServeRate+=value;
+  if(type==='unlock_menu')GS.menuUnlocked+=value;
+  showNotif(`✅ ${UPGRADES.find(u=>u.id===id).name}!`);
+  renderTab(document.querySelector('.tab.active').dataset.tab);
+};
+
+window.sellItem=function(id){
+  const item=MENU_ITEMS.find(i=>i.id===id);
+  if(!item)return;
+  if(GS.supplierStock.beans<=0||GS.supplierStock.milk<=0||GS.supplierStock.cups<=0){
+    showNotif('⚠️ Thiếu vật tư!');return;
+  }
+  if(item.needsBeans)GS.supplierStock.beans--;
+  if(item.needsMilk)GS.supplierStock.milk--;
+  GS.supplierStock.cups--;
+  GS.coins+=item.price;GS.totalRevenue+=item.price;GS.totalServed++;
+  addXP(3);showNotif(`+${item.price}K từ ${item.name}! ${item.emoji}`);
+  checkQuests();updateUI();
+};
+
+window.buyTrend=function(id){
+  const item=TREND_ITEMS.find(i=>i.id===id);
+  if(!item||GS.ownedItems[id]>0||GS.coins<item.cost)return;
+  GS.coins-=item.cost;GS.ownedItems[id]=1;showNotif(`🔥 ${item.name}!`);
+  addXP(item.cost>5000?200:50);checkQuests();
+  renderTab('trend');
+};
+
+window.buySupply=function(key,cost,amt){
+  if(GS.coins<cost)return;GS.coins-=cost;GS.supplierStock[key]+=amt;
+  showNotif(`📦 Mua ${amt} ${key}!`);updateUI();
+};
+
+// ======== TABS ========
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    document.getElementById('tab-shop').classList.toggle('hidden', btn.dataset.tab !== 'shop');
-    document.getElementById('tab-stats').classList.toggle('hidden', btn.dataset.tab !== 'stats');
+    renderTab(btn.dataset.tab);
   });
 });
 
-// ============ INIT ============
-initRain();
-updateClock();
+// ======== INIT ========
+QUESTS.forEach(q=>{if(typeof q.progress==='undefined')q.progress=0;});
 updateUI();
-renderShop();
-
-// Start on a random table position for barista
-barista.targetX = 200;
-barista.targetY = 250;
-
-// Initial customers
-setTimeout(spawnCustomer, 3000);
-setTimeout(spawnCustomer, 6000);
-
-// Start rendering
-render();
+renderTab('location');
+gameLoop();
 </script>
 </body>
 </html>
