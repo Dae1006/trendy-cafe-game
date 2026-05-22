@@ -10,7 +10,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overfl
 #top-bar{width:100%;display:flex;justify-content:space-around;padding:6px 8px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:2px solid #FFD700;font-size:12px;flex-wrap:wrap;gap:2px}
 .stat{padding:3px 6px;border:1px solid #333;border-radius:3px;font-size:11px}
 .gold{color:#FFD700;font-weight:bold}
-#canvas-wrap{width:100%;flex:0 0 auto;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#canvas-wrap{width:100%;flex:0 0 auto;background:#0d0d1a;overflow:hidden;position:relative}
 #gameCanvas{width:100%;height:320px;display:block;background:#87CEEB;image-rendering:pixelated;image-rendering:crisp-edges}
 #main{width:100%;flex:1;overflow:hidden;display:flex;flex-direction:column}
 #tabs{display:flex;border-bottom:2px solid #0f3460;background:#0f3460;flex-shrink:0}
@@ -276,7 +276,7 @@ function gameLoop(ts=0){
       if(dist>2){c.x+=dx/dist*c.speed;c.y+=dy/dist*c.speed;}else{c.state='sitting';c.drinkTime=0;}
     }else if(c.state==='sitting'){
       c.drinkTime=(c.drinkTime||0)+1;
-      if(c.drinkTime>90){c.state='leaving';c.timer=0;GS.coins+=getRevenuePerMin()/getCustomerCount();GS.totalServed++;addXP(1);checkQuests();c.hit=10;}
+      if(c.drinkTime>90){c.state='leaving';c.timer=0;GS.coins+=getRevenuePerMin()/Math.max(getCustomerCount(),1);GS.totalServed++;addXP(1);checkQuests();c.hit=10;}
     }else if(c.state==='leaving'){c.timer++;c.x+=c.speed+1;if(c.x>CW+40)GS.animCustomers.splice(i,1);}
     if(c.hit>0)c.hit--;
   }
@@ -289,8 +289,9 @@ function gameLoop(ts=0){
 
 // ======== RENDER CANVAS ========
 function renderCanvas(){
+  if(!canvasCtx){console.log('Canvas ctx not ready!');return;}
+
   const c=canvasCtx;
-  if(!c)return;
 
   const loc=LOCATIONS[GS.currentLocation];
   const weather=getWeather();
