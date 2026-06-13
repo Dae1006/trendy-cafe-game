@@ -547,22 +547,16 @@ function checkLevelUp() {
       notify(`ðŸŽ‰ LEVEL ${G.lv}! Great progress!`, 3000);
     }
     
-    // Auto-unlock menu based on equipment
+    // Auto-unlock menu (consolidated by level, then equipment)
+    if (G.lv >= 2) { ['latte','matcha'].forEach(id => { if(!G.unlockedMenu.includes(id)) G.unlockedMenu.push(id); }); }
+    if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
+    if (G.lv >= 10) { ['croissant','waffle'].forEach(id => { if(!G.unlockedMenu.includes(id)) G.unlockedMenu.push(id); }); }
+    if (G.lv >= 20) { ['mocha','tiramisu'].forEach(id => { if(!G.unlockedMenu.includes(id)) G.unlockedMenu.push(id); }); }
+    if (G.lv >= 50 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
     if (G.equipment.bakery >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
     if (G.equipment.bakery >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
     if (G.equipment.bar_counter >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
     if (G.equipment.bar_counter >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
-    if (G.lv >= 2 && !G.unlockedMenu.includes('latte')) G.unlockedMenu.push('latte');
-    if (G.lv >= 2 && !G.unlockedMenu.includes('matcha')) G.unlockedMenu.push('matcha');
-    if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
-    if (G.lv >= 6 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
-    // Auto-unlock menu based on level
-    if (G.lv >= 10 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
-    if (G.lv >= 10 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
-    if (G.lv >= 20 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
-    if (G.lv >= 20 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
-    if (G.lv >= 30 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
-    if (G.lv >= 50 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
   }
 }
 
@@ -973,7 +967,7 @@ function renderStats() {
   const phase = getDifficultyPhase(G.gameDay || 1);
   html += `<div class="section-title">ðŸ“ˆ Difficulty Phase</div>`;
   html += `<div class="stat-row"><span class="stat-label">ðŸ“… Game Day</span><span class="stat-value">${G.gameDay || 1}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">âš”ï¸ Phase</span><span class="stat-value">${phase.startDay}-</span></span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">âš”ï¸ Phase</span><span class="stat-value">${phase.startDay}-</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">ðŸ’¹ Profit Mult</span><span class="stat-value">x${phase.profitMult.toFixed(2)}</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">ðŸ“ˆ Inflation</span><span class="stat-value">x${phase.inflation.toFixed(2)}</span></div>`;
   html += `<div class="stat-row"><span class="stat-label">ðŸ’¸ Salary Mult</span><span class="stat-value">x${phase.staffSalaryMult.toFixed(2)}</span></div>`;
@@ -996,7 +990,7 @@ function renderStats() {
   // === RESTART BUTTON ===
   html += `<div class="section-title">ðŸ”§ Game Control</div>`;
   html += `<div style="text-align:center;padding:10px 0">
-    <button class="btn" style="background:#e74c3c;padding:12px 24px;font-size:14px;font-weight:bold">ðŸ”„ Game Over - ChÆ¡i Láº¡i</button>
+    <button class="btn" style="background:#e74c3c;padding:12px 24px;font-size:14px;font-weight:bold" onclick="restartGame()">ðŸ”„ Game Over - ChÆ¡i Láº¡i</button>
   </div>`;
   
   el.innerHTML = html;
@@ -1253,10 +1247,9 @@ setInterval(function() {
       s.mood = Math.max(0, s.mood - 1);
     });
     
-    notify(`ðŸ“… NgÃ y ${G.gameDay}! (Difficulty phase: ${getDifficultyPhase(G.gameDay).startDay}+)`, 3000);
+    if (G.gameDay % 5 === 1) {    notify(`ðŸ“… NgÃ y ${G.gameDay}! (Difficulty phase: ${getDifficultyPhase(G.gameDay).startDay}+)`, 3000);
+    }
   }
-  
-  let changed = false;
   
   let changed = false;
   // Decrease patience for all orders
@@ -1333,9 +1326,15 @@ setInterval(function() {
     const s = G.staff[si];
     if (s.mood < 5) continue;
     
-    // CO-OP SERVE: Master/Epic Coach reduce time by 50%
+    // CO-OP SERVE: Epic Coach buff - 2 staff serve together = -50% time
     let serveMod = 1;
     if (coopBuff > 0 && si < G.staff.length - 1) {
+      const nextStaff = G.staff[si + 1];
+      if (nextStaff && nextStaff.mood > 20) serveMod = 0.5;
+    }
+    // Also check if current staff has coop buff
+    const currentStaffDef = STAFF.find(st => st.id === s.id);
+    if (currentStaffDef && currentStaffDef.buff === 'coop' && coopBuff > 0 && si < G.staff.length - 1) {
       const nextStaff = G.staff[si + 1];
       if (nextStaff && nextStaff.mood > 20) serveMod = 0.5;
     }
@@ -1381,7 +1380,7 @@ setInterval(function() {
       
       // Mood decay with cooling system
       const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
-      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoveryBuff * 2));
+      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoverBuff * 2));
       
       G.orders.splice(0, 1);
       notify(`ðŸ¤– ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}â‚« (-${finalCost}â‚« = ${revenue-finalCost}â‚« net)`);
