@@ -1,0 +1,347 @@
+/* ============================================
+   ☕ QUÁN TRENDY CAFÉ v2.0 — STYLES
+   Pixel Art Café Management Game
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --bg: #1a1a2e;
+  --bg2: #16213e;
+  --bg3: #0f3460;
+  --gold: #FFD700;
+  --accent: #FF6347;
+  --green: #28a745;
+  --red: #dc3545;
+  --txt: #e8e8e8;
+  --dim: #a0a0b0;
+  --common: #b0b0b0;
+  --rare: #4169E1;
+  --epic: #9932CC;
+  --legendary: #FFD700;
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  font-size: 10px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: none;
+}
+
+/* === LOADING === */
+#loading {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  flex-direction: column; gap: 10px;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid var(--bg3);
+  border-top-color: var(--gold);
+  animation: spin .8s linear infinite;
+  border-radius: 50%;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--gold); font-size: 14px; }
+
+/* === NOTIFICATION === */
+#notif {
+  position: fixed; top: 10px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg3);
+  color: var(--gold);
+  padding: 8px 16px;
+  border: 3px solid var(--gold);
+  box-shadow: 0 4px 0 #000;
+  font-size: 8px;
+  z-index: 999;
+  display: none;
+  white-space: pre-line;
+  text-align: center;
+  max-width: 90%;
+}
+
+/* === HEADER === */
+#hdr {
+  display: flex; justify-content: space-between;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, var(--bg), var(--bg3));
+  border-bottom: 4px solid var(--gold);
+  font-size: 9px;
+  position: sticky; top: 0; z-index: 10;
+}
+#hdr .v { color: var(--gold); text-shadow: 1px 1px 0 #000; }
+.coin-display, .level-display { display: flex; align-items: center; gap: 4px; }
+
+/* === XP BAR === */
+#xp-wrap { height: 6px; background: #333; border-bottom: 2px solid #000; }
+#xp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4169E1, #9932CC);
+  width: 0%;
+  transition: width .3s;
+}
+
+/* === WEATHER === */
+#weather {
+  padding: 6px 15px;
+  background: linear-gradient(90deg, #FF6347, #FF8C00);
+  border-bottom: 4px solid #000;
+  font-size: 8px;
+}
+
+/* === CANVAS SCENE === */
+#scene-wrap {
+  position: relative;
+  border-bottom: 4px solid var(--bg3);
+  overflow: hidden;
+}
+#scene-canvas {
+  display: block;
+  width: 100%;
+  height: 180px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* === LOCATIONS === */
+#locs {
+  display: flex; gap: 4px;
+  padding: 6px;
+  background: var(--bg);
+  border-bottom: 4px solid var(--bg3);
+  overflow-x: auto;
+}
+.lb {
+  flex: 1; min-width: 55px;
+  padding: 6px 3px;
+  border: 2px solid #000;
+  background: var(--bg3);
+  color: var(--dim);
+  font-size: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+}
+.lb.on { background: var(--bg); color: var(--gold); border-color: var(--gold); }
+.lb:disabled { opacity: .3; cursor: not-allowed; }
+
+/* === NAVIGATION === */
+#nav {
+  display: flex;
+  position: sticky; bottom: 0;
+  background: var(--bg);
+  border-top: 4px solid var(--gold);
+  z-index: 10;
+  overflow-x: auto;
+}
+.nb {
+  flex: 1; min-width: 40px;
+  padding: 8px 2px;
+  border: none; background: transparent;
+  color: var(--dim);
+  font-size: 7px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  border-top: 3px solid transparent;
+}
+.nb.on {
+  color: var(--gold);
+  background: rgba(255, 215, 0, .12);
+  border-top-color: var(--gold);
+}
+
+/* === PANELS === */
+#pnl { min-height: 300px; background: var(--bg2); }
+.pan { display: none; padding: 10px; }
+.pan.on { display: block; }
+.pan h3 {
+  font-size: 10px; color: var(--gold);
+  margin-bottom: 8px; padding-bottom: 4px;
+  border-bottom: 2px solid var(--bg3);
+}
+
+/* === BUTTONS === */
+.btn {
+  padding: 6px 12px;
+  border: 2px solid #000;
+  border-radius: 0;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 8px;
+  box-shadow: 2px 2px 0 #000;
+  transition: all .05s;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 #000; }
+.btn:active { transform: translate(2px, 2px); box-shadow: none; }
+.btn:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 #000; opacity: .5; }
+.btn.g { background: var(--green); }
+.btn.o { background: var(--red); }
+.btn.s { background: var(--rare); }
+.btn.lg { background: var(--legendary); color: #000; }
+
+/* === CARDS === */
+.card {
+  padding: 8px; margin: 4px 0;
+  background: var(--bg3);
+  border: 2px solid #000;
+  border-bottom: 3px solid #000;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 8px;
+}
+.card .nm { font-weight: bold; line-height: 2; }
+.card .pr { color: var(--gold); }
+
+/* === RATING BARS === */
+.r-bar {
+  height: 6px; background: #333;
+  border: 1px solid #000;
+  margin: 3px 0;
+  overflow: hidden;
+}
+.r-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width .3s;
+}
+.r-fill.high { background: var(--green); }
+.r-fill.mid { background: var(--gold); }
+.r-fill.low { background: var(--red); }
+
+/* === FILTER BUTTONS === */
+.flt-row { display: flex; gap: 3px; margin-bottom: 8px; flex-wrap: wrap; }
+.flt-btn {
+  padding: 4px 8px;
+  border: 2px solid #000;
+  background: var(--bg3);
+  color: var(--dim);
+  font-size: 7px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.flt-btn.on { background: var(--bg); color: var(--gold); border-color: var(--gold); }
+
+/* === STAT ROWS === */
+.st-row {
+  display: flex; justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #333;
+  font-size: 8px;
+}
+.st-l { color: var(--dim); }
+.st-v { color: var(--gold); }
+
+/* === EMPTY STATE === */
+.empty { padding: 20px; text-align: center; color: var(--dim); font-size: 9px; }
+
+/* === MODAL === */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal.hidden { display: none; }
+.modal-content {
+  background: var(--bg2);
+  border: 4px solid var(--gold);
+  padding: 16px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(255,215,0,.3);
+}
+
+/* === CHART === */
+#rev-chart {
+  width: 100%;
+  height: 200px;
+  background: var(--bg);
+  border: 2px solid #000;
+  margin-top: 8px;
+}
+
+/* === SUPPLIER SECTION === */
+.supplier-section { margin-bottom: 12px; }
+.supplier-section h4 {
+  font-size: 9px; color: var(--gold);
+  margin-bottom: 6px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 4px;
+}
+.supplier-item {
+  padding: 6px;
+  margin: 4px 0;
+  background: var(--bg);
+  border: 2px solid #000;
+  font-size: 7px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* === ACHIEVEMENT === */
+.achieve-card {
+  padding: 8px; margin: 4px 0;
+  background: var(--bg3);
+  border: 2px solid #000;
+  border-bottom: 3px solid #000;
+  display: flex; gap: 8px; align-items: center;
+  font-size: 7px;
+}
+.achieve-card.unlocked { border-color: var(--gold); background: rgba(255,215,0,.1); }
+.achieve-card.locked { opacity: .4; }
+.achieve-icon { font-size: 24px; flex-shrink: 0; }
+
+/* === SEASONAL BANNER === */
+.seasonal-banner {
+  padding: 8px;
+  margin: 4px 0;
+  border: 2px solid var(--gold);
+  background: linear-gradient(90deg, rgba(255,215,0,.1), rgba(255,99,71,.1));
+  font-size: 8px;
+  text-align: center;
+}
+
+/* === CUSTOMER PATIENCE BAR === */
+.patience-bar {
+  height: 4px;
+  background: #333;
+  margin-top: 4px;
+  border: 1px solid #000;
+}
+.patience-fill {
+  height: 100%;
+  transition: width .3s, background .3s;
+}
+
+/* === RAIN EFFECT === */
+.rain-drop {
+  position: absolute;
+  width: 2px;
+  background: rgba(174, 194, 224, 0.5);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border: 1px solid #000; }

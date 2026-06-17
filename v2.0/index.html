@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>☕ Quán Trendy Café v2.0 — Pixel Art Edition</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">☕ Đang mở quán...</div>
+</div>
+
+<!-- Notification -->
+<div id="notif"></div>
+
+<!-- Header -->
+<div id="hdr">
+  <div class="coin-display">💰 <span id="coins">500</span></div>
+  <div class="level-display">Lv.<span id="lv">1</span> ⭐<span id="xp">0</span>/<span id="xpn">100</span></div>
+</div>
+<div id="xp-wrap"><div id="xp-bar"></div></div>
+
+<!-- Weather Bar -->
+<div id="weather">☀️ Nắng</div>
+
+<!-- Canvas Scene -->
+<div id="scene-wrap">
+  <canvas id="scene-canvas"></canvas>
+</div>
+
+<!-- Locations -->
+<div id="locs"></div>
+
+<!-- Navigation -->
+<div id="nav">
+  <button class="nb on" data-tab="orders">📋Order</button>
+  <button class="nb" data-tab="menu">🍽️Menu</button>
+  <button class="nb" data-tab="chart">📊Chart</button>
+  <button class="nb" data-tab="staff">👥Staff</button>
+  <button class="nb" data-tab="supplier">🏭Supply</button>
+  <button class="nb" data-tab="shop">🛒Shop</button>
+  <button class="nb" data-tab="items">🎒Items</button>
+  <button class="nb" data-tab="quests">📌Quest</button>
+  <button class="nb" data-tab="up">⬆️Up</button>
+  <button class="nb" data-tab="achieve">🏆Achi</button>
+</div>
+
+<!-- Panels -->
+<div id="pnl">
+  <!-- Orders Panel -->
+  <div class="pan on" id="p-orders">
+    <div id="ol"></div>
+  </div>
+  <!-- Menu Panel -->
+  <div class="pan" id="p-menu">
+    <div id="ml"></div>
+  </div>
+  <!-- Revenue Chart Panel -->
+  <div class="pan" id="p-chart">
+    <div id="cl"></div>
+  </div>
+  <!-- Staff Panel -->
+  <div class="pan" id="p-staff">
+    <div id="hl"></div>
+    <div id="sll"></div>
+  </div>
+  <!-- Supplier Panel -->
+  <div class="pan" id="p-supplier">
+    <div id="slp"></div>
+  </div>
+  <!-- Shop Panel -->
+  <div class="pan" id="p-shop">
+    <div id="so"></div>
+  </div>
+  <!-- Items Panel -->
+  <div class="pan" id="p-items">
+    <div id="fl"></div>
+    <div id="il"></div>
+  </div>
+  <!-- Quests Panel -->
+  <div class="pan" id="p-quests">
+    <div id="ql"></div>
+  </div>
+  <!-- Upgrades Panel -->
+  <div class="pan" id="p-up">
+    <div id="ul"></div>
+  </div>
+  <!-- Achievements Panel -->
+  <div class="pan" id="p-achieve">
+    <div id="al"></div>
+  </div>
+</div>
+
+<!-- Save/Load Modal -->
+<div id="modal" class="modal hidden">
+  <div class="modal-content">
+    <div id="modal-body"></div>
+    <button class="btn" onclick="closeModal()">Đóng</button>
+  </div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

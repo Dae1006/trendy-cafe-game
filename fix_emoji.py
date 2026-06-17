@@ -3,7 +3,7 @@ path = r'C:\Users\taidu\.openclaw\workspace\projects\trendy-cafe-game\index.html
 with open(path, 'rb') as f:
     raw = f.read()
 
-# Remove UTF-8 BOM
+# Remove BOM
 if raw.startswith(b'\xef\xbb\xbf'):
     raw = raw[3:]
 
@@ -13,12 +13,14 @@ raw = raw.replace(b'\r\r\n', b'\n')
 # Decode as UTF-8
 text = raw.decode('utf-8')
 
-# Now fix corrupted characters - these are UTF-8 bytes interpreted as Windows-1252
-# Common patterns in the file
-fixes = [
-    # Emojis - corrupted UTF-8 sequences
+# Now fix corrupted emojis - these are UTF-8 bytes interpreted as Windows-1252
+# The pattern is: ð followed by various characters = corrupted emoji
+# We need to replace these with proper emojis
+
+# Common corrupted emoji patterns
+emoji_replacements = [
     ('ðŸ'¡', '💰'),  # money bag
-    ('ðŸ'Ž‰', '🎉'),  # party popper  
+    ('ðŸ'Ž‰', '🎉'),  # party popper
     ('ðŸ"„', '🔄'),  # refresh
     ('ðŸ"…', '📅'),  # calendar
     ('ðŸ"§', '🔧'),  # wrench
@@ -117,63 +119,11 @@ fixes = [
     ('ðŸN', '🏤'),  # post office
 ]
 
-for old, new in fixes:
+for old, new in emoji_replacements:
     text = text.replace(old, new)
-
-# Translate Vietnamese to English
-viet_to_eng = [
-    ('Ng\\u00e0y', 'Day'),
-    ('Qu\\u00e1n', 'Cafe'),
-    ('Ch\\u1eddi', 'Play'),
-    ('C\\u1ea7n', 'Need'),
-    ('Kh\\u00f4ng', 'Not'),
-    ('\\u0110', 'D'),
-    ('\\u00e1\\u1ea1i', 'ai'),
-    ('M\\u1edf', 'Open'),
-    ('kh\\u00f3a', 'unlock'),
-    ('thi\\u1ebft b\\u1ec7', 'equipment'),
-    ('m\\u1edbi', 'new'),
-    ('h\\u1ebft', 'all'),
-    ('n\\u0103ng c\\u1eadp', 'upgrade'),
-    ('\\u00e1i t\\u1ea1i', 'CURRENT'),
-    ('KH\\u00c1', 'LOCKED'),
-    ('M\\u1edf R\\u00f2ng', 'Expand'),
-    ('Qu\\u00e1n', 'Cafe'),
-    ('\\u00e1i', 'open'),
-    ('kh\\u00f3a', 'unlock'),
-    ('thi\\u1ebft b\\u1ec7', 'equipment'),
-    ('m\\u1edbi', 'new'),
-    ('h\\u1ebft', 'all'),
-    ('n\\u0103ng c\\u1eadp', 'upgrade'),
-    ('\\u00e1i t\\u1ea1i', 'CURRENT'),
-    ('KH\\u00c1', 'LOCKED'),
-    ('M\\u1edf R\\u00f2ng', 'Expand'),
-    ('Qu\\u00e1n', 'Cafe'),
-    ('\\u00e1i', 'open'),
-    ('kh\\u00f3a', 'unlock'),
-    ('thi\\u1ebft b\\u1ec7', 'equipment'),
-    ('m\\u1edbi', 'new'),
-    ('h\\u1ebft', 'all'),
-    ('n\\u0103ng c\\u1eadp', 'upgrade'),
-    ('\\u00e1i t\\u1ea1i', 'CURRENT'),
-    ('KH\\u00c1', 'LOCKED'),
-    ('M\\u1edf R\\u00f2ng', 'Expand'),
-    ('Qu\\u00e1n', 'Cafe'),
-    ('\\u00e1i', 'open'),
-    ('kh\\u00f3a', 'unlock'),
-    ('thi\\u1ebft b\\u1ec7', 'equipment'),
-    ('m\\u1edbi', 'new'),
-    ('h\\u1ebft', 'all'),
-    ('n\\u0103ng c\\u1eadp', 'upgrade'),
-    ('\\u00e1i t\\u1ea1i', 'CURRENT'),
-    ('KH\\u00c1', 'LOCKED'),
-]
-
-for viet, eng in viet_to_eng:
-    text = text.replace(viet, eng)
 
 # Write back
 with open(path, 'w', encoding='utf-8') as f:
     f.write(text)
 
-print('Done!')
+print('Emojis fixed!')
