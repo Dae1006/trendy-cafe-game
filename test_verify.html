@@ -1,0 +1,211 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Γÿò Trendy Cafe</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#1a1a2e;--bg2:#16213e;--bg3:#0f3460;--gold:#FFD700;--accent:#FF6347;--green:#28a745;--red:#dc3545;--txt:#e8e8e8;--dim:#a0a0b0}
+body{font-family:'Press Start 2P',monospace;background:var(--bg);color:var(--txt);min-height:100vh;max-width:480px;margin:0 auto;image-rendering:pixelated;font-size:10px;line-height:1.6;overflow-x:hidden}
+#hdr{display:flex;justify-content:space-between;padding:10px 15px;background:linear-gradient(135deg,var(--bg),var(--bg3));border-bottom:4px solid var(--gold);font-size:9px;position:sticky;top:0;z-index:10}
+#hdr .v{color:var(--gold);text-shadow:1px 1px 0 #000}
+#xp-wrap{height:6px;background:#333;border-bottom:2px solid #000}
+#xp-bar{height:100%;background:linear-gradient(90deg,#4169E1,#9932CC);width:0%;transition:width .3s}
+#weather{padding:6px 15px;background:linear-gradient(90deg,#FF6347,#FF8C00);border-bottom:4px solid #000;font-size:8px}
+#scene{height:160px;position:relative;overflow:hidden;border-bottom:4px solid var(--bg3)}
+#cafe-bg{position:absolute;inset:0;background:linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)}
+#cafe-bg::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);background-size:4px 4px;pointer-events:none}
+#custs{position:absolute;bottom:5px;left:0;width:100%;height:60px;display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.cust{font-size:24px;animation:bot .8s infinite alternate;filter:drop-shadow(2px 2px 0 #000)}
+@keyframes bot{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+#locs{display:flex;gap:4px;padding:6px;background:var(--bg);border-bottom:4px solid var(--bg3);overflow-x:auto}
+.lb{flex:1;min-width:55px;padding:6px 3px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;text-align:center}
+.lb.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
+.lb:disabled{opacity:.3;cursor:not-allowed}
+#nav{display:flex;position:sticky;bottom:0;background:var(--bg);border-top:4px solid var(--gold);z-index:10;overflow-x:auto}
+.nb{flex:1;min-width:40px;padding:8px 2px;border:none;background:transparent;color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit;white-space:nowrap;border-top:3px solid transparent}
+.nb.on{color:var(--gold);background:rgba(255,215,0,.12);border-top-color:var(--gold)}
+#pnl{min-height:300px;background:var(--bg2)}
+.pan{display:none;padding:10px}
+.pan.on{display:block}
+.pan h3{font-size:10px;color:var(--gold);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--bg3)}
+.btn{padding:6px 12px;border:2px solid #000;border-radius:0;background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;font-size:8px;box-shadow:2px 2px 0 #000;transition:all .05s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 #000}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn:disabled{background:#555;cursor:not-allowed;transform:none;box-shadow:2px 2px 0 #000;opacity:.5}
+.btn.g{background:var(--green)}.btn.o{background:var(--red)}
+.card{padding:8px;margin:4px 0;background:var(--bg3);border:2px solid #000;border-bottom:3px solid #000;display:flex;justify-content:space-between;align-items:center;font-size:8px}
+.card .nm{font-weight:bold;line-height:2}
+.card .pr{color:var(--gold)}
+.r-bar{height:6px;background:#333;border:1px solid #000;margin:3px 0;overflow:hidden}
+.r-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s}
+.r-fill.high{background:#28a745}.r-fill.mid{background:#FFD700}.r-fill.low{background:#dc3545}
+#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--gold);padding:8px 16px;border:3px solid var(--gold);box-shadow:0 4px 0 #000;font-size:8px;z-index:999;display:none;white-space:pre-line}
+.flt-row{display:flex;gap:3px;margin-bottom:8px;flex-wrap:wrap}
+.flt-btn{padding:4px 8px;border:2px solid #000;background:var(--bg3);color:var(--dim);font-size:7px;cursor:pointer;font-family:inherit}
+.flt-btn.on{background:var(--bg);color:var(--gold);border-color:var(--gold)}
+.st-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #333;font-size:8px}
+.st-l{color:var(--dim)}.st-v{color:var(--gold)}
+.empty{padding:20px;text-align:center;color:var(--dim);font-size:9px}
+.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,#1a1a2e,#0f3460);border:4px solid var(--gold);box-shadow:0 8px 0 #000;padding:16px 24px;font-size:9px;z-index:1000;transition:transform .3s cubic-bezier(.17,.67,.77,.33);white-space:nowrap;pointer-events:none}
+.combo-popup.show{transform:translate(-50%,-50%) scale(1)}
+.combo-popup .combo-emoji{font-size:32px;display:block;text-align:center;margin-bottom:4px}
+.combo-popup .combo-title{color:var(--gold);font-size:11px;text-align:center}
+.combo-popup .combo-desc{color:var(--txt);font-size:8px;text-align:center;margin-top:4px}
+.feedback-float{position:fixed;font-size:8px;z-index:998;pointer-events:none;animation:feedbackUp 2s forwards;white-space:nowrap}
+@keyframes feedbackUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px)}}
+.mood-boost-btn{padding:2px 4px;font-size:7px;background:#9b59b6;border:2px solid #000;color:#fff;cursor:pointer;font-family:inherit;box-shadow:1px 1px 0 #000}
+.mood-boost-btn:active{transform:translate(1px,1px);box-shadow:none}
+.combo-counter{text-align:center;padding:4px 0;font-size:8px;color:var(--gold)}
+.urgent-order{border-left:4px solid #dc3545;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.rep-bar{height:8px;background:#333;border:1px solid #000;margin:4px 0;overflow:hidden}
+.rep-fill{height:100%;background:linear-gradient(90deg,#dc3545,#FFD700,#28a745);width:50%}
+</style>
+</head>
+<body>
+<div id="loading" style="position:fixed;inset:0;background:var(--bg);display:none !important;justify-content:center;z-index:9999;font-size:14px;color:var(--gold);flex-direction:column;gap:10px">
+  <div class="spinner" style="width:40px;height:40px;border:4px solid var(--bg3);border-top-color:var(--gold);animation:spin .8s linear infinite;border-radius:50%"></div>
+  <div>Γÿò ─Éang mß╗ƒ qu├ín...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<div id="notif"></div>
+
+<div id="hdr">
+  <div>≡ƒÆ░ <span class="v" id="coins">500</span></div>
+  <div>Lv<span class="v" id="lv">1</span> Γ¡É<span class="v" id="xp">0</span>/<span class="v" id="xpn">100</span></div>
+</div>
+<div id="xp-wrap"><div id="xp-bar"></div></div>
+<div id="weather">ΓÿÇ∩╕Å Nß║»ng</div>
+<div id="rep-display" style="padding:4px 15px;background:var(--bg2);border-bottom:2px solid var(--bg3);font-size:7px">Γ¡É Rep: <span id="rep-val">50</span>/100 <div class="rep-bar"><div class="rep-fill" id="rep-bar"></div></div></div>
+<div id="locs"></div>
+<div id="scene"><div id="cafe-bg"></div><div id="custs"></div></div>
+
+<div id="nav">
+  <button class="nb on" data-tab="orders">≡ƒôïOrder</button>
+  <button class="nb" data-tab="menu">≡ƒì╜∩╕ÅMenu</button>
+  <button class="nb" data-tab="stats">≡ƒôèStats</button>
+  <button class="nb" data-tab="staff">≡ƒæÑStaff</button>
+  <button class="nb" data-tab="shop">≡ƒ¢ÆShop</button>
+  <button class="nb" data-tab="items">≡ƒÄÆItems</button>
+  <button class="nb" data-tab="quests">≡ƒôîQuest</button>
+  <button class="nb" data-tab="up">Γ¼å∩╕ÅUp</button>
+</div>
+
+<div id="pnl">
+  <div class="pan on" id="p-orders"><div id="ol"></div></div>
+  <div class="pan" id="p-menu"><div id="ml"></div></div>
+  <div class="pan" id="p-stats"><div id="sl"></div></div>
+  <div class="pan" id="p-staff"><div id="hl"></div><div id="sll"></div></div>
+  <div class="pan" id="p-shop"><div id="so"></div></div>
+  <div class="pan" id="p-items"><div id="fl"></div><div id="il"></div></div>
+  <div class="pan" id="p-quests"><div id="ql"></div></div>
+  <div class="pan" id="p-up"><div id="ul"></div></div>
+</div>
+
+<script>
+const LOCS=[
+  {id:'street',name:'Vß╗ëa h├¿',emoji:'≡ƒÜ╢',cost:0,rm:1,cust:3,bg:'linear-gradient(to bottom,#87CEEB 0%,#8B7355 60%,#696969 100%)'},
+  {id:'mall',name:'TMall',emoji:'≡ƒÅ¼',cost:5000,rm:2.5,cust:5,bg:'linear-gradient(to bottom,#f5f5f5 0%,#c0c0c0 60%,#808080 100%)'},
+  {id:'garden',name:'S├ón v╞░ß╗¥n',emoji:'≡ƒî│',cost:15000,rm:2,cust:4,bg:'linear-gradient(to bottom,#87CEEB 0%,#228B22 60%,#006400 100%)'},
+  {id:'rooftop',name:'Rooftop',emoji:'≡ƒîâ',cost:50000,rm:3.5,cust:6,bg:'linear-gradient(to bottom,#0a0a2e 0%,#1a1a4e 60%,#2a2a6e 100%)'},
+  {id:'festival',name:'Lß╗à hß╗Öi',emoji:'≡ƒÄ¬',cost:100000,rm:4,cust:8,bg:'linear-gradient(to bottom,#FF69B4 0%,#FF8C00 50%,#9370DB 100%)'}
+];
+const MENU=[
+  {id:'coffee',name:'C├á ph├¬ ─æen',icon:'Γÿò',price:25,cost:5},
+  {id:'milk_coffee',name:'C├á ph├¬ sß╗»a',icon:'≡ƒÑ¢',price:30,cost:8},
+  {id:'espresso',name:'Espresso',icon:'Γÿò',price:35,cost:5},
+  {id:'matcha',name:'Tr├á matcha',icon:'≡ƒì╡',price:40,cost:10},
+  {id:'smoothie',name:'Sinh tß╗æ',icon:'≡ƒÑñ',price:45,cost:12},
+  {id:'cake',name:'B├ính m├¼',icon:'≡ƒÑ¬',price:35,cost:8},
+  {id:'ice_tea',name:'Tr├á ─æ├í',icon:'≡ƒºè',price:15,cost:3},
+  {id:'bubble_tea',name:'Tr├á sß╗»a',icon:'≡ƒºï',price:50,cost:12},
+  {id:'tropical',name:'N╞░ß╗¢c ├⌐p dß╗½a',icon:'≡ƒÑÑ',price:55,cost:15},
+  {id:'signature',name:'Signature',icon:'≡ƒì╕',price:80,cost:20}
+];
+const TREND=[
+  {id:'t_dog',name:'≡ƒÉ╢ Meme Ch├│ V├áng',r:'common',ef:'rev',v:.05,cost:200,desc:'+5% rev'},
+  {id:'t_cat',name:'≡ƒÉ▒ M├¿o hoang',r:'common',ef:'rev',v:.03,cost:150,desc:'+3% rev'},
+  {id:'t_mu',name:'ΓÜ╜ ├üo MU',r:'common',ef:'cust',v:1,cost:300,desc:'+1 kh├ích'},
+  {id:'t_astro',name:'≡ƒºï Tr├á Astro',r:'common',ef:'rev',v:.1,cost:400,desc:'+10% tr├á sß╗»a'},
+  {id:'t_girl',name:'≡ƒÆâ C├┤ B├⌐',r:'rare',ef:'rev',v:.1,cost:1000,desc:'+10% rev'},
+  {id:'t_ba',name:'≡ƒÆ» Ba Tr─âm',r:'rare',ef:'cust',v:2,cost:1500,desc:'+2 kh├ích'},
+  {id:'t_sieu',name:'ΓÜí Si├¬u Tß╗æc',r:'epic',ef:'cust',v:5,cost:8000,desc:'+5 kh├ích'},
+  {id:'t_vua',name:'≡ƒææ Vua C├á Ph├¬',r:'legendary',ef:'rev',v:.5,cost:20000,desc:'+50% rev'},
+  {id:'t_omega',name:'≡ƒÆ½ Omega Plus',r:'legendary',ef:'all',v:.3,cost:50000,desc:'+30% all'},
+];
+const STAFF_TYPES=[
+  {id:'s_barista',name:'Γÿò Barista',cost:300,sk:.6,desc:'Skill: 60%'},
+  {id:'s_chef',name:'≡ƒæ¿ΓÇì≡ƒì│ ─Éß║ºu bß║┐p',cost:400,sk:.7,desc:'Skill: 70%'},
+  {id:'s_senior',name:'≡ƒºæΓÇì≡ƒÆ╝ Senior Barista',cost:800,sk:.9,desc:'Skill: 90%'},
+  {id:'s_manager',name:'≡ƒæö Quß║ún l├╜',cost:1200,sk:1.0,desc:'Skill: 100%'},
+];
+const UPGRADES=[
+  {id:'u1',name:'≡ƒ¬æ B├án ghß║┐ mß╗¢i',desc:'+10% doanh thu',cost:1500,type:'rev',v:.1},
+  {id:'u2',name:'≡ƒÄ╡ Nhß║íc nß╗ün',desc:'+5% doanh thu',cost:800,type:'rev',v:.05},
+  {id:'u3',name:'≡ƒ¬º Bß║úng hiß╗çu LED',desc:'+20% kh├ích',cost:5000,type:'cust',v:.2},
+  {id:'u4',name:'Γ¥ä∩╕Å ─Éiß╗üu h├▓a',desc:'+15% doanh thu',cost:3500,type:'rev',v:.15},
+];
+const WEATHERS=[
+  {e:'ΓÿÇ∩╕Å',n:'Nß║»ng',rm:1.0,cMod:1.0},{e:'Γ¢à',n:'M├ít',rm:1.05,cMod:1.1},{e:'≡ƒîº∩╕Å',n:'M╞░a',rm:0.75,cMod:0.6},
+  {e:'≡ƒöÑ',n:'N├│ng',rm:1.15,cMod:1.2},{e:'≡ƒÄè',n:'Tß║┐t',rm:2.5,cMod:2.0}
+];
+function makeQs(){return[
+  {id:'q1',title:'Ng├áy ─æß║ºu khai tr╞░╞íng',desc:'Phß╗Ñc vß╗Ñ 10 kh├ích',type:'serve',target:10,reward:200,xp:50,done:false,p:0},
+  {id:'q2',title:'Thu thß║¡p meme',desc:'Sß╗ƒ hß╗»u 1 item',type:'collect',target:1,reward:300,xp:75,done:false,p:0},
+  {id:'q3',title:'Triß╗çu ph├║ c├á ph├¬',desc:'Kiß║┐m 5000 coin',type:'earn',target:5000,reward:1000,xp:150,done:false,p:0},
+  {id:'q4',title:'Thu thß║¡p bß╗Ö s╞░u tß║¡p',desc:'C├│ 5 items',type:'collect_all',target:5,reward:3000,xp:300,done:false,p:0},
+  {id:'q5',title:'King of Trendy',desc:'Sß╗ƒ hß╗»u hß║┐t items',type:'complete_all',target:TREND.length,reward:20000,xp:2000,done:false,p:0}
+]}
+var G={coins:500,lv:1,xp:0,xpn:100,loc:'street',ul:['street'],items:{},ups:[],qs:makeQs(),rev:0,totalRev:0,served:0,day:1,
+  staff:[],filter:'all',pendingOrders:[],comboCount:0,comboTimer:0,maxCombo:0,comboBuff:0,
+  feedbackHistory:[],reputation:50,currentCustomers:0,totalServedToday:0,_orderTimer:0,_lastAutoServe:0};
+// Tß║ío 3 ─æ╞ín h├áng mß║½u ngay khi mß╗ƒ game
+for(var i=0;i<3;i++){var mi=MENU[i%MENU.length];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));G.currentCustomers=3;}
+var _lastTick=0;
+function fm(n){return n?n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,','):0;}
+function getRepMod(){var r=G.reputation||50;if(r<=20)return .3;if(r<=40)return .6;if(r<=60)return 1.0;if(r<=80)return 1.3;return 1.6;}
+function getBuff(){var r=1;r+=(G.comboBuff||0);var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t){if(t.ef==='rev')r+=t.v*(G.items[id]||0);if(t.ef==='all')r+=t.v*(G.items[id]||0);}}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='rev')r+=u.v}var w=getWeather();r*=w.rm;r*=getRepMod();return r;}
+function getCusts(){var l=LOCS.filter(function(x){return x.id===G.loc;})[0];var base=l.cust;base=Math.floor(base*getRepMod());var w=getWeather();base=Math.floor(base*(w.cMod||1));var ids=Object.keys(G.items);for(var i=0;i<ids.length;i++){var id=ids[i];var t=TREND.filter(function(x){return x.id===id;})[0];if(t&&t.ef==='cust')base+=t.v*(G.items[id]||0);}var uids=Object.keys(G.ups).map(Number);for(var i=0;i<uids.length;i++){var u=UPGRADES.filter(function(x){return x.id===uids[i];})[0];if(u&&u.type==='cust')base=Math.floor(base*(1+u.v));}return base;}
+function getWeather(){var idx=Math.floor(Math.sin(G.day*.3)*1000)%WEATHERS.length;var i=((idx%WEATHERS.length)+WEATHERS.length)%WEATHERS.length;return WEATHERS[i];}
+function addXP(a){G.xp+=a;while(G.xp>=G.xpn){G.xp-=G.xpn;G.lv++;G.xpn=Math.floor(G.xpn*1.5);show('Γ¡É UP Lv'+G.lv+'!')}}
+function chkQ(type,val){G.qs.forEach(function(q){if(!q.done&&q.type===type){q.p=(q.p||0)+val;if(q.p>=q.target){q.done=true;G.coins+=q.reward;addXP(q.xp);show('Γ£à Quest: '+q.title+'! +'+q.reward+'≡ƒÆ░')}}})}
+function getComboBuff(){if(G.comboCount>=3){var levels=Math.min(G.comboCount-2,5);return levels*.05;}return 0;}
+function startCombo(){G.comboCount=(G.comboCount||0)+1;G.comboTimer=15;if(G.comboCount>G.maxCombo)G.maxCombo=G.comboCount;G.comboBuff=getComboBuff();if(G.comboCount>=3)showCombo(G.comboCount,G.comboBuff);}
+function chkCombo(){if(G.comboTimer>0){G.comboTimer--;if(G.comboTimer<=0){G.comboCount=0;G.comboBuff=0;}}}
+function showCombo(cnt,buff){var e={3:'Γÿò',4:'≡ƒöÑ',5:'ΓÜí',6:'≡ƒÆÄ',7:'≡ƒææ'};var n={3:'Combo!',4:'Great Combo!',5:'Super Combo!',6:'Ultra Combo!',7:'Legend Combo!'};var el=document.createElement('div');el.className='combo-popup show';el.innerHTML='<div class="combo-emoji">'+(e[cnt]||'≡ƒöÑ')+'</div><div class="combo-title">'+(n[cnt]||'Combo!')+'</div><div class="combo-desc">x'+cnt+' orders = +'+Math.floor(buff*100)+'% revenue!</div>';document.body.appendChild(el);setTimeout(function(){el.classList.remove('show')},1500);setTimeout(function(){el.remove()},2000);}
+function showFb(taste,svc,amb){var fB={1:'≡ƒÿí',2:'≡ƒÿò',3:'≡ƒÖé',4:'≡ƒÿè',5:'≡ƒñ⌐'};var fT={1:'Qu├í tß╗ç!',2:'Kh├┤ng ngon...',3:'Kh├í ß╗òn.',4:'Ngon lß║»m!',5:'Tuyß╗çt vß╗¥i! Γ¥ñ∩╕Å'};var el=document.createElement('div');el.className='feedback-float';el.style.left=(20+Math.random()*60)+'%';el.style.top=(30+Math.random()*30)+'%';el.innerHTML='<span style="font-size:16px">'+fB[taste]+'</span> <span style="color:'+(taste>=4?'#FFD700':'#dc3545')+'">'+fT[taste]+'</span>';document.body.appendChild(el);setTimeout(function(){el.remove()},2000);}
+function recFb(isCombo,isFast){var base=3;if(G.staff.length>0){var s=0;for(var i=0;i<G.staff.length;i++)s+=G.staff[i].sk;var avg=s/G.staff.length;base+=Math.floor(avg*.5);}if(isCombo)base=Math.min(5,base+1);var taste=Math.max(1,Math.min(5,base+Math.floor(Math.random()*3-1)));var svc=Math.max(1,Math.min(5,(isFast?4:2)+Math.floor(Math.random()*2-1)));var amb=Math.max(1,Math.min(5,3+Math.floor(Math.random()*3-1)));G.feedbackHistory.push({taste:taste,service:svc,ambiance:amb,time:Date.now()});if(G.feedbackHistory.length>20)G.feedbackHistory.shift();return {taste:taste,service:svc,ambiance:amb};}
+function boostMood(sid){var s=G.staff.filter(function(x){return x.id===sid;})[0];if(!s)return;if(s.mood>=80)return;s.mood=Math.min(100,s.mood+30);show('Γÿò '+s.name+' mood +30%! Γ¥ñ∩╕Å');render();}
+function calcAuto(){if(G.staff.length===0)return 0;var c=0;for(var i=0;i<G.staff.length;i++)c+=Math.floor(G.staff[i].sk*(G.staff[i].mood/100));return Math.max(0,c);}
+function render(){document.getElementById('coins').textContent=fm(G.coins);document.getElementById('lv').textContent=G.lv;document.getElementById('xp').textContent=G.xp;document.getElementById('xpn').textContent=G.xpn;document.getElementById('xp-bar').style.width=(G.xp/G.xpn*100)+'%';document.getElementById('rep-val').textContent=G.reputation||50;document.getElementById('rep-bar').style.width=((G.reputation||50)/100*100)+'%';renderLocs();renderWeather();renderCafe();renderOrders();renderMenu();renderStats();renderShop();renderStaff();renderItems();renderQuests();renderUpgrades();}
+function renderLocs(){var el=document.getElementById('locs');if(!el)return;el.innerHTML='';for(var i=0;i<LOCS.length;i++){var l=LOCS[i];var b=document.createElement('button');b.className='lb'+(G.loc===l.id?' on':'');b.textContent=l.emoji+' '+l.name;b.disabled=G.ul.indexOf(l.id)<0;if(G.ul.indexOf(l.id)>=0)b.onclick=function(l){return function(){G.loc=l.id;render();}}(l);else b.onclick=function(l){return function(){if(G.coins>=l.cost){G.coins-=l.cost;G.ul.push(l.id);show('≡ƒöô Mß╗ƒ kh├│a: '+l.name+'!');chkQ('upgrade',1)}else show('Γ¥î Cß║ºn '+fm(l.cost)+'≡ƒÆ░');render();}}(l);el.appendChild(b);}}
+function renderWeather(){var el=document.getElementById('weather');if(!el)return;var w=getWeather();el.textContent=w.e+' '+w.n+' (x'+w.rm+')'}
+function renderCafe(){var bg=document.getElementById('cafe-bg');var sc=document.getElementById('custs');var l=LOCS.filter(function(x){return x.id===G.loc;})[0];if(bg)bg.style.background=l.bg;sc.innerHTML='';var n=Math.min(getCusts(),12);var emojis=['≡ƒæ¿ΓÇì≡ƒÆ╗','≡ƒæ⌐ΓÇì≡ƒÄ«','≡ƒºæΓÇì≡ƒÄ¿','≡ƒæ┤','≡ƒºÆ','≡ƒñô','≡ƒÿÄ','≡ƒÑ│','≡ƒæª','≡ƒæº','≡ƒæ⌐ΓÇì≡ƒÅ½','≡ƒºö'];for(var i=0;i<n;i++){var d=document.createElement('div');d.className='cust';d.textContent=emojis[Math.floor(Math.random()*emojis.length)];d.style.animationDelay=(Math.random()*1)+'s';d.style.fontSize=(20+Math.random()*8)+'px';if(G.staff.length>0){var am=0;for(var j=0;j<G.staff.length;j++)am+=G.staff[j].mood;am=am/G.staff.length;if(am<40)d.textContent+=' ≡ƒÿƒ';}sc.appendChild(d);}}
+function custInterval(){var t=(getCusts()||3)*getRepMod();if(G.pendingOrders.length<t)return Math.max(3000,8000/(1+Math.floor(t/2)));return 15000;}
+function addOrder(){var now=Date.now();if(!G._orderTimer)G._orderTimer=now;if(now-G._orderTimer<custInterval())return;G._orderTimer=now;var l=LOCS.filter(function(x){return x.id===G.loc;})[0];var maxO=Math.min(l.cust+Math.floor((getCusts()||3)*.3),8);if(G.pendingOrders.length>=maxO)return;var mi=MENU[Math.floor(Math.random()*MENU.length)];G.pendingOrders.push(Object.assign({},mi,{uid:Date.now()+Math.random(),arrivedAt:Date.now(),patience:120000}));if(G.pendingOrders.length>G.currentCustomers)G.currentCustomers=G.pendingOrders.length;}
+function renderOrders(){var el=document.getElementById('ol');if(!el)return;var now=Date.now();chkCombo();for(var i=G.pendingOrders.length-1;i>=0;i--){var o=G.pendingOrders[i];if(now-o.arrivedAt>o.patience){G.reputation=Math.max(0,(G.reputation||50)-2);G.pendingOrders.splice(i,1);if(G.pendingOrders.length>G.currentCustomers)G.currentCustomers=G.pendingOrders.length;show('≡ƒÿí Khach bo di! Reputation -2');}}addOrder();if(!G._lastAutoServe)G._lastAutoServe=now;if(now-G._lastAutoServe>=3000){G._lastAutoServe=now;var sc=calcAuto();var as=Math.min(sc,G.pendingOrders.length);var ss=0;for(var i=0;i<as&&i<G.staff.length;i++){var s=G.staff[i];if(s.sk*(s.mood/100)>=.5){var o=G.pendingOrders[i];var b=getBuff();var e=Math.floor(o.price*b*.8);G.coins+=e;G.rev+=e;G.totalRev+=e;G.served++;G.totalServedToday++;addXP(5);chkQ('serve',1);chkQ('earn',e);G.staff[i].mood=Math.max(0,G.staff[i].mood-3);ss++;if(G.served%10===0){var f=recFb(false,false);showFb(f.taste,f.service,f.ambiance);}}if(ss>0)G.pendingOrders=G.pendingOrders.slice(ss);else G.pendingOrders=G.pendingOrders.slice(as);}if(G.pendingOrders.length===0){el.innerHTML='<div class="empty">ΓÅ│ Chß╗¥ kh├ích...</div>';return;}el.innerHTML='';if(G.comboCount>0){var ce=document.createElement('div');ce.className='combo-counter';ce.textContent='≡ƒöÑ Combo x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%) c├▓n '+G.comboTimer+'s';ce.style.color=G.comboBuff>.15?'#28a745':'#FFD700';el.appendChild(ce);}for(var i=0;i<G.pendingOrders.length;i++){var o=G.pendingOrders[i];var b=getBuff();var p=Math.floor(o.price*b);var isU=i<2&&G.comboCount===0;var d=document.createElement('div');d.className='card'+(isU?' urgent-order':'');d.innerHTML='<div><span class="nm">'+o.icon+' '+o.name+'</span></div><div><span class="pr">'+fm(p)+'Γé½</span> <button class="btn g" onclick="serveOrder('+i+')">SERVE</button></div>';el.appendChild(d);}}
+function serveOrder(idx){if(typeof idx!=='number'||idx<0||idx>=G.pendingOrders.length)return;var o=G.pendingOrders[idx];var b=getBuff();var e=Math.floor(o.price*b);var wt=(Date.now()-(o.arrivedAt||Date.now()))/1000;var isF=wt<30;G.coins+=e;G.rev+=e;G.totalRev+=e;G.served++;G.totalServedToday++;startCombo();var ic=G.comboCount>=3;addXP(10);chkQ('serve',1);chkQ('earn',e);G.pendingOrders.splice(idx,1);if(G.pendingOrders.length>0)G.currentCustomers=G.pendingOrders.length;var f=recFb(ic,isF);if(isF)G.reputation=Math.min(100,(G.reputation||50)+1);var msg='Γ£à +'+fm(e)+'Γé½ | '+o.name;if(ic)msg+=' ≡ƒöÑx'+G.comboCount;if(isF)msg+=' ΓÜíFast!';show(msg);showFb(f.taste,f.service,f.ambiance);render();}
+function renderMenu(){var el=document.getElementById('ml');if(!el)return;el.innerHTML='';for(var i=0;i<MENU.length;i++){var mi=MENU[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+mi.icon+' '+mi.name+'</span><div style="color:#a0a0b0;font-size:7px">Cost: '+fm(mi.cost)+'Γé½</div></div><div style="text-align:right"><span class="pr">~'+fm(Math.floor(mi.price*getBuff()))+'Γé½</span></div>';el.appendChild(d);}}
+function renderStats(){var el=document.getElementById('sl');if(!el)return;el.innerHTML='';var ac=calcAuto();var af=G.feedbackHistory.length>0?G.feedbackHistory.slice(-5).reduce(function(a,f){return a+f.taste;},0)/5:3;var rows=[['Ng├áy',G.day],['Level','Lv'+G.lv+' ('+G.xp+'/'+G.xpn+')'],['─É├ú phß╗Ñc vß╗Ñ',G.served],['Doanh thu h├┤m nay',fm(G.rev)+'Γé½'],['Tß╗òng doanh thu',fm(G.totalRev)+'Γé½'],['Coin',fm(G.coins)+'Γé½'],['Items',Object.keys(G.items).length],['Auto-serve','1nv/8s'],['Nh├ón vi├¬n',G.staff.length+'/6'],['Reputation',(G.reputation||50)+'/100'],['Combo hiß╗çn tß║íi',G.comboCount>0?'x'+G.comboCount+' (+'+Math.floor(G.comboBuff*100)+'%)':'Kh├┤ng c├│'],['Combo max','x'+(G.maxCombo||0)],['─É├ính gi├í TB',af.toFixed(1)+'Γ¡É']];for(var i=0;i<rows.length;i++){var r=rows[i];var d=document.createElement('div');d.className='st-row';d.innerHTML='<span class="st-l">'+r[0]+'</span><span class="st-v">'+r[1]+'</span>';el.appendChild(d);}}
+function renderShop(){var el=document.getElementById('so');if(!el)return;el.innerHTML='';var avail=[];for(var id in G.items){if(!G.items[id])continue;}avail=TREND.filter(function(t){return !G.items[t.id]||G.items[t.id]<1;});if(avail.length===0){el.innerHTML='<div class="empty">Γ£à ─É├ú hß║┐t!</div>';return}var rc={common:'#b0b0b0',rare:'#4169E1',epic:'#9932CC',legendary:'#FFD700'};for(var i=0;i<avail.length;i++){var t=avail[i];var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(rc[t.r]||'#b0b0b0');d.innerHTML='<div><span class="nm">'+t.name+'</span><div style="color:#a0a0b0;font-size:7px">'+t.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(t.cost)+'Γé½</span> <button class="btn" onclick="buyItem(\''+t.id+'\')">MUA</button></div>';el.appendChild(d);}}
+function buyItem(id){var t=TREND.filter(function(x){return x.id===id;})[0];if(!t)return;if(G.coins<t.cost){show('Γ¥î Kh├┤ng ─æß╗º coin!');return;}G.coins-=t.cost;G.items[id]=(G.items[id]||0)+1;show('Γ£à Mua: '+t.name+'!');chkQ('collect',1);chkQ('collect_all',1);render();}
+function renderItems(){var el=document.getElementById('il');if(!el)return;el.innerHTML='';var fl=document.getElementById('fl');if(!fl)return;fl.innerHTML='';var rc={common:'Common',rare:'Rare',epic:'Epic',legendary:'Legendary'};['all','common','rare','epic','legendary'].forEach(function(f){var b=document.createElement('button');b.className='flt-btn'+(G.filter===f?' on':'');b.textContent=f==='all'?'All':rc[f];b.onclick=function(){G.filter=f;render();};fl.appendChild(b)});var owned=[];for(var id in G.items)if(G.items[id]>0)owned.push([id,G.items[id]]);var filtered=G.filter==='all'?owned:owned.filter(function(pair){var t=TREND.filter(function(x){return x.id===pair[0];})[0];return t&&t.r===G.filter;});if(filtered.length===0){el.innerHTML='<div class="empty">≡ƒôª Ch╞░a c├│ items!</div>';return}for(var i=0;i<filtered.length;i++){var t=TREND.filter(function(x){return x.id===filtered[i][0];})[0];if(!t)continue;var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid var(--'+(t.r==='legendary'?'gold':'dim')+')';d.innerHTML='<span class="nm">'+t.name+'</span><span class="pr">'+rc[t.r]+' ├ù'+filtered[i][1]+'</span>';el.appendChild(d)}}
+function renderQuests(){var el=document.getElementById('ql');if(!el)return;el.innerHTML='';for(var i=0;i<G.qs.length;i++){var q=G.qs[i];var pct=Math.min(100,(q.p||0)/q.target*100);var d=document.createElement('div');d.className='card';d.style.borderLeft='4px solid '+(q.done?'var(--gold)':'var(--dim)');d.innerHTML='<div><span class="nm">'+(q.done?'Γ£à':'≡ƒôî')+' '+q.title+'</span><div style="color:#a0a0b0;font-size:7px">'+q.desc+'</div><div style="color:var(--gold);font-size:7px">≡ƒÄü '+q.reward+'≡ƒÆ░ '+q.xp+'XP</div></div><div><div class="r-bar"><div class="r-fill" style="width:'+pct+'%"></div></div><div style="font-size:7px;color:var(--dim)">'+Math.floor(q.p||0)+'/'+q.target+'</div></div>';el.appendChild(d)}}
+function renderUpgrades(){var el=document.getElementById('ul');if(!el)return;el.innerHTML='';for(var i=0;i<UPGRADES.length;i++){var u=UPGRADES[i];var bought=G.ups.includes(u.id);var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+u.name+'</span><div style="color:#a0a0b0;font-size:7px">'+u.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(u.cost)+'Γé½</span><button class="btn" onclick="buyUpgrade(\''+u.id+'\')" '+(bought||G.coins<u.cost?'disabled':'')+'>'+(bought?'Γ£à─É├ú mua':'MUA')+'</button></div>';el.appendChild(d)}}
+function buyUpgrade(id){var u=UPGRADES.filter(function(x){return x.id===id;})[0];if(!u||G.coins<u.cost||G.ups.includes(id))return;G.coins-=u.cost;G.ups.push(id);show('Γ¼å∩╕Å '+u.name+'!');chkQ('upgrade',1);render();}
+function renderStaff(){var hl=document.getElementById('hl');if(!hl)return;hl.innerHTML='';var ll=document.getElementById('sll');if(!ll)return;ll.innerHTML='';if(G.comboCount>0){var cd=document.createElement('div');cd.className='combo-counter';cd.innerHTML='≡ƒöÑ COMBO: x'+G.comboCount+' | +'+Math.floor(G.comboBuff*100)+'% rev';cd.style.color=G.comboBuff>.15?'#28a745':'#FFD700';hl.appendChild(cd);}var ct=document.createElement('div');ct.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';ct.textContent='≡ƒÆí Serve tay = COMBO! +5% rev mß╗ùi level!';hl.appendChild(ct);var hT=document.createElement('div');hT.style.cssText='font-size:10px;color:var(--gold);margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';hT.textContent='≡ƒôï THU├è NH├éN VI├èN';hl.appendChild(hT);var aL=document.createElement('div');aL.style.cssText='font-size:7px;color:#28a745;margin-bottom:6px';aL.textContent='≡ƒÆí Auto-serve mß╗ùi 8s (1nv=1─æ╞ín)';hl.appendChild(aL);for(var i=0;i<STAFF_TYPES.length;i++){var s=STAFF_TYPES[i];var d=document.createElement('div');d.className='card';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">'+s.desc+'</div></div><div style="text-align:right"><span class="pr">'+fm(s.cost)+'Γé½</span> <button class="btn g" onclick="hireStaff(\''+s.id+'\')">THU├è</button></div>';hl.appendChild(d)}var sT=document.createElement('div');sT.style.cssText='font-size:10px;color:var(--gold);margin-top:10px;margin-bottom:6px;border-bottom:2px solid var(--bg3);padding-bottom:4px;';sT.textContent='≡ƒæÑ ─Éß╗ÿI NG┼¿ ('+G.staff.length+'/6)';ll.appendChild(sT);if(G.staff.length===0){var e=document.createElement('div');e.className='empty';e.textContent='≡ƒôª Ch╞░a thu├¬ ai!';ll.appendChild(e);return}for(var i=0;i<G.staff.length;i++){var s=G.staff[i];var d=document.createElement('div');d.className='card';var mc=s.mood>60?'high':s.mood>30?'mid':'low';var er=s.sk*(s.mood/100);var cb=s.mood<80;var mb='';if(cb)mb='<button class="mood-boost-btn" onclick="boostMood(\''+s.id+'\')">Γÿò</button>';d.innerHTML='<div><span class="nm">'+s.name+'</span><div style="color:#a0a0b0;font-size:7px">Skill: '+Math.floor(s.sk*100)+'% | Auto: '+er.toFixed(2)+'/8s</div><div style="font-size:7px;color:#a0a0b0">Mood:</div></div><div style="text-align:right"><div class="r-bar" style="width:50px"><div class="r-fill '+mc+'" style="width:'+s.mood+'%"></div></div><span style="font-size:7px">'+Math.floor(s.mood)+'%</span> '+mb+' <button class="btn o" onclick="fireStaff(\''+s.id+'\')">SA├üT</button></div>';ll.appendChild(d);}}
+function hireStaff(id){var s=STAFF_TYPES.filter(function(x){return x.id===id;})[0];if(!s)return;if(G.coins<s.cost){show('Γ¥î Kh├┤ng ─æß╗º coin!');return;}if(G.staff.length>=6){show('Γ¥î ─Éß║ºy nh├ón vi├¬n!');return;}G.coins-=s.cost;G.staff.push({id:'s'+Date.now(),name:s.name,sk:s.sk,mood:100});show('Γ£à Thu├¬: '+s.name+'!');render();}
+function fireStaff(sid){var idx=G.staff.filter(function(x){return x.id===sid;});if(idx.length>0){G.staff.splice(G.staff.indexOf(idx[0]),1);show('≡ƒÆö ─É├ú sa thß║úi: '+idx[0].name);render();}}
+function show(msg){var el=document.getElementById('notif');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none'},3000)}
+function initTabs(){var bts=document.querySelectorAll('.nb');for(var i=0;i<bts.length;i++){(function(b){b.tabIndex=i;b.onclick=function(){var j=b.tabIndex;var btns=document.querySelectorAll('.nb');for(var k=0;k<btns.length;k++){btns[k].classList.remove('on');}btns[j].classList.add('on');var pnls=document.querySelectorAll('.pan');for(var k=0;k<pnls.length;k++){pnls[k].classList.remove('on');}var tab=document.getElementById('p-'+b.getAttribute('data-tab'));if(tab)tab.classList.add('on');}};})(bts[i]);}}
+function gameLoop(ts){var dt=ts-_lastTick;_lastTick=ts;for(var i=0;i<G.staff.length;i++){if(G.staff[i].mood<100)G.staff[i].mood=Math.min(100,G.staff[i].mood+.05*dt);}if(!G._dayStart)G._dayStart=ts;if(ts-G._dayStart>=60000){G.day++;G._dayStart=ts;}render();requestAnimationFrame(gameLoop);}
+function init(){try{var coinsEl=document.getElementById('coins');var olEl=document.getElementById('ol');var mlEl=document.getElementById('ml');var slEl=document.getElementById('sl');var hlEl=document.getElementById('hl');var soEl=document.getElementById('so');var ilEl=document.getElementById('il');var qlEl=document.getElementById('ql');var ulEl=document.getElementById('ul');if(!coinsEl||!olEl||!mlEl||!slEl||!hlEl||!soEl||!ilEl||!qlEl||!ulEl){console.log('DOM missing, retrying...');setTimeout(init,200);return;}console.log('init() starting...');initTabs();render();var ld=document.getElementById('loading');if(ld)ld.style.display='none';requestAnimationFrame(gameLoop);console.log('Game OK!');}catch(e){console.error('init() error:',e);var ld=document.getElementById('loading');if(ld){ld.innerHTML='<div style="color:#ff4444;font-size:12px">Error: '+e.message+'<br><br>Click ─æß╗â thß╗¡ lß║íi</div>';ld.style.cursor='pointer';ld.onclick=function(){location.reload();}}}}
+function startGame(){console.log('startGame() called');init();}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(startGame,0);});}else{setTimeout(startGame,0);}
+
+</script>
+</body>
+</html>
