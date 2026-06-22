@@ -2,7 +2,11 @@ name: Deploy to GitHub Pages
 
 on:
   push:
+<<<<<<< HEAD
     branches: [master, main]
+=======
+    branches: [master, main, gh-pages]
+>>>>>>> d692ecbdc05ea28fd2ed71e413c8f346b5846f26
   workflow_dispatch:
 
 permissions:
