@@ -1987,12 +1987,23 @@ console.log('✅ Trends:', G.trendItems.length);
 updateUI();
 
 // ============ V8 LOADING SCREEN HIDE ============
+// Force hide loading screen after 3s max, even if there are errors
 (function hideLoadingScreen() {
   const ls = document.getElementById('loading-screen');
   if (!ls) return;
+  
+  // Fallback: always hide after 3 seconds regardless of errors
   setTimeout(() => {
     ls.classList.add('hidden');
     setTimeout(() => { ls.style.display = 'none'; }, 800);
+  }, 3000); // hard fallback
+  
+  // Also try to hide when DOM is ready (600ms for polish)
+  setTimeout(() => {
+    if (!ls.classList.contains('hidden')) {
+      ls.classList.add('hidden');
+      setTimeout(() => { ls.style.display = 'none'; }, 800);
+    }
   }, 600); // brief show for polish
 })();
 
