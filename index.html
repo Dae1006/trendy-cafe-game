@@ -1979,12 +1979,19 @@ document.addEventListener('click', function initAudio() {
   document.removeEventListener('click', initAudio);
 }, {once: true});
 
-console.log('✅ Trendy Cafe V6 started!');
-console.log('✅ Unlocked menu:', G.unlockedMenu);
-console.log('✅ Staff:', G.staff.length);
-console.log('✅ Equipment:', G.equipment);
-console.log('✅ Trends:', G.trendItems.length);
-updateUI();
+console.log('✅ Trendy Cafe V7 Ultimate started!');
+
+// Ensure all DOM panels exist before rendering
+if (document.getElementById('panel-orders') && document.getElementById('panel-menu')) {
+  try {
+    updateUI();
+    console.log('✅ UI rendered successfully');
+  } catch(e) {
+    console.error('❌ updateUI failed:', e);
+  }
+} else {
+  console.error('❌ DOM panels missing!');
+}
 
 // ============ V8 LOADING SCREEN HIDE ============
 // Force hide loading screen after 3s max, even if there are errors
