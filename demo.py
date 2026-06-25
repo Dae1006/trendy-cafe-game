@@ -6,6 +6,7 @@ random.seed(42)
 
 from staff import StaffManager, StaffType, TaskType, PathNode, STAFF_SKILLS
 from decorations import DecorationManager, build_decoration_catalog, Category, THEME_BONUSES
+from reputation import ReputationEngine
 
 
 def section(title):
@@ -131,7 +132,10 @@ def demo_reputation():
     for day in range(1, 9):
         logs = engine.simulate_day(day, num_customers=5 + (day % 4))
         for line in logs:
-            print(f"  {line}")
+            try:
+                print(f"  {line}")
+            except UnicodeEncodeError:
+                print("  " + line.encode('utf-8', 'replace').decode('utf-8'))
         if day < 8:
             print("  --")
 
@@ -148,7 +152,10 @@ def demo_full_day():
     print(f"  Team: {', '.join(s.name+'('+s.staff_type.value+')' for s in mgr.staff)}")
     logs = mgr.full_shift_day(48)
     for line in logs:
-        print(f"  {line}")
+        try:
+            print(f"  {line}")
+        except UnicodeEncodeError:
+            print("  " + line.encode('utf-8', 'replace').decode('utf-8'))
 
 
 def demo_integration():
@@ -178,7 +185,10 @@ def demo_integration():
     e1 = ReputationEngine()
     logs1 = e1.simulate_day(20, num_customers=8)
     for l in logs1:
-        print(f"  {l}")
+        try:
+            print(f"  {l}")
+        except UnicodeEncodeError:
+            print("  " + l.encode('utf-8', 'replace').decode('utf-8'))
 
     e2 = ReputationEngine()
     logs2 = e2.simulate_day(21, num_customers=6)

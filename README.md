@@ -1,6 +1,6 @@
-# Cafe Management Simulation Engine ☕
+# ☕ Trendy Cafe — Management Simulation Engine
 
-A trendy cafe management simulation game engine built with Python + Pygame.
+Quan Trendy Cafe — a Python + Pygame simulation of managing a trendy cafe with staff, decorations, customers, and reputation.
 
 ## Quick Start
 
@@ -10,52 +10,95 @@ python main.py          # CLI demo (no dependencies)
 python main.py --pygame  # Visual mode (requires: pip install pygame)
 ```
 
+Run the full-day simulation demo:
+
+```bash
+cd ..
+python demo_new.py      # 12-hour simulated day with all systems
+python demo_customer.py # Customer behavior showcase
+```
+
 ## Project Structure
 
 ```
 cafe-sim/
-├── main.py              # Demo entry point (CLI + Pygame)
-└── src/
-    └── engine/
-        ├── __init__.py   # Package metadata
-        ├── grid.py       # Grid-based map system (A*, zones, tiles)
-        ├── simulation.py # Tick-based game loop & customer lifecycle
-        └── economy.py    # Income/expense tracking & profit metrics
+├── src/engine/                # Core engine
+│   ├── __init__.py
+│   ├── grid.py               # Tile map, zones, A* pathfinding
+│   ├── simulation.py         # Tick-based game loop, customer lifecycle
+│   └── economy.py            # Income/expense tracking & profit metrics
+├── customers.py              # 7 customer types + behaviors + menu (75+ items)
+├── orders.py                 # Order system: recipes, prep steps, kitchen processing
+├── queue.py                  # Queue management (max 8), seat assignment, overflow
+├── staff.py                  # Staff AI: Barista, Cook, Server, Cashier + skills
+├── decorations.py            # 50+ decor items + theme bonus detection
+├── reputation.py             # Reputation scoring & daily updates
+├── create_demo.py            # Demo script generator
+├── demo.py                   # Full simulation with staff/decor/reputation
+├── demo_new.py               # Enhanced customer behavior demo
+├── demo_customer.py          # Customer type showcase
+└── main.py                   # Entry point (CLI + Pygame)
 ```
 
-## Engine Modules
+## Core Systems
 
-### `grid.py` — Map System
-- **Tile data class**: Floor types (counter, kitchen, dining, walkway), furniture overlays
-- **Zone detection**: BFS flood-fill to find contiguous zones (dining, lounge, restroom…)
-- **A\* pathfinding**: Weighted movement costs for staff between any two grid cells
-- **find_nearest_table()**: Closest-table search from any position
+### Engine (`src/engine/`)
+| Module | Purpose |
+|--------|---------|
+| `grid.py` | Tile-based map, zones, A* pathfinding for staff movement |
+| `simulation.py` | Tick loop (1 tick = 30 min), customer spawn algorithm, day/night cycle |
+| `economy.py` | Per-tick income/expense by category, daily P&L summary |
 
-### `simulation.py` — Game Loop
-- **Tick = 30 min** of simulated time (30 ticks = one full day, 6 AM → 9 PM)
-- **Customer spawning**: Probability-based algorithm using reputation, time-of-day, and weather multipliers
-- **Reputation system**: Review accumulation shifts score and affects future arrival rates
-- **Day/night cycle**: Morning rush → afternoon lull → evening peak transitions
+### Entities (`cafe-sim/`)
+| Module | Purpose |
+|--------|---------|
+| `customers.py` | 7 types (Coffee Lover, Nomad, Couple, Family, Tourist, Business, Artist) with behaviors, 75+ menu items |
+| `orders.py` | 36 recipes with multi-step prep, concurrent kitchen processing, staff dispatch |
+| `queue.py` | Max 8-person queue, priority seating, overflow handling |
+| `staff.py` | 4 staff types with skills (Double Shot, Turbo Mode, Sweet Talk), stamina & happiness |
+| `decorations.py` | 50+ decor items, theme detection (Coffee Corner, Garden Nook, etc.) |
+| `reputation.py` | Rating 0-100 from service/food/atmosphere, daily updates → spawn rate multiplier |
 
-### `economy.py` — Financial Tracking
-- Per-tick income & expense recording by category
-- Daily P&L summary (total, margins, per-category breakdown)
-- Cost-per-customer-acquisition analysis
-- Revenue trend windowing over last N events
+## Game Architecture
 
-## Game Entities
+```
+Customer enters → Queue (max 8) → Seat assignment → Order placed
+    → Kitchen prep (multi-step recipes) → Served by staff
+    → Enjoy & possibly reorder → Leave → Revenue recorded
+    → Reputation updated → affects next day's customers
+```
 
-| Class            | Purpose                                  |
-|------------------|------------------------------------------|
-| `Tile`           | Floor cell with type, zone, furniture    |
-| `Zone`           | Contiguous group of same-type tiles      |
-| `StaffEntity`    | Worker (barista/cashier/cleaner)         |
-| `CustomerEntity` | Visitor lifecycle (enter→leave)          |
-| `Reputation`     | Score + review accumulation              |
-| `EconomyEvent`   | Single financial transaction             |
+**Tick rate:** ~1 tick/second real-time = 30 simulated minutes
+**Day cycle:** 6 AM to 9 PM (30 ticks) across all scales
 
-## Architecture Notes
+## Key Mechanics
 
-- **Decoupled rendering**: Grid stores data only; Pygame is a separate visual layer
-- **Seedable RNG**: `random.seed(42)` in main.py for reproducible demos
-- **Extensible**: Add new tile types, zones, staff roles, or customer behaviors by extending existing data classes
+- **4 cafe scales:** Kiosk → Medium → Large → Flagship (decoration slots, seating, staff capacity)
+- **5 theme bonuses:** Coffee Corner, Garden Nook, Reading Room, Chill Zone, Instagram Corner
+- **Staff stamina & happiness:** Affects service quality and tips
+- **Time-of-day patterns:** Morning rush (7-9 AM), lunch peak (12-2 PM), evening social (5-9 PM)
+- **Weather effects:** Rain increases indoor customers by 20%
+
+## Development Roadmap
+
+| Phase | Status | Duration |
+|-------|--------|----------|
+| Core engine | ✅ Done | Week 1-2 |
+| Customer & order system | ✅ Done | Week 3-4 |
+| Staff AI + decoration | ✅ Done | Week 5-6 |
+| Pixel art assets | 🔄 In progress | Week 7-8 |
+
+## Tech Stack
+
+- **Language:** Python 3.10+
+- **Engine:** Pygame (optional, for visual mode)
+- **Pathfinding:** A* algorithm on grid tiles
+- **RNG:** Seeded for reproducible simulations
+
+## License
+
+Private — all rights reserved.
+
+---
+
+*Built for T D — Game Cafe Management Simulation Project*

@@ -307,13 +307,7 @@ class DecorationManager:
                 mult = theme.effect_fn(self) if theme.effect_fn else 0
                 self.theme_multipliers[theme.name] = mult
 
-        # Keep themes that are still met; remove ones no longer satisfied
-        kept: List[str] = []
-        for name in self.active_themes:
-            t = next((tb for tb in THEME_BONUSES if tb.name == name), None)
-            if t and t.is_met(self.placed_items):
-                kept.append(name)
-        self.active_themes = kept
+        self.active_themes = new_active
 
     @property
     def total_atmosphere_bonus(self) -> float:

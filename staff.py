@@ -252,19 +252,17 @@ class StaffMember:
         g_score: dict[tuple[int, int], float] = {(start.x, start.y): 0}
 
         while open_set:
-            _, current = min(open_set, key=lambda x: x[0])
+            idx = min(range(len(open_set)), key=lambda i: open_set[i][0])
+            _, current = open_set.pop(idx)
             cx, cy = current.x, current.y
 
             if (cx, cy) == (goal.x, goal.y):
-                # Reconstruct path
                 path = []
                 node = goal
                 while node:
                     path.insert(0, node)
                     node = came_from.get((node.x, node.y))
                 return path
-
-            open_set.remove((heuristic(current, goal), current))
 
             for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                 nx, ny = cx + dx, cy + dy
