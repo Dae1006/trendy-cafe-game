@@ -305,7 +305,8 @@ function doHire(id){hireStaff(id);renderP();}
 function rShop(){
   let h='<div class="sec"><h3>\u{1F6D2} Decorations (AP:'+getAp()+')</h3>';
   const themes={};G.decs.forEach(d=>{const def=DECOS.find(dc=>dc.id===d.id);if(def)themes[def.n]=(themes[def.n]||0)+1;});
-  h+='<p style="color:#b89a6e;font-size:10px;margin-bottom:4px">Themes: '+Object.keys(themes).length?Object.keys(themes).map(t=>t+' (+'+themes[t]+')').join(', '):'None yet'}'+'';
+  const themeNames=Object.keys(themes).length?Object.keys(themes).map(t=>t+' (+'+themes[t]+')').join(', '):'None yet';
+  h+='<p style="color:#b89a6e;font-size:10px;margin-bottom:4px">Themes: '+themeNames+'</p>';
   DECOS.forEach(d=>{const owned=G.decs.find(dd=>dd.id===d.id);h+='<div class="card">\u{1F4CD} '+d.n+'<br><span class="ds">+'+d.ap+' AP</span><br><span class="pr">$'+d.cost+'</span> '+(owned?'\u2705':(G.money>=d.cost?'<button class="btn bu" onclick="doBuyDeco(\''+d.id+'\')">BUY</button>':'\u274C'))+'</div>';});
   return h+'';}
 
