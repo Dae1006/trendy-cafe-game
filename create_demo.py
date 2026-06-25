@@ -129,6 +129,14 @@ def demo_decorations():
         print(f"    [+{bonus:.3f}] {tn:<25s} | {desc}")
 
 
+def safe_print(text):
+    import sys
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        sys.stdout.buffer.write((text + chr(10)).encode('utf-8'))
+
+
 def demo_reputation():
     """Run reputation simulation over 8 days."""
     section("PART 3 -- Reputation Engine (8-Day Simulation)")
@@ -137,10 +145,7 @@ def demo_reputation():
     for day in range(1, 9):
         logs = engine.simulate_day(day, num_customers=5 + (day % 4))
         for line in logs:
-            try:
-                print(f"  {line}")
-            except UnicodeEncodeError:
-                print("  " + line.encode('utf-8', 'replace').decode('utf-8'))
+            safe_print(f"  {line}")
         if day < 8:
             print("  --")
 
@@ -157,10 +162,7 @@ def demo_full_day():
     print(f"  Team: {', '.join(s.name+'('+s.staff_type.value+')' for s in mgr.staff)}")
     logs = mgr.full_shift_day(48)
     for line in logs:
-        try:
-            print(f"  {line}")
-        except UnicodeEncodeError:
-            print("  " + line.encode('utf-8', 'replace').decode('utf-8'))
+        safe_print(f"  {line}")
 
 
 def demo_integration():
@@ -190,10 +192,7 @@ def demo_integration():
     e1 = ReputationEngine()
     logs1 = e1.simulate_day(20, num_customers=8)
     for l in logs1:
-        try:
-            print(f"  {l}")
-        except UnicodeEncodeError:
-            print("  " + l.encode('utf-8', 'replace').decode('utf-8'))
+        safe_print(f"  {l}")
 
     e2 = ReputationEngine()
     logs2 = e2.simulate_day(21, num_customers=6)
@@ -203,13 +202,16 @@ def demo_integration():
     print(f"\n  Integration result:")
     print(f"    No decoration bonus:   rating ~{pre:.1f}")
     print(f"    With decorations:      rating ~{post:.1f}")
-    arrow = "\u2197" if diff > 0 else "\u2198"
-    print(f"    Delta {arrow} {diff:+.2f}")
+    arrow = "UP" if diff > 0 else "DOWN"
+    safe_print(f"\n  Integration result:")
+    safe_print(f"    No decoration bonus:   rating ~{pre:.1f}")
+    safe_print(f"    With decorations:      rating ~{post:.1f}")
+    safe_print(f"    Delta {arrow} {diff:+.2f}")
 
     ew = e1.expected_customers_per_hour(5.0)
     eu = e2.expected_customers_per_hour(5.0)
-    print(f"\n  Customer spawn (base=5/hr):")
-    print(f"    Boosted: {ew} | Base: {eu}")
+    safe_print(f"\n  Customer spawn (base=5/hr):")
+    safe_print(f"    Boosted: {ew} | Base: {eu}")
 
 
 if __name__ == "__main__":
