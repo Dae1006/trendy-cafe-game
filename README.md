@@ -1,104 +1,78 @@
-# ☕ Trendy Cafe — Management Simulation Engine
+# ☕ Cafe Trendy — Management Simulator (Web Game)
 
-Quan Trendy Cafe — a Python + Pygame simulation of managing a trendy cafe with staff, decorations, customers, and reputation.
+A fully playable browser-based cafe management game with pixel art rendering.
 
-## Quick Start
+## Play Online
 
-```bash
-cd src/engine/
-python main.py          # CLI demo (no dependencies)
-python main.py --pygame  # Visual mode (requires: pip install pygame)
-```
+The game is ready on **GitHub Pages** at:
 
-Run the full-day simulation demo:
+👉 **https://dae1006.github.io/trendy-cafe-game/**
 
-```bash
-cd ..
-python demo_new.py      # 12-hour simulated day with all systems
-python demo_customer.py # Customer behavior showcase
-```
+If it's not live yet, enable it:
+
+1. Go to https://github.com/Dae1006/trendy-cafe-game/settings/pages
+2. Under "Source" select **"Deploy from a branch"**
+3. Choose **main** branch → **root** folder
+4. Save — your game will be live in ~1-2 minutes!
+
+## Play Locally
+
+Download `index.html` from this repo and open it directly in any browser (Chrome, Firefox, Edge, Safari). No server needed — zero dependencies!
+
+## Game Features
+
+### Core Gameplay
+- **Canvas Pixel Art** — All characters & decorations drawn via Canvas API (no external images)
+- **7 Customer Types** — Coffee Lover, Digital Nomad, Couple, Family, Tourist, Business Person, Artist — each with unique spending, patience, and order patterns
+- **20 Menu Items** across 6 categories (Coffee, Special, Tea, Beverage, Dessert, Food)
+- **4 Staff Types** — Hire Barista, Cook, Server, Cashier; manage stamina & mood
+- **18 Decoration Items** — Place decor to boost atmosphere and unlock theme bonuses
+- **Time-of-Day Patterns** — Morning rush (7-9 AM), lunch peak (11 AM-1 PM), evening social (5-8 PM)
+- **Dynamic Weather** — Rain increases indoor customer rate by 30%
+- **Day/Night Cycle** — Ambient lighting shifts, day ends at 9 PM
+
+### Economy & Progression
+- Real-time revenue, expense, tips tracking
+- Reputation system (0-100) affecting customer spawn rates
+- Win: Reach $10,000 + Rep ≥ 80
+- Lose: Go below -$500
+- Auto-save to localStorage every 60 seconds
+
+## Controls
+
+| Action | How |
+|--------|-----|
+| Hire Staff | Shop tab → click HIRE button |
+| Serve Customers | Click any menu item (Menu tab) — customer must be seated |
+| Buy Decorations | Shop tab → BUY decor items |
+| Pause/Resume | ⏸ / ▶ button on canvas |
+| Toggle Panel | Menu button in top bar |
+
+## Tech Stack
+
+- **Pure HTML + CSS + JavaScript** — zero dependencies, runs anywhere
+- **Canvas API** — programmatic pixel art rendering via putImageData
+- **localStorage** — save/load game state
+- **Responsive** — works on desktop and tablets
 
 ## Project Structure
 
 ```
 cafe-sim/
-├── src/engine/                # Core engine
-│   ├── __init__.py
-│   ├── grid.py               # Tile map, zones, A* pathfinding
-│   ├── simulation.py         # Tick-based game loop, customer lifecycle
-│   └── economy.py            # Income/expense tracking & profit metrics
-├── customers.py              # 7 customer types + behaviors + menu (75+ items)
-├── orders.py                 # Order system: recipes, prep steps, kitchen processing
-├── queue.py                  # Queue management (max 8), seat assignment, overflow
-├── staff.py                  # Staff AI: Barista, Cook, Server, Cashier + skills
-├── decorations.py            # 50+ decor items + theme bonus detection
-├── reputation.py             # Reputation scoring & daily updates
-├── create_demo.py            # Demo script generator
-├── demo.py                   # Full simulation with staff/decor/reputation
-├── demo_new.py               # Enhanced customer behavior demo
-├── demo_customer.py          # Customer type showcase
-└── main.py                   # Entry point (CLI + Pygame)
+├── index.html          # Complete playable game (single file, 24KB)
+├── src/engine/         # Python simulation engine (reference backend)
+│   ├── grid.py         # Tile map + A* pathfinding
+│   ├── simulation.py   # Tick-based game loop
+│   └── economy.py      # Financial tracking
+├── customers.py        # 7 customer types + menu data
+├── orders.py           # Recipe system
+├── queue.py            # Queue management
+├── staff.py            # Staff AI with skills
+├── decorations.py      # 18 decoration items
+├── reputation.py       # Rating algorithm
+└── assets/             # Pixel art specs + palette
 ```
-
-## Core Systems
-
-### Engine (`src/engine/`)
-| Module | Purpose |
-|--------|---------|
-| `grid.py` | Tile-based map, zones, A* pathfinding for staff movement |
-| `simulation.py` | Tick loop (1 tick = 30 min), customer spawn algorithm, day/night cycle |
-| `economy.py` | Per-tick income/expense by category, daily P&L summary |
-
-### Entities (`cafe-sim/`)
-| Module | Purpose |
-|--------|---------|
-| `customers.py` | 7 types (Coffee Lover, Nomad, Couple, Family, Tourist, Business, Artist) with behaviors, 75+ menu items |
-| `orders.py` | 36 recipes with multi-step prep, concurrent kitchen processing, staff dispatch |
-| `queue.py` | Max 8-person queue, priority seating, overflow handling |
-| `staff.py` | 4 staff types with skills (Double Shot, Turbo Mode, Sweet Talk), stamina & happiness |
-| `decorations.py` | 50+ decor items, theme detection (Coffee Corner, Garden Nook, etc.) |
-| `reputation.py` | Rating 0-100 from service/food/atmosphere, daily updates → spawn rate multiplier |
-
-## Game Architecture
-
-```
-Customer enters → Queue (max 8) → Seat assignment → Order placed
-    → Kitchen prep (multi-step recipes) → Served by staff
-    → Enjoy & possibly reorder → Leave → Revenue recorded
-    → Reputation updated → affects next day's customers
-```
-
-**Tick rate:** ~1 tick/second real-time = 30 simulated minutes
-**Day cycle:** 6 AM to 9 PM (30 ticks) across all scales
-
-## Key Mechanics
-
-- **4 cafe scales:** Kiosk → Medium → Large → Flagship (decoration slots, seating, staff capacity)
-- **5 theme bonuses:** Coffee Corner, Garden Nook, Reading Room, Chill Zone, Instagram Corner
-- **Staff stamina & happiness:** Affects service quality and tips
-- **Time-of-day patterns:** Morning rush (7-9 AM), lunch peak (12-2 PM), evening social (5-9 PM)
-- **Weather effects:** Rain increases indoor customers by 20%
-
-## Development Roadmap
-
-| Phase | Status | Duration |
-|-------|--------|----------|
-| Core engine | ✅ Done | Week 1-2 |
-| Customer & order system | ✅ Done | Week 3-4 |
-| Staff AI + decoration | ✅ Done | Week 5-6 |
-| Pixel art assets | 🔄 In progress | Week 7-8 |
-
-## Tech Stack
-
-- **Language:** Python 3.10+
-- **Engine:** Pygame (optional, for visual mode)
-- **Pathfinding:** A* algorithm on grid tiles
-- **RNG:** Seeded for reproducible simulations
-
-## License
-
-Private — all rights reserved.
 
 ---
 
-*Built for T D — Game Cafe Management Simulation Project*
+*Built for T D — Game Cafe Management Simulation Project | June 2026*
