@@ -1,899 +1,159 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Quán Trendy Cafe - Pixel Art</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;overflow:hidden;height:100vh;display:flex;flex-direction:column;width:100vw}
-#top-bar{width:100%;display:flex;justify-content:space-around;padding:6px 8px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:2px solid #FFD700;font-size:12px;flex-wrap:wrap;gap:2px}
-.stat{padding:3px 6px;border:1px solid #333;border-radius:3px;font-size:11px}
-.gold{color:#FFD700;font-weight:bold}
-#canvas-wrap{width:100%;flex:0 0 auto;background:#0d0d1a;overflow:hidden;position:relative}
-#gameCanvas{width:100%;height:320px;display:block;background:#87CEEB;image-rendering:pixelated;image-rendering:crisp-edges}
-#main{width:100%;flex:1;overflow:hidden;display:flex;flex-direction:column}
-#tabs{display:flex;border-bottom:2px solid #0f3460;background:#0f3460;flex-shrink:0}
-.tab{flex:1;padding:10px 6px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:11px;text-align:center}
-.tab.active{color:#FFD700;background:rgba(255,215,0,0.2)}
-.tab:hover{background:rgba(255,215,0,0.1)}
-#content{flex:1;overflow-y:auto;padding:8px;background:#1a1a2e}
-.card{padding:8px;margin:5px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:1px solid #2a3a5e;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
-.card.rare{border-color:#9b59b6}
-.btn{padding:6px 12px;border:1px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:11px;border-radius:4px}
-.btn:hover{box-shadow:0 2px 8px rgba(255,99,71,0.4)}
-.btn:disabled{background:#555;cursor:not-allowed}
-.btn.green{background:#28a745}
-.btn.blue{background:#3498db}
-.btn.gold{background:#DAA520;color:#000}
-.notif{position:fixed;top:50px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:5px 12px;border:1px solid #FFD700;border-radius:6px;font-size:11px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center}
-.notif.show{opacity:1}
-.weather-bar{padding:4px 8px;background:#0d0d1a;border-bottom:1px solid #333;font-size:11px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0}
-.upgrade-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px;display:flex;justify-content:space-between;align-items:center;font-size:11px}
-.quest-card{padding:8px;margin:4px 0;background:#16213e;border:1px solid #333;border-radius:5px}
-.quest-card.done{border-color:#28a745;background:rgba(40,167,69,.1)}
-.progress-bar{width:100%;height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width .5s}
-.trend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:6px}
-.trend-card{padding:6px;text-align:center;font-size:10px;cursor:pointer;border-radius:4px;border:1px solid #333;background:#16213e}
-.trend-card.common{border-color:#aaa}.trend-card.rare{border-color:#9b59b6}.trend-card.epic{border-color:#e74c3c}.trend-card.legendary{border-color:#FFD700;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
-.supplier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px}
-</style>
-</head>
-<body>
+<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Cafe Trendy Simulator</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1410;font-family:'Courier New',monospace;color:#f5e6d3;display:flex;height:100vh;overflow:hidden}#topbar{position:fixed;top:0;left:0;right:0;z-index:10;background:#2a1f15;border-bottom:2px solid #4a3520;padding:8px 16px;display:flex;gap:10px;font-size:13px}
+.stat{background:#3d2b1a;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:4px}.val{color:#ffd700;font-weight:bold;font-size:15px}
+#main{margin-top:48px;display:flex;flex:1;height:calc(100vh - 48px)}#gameCanvas{width:512px;height:384px;background:#0f0b08;border-right:2px solid #4a3520}
+#panel{width:400px;display:flex;flex-direction:column;background:#2a1f15}#tabs{display:flex;border-bottom:2px solid #4a3520}
+.tab{flex:1;padding:10px;text-align:center;background:#3d2b1a;border:none;color:#c9a96e;cursor:pointer;font-size:12px;font-family:'Courier New',monospace;border-right:1px solid #4a3520}.tab.active{background:#2a1f15;color:#ffd700}
+#content{flex:1;overflow-y:auto;padding:10px}
+.card{background:#3d2b1a;border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;border:1px solid transparent;transition:.15s}.card:hover{border-color:#ffd700;background:#4a3520}
+.sec h3{color:#ffd700;font-size:14px;margin-bottom:8px}.nm{font-size:14px;font-weight:bold}.ds{font-size:11px;color:#b89a6e}.pr{font-size:12px;color:#ffd700}
+.bu{background:#2d6b2d;color:white;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;margin-top:4px;font-family:'Courier New',monospace}.bu:hover{background:#3d8b3d}
+.bar{width:100%;height:6px;background:#1a1410;border-radius:3px;margin:3px 0}.barFill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4ecdc4,#27ae60)}
+.barHp{background:linear-gradient(90deg,#ff6b6b,#ffd700)}.barSt{background:#4ecdc4}.barFu{background:#a855f7}
+.msgLog{position:absolute;bottom:10px;left:10px;background:rgba(42,31,21,.9);border:1px solid #4a3520;border-radius:6px;padding:5px 8px;font-size:11px;color:#b89a6e;max-width:280px}
+.mg{margin-bottom:1px}.gd{color:#4ecdc4}.bd{color:#ff6b6b}.inf{color:#ffd700}
+.kr{display:flex;gap:5px;margin-bottom:3px}.ki{flex:1;background:#1a1410;border-radius:3px;padding:4px;text-align:center}.ki .kl{font-size:9px;color:#b89a6e}.ki .kv{font-size:12px;font-weight:bold;color:#ffd700}
+#pauseBtn{position:absolute;top:8px;left:8px;z-index:5;background:#3d2b1a;border:1px solid #4a3520;color:#c9a96e;padding:4px 8px;font-size:14px;cursor:pointer;border-radius:4px}#pauseBtn:hover{background:#4a3520}
+</style></head><body>
 
-<div id="top-bar">
-  <span class="stat">💰 <span class="gold" id="money">500</span></span>
-  <span class="stat">⭐ <span class="gold" id="level">Lv.1</span></span>
-  <span class="stat">📅 Ngày <span id="day">1</span></span>
-  <span class="stat">🧑‍🍳 <span id="staff">0</span></span>
-  <span class="stat">👥 <span id="custCount">0</span></span>
-</div>
-
-<div class="weather-bar" id="weather-bar"></div>
-
-<div id="canvas-wrap">
-  <canvas id="gameCanvas" width="480" height="300"></canvas>
+<div id="topbar">
+<div class="stat">&#x1F4B0; <span class="val" id="vMoney">$500</span></div>
+<div class="stat">&#x2B50; <span class="val" id="vRep">0</span></div>
+<div class="stat">&#x1F550; <span class="val" id="vTime">Day 1 - 6:00 AM</span></div>
+<div class="stat">&#x2600; <span class="val" id="vWeather">Sunny</span></div>
+<div class="stat">&#x1F465; <span class="val" id="vCust">0/8</span></div>
+<button class="stat" style="cursor:pointer" onclick="G.paused=!G.paused">&#x23F8;</button>
 </div>
 
 <div id="main">
-  <div id="tabs">
-    <button class="tab active" data-tab="location">📍 Vị trí</button>
-    <button class="tab" data-tab="menu">☕ Menu</button>
-    <button class="tab" data-tab="staff">👥 Staff</button>
-    <button class="tab" data-tab="upgrade">🔧 Nâng cấp</button>
-    <button class="tab" data-tab="trend">🔥 Trend</button>
-    <button class="tab" data-tab="supplier">📦 Vật tư</button>
-    <button class="tab" data-tab="quest">📋 Nhiệm vụ</button>
-  </div>
-  <div id="content"></div>
+<canvas id="gameCanvas" width="512" height="384"></canvas>
+<div id="panel"><div id="tabs"><button class="tab active" onclick="switchTab(0)">Menu</button><button class="tab" onclick="switchTab(1)">Staff</button><button class="tab" onclick="switchTab(2)">Shop</button><button class="tab" onclick="switchTab(3)">Economy</button></div><div id="content"></div></div>
 </div>
 
-<div class="notif" id="notif"></div>
+<div class="msgLog" id="msgLog"></div>
 
 <script>
-// ======== GAME STATE ========
-const GS = {
-  coins:500, level:1, xp:0, xpNeeded:100,
-  currentLocation:'street', unlockedLocations:['street'],
-  ownedItems:{}, ownedRecipes:[], menuUnlocked:1,
-  autoServeRate:0, upgradesBought:[], questsCompleted:[],
-  dailyRevenue:0, totalRevenue:0, totalServed:0,
-  gameDay:1, lastDayChange:Date.now(),
-  supplierStock:{beans:10,milk:20,cups:200},
-  animCustomers:[], animFrame:0, tick:0,
-  lastServeRevenue:0
-};
+// ===== CONFIGURATION =====
+const TILE=32,COLS=16,ROWS=12,TICK=500,HPT=0.5;
+
+const MENU=[{id:'espresso',n:'Espresso',p:3,w:10},{id:'americano',n:'Americano',p:4,w:12},{id:'latte',n:'Latte',p:5,w:18},{id:'cappuccino',n:'Cappuccino',p:5,w:20},
+{id:'mocha',n:'Mocha',p:6,w:24},{id:'coldbrew',n:'Cold Brew',p:5,w:15},{id:'egg_coffee',n:'Viet Egg Coffee',p:8,w:30},{id:'coconut',n:'Coconut Coffee',p:7,w:28},
+{id:'green_tea',n:'Green Tea',p:3,w:10},{id:'matcha',n:'Matcha Latte',p:6,w:22},{id:'juice',n:'Fresh Juice',p:5,w:18},{id:'smoothie',n:'Smoothie',p:6,w:20},
+{id:'lemonade',n:'Lemonade',p:4,w:15},{id:'milkshake',n:'Milkshake',p:6,w:22},{id:'cake',n:'Cake Slice',p:5,w:5},{id:'croissant',n:'Croissant',p:4,w:5},
+{id:'cookies',n:'Cookies x3',p:3,w:3},{id:'sandwich',n:'Sandwich',p:6,w:30},{id:'pho',n:'Pho',p:8,w:45},{id:'fried_rice',n:'Fried Rice',p:7,w:40}];
+
+const CTYPES=[
+{id:'cl',n:'Coffee Lover',e:'☕',sp:[8,15],pa:30,w:{6:25,8:40,10:15,17:30},tip:.8,tm:1.3,c:'#8B4513'},
+{id:'nomad',n:'Digital Nomad',e:'💻',sp:[12,25],pa:180,w:{9:60,12:50,15:70},tip:.4,tm:.8,c:'#4a90d9'},
+{id:'couple',n:'Couple',e:'💑',sp:[15,35],pa:120,w:{14:15,17:50,21:40},tip:.9,tm:1.5,c:'#e84393'},
+{id:'family',n:'Family',e:'👨‍👩‍👧',sp:[18,45],pa:90,w:{14:45,17:30},tip:.6,tm:1.0,c:'#fdcb6e'},
+{id:'tourist',n:'Tourist',e:'📷',sp:[8,18],pa:60,w:{10:25,14:55},tip:.3,tm:.5,c:'#00b894'},
+{id:'biz',n:'Business Person',e:'💼',sp:[12,22],pa:20,w:{6:35,8:65,10:40},tip:.7,tm:1.1,c:'#636e72'},
+{id:'artist',n:'Artist',e:'🎨',sp:[8,18],pa:240,w:{10:20,14:30,17:25},tip:.4,tm:.9,c:'#a855f7'}];
+
+const STAFF_T=[
+{id:'barista',n:'Barista',e:'☕',cost:500,sal:8,c:'#c48b3a'},
+{id:'cook',n:'Cook',e:'🍳',cost:400,sal:7,c:'#d4502e'},
+{id:'server',n:'Server',e:'🧹',cost:300,sal:6,c:'#2980b9'},
+{id:'cashier',n:'Cashier',e:'💰',cost:250,sal:5,c:'#27ae60'}];
+
+const DECOS=[
+{id:'neon_cat',n:'Neon Cat Sign',ap:5,cost:200,co:'#ff69b4'},
+{id:'poster',n:'Vintage Posters',ap:3,cost:150,co:'#c9a96e'},
+{id:'moss_wall',n:'Live Moss Wall',ap:4,cost:500,co:'#27ae60'},
+{id:'bookshelf',n:'Bookshelf Display',ap:6,cost:400,co:'#8B6914'},
+{id:'led_strip',n:'LED Strip Lights',ap:2,cost:100,co:'#ffd700'},
+{id:'mirror',n:'Mirror Frame',ap:3,cost:180,co:'#b0c4de'},
+{id:'succulent',n:'Potted Succulent',ap:2,cost:30,co:'#6b8e23'},
+{id:'candle',n:'Candle Holder',ap:3,cost:40,co:'#ff8c00'},
+{id:'flower_vase',n:'Flower Vase',ap:3,cost:35,co:'#db7093'},
+{id:'bean_planter',n:'Coffee Bean Planter',ap:2,cost:25,co:'#8B4513'},
+{id:'palm_tree',n:'Potted Palm Tree',ap:4,cost:200,co:'#2d6b2d'},
+{id:'floor_lamp',n:'Floor Lamp',ap:3,cost:150,co:'#ffd700'},
+{id:'fountain',n:'Water Fountain',ap:5,cost:600,co:'#4169e1'},
+{id:'record_player',n:'Vintage Record Player',ap:7,cost:800,co:'#2f2f2f'},
+{id:'painting',n:'Art Painting',ap:4,cost:250,co:'#9370db'},
+{id:'string_lights',n:'String Lights',ap:3,cost:80,co:'#ffd700'},
+{id:'hanging_plant',n:'Hanging Plant Basket',ap:4,cost:60,co:'#32cd32'},
+{id:'pendant_lamp',n:'Pendant Lamp',ap:5,cost:200,co:'#daa520'}];
+
+// ===== GAME STATE =====
+let G={m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
+let cid=0,mapData=[],seatData=[];
+
+// ===== MAP + SEATS =====
+function genMap(){let m=[];for(let y=0;y<ROWS;y++){m[y]=[];for(let x=0;x<COLS;x++){if(y===0||x===0||x===COLS-1)m[y][x]={t:'wall',c:'#5C4A32'};else if(x>=4&&x<=9&&y<=2)m[y][x]={t:'counter',c:'#7B4A3A'};else m[y][x]={t:'walkable',c:(x+y)%2===0?'#3d2b1a':'#4a3520'}}}return m;}
+function genSeats(){let s=[];for(let x=5;x<=8;x++)s.push({x:x,y:3,type:'counter',occ:null});for(let r=7;r<=9;r++){s.push({x:7,y:r,type:'table',occ:null});s.push({x:8,y:r,type:'table',occ:null});}for(let r=10;r<=11;r++){s.push({x:7,y:r,type:'sofa',occ:null});s.push({x:8,y:r,type:'sofa',occ:null});}return s;}
+function isWalkable(x,y){return y>=0&&y<ROWS&&x>=0&&x<COLS&&mapData[y]&&mapData[y][x]&&mapData[y][x].t!=='wall';}
+
+// ===== PATHFINDING =====
+function astar(sx,sy,ex,ey){let open=[{x:sx,y:sy,g:0,f:0,p:[sx+','+sy]}],cl=new Set(),i=0;while(open.length>0&&i<200){i++;open.sort((a,b)=>a.f-b.f);let c=open.shift();if(c.x===ex&&c.y===ey)return c.p.map(p=>p.split(',').map(Number));cl.add(c.x+','+c.y);for(let[dx,dy]of[[0,1],[0,-1],[1,0],[-1,0]]){let nx=c.x+dx,ny=c.y+dy;if(nx<0||ny<0||nx>=COLS||ny>=ROWS)continue;let k=nx+','+ny;if(cl.has(k))continue;let w=mapData[ny][nx].t==='wall'?99:1,g2=c.g+w,f2=g2+(Math.abs(nx-ex)+Math.abs(ny-ey));if(!open.find(o=>o.x===nx&&o.y===ny))open.push({x:nx,y:ny,g:g2,f:f2,p:[...c.p,nx+','+ny]}}}return[{x:sx,y:sy}];}
+
+// ===== HELPERS =====
+function addMsg(t,cls){let l=document.getElementById('msgLog'),d=document.createElement('div');d.className='mg';d.style.color=cls==='gd'?'#4ecdc4':cls==='bd'?'#ff6b6b':'#ffd700';d.textContent=t;l.prepend(d);if(l.children.length>8)l.removeChild(l.lastChild);}
+function getAp(){return G.decs.reduce((s,d)=>{let def=DECOS.find(dd=>dd.id===d.id);return s+(def?def.ap:0);},0);}
+
+// ===== CUSTOMERS =====
+function spawnCust(){let free=seatData.find(s=>!s.occ);if(!free||G.queue.length>=8)return null;
+let best=CTYPES[0],bs=0,totalH=G.tick*HPT,curH=(6+totalH)%24;
+for(let ct of CTYPES){let w=ct.w||{},base=w[Math.floor(curH)]||w[12]||15,mult=(G.r/100+.5)*(G.w==='rainy'?1.3:1);let s=base*mult/CTYPES.length;if(s>bs){bs=s;best=ct}}if(bs<3)return null;
+let c={id:++cid,type:best,x:-1,y:-1,seat:free,st:'enter',pat:40+Math.random()*80|0,mp:0,ord:null};c.mp=c.pat;G.queue.push(c);return c;}
+
+function updateCust(){for(let ci of G.queue){if(ci.st==='enter'){ci.x=2;ci.y=3;ci.st='move';}
+else if(ci.st==='move'&&!ci.seat.occ){let p=astar(ci.x,ci.y,ci.seat?ci.seat.x:7,ci.seat?ci.seat.y:6);if(p.length>1&&isWalkable(p[1][0],p[1][1])){ci.x=p[1][0];ci.y=p[1][1]}else{ci.seat.occ=ci;ci.st='seated';ci.pat=40+Math.random()*80|0;ci.mp=ci.pat}}}
+else if(ci.st==='seated'&&!ci.ord){ci.pat--;if(ci.pat<=5){addMsg(ci.type.e+' Bỏ đi vì chờ lâu!','bd')}else{let items=MENU.filter(m=>m.p>0);if(items.length){let it=items[Math.floor(Math.random()*items.length)];ci.ord={...it};G.orders.push({cid:ci.id,prep:it.w,el:0});addMsg(ci.type.e+' '+ci.type.n+' gọi '+it.n,'gd')}}}
+else if(ci.st==='cooking'){let ord=G.orders.find(o=>o.cid===ci.id);if(ord){ord.el++;if(ord.el>=ord.prep){ord.status='done';addMsg('✅ Đã xong!','gd')}if(ci.pat<=0){G.r=Math.max(0,G.r-2);addMsg(ci.type.e+' Giận dữ bỏ đi!','bd')}}
+else if(ci.st==='eating'){ci.et++;if(ci.et>3){let tip=Math.floor(ci.ord.p*0.15);G.m+=ci.ord.p+tip;G.tipsAll+=tip;G.revenue+=ci.ord.p+tip;if(ci.seat)ci.seat.occ=null;addMsg(ci.type.e+' trả $'+(ci.ord.p+tip),'gd')}}}}
+
+// ===== STAFF =====
+function hireStaff(id){let s=STAFF_T.find(t=>t.id===id);if(!s||G.m<s.cost)return;G.m-=s.cost;G.staff.push({id:s.id,name:s.n,stamina:100,tasks:0,x:6,y:1});addMsg('Đã tuyển '+s.e+' '+s.n+' cho $'+s.cost,'gd');renderPanel();}
+function updateStaff(){for(let s of G.staff){let pend=G.orders.find(o=>!o.status||o.status!=='done');if(pend){s.x=7;s.y=2;if(Math.random()<0.3){pend.status='done';s.tasks++;addMsg(s.name+' phục vụ xong!','gd')}}else{s.x=6;s.y=1}}}
+
+// ===== GAME LOOP =====
+let lt=0;function gameLoop(ts){if(!lt)lt=ts;let d=ts-lt;lt=ts;if(d>TICK)d=TICK;if(!G.paused&&d>=TICK){let ticks=Math.floor(d/TICK);for(let i=0;i<ticks;i++){G.tick++;let tH=G.tick*HPT;let curH=(6+tH)%24;if(curH>=21){endDay();break}if(G.tick%30===0)G.w=G.w==='sunny'?'sunny':'rainy';let sp=3,h=(6+G.tick*HPT)%24;if(h>=7&&h<=9)sp=18;else if(h>=11&&h<=13)sp=12;else if(h>=17&&h<=20)sp=15;if(G.r>50)sp+=3;if(Math.random()*100<sp){if(spawnCust())G.ct++}updateCust()}
+// staff work on orders
+for(let s of G.staff){let pend=G.orders.find(o=>!o.status||o.status!=='done');if(pend){s.x=7;s.y=2;if(Math.random()<0.3){pend.status='done';s.tasks++;addMsg(s.name+' phục vụ xong!','gd')}}else{s.x=6;s.y=1}}}
+renderGame();updateUI();requestAnimationFrame(gameLoop)}
+
+function endDay(){G.d++;G.m-=G.exp;G.revenue=0;G.exp=0;G.queue=[];G.orders=[];seatData.forEach(s=>s.occ=null);addMsg('Ngày '+G.d+' bắt đầu!','inf');if(G.m<-500){G.over=true;alert('Ngân sách âm! Game over.');}}
+
+// ===== RENDERING =====
+function renderGame(){let ctx=canvas.getContext('2d');ctx.fillStyle='#0f0b08';ctx.fillRect(0,0,512,384);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){let t=mapData[y]?mapData[y][x]:null;if(!t)continue;ctx.fillStyle=t.c;ctx.fillRect(x*TILE,y*TILE,TILE,TILE);if(t.t==='wall'){ctx.fillStyle='#4a3520';ctx.fillRect(x*TILE,y*TILE,TILE,3)}else if(t.t==='counter'){ctx.fillStyle='#8B5A3A';ctx.fillRect(x*TILE+1,y*TILE+1,TILE-2,TILE/2)}}// occupied seats
+G.seats.forEach(s=>{if(s.occ){ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(s.x*TILE,s.y*TILE,TILE,TILE)}})// decorations
+G.decs.forEach((d,i)=>{let col=d.co||'#888';ctx.fillStyle=col;ctx.globalAlpha=.7;ctx.beginPath();ctx.arc((7+i%5)*TILE+16,(2+Math.floor(i/5))*TILE+16,10,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1})// customers
+G.queue.forEach(c=>{if(c.x>=-1){let px=c.x*TILE,py=c.y*TILE;ctx.fillStyle=c.type.c;ctx.fillRect(px+8,py+6,16,14);ctx.fillStyle='#f0d0a0';ctx.fillRect(px+10,py,12,8);
+let pct=Math.max(0,c.pat/c.mp),col=pct>.5?'#4ecdc4':pct>.2?'#ffd700':'#ff6b6b';ctx.fillStyle='#1a1410';ctx.fillRect(px+4,py-10,24,3);ctx.fillStyle=col;ctx.fillRect(px+4,py-10,24*pct,3)}})// staff
+G.staff.forEach(s=>{let px=s.x*TILE,py=s.y*TILE;ctx.fillStyle='#c48b3a';ctx.fillRect(px+8,py+6,16,14);ctx.fillStyle='#f0d0a0';ctx.fillRect(px+10,py,12,8);ctx.fillStyle='#c48b3a';ctx.fillRect(px+8,py-2,20,4)})// orders
+G.orders.forEach((o,i)=>{if(!o.status){let ox=7*TILE+((i%4)*6),oy=1*TILE-8;ctx.font='bold 10px sans-serif';ctx.fillStyle='#ff8c00';ctx.fillText('🔥',ox,oy)}})// night
+let tH=G.tick*HPT,h2=6+tH;let dk=0;if(h2>20)dk=(h2-20)*.08;if(h2<7)dk=(7-h2)*.06;if(dk>0){ctx.fillStyle='rgba(0,0,25,'+Math.min(dk,.3)+')';ctx.fillRect(0,0,512,384)}}// rain
+if(G.w==='rainy'){for(let i=0;i<30;i++){let rx=(Date.now()/8+i*41)%512,ry=(Date.now()/3+i*49)%384;ctx.strokeStyle='rgba(100,180,255,.1)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(rx,ry);ctx.lineTo(rx+1,ry+7);ctx.stroke()}}
+
+// ===== UI =====
+let curTab=0;function switchTab(i){curTab=i;document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));renderPanel()}
+function renderPanel(){let c=document.getElementById('content');if(curTab===0)c.innerHTML=rMenu();else if(curTab===1)c.innerHTML=rStaff();else if(curTab===2)c.innerHTML=rShop();else c.innerHTML=rEco()}
+
+function rMenu(){let h='<div class="sec"><h3>☕ MENU — Click để phục vụ khách</h3>';
+[['coffee','☕'],['special','🧋'],['tea','🍵'],['bev','🥤'],['dessert','🍰'],['food','🍜']].forEach(([cat,ic])=>{let items=MENU.filter(m=>m.p>0);if(items.length){h+='<div style="margin:5px 0"><b>'+ic+' '+cat.toUpperCase()+'</b>';items.forEach(it=>{h+='<div class="card" onclick="serveCust(\''+it.id+'\')"><span class="nm">'+it.n+'</span><br><span class="ds">Prep: '+it.w+'s</span><br><span class="pr">$'+it.p+'</span></div>'});}});return h}
 
-// ======== DATA ========
-const LOCATIONS={
-  street:{name:'Vỉa hè',emoji:'🚶',cost:0,revenueMult:1,customers:3,bg:'#87CEEB'},
-  mall:{name:'Trung tâm TM',emoji:'🏬',cost:5000,revenueMult:2.5,customers:5,bg:'#B0E0E6'},
-  garden:{name:'Sân vườn',emoji:'🌳',cost:15000,revenueMult:2,customers:4,bg:'#90EE90'},
-  rooftop:{name:'Rooftop',emoji:'🌃',cost:50000,revenueMult:3.5,customers:6,bg:'#4A3068'},
-  festival:{name:'Lễ hội',emoji:'🎪',cost:100000,revenueMult:4,customers:8,bg:'#FF6347'}
-};
+function rStaff(){let h='<div class="sec"><h3>👤 Staff (đã có: '+G.staff.length+' người)</h3>';
+G.staff.forEach(s=>{h+='<div class="card"><span class="nm">'+s.name+'</span><br>Stamina: <div class="bar"><div class="barFill" style="width:'+s.stamina+'%"></div></div>Tasks: '+s.tasks+'</div>'});
+STAFF_T.forEach(s=>{h+='<div class="card"><span class="nm">'+s.e+' '+s.n+'</span><br><button class="bu" onclick="hireStaff(\''+s.id+'\')">'+(G.m>=s.cost?'HIRE $'+s.cost:'Không đủ tiền')+'</button></div>'});return h}
 
-const MENU_ITEMS=[
-  {id:'coffee',name:'Cà phê đen',emoji:'☕',price:25,cost:5,needsBeans:true,needsMilk:false},
-  {id:'milk_coffee',name:'Cà phê sữa',emoji:'🥛',price:30,cost:8,needsBeans:true,needsMilk:true},
-  {id:'espresso',name:'Espresso',emoji:'☕',price:35,cost:5,needsBeans:true,needsMilk:false},
-  {id:'matcha',name:'Trà matcha',emoji:'🍵',price:40,cost:10,needsBeans:false,needsMilk:false},
-  {id:'smoothie',name:'Sinh tố',emoji:'🥤',price:45,cost:12,needsBeans:false,needsMilk:true},
-  {id:'cake',name:'Bánh mì',emoji:'🥪',price:35,cost:8,needsBeans:false,needsMilk:false},
-  {id:'ice_tea',name:'Trà đá',emoji:'🧊',price:15,cost:3,needsBeans:false,needsMilk:false},
-  {id:'bubble_tea',name:'Trà sữa',emoji:'🧋',price:50,cost:12,needsBeans:false,needsMilk:true},
-  {id:'tropical',name:'Nước ép dừa',emoji:'🥥',price:55,cost:15,needsBeans:false,needsMilk:true},
-  {id:'signature',name:'Signature',emoji:'🍸',price:80,cost:20,needsBeans:true,needsMilk:true}
-];
+function rShop(){let h='<div class="sec"><h3>🛒 Decorations (AP:'+getAp()+')</h3>';
+DECOS.forEach(d=>{let owned=G.decs.find(dd=>dd.id===d.id);h+='<div class="card">'+d.n+'<br><span class="ds">+'+d.ap+' AP</span><br>$'+d.cost+' '+(owned?'✅':'<button class="bu" onclick="buyDeco(\''+d.id+'\')">BUY</button>')+'</div>'});return h}
 
-const TREND_ITEMS=[
-  {id:'t_meme_dog',name:'🐶 Meme Chó Vàng',rarity:'common',effect:'revenue',value:.05,desc:'+5% doanh thu',cost:200},
-  {id:'t_meme_cat',name:'🐱 Mèo hoang',rarity:'common',effect:'revenue',value:.03,desc:'+3% doanh thu',cost:150},
-  {id:'t_mu_jersey',name:'⚽ Áo MU',rarity:'common',effect:'customers',value:1,desc:'+1 khách',cost:300},
-  {id:'t_girl_boy',name:'💃 Cô Bé Chú Bé',rarity:'rare',effect:'revenue',value:.1,desc:'+10% doanh thu',cost:1000},
-  {id:'t_ba_tram',name:'💯 Ba Trăm',rarity:'rare',effect:'customers',value:2,desc:'+2 khách',cost:1500},
-  {id:'t_tu_hien',name:'🎤 Tú Hien Style',rarity:'rare',effect:'revenue',value:.15,desc:'+15% doanh thu',cost:2000},
-  {id:'t_lam_pham',name:'🏆 Lam Phẩm',rarity:'epic',effect:'revenue',value:.2,desc:'+20% doanh thu sig',cost:5000},
-  {id:'t_sieu_toc',name:'⚡ Siêu Tốc',rarity:'epic',effect:'customers',value:5,desc:'+5 khách',cost:8000},
-  {id:'t_vua_cafe',name:'👑 Vua Cà Phê',rarity:'legendary',effect:'revenue',value:.5,desc:'+50% doanh thu!',cost:20000},
-  {id:'t_omega',name:'💫 Omega Plus',rarity:'legendary',effect:'all',value:.3,desc:'+30% tất cả!',cost:50000}
-];
+function rEco(){let prof=G.revenue-G.exp;return'<div class="sec"><h3>💼 Economy</h3><div class="kr"><div class="ki"><div class="kl">Tiền mặt</div><div class="kv">$'+G.m+'</div></div><div class="ki"><div class="kl">Doanh thu</div><div class="kv">$'+G.revenue+'</div></div><div class="ki"><div class="kl">Chi phí</div><div class="kv">$'+G.exp+'</div></div></div><div class="barHp" style="margin:8px 0;height:10px;width:'+Math.max(0,G.r)+'%"></div><p>Reputation: '+Math.round(G.r)+'/100 ⭐</p><h3>Tips hôm nay: $'+G.tipsT+' | Tổng tips: $'+G.tipsAll+'</h3><h3>🏆 Win: $10K + Rep 80 ❌ Lose: <$500</h3></div>'}
 
-const UPGRADES=[
-  {id:'u_staff1',name:'👨‍🍳 Thuê nhân viên',desc:'Tự động phục vụ 1 khách/phút',cost:1000,type:'auto_serve',value:1},
-  {id:'u_staff2',name:'👩‍🍳 Thêm nhân viên',desc:'Tự động phục vụ thêm 2 khách/phút',cost:3000,type:'auto_serve',value:2},
-  {id:'u_staff3',name:'👨‍🍳👩‍🍳 Đội bếp',desc:'Tự động phục vụ thêm 5 khách/phút',cost:8000,type:'auto_serve',value:5},
-  {id:'u_menu1',name:'📋 Mở rộng menu',desc:'Thêm 5 món mới',cost:2000,type:'unlock_menu',value:5},
-  {id:'u_deco1',name:'🪑 Bàn ghế mới',desc:'+10% doanh thu',cost:1500,type:'revenue',value:.1},
-  {id:'u_deco2',name:'🎵 Nhạc nền',desc:'+5% doanh thu',cost:800,type:'revenue',value:.05},
-  {id:'u_sign1',name:'🪧 Bảng hiệu LED',desc:'+20% khách vãng lai',cost:5000,type:'customers',value:.2},
-  {id:'u_wifi1',name:'📶 WiFi miễn phí',desc:'+10% doanh thu',cost:1200,type:'revenue',value:.1},
-  {id:'u_aircon1',name:'❄️ Điều hòa',desc:'+15% doanh thu',cost:3500,type:'revenue',value:.15},
-  {id:'u_parking1',name:'🅿️ Chỗ đỗ xe',desc:'+15% khách xa',cost:4000,type:'customers',value:.15}
-];
+// ===== SERVE =====
+function serveCust(id){let item=MENU.find(m=>m.id===id);if(!item)return;let seated=G.queue.find(c=>c.st==='seated'&&!c.ord);if(!seated)return addMsg('Chưa có khách ngồi!','bd');seated.ord=item;seated.st='cooking';G.orders.push({cid:seated.id,prep:item.w,el:0});addMsg('Phục vụ '+item.n+' cho khách','gd');renderPanel()}
 
-const QUESTS=[
-  {id:'q1',title:'Ngày đầu khai trương',desc:'Phục vụ 10 khách',type:'serve',target:10,reward:{coins:200,xp:50},done:false,progress:0},
-  {id:'q2',title:'Thu thập meme',desc:'Sở hữu 1 item trendy',type:'collect',target:1,reward:{coins:300,xp:75},done:false,progress:0},
-  {id:'q3',title:'Triệu phú cà phê',desc:'Kiếm 5000 coin',type:'earn',target:5000,reward:{coins:1000,xp:150},done:false,progress:0},
-  {id:'q4',title:'Nâng cấp quán',desc:'Mở vị trí mới',type:'upgrade',target:1,reward:{coins:2000,xp:200},done:false,progress:0},
-  {id:'q5',title:'Bộ sưu tập',desc:'Có 5 items khác nhau',type:'collect_all',target:5,reward:{coins:3000,xp:300},done:false,progress:0},
-  {id:'q6',title:'Doanh thu khủng',desc:'Kiếm 20000/ngày',type:'daily_earn',target:20000,reward:{coins:5000,xp:500},done:false,progress:0},
-  {id:'q7',title:'Hoàn thành bộ sưu tập',desc:'Sở hữu tất cả items',type:'complete_all',target:TREND_ITEMS.length,reward:{coins:20000,xp:2000},done:false,progress:0}
-];
+function buyDeco(id){let d=DECOS.find(dd=>dd.id===id);if(!d||G.m<d.cost)return;G.m-=d.cost;G.decs.push(d);addMsg('Mua '+d.n,'gd');renderPanel()}
 
-const WEATHER_MAP={
-  sunny:{emoji:'☀️',name:'Nắng',mod:1.0},
-  cloudy:{emoji:'⛅',name:'Nhiều mây',mod:1.05},
-  rainy:{emoji:'🌧️',name:'Mưa',mod:.75},
-  hot:{emoji:'🔥',name:'Nóng',mod:1.15},
-  tet:{emoji:'🎊',name:'Tết',mod:2.5}
-};
+// ===== UI UPDATE =====
+function updateUI(){document.getElementById('vMoney').textContent='$'+G.m.toLocaleString();document.getElementById('vRep').textContent=Math.round(G.r);let h=Math.floor((6+G.tick*HPT)%24),m=Math.floor(((6+G.tick*HPT)%1)*60),h12=h%12||12;
+document.getElementById('vTime').textContent='Day '+G.d+' - '+String(h12).padStart(2,'0')+':'+String(m).padStart(2,'0')+' '+(h<12?'AM':'PM');document.getElementById('vWeather').textContent=G.w==='rainy'?'🌧️ Rainy':'☀️ Sunny';document.getElementById('vCust').textContent=G.queue.length+'/8';renderPanel()}
 
-// ======== CANVAS SETUP ========
-const canvasEl = document.getElementById('gameCanvas');
-const canvasCtx = canvasEl.getContext('2d');
-const CW=480,CH=300;
-canvasCtx.imageSmoothingEnabled=false;
-canvasEl.style.background='#87CEEB';
-
-// ======== PIXEL ART HELPERS ========
-function dr(x,y,w,h,color){canvasCtx.fillStyle=color;canvasCtx.fillRect(Math.round(x),Math.round(y),w,h);}
-
-// ======== COLOR UTILITIES ========
-function lerpColor(c1,c2,t){
-  var r1=parseInt(c1.slice(1,3),16),g1=parseInt(c1.slice(3,5),16),b1=parseInt(c1.slice(5,7),16);
-  var r2=parseInt(c2.slice(1,3),16),g2=parseInt(c2.slice(3,5),16),b2=parseInt(c2.slice(5,7),16);
-  var r=Math.round(r1+(r2-r1)*t),g=Math.round(g1+(g2-g1)*t),b=Math.round(b1+(b2-b1)*t);
-  return '#'+[r,g,b].map(function(v){return v.toString(16).padStart(2,'0');}).join('');
-}
-function darken(hex,factor){
-  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return '#'+[Math.max(0,Math.round(r*(1-factor))),Math.max(0,Math.round(g*(1-factor))),Math.max(0,Math.round(b*(1-factor)))].map(function(v){return v.toString(16).padStart(2,'0');}).join('');
-}
-
-// ======== HELPER FUNCTIONS ========
-function getWeather(){
-  const cycle=GS.gameDay%180;
-  const season=cycle<60?'summer':(cycle<120?'rainy':'cool');
-  const probs=season==='summer'?{sunny:.35,cloudy:.25,rainy:.2,hot:.1,tet:0}:season==='rainy'?{sunny:.1,cloudy:.15,rainy:.45,hot:0,tet:.1}:{sunny:.15,cloudy:.3,rainy:.15,hot:0,tet:.3};
-  const rand=Math.random(),cum=0;let c=0;
-  for(const[t,p]of Object.entries(probs)){c+=p;if(rand<=c)return WEATHER_MAP[t];}
-  return WEATHER_MAP.sunny;
-}
-
-function getRevenuePerMin(){
-  const loc=LOCATIONS[GS.currentLocation];
-  let base=loc.customers*30,mult=loc.revenueMult;
-  for(const[id,cnt]of Object.entries(GS.ownedItems)){const item=TREND_ITEMS.find(i=>i.id===id);if(item&&item.effect==='revenue')mult+=item.value*cnt;}
-  for(const id of GS.upgradesBought){const u=UPGRADES.find(x=>x.id===id);if(u&&u.type==='revenue')mult+=u.value;}
-  const w=getWeather();mult*=w.mod;
-  return Math.floor(base*mult);
-}
-
-function getCustomerCount(){
-  const loc=LOCATIONS[GS.currentLocation];let base=loc.customers;
-  for(const[id,cnt]of Object.entries(GS.ownedItems)){const item=TREND_ITEMS.find(i=>i.id===id);if(item&&item.effect==='customers')base+=item.value*cnt;}
-  for(const id of GS.upgradesBought){const u=UPGRADES.find(x=>x.id===id);if(u&&u.type==='customers')base+=u.value*base;}
-  return Math.floor(base);
-}
-
-function showNotif(text){
-  const n=document.getElementById('notif');n.textContent=text;n.classList.add('show');
-  setTimeout(()=>n.classList.remove('show'),2500);
-}
-
-function addXP(n){
-  GS.xp+=n;while(GS.xp>=GS.xpNeeded){GS.xp-=GS.xpNeeded;GS.level++;GS.xpNeeded=Math.floor(GS.xpNeeded*1.5);showNotif(`⭐ Lên cấp ${GS.level}!`);}
-}
-
-function checkQuests(){
-  QUESTS.forEach(q=>{
-    if(q.done)return;
-    if(q.type==='serve')q.progress=Math.min(GS.totalServed,q.target);
-    if(q.type==='earn')q.progress=Math.min(Math.floor(GS.totalRevenue/100),q.target);
-    if(q.type==='collect'||q.type==='collect_all'||q.type==='complete_all')q.progress=Math.min(Object.keys(GS.ownedItems).filter(k=>GS.ownedItems[k]>0).length,q.target);
-    if(q.type==='upgrade')q.progress=Math.min(GS.unlockedLocations.length-1,q.target);
-    if(q.progress>=q.target){q.done=true;GS.coins+=q.reward.coins;GS.xp+=q.reward.xp;showNotif(`🎉 ${q.title}! +${q.reward.coins}K +${q.reward.xp}XP`);}
-  });
-}
-
-// ======== CUSTOMER SPAWNER ========
-function spawnCustomer(){
-  const loc=LOCATIONS[GS.currentLocation];
-  const skinColors=['#FDBCB4','#D2B48C','#8D5524','#C68642','#FFE0BD'];
-  const hairColors=['#2C1810','#8B4513','#DAA520','#1C1C1C','#A0522D','#C04000'];
-  const shirtColors=['#E74C3C','#3498DB','#2ECC71','#9B59B6','#F39C12','#1ABC9C','#E67E22','#2980B9'];
-  GS.animCustomers.push({
-    x:CW+20,y:240+Math.random()*10,
-    targetX:60+Math.random()*300,targetY:240+Math.random()*20,
-    state:'entering',timer:0,hit:0,
-    color:shirtColors[Math.floor(Math.random()*shirtColors.length)],
-    skin:skinColors[Math.floor(Math.random()*skinColors.length)],
-    hair:hairColors[Math.floor(Math.random()*hairColors.length)],
-    hat:Math.random()>.75?['🎩','🧢','👒'][Math.floor(Math.random()*3)]:null,
-    name:['An','Bình','Chi','Dung','Em','Giang','Hoa','Lan','Mai','Ngọc','Oanh','Phuc','Quang','Son','Tuan'][Math.floor(Math.random()*15)],
-    speed:1.5+Math.random()
-  });
-}
-
-// ======== MAIN GAME LOOP (throttled to 10fps) ========
-let lastLoop=0;
-const TICK_MS=100; // game tick every 100ms = 10 ticks/sec
-function gameLoop(ts=0){
-  if(ts-lastLoop<TICK_MS){requestAnimationFrame(gameLoop);return;}
-  lastLoop=ts;
-
-  GS.animFrame++;GS.tick++;
-
-  // Revenue tick every 6 ticks = 600ms
-  if(GS.tick%6===0){
-    const rev=getRevenuePerMin();
-    GS.dailyRevenue+=rev;GS.totalRevenue+=rev;GS.lastServeRevenue=rev;
-    addXP(3);checkQuests();
-  }
-
-  // Auto serve every 6 ticks (600ms)
-  if(GS.autoServeRate>0&&GS.tick%6===0){
-    const served=GS.autoServeRate;
-    const autoRev=Math.floor(getRevenuePerMin()*0.3*served);
-    GS.coins+=autoRev;GS.totalRevenue+=autoRev;GS.totalServed+=served;addXP(served*2);checkQuests();
-  }
-
-  // Day change every 600 ticks = 60 seconds
-  if(GS.tick%600===0){GS.gameDay++;GS.dailyRevenue=0;showNotif(`📅 Ngày ${GS.gameDay}!`);}
-
-  // Spawn customers
-  const maxCustomers=getCustomerCount();
-  const activeCount=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length;
-  if(activeCount<maxCustomers&&GS.tick%15===0){
-    const count=GS.currentLocation==='festival'?2:GS.currentLocation==='rooftop'?1:1;
-    for(let i=0;i<count;i++)if(GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length<maxCustomers)spawnCustomer();
-  }
-
-  // Auto serve visual: add served customers
-  if(GS.autoServeRate>0&&GS.tick%6===0){
-    const served=GS.autoServeRate;
-    for(let s=0;s<served;s++){
-      GS.animCustomers.push({x:80+Math.random()*200,y:160,auto:true,targetX:80+Math.random()*300,targetY:230+Math.random()*20,state:'entering',timer:0,hit:0,color:'#27AE60',skin:'#FDBCB4',hair:'#2C1810',hat:null,name:'Staff',speed:2.5});
-    }
-  }
-
-  // Update animated customers
-  for(let i=GS.animCustomers.length-1;i>=0;i--){
-    const c=GS.animCustomers[i];
-    if(c.state==='entering'){
-      const dx=c.targetX-c.x,dy=c.targetY-c.y;const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist>2){c.x+=dx/dist*c.speed;c.y+=dy/dist*c.speed;}else{c.state='sitting';c.drinkTime=0;}
-    }else if(c.state==='sitting'){
-      c.drinkTime=(c.drinkTime||0)+1;
-      if(c.drinkTime>90){c.state='leaving';c.timer=0;GS.coins+=getRevenuePerMin()/Math.max(getCustomerCount(),1);GS.totalServed++;addXP(1);checkQuests();c.hit=10;}
-    }else if(c.state==='leaving'){c.timer++;c.x+=c.speed+1;if(c.x>CW+40)GS.animCustomers.splice(i,1);}
-    if(c.hit>0)c.hit--;
-  }
-  while(GS.animCustomers.length>15)GS.animCustomers.shift();
-
-  updateUI();
-  renderCanvas();
-  requestAnimationFrame(gameLoop);
-}
-
-// ======== RENDER CANVAS ========
-function renderCanvas(){
-  if(!canvasCtx){console.log('Canvas ctx not ready!');return;}
-
-  const c=canvasCtx;
-  const f=GS.animFrame;
-  const hour=(f/60)%24;
-  const isNight=hour>=19||hour<6;
-  const isDusk=hour>=17&&hour<19;
-  const isDawn=hour>=5&&hour<7;
-  const loc=LOCATIONS[GS.currentLocation];
-  const weather=getWeather();
-
-  // === SKY (detailed gradient based on time of day) ===
-  let skyTop,skyMid,skyBot;
-  if(isDawn){
-    const t=(hour-5)/2;
-    skyTop=lerpColor('#0a0a2a','#FF6B35',t);skyMid=lerpColor('#1a1a3e','#FFB347',t);skyBot=lerpColor('#0d0d2a','#FF8C00',t);
-  }else if(isDusk){
-    const t=(hour-17)/2;
-    skyTop=lerpColor('#87CEEB','#1a0a2e',t);skyMid=lerpColor('#B0E0E6','#AD1457',t);skyBot=lerpColor('#E0F7FA','#FF6F00',t);
-  }else if(isNight){
-    const t=Math.sin((hour-19)/5*Math.PI)*0.3+0.7;
-    skyTop='#0a0a1a';skyMid='#111133';skyBot='#1a1a2e';
-  }else{
-    skyTop='#87CEEB';skyMid='#B0E0E6';skyBot='#E0F7FA';
-  }
-  const skyGrad=c.createLinearGradient(0,0,0,180);
-  skyGrad.addColorStop(0,skyTop);skyGrad.addColorStop(0.5,skyMid);skyGrad.addColorStop(1,skyBot);
-  c.fillStyle=skyGrad;c.fillRect(0,0,CW,180);
-
-  // Ground
-  const groundGrad=c.createLinearGradient(0,180,0,CH);
-  const groundBase=isNight?'#1a1a2e':isDusk?'#3d2b1f':isDawn?'#546E7A':'#78909C';
-  groundGrad.addColorStop(0,groundBase);groundGrad.addColorStop(1,darken(groundBase,0.3));
-  c.fillStyle=groundGrad;c.fillRect(0,180,CW,CH-180);
-
-  // === SUN/MOON ===
-  if(isNight){
-    // Moon with glow
-    const moonX=380+Math.sin(f*0.0003)*10;
-    const moonY=45;
-    const moonGlow=c.createRadialGradient(moonX,moonY,15,moonX,moonY,50);
-    moonGlow.addColorStop(0,'rgba(255,255,255,0.12)');moonGlow.addColorStop(1,'rgba(255,255,255,0)');
-    c.fillStyle=moonGlow;c.beginPath();c.arc(moonX,moonY,50,0,Math.PI*2);c.fill();
-    c.fillStyle='#F5F5F5';c.beginPath();c.arc(moonX,moonY,16,0,Math.PI*2);c.fill();
-    c.fillStyle='#E0E0E0';c.beginPath();c.arc(moonX-4,moonY-3,3,0,Math.PI*2);c.fill();
-    c.beginPath();c.arc(moonX+6,moonY+4,2.5,0,Math.PI*2);c.fill();
-    // Stars
-    for(let i=0;i<40;i++){
-      const sx=(i*47+13)%CW,sy=(i*31+7)%140;
-      const twinkle=Math.sin(f*0.02+i*1.3)*0.4+0.6;
-      c.fillStyle=`rgba(255,255,255,${twinkle*0.7})`;
-      c.fillRect(sx,sy,i%3===0?2:1,i%3===0?2:1);
-    }
-  }else{
-    // Sun with glow and rays
-    let sunX,sunY;
-    if(isDawn){sunX=60+(hour-5)*40;sunY=100-(hour-5)*30;}
-    else if(isDusk){sunX=180+(hour-17)*80;sunY=30+(hour-17)*35;}
-    else{sunX=150+hour*8;sunY=25;}
-    const sunR=14;
-    const sunGlow=c.createRadialGradient(sunX,sunY,sunR*0.5,sunX,sunY,sunR*4);
-    sunGlow.addColorStop(0,'rgba(255,200,50,0.25)');sunGlow.addColorStop(1,'rgba(255,200,50,0)');
-    c.fillStyle=sunGlow;c.beginPath();c.arc(sunX,sunY,sunR*4,0,Math.PI*2);c.fill();
-    c.fillStyle='#FFD700';c.beginPath();c.arc(sunX,sunY,sunR,0,Math.PI*2);c.fill();
-    c.fillStyle='#FFF8DC';c.beginPath();c.arc(sunX,sunY,sunR*0.6,0,Math.PI*2);c.fill();
-    // Rays
-    c.strokeStyle=`rgba(255,200,50,${isDusk?0.15:0.2})`;
-    c.lineWidth=1.5;
-    for(let i=0;i<12;i++){
-      const a=(i/12)*Math.PI*2+f*0.001;
-      c.beginPath();c.moveTo(sunX+Math.cos(a)*sunR*1.2,sunY+Math.sin(a)*sunR*1.2);
-      c.lineTo(sunX+Math.cos(a)*sunR*1.8,sunY+Math.sin(a)*sunR*1.8);c.stroke();
-    }
-  }
-
-  // === CLOUDS ===
-  if(weather.emoji==='🌧️'||weather.emoji==='⛅'){
-    for(let i=0;i<5;i++){
-      const cx=((i*130+f*0.08)%(CW+60))-30;
-      const cy=15+i*12+Math.sin(f*0.005+i)*3;
-      c.fillStyle=`rgba(200,200,200,${weather.emoji==='🌧️'?0.4:0.25})`;
-      c.beginPath();c.arc(cx,cy,14,0,Math.PI*2);c.fill();
-      c.beginPath();c.arc(cx+14,cy-4,12,0,Math.PI*2);c.fill();
-      c.beginPath();c.arc(cx+28,cy,14,0,Math.PI*2);c.fill();
-      c.beginPath();c.arc(cx+14,cy+4,10,0,Math.PI*2);c.fill();
-    }
-  }
-
-  // === RAIN ===
-  if(weather.emoji==='🌧️'){
-    c.strokeStyle='rgba(150,180,255,0.35)';c.lineWidth=1;
-    for(let i=0;i<50;i++){
-      const rx=(f*0.15+i*12.5)%CW;
-      const ry=(f*0.4+i*7.3)%(CH-180)+180;
-      c.beginPath();c.moveTo(rx,ry);c.lineTo(rx-3,ry+12);c.stroke();
-    }
-    // Puddles at ground
-    for(let i=0;i<4;i++){
-      const px=80+i*130,py=185+Math.sin(f*0.008+i*2)*0.5;
-      c.fillStyle='rgba(150,180,220,0.08)';c.beginPath();c.ellipse(px,py,18+Math.sin(f*0.01+i)*3,4,0,0,Math.PI*2);c.fill();
-    }
-  }
-
-  // === CAFE BUILDING (detailed pixel art) ===
-  const bx=80,by=70,bw=320,bh=140;
-  const floorY=by+bh;
-
-  // Building body with brick gradient
-  const wallGrad=c.createLinearGradient(bx,by,bx+bw,by+bh);
-  wallGrad.addColorStop(0,'#A1887F');wallGrad.addColorStop(0.5,'#8D6E63');wallGrad.addColorStop(1,'#6D4C41');
-  c.fillStyle=wallGrad;
-  c.beginPath();c.moveTo(bx+15,by+bh);c.lineTo(bx+15,by+35);
-  c.quadraticCurveTo(bx+bw/2,by-5,bx+bw-15,by+35);c.lineTo(bx+bw-15,by+bh);c.closePath();c.fill();
-
-  // Brick pattern
-  c.strokeStyle='rgba(93,64,55,0.25)';c.lineWidth=0.5;
-  for(let row=0;row<12;row++){
-    const y=by+38+row*11;
-    c.beginPath();c.moveTo(bx+15,y);c.lineTo(bx+bw-15,y);c.stroke();
-    const off=(row%2)*18;
-    for(let col=0;col<16;col++){
-      const x=bx+20+col*20+off;
-      c.beginPath();c.moveTo(x,y);c.lineTo(x,y+11);c.stroke();
-    }
-  }
-
-  // Roof tiles
-  c.fillStyle='#4E342E';
-  c.beginPath();c.moveTo(bx-10,by+35);c.lineTo(bx+35,by);c.lineTo(bx+bw-35,by);c.lineTo(bx+bw+10,by+35);
-  c.lineTo(bx+bw+10,by+45);c.lineTo(bx-10,by+45);c.closePath();c.fill();
-  c.strokeStyle='rgba(109,76,65,0.4)';c.lineWidth=1;
-  for(let row=0;row<4;row++){const ry=by+5+row*9;c.beginPath();c.moveTo(bx+8+row*4,ry);c.lineTo(bx+bw-8-row*4,ry);c.stroke();}
-
-  // Front awning (striped red)
-  for(let i=0;i<16;i++){
-    c.fillStyle=i%2===0?'#E53935':'#C62828';
-    c.fillRect(bx+i*20-5,by+30,20,10);
-  }
-  // Awning scallops
-  for(let i=0;i<16;i++){
-    c.fillStyle=i%2===0?'#E53935':'#C62828';
-    c.beginPath();c.arc(bx+i*20+10-5,by+40,10,0,Math.PI);c.fill();
-  }
-
-  // === WINDOWS (3 large windows with interior lighting) ===
-  const winW=48,winH=38,winSpacing=105,winStartX=bx+55,winY=by+50;
-  const custCount=getCustomerCount();
-  const nightGlow=isNight;
-
-  for(let i=0;i<3;i++){
-    const wx=winStartX+i*winSpacing;
-    // Frame
-    c.fillStyle='#3E2723';c.fillRect(wx-3,winY-3,winW+6,winH+6);
-    // Interior glow
-    const glowAlpha=nightGlow?0.4+(i<Math.min(custCount,3)?0.5:0):0.25;
-    const winGrad=c.createLinearGradient(wx,winY,wx,winY+winH);
-    winGrad.addColorStop(0,nightGlow?`rgba(255,220,100,${glowAlpha})`:`rgba(180,220,255,${0.25+Math.sin(f*0.01+i)*0.05})`);
-    winGrad.addColorStop(1,nightGlow?'rgba(255,180,50,0.15)':'rgba(100,180,255,0.1)');
-    c.fillStyle=winGrad;c.fillRect(wx,winY,winW,winH);
-    // Glass reflection
-    c.fillStyle=nightGlow?'rgba(255,255,200,0.08)':'rgba(255,255,255,0.12)';
-    c.fillRect(wx+4,winY+3,winW*0.3,winH*0.4);
-    // Window cross
-    c.fillStyle='#3E2723';c.fillRect(wx+winW/2-1.5,winY,3,winH);c.fillRect(wx,winY+winH/2-1.5,winW,3);
-    // Window sill
-    c.fillStyle='#5D4037';c.fillRect(wx-2,winY+winH,winW+4,3);
-    // Interior figures at night
-    if(nightGlow&&i<Math.min(custCount,3)){
-      const bob=Math.sin(f*0.004+i*2)*1;
-      c.fillStyle='rgba(255,200,100,0.4)';
-      c.fillRect(wx+8,winY+winH-18+bob,3,7);c.fillRect(wx+8,winY+winH-22+bob,4,4);
-      c.fillRect(wx+winW-18,winY+winH-18+bob,3,7);c.fillRect(wx+winW-18,winY+winH-22+bob,4,4);
-      c.fillStyle='rgba(139,90,43,0.5)';c.fillRect(wx+14,winY+winH-14+bob,24,2);
-    }
-    // Window light spill at night
-    if(nightGlow){
-      const spillGrad=c.createRadialGradient(wx+winW/2,winY+winH/2,8,wx+winW/2,winY+winH/2,35);
-      spillGrad.addColorStop(0,'rgba(255,200,80,0.12)');spillGrad.addColorStop(1,'rgba(255,200,80,0)');
-      c.fillStyle=spillGrad;c.fillRect(wx-15,winY-15,winW+30,winH+30);
-    }
-  }
-
-  // === DOOR ===
-  const doorX=bx+bw/2-22,doorY=floorY-50;
-  c.fillStyle='#3E2723';c.fillRect(doorX-2,doorY-2,48,54);
-  const doorGrad=c.createLinearGradient(doorX,doorY,doorX+44,doorY);
-  doorGrad.addColorStop(0,'#5D4037');doorGrad.addColorStop(0.5,'#795548');doorGrad.addColorStop(1,'#5D4037');
-  c.fillStyle=doorGrad;c.fillRect(doorX,doorY,44,50);
-  // Arch top
-  c.fillStyle='#3E2723';c.beginPath();c.arc(doorX+22,doorY,22,Math.PI,0);c.fill();
-  c.fillStyle='#5D4037';c.beginPath();c.arc(doorX+22,doorY,19,Math.PI,0);c.fill();
-  // Door window
-  c.fillStyle=nightGlow?'rgba(255,200,100,0.5)':'rgba(180,220,255,0.35)';c.fillRect(doorX+10,doorY+5,24,18);
-  c.strokeStyle='#3E2723';c.lineWidth=1.5;c.strokeRect(doorX+10,doorY+5,24,18);
-  // Door handle
-  c.fillStyle='#BDBDBD';c.beginPath();c.arc(doorX+38,doorY+28,2.5,0,Math.PI*2);c.fill();
-  // Door light spill at night
-  if(nightGlow){
-    const dlGrad=c.createRadialGradient(doorX+22,doorY+50,3,doorX+22,doorY+50,30);
-    dlGrad.addColorStop(0,'rgba(255,200,80,0.25)');dlGrad.addColorStop(1,'rgba(255,200,80,0)');
-    c.fillStyle=dlGrad;c.fillRect(doorX-8,doorY+40,60,20);
-  }
-
-  // === SIGN BOARD ===
-  const sX=bx+bw/2-70,sY=by+2,sW=140,sH=30;
-  const sg=Math.sin(f*0.008)*0.15+0.2;
-  c.fillStyle=`rgba(255,215,0,${sg})`;c.fillRect(sX-2,sY-2,sW+4,sH+4);
-  c.fillStyle='#1a1a2e';c.fillRect(sX,sY,sW,sH);
-  c.strokeStyle='#FFD700';c.lineWidth=1.5;c.strokeRect(sX,sY,sW,sH);
-  // Neon flicker
-  const flicker=Math.sin(f*0.01)>-0.8?1:0.3;
-  c.fillStyle=`rgba(255,215,0,${flicker})`;
-  c.shadowColor='#FFD700';c.shadowBlur=8*flicker;
-  c.font='bold 12px Courier New';c.textAlign='center';
-  c.fillText('☕ TRENDY CAFÉ',sX+sW/2,sY+sH/2+4);
-  c.shadowBlur=0;
-
-  // === FLOWER BOXES ===
-  for(let i=0;i<3;i++){
-    const fx=bx+30+i*155,fy=winY+winH+2;
-    c.fillStyle='#5D4037';c.fillRect(fx,fy,25,8);
-    const fc=['#FF5252','#FF4081','#E040FB','#FF6E40','#FFAB40'];
-    for(let j=0;j<3;j++){
-      const bob=Math.sin(f*0.003+i+j)*1;
-      c.fillStyle=fc[(i+j)%fc.length];
-      c.beginPath();c.arc(fx+4+j*8,fy+bob,2.5,0,Math.PI*2);c.fill();
-      c.fillStyle='#4CAF50';c.fillRect(fx+5+j*8,fy+2,1,4);
-    }
-  }
-
-  // === FLOOR TILES (with depth shading) ===
-  for(let x=0;x<CW;x+=28){for(let y=floorY;y<CH;y+=28){
-    const depth=(y-floorY)/(CH-floorY);
-    const base=(x+y)%56===0?'#D2B48C':'#C4A882';
-    c.fillStyle=darken(base,depth*0.15);c.fillRect(x,y,28,28);
-  }}
-
-  // === SIDESTREEL/WALKWAY ===
-  c.fillStyle=nightGlow?'#1a2a3e':'#90A4AE';c.fillRect(10,floorY,CW-20,6);
-
-  // === COUNTER + COFFEE MACHINE (detailed) ===
-  c.fillStyle='#6F4E37';c.fillRect(10,floorY-60,130,60);
-  c.fillStyle='#DEB887';c.fillRect(8,floorY-64,134,6);
-  c.fillStyle='#8B6914';c.fillRect(10,floorY-60,130,3);
-  // Counter detail lines
-  for(let i=0;i<3;i++){c.fillStyle='#5D4037';c.fillRect(15+i*42,floorY-55,38,2);}
-  // Coffee machine
-  c.fillStyle='#444';c.fillRect(100,floorY-90,28,35);
-  c.fillStyle='#666';c.fillRect(102,floorY-88,24,14);
-  c.fillStyle='#555';c.fillRect(100,floorY-90,28,3);
-  // Machine lights with glow
-  const glow=Math.sin(f*.05)*.3+.7;
-  c.fillStyle=`rgba(0,255,0,${glow})`;c.fillRect(104,floorY-86,4,4);c.fillRect(112,floorY-86,4,4);
-  c.fillStyle=`rgba(255,100,0,${glow})`;c.fillRect(104,floorY-80,4,4);c.fillRect(112,floorY-80,4,4);
-  // Machine steam
-  for(let s=0;s<3;s++){
-    const sy=floorY-95-s*8-Math.sin(f*0.03+s)*4;
-    const sx=114+Math.sin(f*0.02+s*2)*3;
-    c.fillStyle=`rgba(200,200,200,${0.2-s*0.05})`;
-    c.beginPath();c.arc(sx,sy,3+s,0,Math.PI*2);c.fill();
-  }
-  // Cups on counter
-  for(let i=0;i<5;i++){
-    c.fillStyle='#FFF';c.fillRect(25+i*20,floorY-68,10,10);
-    c.fillStyle='#F0F0F0';c.fillRect(27+i*20,floorY-66,6,6);
-    c.fillStyle='#E8E8E8';c.fillRect(25+i*20,floorY-58,10,2);
-  }
-  // Shelves above counter
-  c.fillStyle='#8B6914';c.fillRect(10,floorY-125,130,5);c.fillRect(10,floorY-98,130,5);
-  // Menu items on shelf
-  const shelfColors=['#6F4E37','#C4A882','#6B8E23','#E74C3C','#DAA520','#DEB887','#8B4513','#F5DEB3'];
-  shelfColors.forEach((col,i)=>{
-    c.fillStyle=col;c.fillRect(18+i*16,floorY-120,12,16);
-    c.fillStyle='#FFF';c.fillRect(20+i*16,floorY-118,8,12);
-    c.fillStyle=darken(col,0.2);c.fillRect(20+i*16,floorY-106,8,2);
-  });
-
-  // === DISPLAY CASE (glass with pastries) ===
-  c.fillStyle='rgba(100,150,200,0.2)';c.fillRect(340,floorY-70,90,70);
-  c.strokeStyle='#DEB887';c.lineWidth=2;c.strokeRect(340,floorY-70,90,70);
-  // Shelf dividers
-  c.strokeStyle='rgba(139,105,20,0.3)';c.lineWidth=1;c.strokeRect(342,floorY-50,86,2);c.strokeRect(342,floorY-30,86,2);
-  // Pastries layer 1
-  c.fillStyle='#DEB887';c.fillRect(346,floorY-65,12,8);c.fillStyle='#8B4513';c.fillRect(348,floorY-63,8,5);
-  c.fillStyle='#F5DEB3';c.fillRect(362,floorY-62,10,6);c.fillStyle='#D2691E';c.fillRect(364,floorY-60,6,3);
-  c.fillStyle='#FFB6C1';c.fillRect(378,floorY-66,8,8);c.fillStyle='#FF69B4';c.fillRect(380,floorY-64,4,4);
-  // Pastries layer 2
-  c.fillStyle='#DEB887';c.fillRect(350,floorY-45,14,7);c.fillStyle='#FFF';c.fillRect(352,floorY-43,10,3);
-  c.fillStyle='#F5DEB3';c.fillRect(370,floorY-47,10,6);c.fillStyle='#8B4513';c.fillRect(372,floorY-45,6,3);
-  c.fillStyle='#FFE4B5';c.fillRect(385,floorY-46,8,5);c.fillStyle='#FFD700';c.fillRect(387,floorY-44,4,2);
-  // Pastries layer 3
-  c.fillStyle='#FFF';c.fillRect(354,floorY-25,10,6);c.fillStyle='#FF6347';c.fillRect(356,floorY-23,6,2);
-  c.fillStyle='#DEB887';c.fillRect(370,floorY-27,12,7);c.fillStyle='#8B4513';c.fillRect(372,floorY-25,8,3);
-  c.fillStyle='#F5DEB3';c.fillRect(386,floorY-24,8,5);c.fillStyle='#D2691E';c.fillRect(388,floorY-22,4,2);
-  // Glass shine
-  c.fillStyle='rgba(255,255,255,0.05)';c.fillRect(342,floorY-68,20,66);
-
-  // === TABLES (detailed with depth) ===
-  const tables=[[160,floorY-5],[270,floorY-5],[380,floorY-5]];
-  tables.forEach(([tx,ty],idx)=>{
-    c.fillStyle='rgba(0,0,0,0.1)';c.fillRect(tx-14,ty+5,32,3);
-    c.fillStyle='#6F4E37';c.fillRect(tx-12,ty+3,3,12);c.fillRect(tx+9,ty+3,3,12);
-    c.fillStyle='#8B6914';c.fillRect(tx-16,ty-2,34,4);
-    c.fillStyle='#A0824A';c.fillRect(tx-14,ty,30,1);
-    c.fillStyle='#C4A882';c.fillRect(tx-14,ty,30,1);
-    if(idx<getCustomerCount()){
-      c.fillStyle='#FFF';c.fillRect(tx-3,ty-6,5,4);
-      c.fillStyle='#6F4E37';c.fillRect(tx-2,ty-5,3,2);
-    }
-  });
-
-  // === ENTRANCE/DOOR (detailed) ===
-  c.fillStyle='#3E2723';c.fillRect(doorX-2,doorY-2,48,54);
-  c.fillStyle='#3E2723';c.beginPath();c.arc(doorX+22,doorY,22,Math.PI,0);c.fill();
-  const doorGrad2=c.createLinearGradient(doorX,doorY,doorX+44,doorY);
-  doorGrad2.addColorStop(0,'#5D4037');doorGrad2.addColorStop(0.5,'#795548');doorGrad2.addColorStop(1,'#5D4037');
-  c.fillStyle=doorGrad2;c.fillRect(doorX,doorY,44,50);
-  c.fillStyle='#5D4037';c.beginPath();c.arc(doorX+22,doorY,19,Math.PI,0);c.fill();
-  c.fillStyle=nightGlow?'rgba(255,200,100,0.5)':'rgba(180,220,255,0.35)';c.fillRect(doorX+10,doorY+5,24,18);
-  c.strokeStyle='#3E2723';c.lineWidth=1.5;c.strokeRect(doorX+10,doorY+5,24,18);
-  c.fillStyle='#BDBDBD';c.beginPath();c.arc(doorX+38,doorY+28,2.5,0,Math.PI*2);c.fill();
-  // OPEN sign with glow
-  const sg2=Math.sin(f*.08)*.3+.7;
-  c.fillStyle=`rgba(0,255,0,${sg2})`;c.fillRect(doorX+4,floorY-100,38,12);
-  c.strokeStyle='#006400';c.lineWidth=1;c.strokeRect(doorX+4,floorY-100,38,12);
-  c.fillStyle='#000';c.font='bold 7px monospace';c.textAlign='center';c.fillText('MỞ',doorX+23,floorY-92);
-
-  // === CEILING LIGHTS (with realistic light cones) ===
-  [[80,0],[240,0],[400,0]].forEach(([lx,ly],idx)=>{
-    const g=Math.sin(f*0.03+idx*2)*.1+.85;
-    // Light fixture
-    c.fillStyle='#333';c.fillRect(lx-1,0,2,ly+5);
-    c.fillStyle='#444';c.beginPath();c.arc(lx,ly+4,5,0,Math.PI*2);c.fill();
-    // Bulb glow
-    c.fillStyle=`rgba(255,248,220,${g})`;c.beginPath();c.arc(lx,ly+4,4,0,Math.PI*2);c.fill();
-    // Light cone
-    const cone=c.createRadialGradient(lx,ly+4,3,lx,ly+120,65);
-    cone.addColorStop(0,`rgba(255,248,220,${.1*g})`);cone.addColorStop(1,'rgba(255,248,220,0)');
-    c.fillStyle=cone;c.beginPath();c.moveTo(lx-3,ly+4);c.lineTo(lx-65,ly+150);c.lineTo(lx+65,ly+150);c.fill();
-  });
-
-  // ======== DRAW CUSTOMERS ========
-  // ======== DRAW CUSTOMERS (detailed pixel art) ========
-  GS.animCustomers.forEach(cust=>{
-    const cx=Math.round(cust.x),cy=Math.round(cust.y);
-    const frame=Math.floor(f)%20;
-    const walking=cust.state==='entering'||cust.state==='leaving';
-    const legSpread=walking?Math.sin(frame*0.4)*3:0;
-
-    // Shadow
-    c.fillStyle='rgba(0,0,0,0.12)';c.beginPath();c.ellipse(cx+8,cy+38,7,2.5,0,0,Math.PI*2);c.fill();
-
-    // === PIXEL ART BODY (detailed sprite) ===
-    // Legs
-    c.fillStyle=cust.pants||'#333';
-    dr(cx+3+legSpread,cy+28,5,10,cust.pants||'#333');
-    dr(cx+10-legSpread,cy+28,5,10,cust.pants||'#333');
-    // Shoes
-    c.fillStyle='#2C1810';
-    dr(cx+2+legSpread,cy+37,6,2,'#2C1810');
-    dr(cx+9-legSpread,cy+37,6,2,'#2C1810');
-    // Torso (body shirt)
-    c.fillStyle=cust.color;
-    dr(cx+2,cy+14,16,14,cust.color);
-    // Shirt detail (collar)
-    c.fillStyle=darken(cust.color,0.15);
-    dr(cx+6,cy+14,8,3,cust.color);
-    // Arms with swing animation
-    const armSwing=walking?Math.sin(frame*0.4)*3:0;
-    c.fillStyle=cust.color;
-    dr(cx-1-armSwing,cy+14,5,11,cust.color);
-    dr(cx+17+armSwing,cy+14,5,11,cust.color);
-    // Hands
-    c.fillStyle=cust.skin;
-    dr(cx-1-armSwing,cy+24,4,3,cust.skin);
-    dr(cx+17+armSwing,cy+24,4,3,cust.skin);
-
-    // Drinking animation
-    if(cust.state==='sitting'&&cust.drinkTime>5&&cust.drinkTime<40){
-      dr(cx+18,cy+4,8,8,'#F5F5F5');dr(cx+19,cy+5,6,6,'#6F4E37');
-    }
-
-    // === HEAD (rounded face) ===
-    c.fillStyle=cust.skin;
-    dr(cx+3,cy-1,14,13,cust.skin);
-    dr(cx+4,cy-3,12,3,cust.skin);
-    dr(cx+2,cy+10,2,2,cust.skin);
-    dr(cx+14,cy+10,2,2,cust.skin);
-    // Hair
-    c.fillStyle=cust.hair;
-    dr(cx+2,cy-4,16,4,cust.hair);
-    dr(cx+1,cy-3,3,5,cust.hair);
-    dr(cx+14,cy-3,3,5,cust.hair);
-    dr(cx+3,cy-5,12,2,cust.hair);
-    // Eyes (looking direction)
-    c.fillStyle='#FFFFFF';c.fillRect(cx+5,cy+2,3,3);c.fillRect(cx+10,cy+2,3,3);
-    c.fillStyle='#333';c.fillRect(cx+6,cy+3,2,2);c.fillRect(cx+11,cy+3,2,2);
-    // Eye highlights
-    c.fillStyle='#FFFFFF';c.fillRect(cx+7,cy+2,1,1);c.fillRect(cx+12,cy+2,1,1);
-    // Mouth
-    if(cust.state==='sitting'&&cust.drinkTime>5&&cust.drinkTime<40){
-      c.fillStyle='#C44569';c.fillRect(cx+7,cy+9,4,2);
-    }else{
-      c.fillStyle='#C44569';c.fillRect(cx+8,cy+9,3,1);
-    }
-    // Blush
-    c.fillStyle='rgba(255,150,150,0.3)';
-    c.fillRect(cx+3,cy+7,3,2);c.fillRect(cx+12,cy+7,3,2);
-
-    // === DRINK ANIMATION (when sitting) ===
-    if(cust.state==='sitting'&&cust.drinkTime>5&&cust.drinkTime<40){
-      c.fillStyle='#FFF';c.fillRect(cx+17,cy-2,8,8);
-      c.fillStyle='#6F4E37';c.fillRect(cx+18,cy-1,6,6);
-      for(let s=0;s<3;s++){
-        const sx=cx+20+Math.sin(f*0.03+s)*2;
-        const sy=cy-8-s*4-Math.sin(f*0.02+s)*2;
-        c.fillStyle=`rgba(200,200,200,${0.15-s*0.04})`;
-        c.beginPath();c.arc(sx,sy,2+s,0,Math.PI*2);c.fill();
-      }
-    }
-
-    // === NAME BUBBLE ===
-    if(cust.state==='sitting'){
-      const bubbleY=cy-20+Math.sin(f*0.1)*2;
-      c.fillStyle='rgba(255,255,255,0.9)';c.beginPath();c.arc(cx+8,bubbleY,11,0,Math.PI*2);c.fill();
-      c.strokeStyle='#999';c.lineWidth=1;c.stroke();
-      c.fillStyle='#333';c.font='7px monospace';c.textAlign='center';c.fillText(cust.name,cx+8,bubbleY+3);
-    }
-
-    // === MONEY PARTICLE ===
-    if(cust.hit>0){
-      c.fillStyle='#FFD700';c.font='14px serif';c.textAlign='center';c.fillText('💰',cx+8,cy-32+cust.hit);
-      cust.hit--;
-    }
-  });
-
-  // === AUTO-SERVE BARISTA (detailed) ===
-  if(GS.autoServeRate>0){
-    const bx=80+Math.sin(f*0.02)*40;
-    const by=floorY-25;
-    const walk=f%60<30;
-    const ls=walk?Math.sin(Math.floor(f)*0.4)*2:0;
-    c.fillStyle='rgba(0,0,0,0.12)';c.beginPath();c.ellipse(bx+8,by+32,6,2,0,0,Math.PI*2);c.fill();
-    c.fillStyle='#333';dr(bx+4+ls,by+20,4,10,'#333');dr(bx+10-ls,by+20,4,10,'#333');
-    c.fillStyle='#2C1810';dr(bx+3+ls,by+29,5,2);dr(bx+9-ls,by+29,5,2);
-    c.fillStyle='#FFFFFF';dr(bx+2,by+8,14,12,'#FFFFFF');
-    c.fillStyle='#FFD700';dr(bx+5,by+12,8,8,'#FFD700');
-    c.fillStyle='#FDBCB4';dr(bx+4,by-2,10,10);
-    c.fillStyle='#2C1810';dr(bx+3,by-5,12,4);dr(bx+3,by-4,2,5);dr(bx+11,by-4,2,5);
-    c.fillStyle='#333';c.fillRect(bx+6,by+1,2,2);c.fillRect(bx+10,by+1,2,2);
-    c.fillStyle='#C44569';c.fillRect(bx+7,by+5,3,1);
-    c.fillStyle='#BDBDBD';dr(bx+1,by+18,14,1,'#BDBDBD');
-  }
-
-  // Customer count indicator
-  const active=GS.animCustomers.filter(c=>c.state==='entering'||c.state==='sitting').length;
-  if(active>0){
-    c.fillStyle='rgba(0,0,0,.6)';c.fillRect(5,5,60,16);
-    c.fillStyle='#FFD700';c.font='bold 10px monospace';c.textAlign='left';c.fillText(`👥 ${active} khách`,10,17);
-  }
-
-  // Revenue indicator
-  c.fillStyle='rgba(0,0,0,.6)';c.fillRect(CW-80,5,75,16);
-  c.fillStyle='#2ECC71';c.font='bold 10px monospace';c.textAlign='right';c.fillText(`💰 +${GS.lastServeRevenue}K/phút`,CW-10,17);
-
-  c.font='10px monospace';c.textAlign='center';
-}
-
-// ======== UI RENDERING ========
-let _lastUI={money:'',level:'',day:'',staff:'',cust:'',weather:'',rev:'',perMinute:''};
-function updateUI(){
-  const cm=GS.coins.toLocaleString();
-  const lv='Lv.'+GS.level;
-  const dy=GS.gameDay;
-  const sf=GS.autoServeRate+' khách/phút';
-  const cc=getCustomerCount();
-  const w=getWeather();
-  const rev=getRevenuePerMin();
-  let dirty=false;
-  if(_lastUI.money!==cm){document.getElementById('money').textContent=cm;_lastUI.money=cm;dirty=true;}
-  if(_lastUI.level!==lv){document.getElementById('level').textContent=lv;_lastUI.level=lv;}
-  if(_lastUI.day!==dy){document.getElementById('day').textContent=dy;_lastUI.day=dy;}
-  if(_lastUI.staff!==sf){document.getElementById('staff').textContent=sf;_lastUI.staff=sf;}
-  if(_lastUI.cust!==cc){document.getElementById('custCount').textContent=cc;_lastUI.cust=cc;}
-  const wText=w.emoji+' '+w.name;
-  const rText='Doanh thu: '+rev+'K/phút';
-  const pText=cc+' khách/phút';
-  const dText='Ngày '+GS.gameDay;
-  if(_lastUI.weather!==wText||_lastUI.rev!==rText||_lastUI.perMinute!==pText||_lastUI.day!==dText){
-    _lastUI.weather=wText;_lastUI.rev=rText;_lastUI.perMinute=pText;_lastUI.day=dText;
-    document.getElementById('weather-bar').innerHTML=`<span>${wText}</span><span>📊 ${rText}</span><span>👥 ${pText}</span><span>📅 ${dText}</span>`;
-  }
-}
-
-function renderTab(name){
-  const el=document.getElementById('content');let h='';
-  if(name==='location'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📍 Chọn vị trí quán</h3>';
-    for(const[id,loc]of Object.entries(LOCATIONS)){
-      const unlocked=GS.unlockedLocations.includes(id);
-      const active=GS.currentLocation===id;
-      h+=`<div class="card" style="margin:3px 0"><div><span style="font-size:16px">${loc.emoji}</span> <strong>${loc.name}</strong><br><small>👥${loc.customings} KH/phút | 💰x${loc.revenueMult}</small></div><button class="btn ${active?'blue':''}" ${(unlocked?'':'')} ${(!unlocked&&GS.coins<loc.cost)?'disabled':''} onclick="changeLocation('${id}')">${active?'✅ Đang dùng':(!unlocked?`🔒 ${loc.cost}K`:'📍 Chọn')}</button></div>`;
-    }
-  }else if(name==='menu'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">☕ Menu Đồ uống</h3>';
-    MENU_ITEMS.slice(0,GS.menuUnlocked).forEach(item=>{
-      h+=`<div class="card"><div><span style="font-size:18px">${item.emoji}</span> <strong>${item.name}</strong><br><small>💰${item.price}K | Giá vốn: ${item.cost}K | ${item.needsBeans?'☕ ':''}${item.needsMilk?'🥛':''}</small></div><button class="btn green" onclick="sellItem('${item.id}')">Phục vụ</button></div>`;
-    });
-  }else if(name==='staff'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">👥 Tự động phục vụ (Staff)</h3>';
-    h+=`<div class="card"><div><strong>Tổng staff: ${GS.autoServeRate} khách/phút</strong><br><small>Staff đang hoạt động trên canvas (áo vàng, di chuyển liên tục)</small></div></div>`;
-    [{n:'👨‍🍳 Thuê nhân viên',d:'+1 khách/phút',c:1000,id:'u_staff1'},{n:'👩‍🍳 Thêm nhân viên',d:'+2 khách/phút',c:3000,id:'u_staff2'},{n:'👨‍🍳👩‍🍳 Đội bếp',d:'+5 khách/phút',c:8000,id:'u_staff3'}].forEach(u=>{
-      const bought=GS.upgradesBought.includes(u.id);
-      h+=`<div class="upgrade-card"><div><strong>${u.n}</strong><br><small>${u.d}</small></div><button class="btn gold" ${bought||GS.coins<u.c?'disabled':''} onclick="buyUpgrade('${u.id}',${u.c},'auto_serve',1)">${bought?'✅ Đã mua':u.c+'K'}</button></div>`;
-    });
-  }else if(name==='upgrade'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔧 Nâng cấp quán</h3>';
-    UPGRADES.forEach(u=>{
-      const bought=GS.upgradesBought.includes(u.id);
-      h+=`<div class="upgrade-card"><div><strong>${u.name}</strong><br><small>${u.desc} (+${u.value*100}%)</small></div><button class="btn gold" ${bought||GS.coins<u.cost?'disabled':''} onclick="buyUpgrade('${u.id}',${u.cost},'${u.type}',${u.value})">${bought?'✅ Đã mua':u.cost+'K'}</button></div>`;
-    });
-  }else if(name==='trend'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">🔥 Item Trendy</h3><div class="trend-grid">';
-    TREND_ITEMS.forEach(item=>{
-      const owned=GS.ownedItems[item.id]>0;
-      h+=`<div class="trend-card ${item.rarity}" onclick="buyTrend('${item.id}')"><strong>${item.name}</strong><br><small>${item.desc}</small><br><span style="color:${owned?'#2ECC71':'#FFD700'}">${owned?'✅ sở hữu':item.cost+'K'}</span></div>`;
-    });
-    h+='</div>';
-  }else if(name==='supplier'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📦 Vật tư</h3>';
-    h+=`<div class="card">☕ Đậu: <strong class="gold">${GS.supplierStock.beans}</strong> | 🥛 Sữa: <strong class="gold">${GS.supplierStock.milk}</strong> | 🥤 Cốc: <strong class="gold">${GS.supplierStock.cups}</strong></div>`;
-    h+='<div style="display:flex;gap:4px;margin-top:6px">';
-    [{k:'beans',c:50,a:10,n:'☕ 10 đậu (50K)'},{k:'milk',c:40,a:10,n:'🥛 10 sữa (40K)'},{k:'cups',c:20,a:50,n:'🥤 50 cốc (20K)'}].forEach(s=>{
-      h+=`<button class="btn blue" style="flex:1;font-size:10px" ${GS.coins<s.c?'disabled':''} onclick="buySupply('${s.k}',${s.c},${s.a})">${s.n}</button>`;
-    });
-    h+='</div>';
-  }else if(name==='quest'){
-    h+='<h3 style="color:#FFD700;font-size:12px;margin-bottom:6px">📋 Nhiệm vụ</h3>';
-    QUESTS.forEach(q=>{
-      h+=`<div class="quest-card ${q.done?'done':''}"><strong>${q.done?'✅':'📌'} ${q.title}</strong><br><small>${q.desc}</small><div class="progress-bar"><div class="progress-fill" style="width:${(q.progress/q.target)*100}%"></div></div><small>${q.progress}/${q.target} | TT: ${q.reward.coins}K + ${q.reward.xp}XP</small></div>`;
-    });
-  }
-  el.innerHTML=h;
-}
-
-// ======== ACTIONS ========
-window.changeLocation=function(id){
-  const loc=LOCATIONS[id];
-  if(GS.unlockedLocations.includes(id)){GS.currentLocation=id;showNotif(`📍 Chuyển đến ${loc.name}`);}
-  else if(GS.coins>=loc.cost){GS.coins-=loc.cost;GS.unlockedLocations.push(id);GS.currentLocation=id;showNotif(`🎉 Mở quán: ${loc.name}!`);addXP(100);checkQuests();}
-  else{showNotif('💸 Không đủ tiền!');}
-  renderTab(document.querySelector('.tab.active').dataset.tab);
-};
-window.buyUpgrade=function(id,cost,type,value){
-  if(GS.upgradesBought.includes(id)||GS.coins<cost)return;
-  GS.coins-=cost;GS.upgradesBought.push(id);
-  if(type==='auto_serve')GS.autoServeRate+=value;
-  if(type==='unlock_menu')GS.menuUnlocked=Math.min(GS.menuUnlocked+value,10);
-  showNotif(`✅ ${UPGRADES.find(u=>u.id===id).name}!`);
-  renderTab(document.querySelector('.tab.active').dataset.tab);
-};
-window.sellItem=function(id){
-  const item=MENU_ITEMS.find(i=>i.id===id);if(!item)return;
-  if(GS.supplierStock.beans<=0||GS.supplierStock.milk<=0||GS.supplierStock.cups<=0){showNotif('⚠️ Thiếu vật tư!');return;}
-  if(item.needsBeans)GS.supplierStock.beans--;
-  if(item.needsMilk)GS.supplierStock.milk--;
-  GS.supplierStock.cups--;
-  GS.coins+=item.price;GS.totalRevenue+=item.price;GS.totalServed++;
-  addXP(3);showNotif(`+${item.price}K từ ${item.name}! ${item.emoji}`);checkQuests();updateUI();
-};
-window.buyTrend=function(id){
-  const item=TREND_ITEMS.find(i=>i.id===id);if(!item||GS.ownedItems[id]>0||GS.coins<item.cost)return;
-  GS.coins-=item.cost;GS.ownedItems[id]=1;showNotif(`🔥 ${item.name}!`);addXP(item.cost>5000?200:50);checkQuests();renderTab('trend');
-};
-window.buySupply=function(key,cost,amt){if(GS.coins<cost)return;GS.coins-=cost;GS.supplierStock[key]+=amt;showNotif(`📦 Mua ${amt} ${key}!`);updateUI();};
-
-// ======== TABS ========
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderTab(btn.dataset.tab);});
-});
-
-// ======== INIT & START ========
-QUESTS.forEach(q=>{if(typeof q.progress==='undefined')q.progress=0;});
-updateUI();renderTab('location');
-
-// Initial customers on canvas
-setTimeout(()=>spawnCustomer(),1000);
-setTimeout(()=>spawnCustomer(),2000);
-setTimeout(()=>spawnCustomer(),3000);
-
-// Start the game loop
-console.log('Game init!');
-try{requestAnimationFrame(function(ts){gameLoop(ts);});}catch(e){console.log('Game loop error:',e);}
-</script>
-</body>
-</html>
+// ===== INIT =====
+G={m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};mapData=genMap();seatData=genSeats();
+let canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');addMsg('\u2615 Welcome! Hire staff (Shop tab) then click menu to serve','gd');renderPanel();requestAnimationFrame(gameLoop);setInterval(()=>{if(G&&!G.over){try{localStorage.setItem('cafe_save',JSON.stringify(G))}catch(e){}}},60000);
+</script></body></html>
