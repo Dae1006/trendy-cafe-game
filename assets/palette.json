@@ -1,0 +1,103 @@
+{
+  "NEUTRALS": {
+    "ivory": "#FFF5E1",
+    "cream": "#F5DEB3",
+    "warm beige": "#E3C9A8",
+    "soft sand": "#D2B48C",
+    "light oak": "#C69C6D",
+    "medium walnut": "#A0522D",
+    "rich mahogany": "#7A442A",
+    "deep espresso": "#4B3C2D",
+    "charcoal brown": "#3E2F22"
+  },
+  "COFFEE": {
+    "light roast": "#C8A87C",
+    "medium roast": "#A67B5B",
+    "dark roast": "#6F4E37",
+    "espresso shot": "#3E2723",
+    "latte foam": "#FFF8F0",
+    "caramel drizzle": "#C68E32",
+    "milk froth": "#FFFDF7",
+    "vanilla swirl": "#F5E6CA"
+  },
+  "GREENS": {
+    "leaf green": "#7CB342",
+    "moss green": "#558B2F",
+    "sage green": "#9CCC65",
+    "deep forest": "#2E7D32",
+    "pale mint": "#C8E6C9",
+    "matcha latte": "#AED581",
+    "olive drab": "#7CB342",
+    "lime accent": "#C0CA33"
+  },
+  "GOLDS": {
+    "golden yellow": "#F9D6A0",
+    "warm amber": "#E6A15C",
+    "soft butter": "#FFF3D4",
+    "honey gold": "#D4A017",
+    "brass accent": "#B8860B",
+    "champagne": "#F7E7CE",
+    "sunbeam yellow": "#FFE082"
+  },
+  "PASTELS": {
+    "blush pink": "#F8BBD0",
+    "lavender mist": "#E1BEE7",
+    "sky blue": "#90CAF9",
+    "soft peach": "#FFCCBC",
+    "mint green": "#B2DFDB",
+    "cream yellow": "#FFF9C4"
+  },
+  "UI": {
+    "panel bg": "#2D1B14",
+    "panel border": "#5C3D2E",
+    "text highlight": "#FFF5E1",
+    "stamina green": "#66BB6A",
+    "patience yellow": "#FFCA28",
+    "danger red": "#EF5350",
+    "rep star gold": "#FFD54F",
+    "coin silver": "#BDBDBD",
+    "coin gold": "#FFA726",
+    "shadow overlay": "rgba(0, 0, 0, 0.35)"
+  },
+  "CHARACTERS": {
+    "customer skin1": "#FDDCB5",
+    "customer skin2": "#EAC086",
+    "customer skin3": "#C68642",
+    "customer skin4": "#8D5524",
+    "barista apron": "#2E7D32",
+    "cook jacket": "#FFFFFF",
+    "server vest": "#1A237E",
+    "cashier badge": "#FF6F00",
+    "hair black": "#1B1B1B",
+    "hair brown": "#5C4033",
+    "hair blonde": "#DAA520",
+    "hair red": "#A0522D",
+    "hair auburn": "#B7410E",
+    "hair platinum": "#E8DCC8"
+  },
+  "ENVIRONMENT": {
+    "wood floor": "#A67C52",
+    "wood plank": "#8B6914",
+    "tile white": "#E8E4DF",
+    "tile grout": "#D0CFC8",
+    "brick red": "#B22222",
+    "brick mortar": "#CDBBB0",
+    "wall cream": "#F5F0E1",
+    "wall sage": "#B5C49A",
+    "window glass": "#D6EAF8",
+    "window frame": "#F5F5DC",
+    "door wood": "#795548",
+    "counter marble": "#F0EDE6",
+    "shadow": "rgba(0, 0, 0, 0.2)"
+  },
+  "FOOD": {
+    "croissant": "#E8A849",
+    "cake cream": "#FFF5EE",
+    "chocolate": "#3E2723",
+    "strawberry": "#C62828",
+    "coffee bean": "#5D4037",
+    "milk": "#FAFAFA",
+    "syrup caramel": "#B8860B",
+    "whipped cream": "#FFFFF0"
+  }
+}
