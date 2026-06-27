@@ -91,21 +91,527 @@ const CUSTOMER_EMOJIS = [
     { emoji: "👩‍🎮", name: "GamER girl" },
     { emoji: "🧑‍🎨", name: "Pixel Artist" },
     { emoji: "👴", name: "Retro Gamer" },
-    { emoji: "👵", name: "Grandma Gamer" },
-    { emoji: "🧒", name: "Young Player" },
-    { emoji: "👦", name: "Boy Player" },
-    { emoji: "👧", name: "Girl Player" },
     { emoji: "🤓", name: "Nerd Gamer" },
     { emoji: "😎", name: "Cool Customer" },
     { emoji: "🥳", name: "Party Guest" },
-    { emoji: "🧑‍💼", name: "Businessman" },
     { emoji: "👩‍🏫", name: "Teacher" },
     { emoji: "🧑‍🍳", name: "Foodie" },
     { emoji: "👨‍🎓", name: "Student" },
-    { emoji: "👩‍🎤", name: "Singer Fan" },
     { emoji: "🧔", name: "Bearded Guy" },
     { emoji: "👱‍♀️", name: "Blonde Girl" },
 ];
+
+// ======= MOOD SYSTEM ======
+const MOOD_TYPES = [
+    { id: "happy", emoji: "😊", color: "#4CAF50", tipMult: 1.3, desc: "Hài lòng" },
+    { id: "excited", emoji: "🤩", color: "#FF9800", tipMult: 1.5, desc: "Vui mừng" },
+    { id: "neutral", emoji: "😐", color: "#9E9E9E", tipMult: 1.0, desc: "Bình thường" },
+    { id: "impatient", emoji: "😤", color: "#FF5722", tipMult: 0.8, desc: "Khó chịu" },
+    { id: "angry", emoji: "😡", color: "#F44336", tipMult: 0.5, desc: "Giận dữ" },
+];
+
+// ======= CUSTOMER AI SYSTEM ======
+class CustomerAI {
+    constructor(menuItem) {
+        this.id = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        const charData = CUSTOMER_EMOJIS[Math.floor(Math.random() * CUSTOMER_EMOJIS.length)];
+        this.emoji = charData.emoji;
+        this.name = charData.name;
+        this.order = menuItem;
+        // Mood starts neutral and degrades over time
+        this.moodIndex = 2; // start neutral
+        this.maxPatience = 15 + Math.random() * 30; // 15-45 seconds
+        this.patienceLeft = this.maxPatience;
+        this.wasServed = false;
+        this.serveTime = 0;
+        this.tipMult = 1.0;
+        // Customer preferences
+        const favorites = Math.random() > 0.6;
+        this.favorites = favorites ? [menuItem.id] : [];
+        // Arrival animation state
+        this.arrived = false;
+        this.arriveDelay = Math.random() * 2; // seconds before showing
+    }
+}
+
+// Active customers pool
+let activeCustomers = [];
+
+function addCustomer(menuItem) {
+    const customer = new CustomerAI(menuItem);
+    activeCustomers.push(customer);
+    return customer;
+}
+
+function updateCustomerAI(delta) {
+    let moodChanged = false;
+
+    // Remove served customers after a moment
+    activeCustomers = activeCustomers.filter(c => {
+        if (c.wasServed) {
+            c.patienceLeft -= delta;
+            return c.patienceLeft > 0;
+        }
+        return true;
+    });
+
+    // Update patience for all waiting customers
+    for (const c of activeCustomers) {
+        if (c.wasServed) continue;
+        c.patienceLeft -= delta;
+
+        // Recalculate mood based on patience remaining
+        const patienceRatio = c.patienceLeft / c.maxPatience;
+        let newMoodIndex = 2; // neutral
+
+        if (patienceRatio > 0.7) {
+            newMoodIndex = Math.random() > 0.5 ? 1 : 2; // excited or neutral
+        } else if (patienceRatio > 0.4) {
+            newMoodIndex = 2; // still neutral
+        } else if (patienceRatio > 0.15) {
+            newMoodIndex = 3; // impatient
+        } else {
+            newMoodIndex = 4; // angry
+        }
+
+        // Mood can only degrade, not improve (for waiting customers)
+        if (newMoodIndex > c.moodIndex) {
+            if (!moodChanged || newMoodIndex > MOOD_TYPES.length - 1) {
+                c.moodIndex = newMoodIndex;
+                moodChanged = true;
+            }
+        }
+    }
+}
+
+// Get customer data for orders panel
+function getActiveCustomerOrders() {
+    const waiting = activeCustomers.filter(c => !c.wasServed);
+    return waiting.slice(0, 8); // max 8 displayed
+}
+
+function formatPatienceBar(patienceLeft, maxPatience) {
+    const ratio = Math.max(0, patienceLeft / maxPatience);
+    let color;
+    if (ratio > 0.6) color = '#4CAF50';
+    else if (ratio > 0.3) color = '#FF9800';
+    else color = '#F44336';
+
+    return `<span style="color:${color};font-size:10px">⏳ ${Math.ceil(patienceLeft)}s</span>`;
+}
+
+function formatMoodEmoji(moodIndex) {
+    const mood = MOOD_TYPES[moodIndex] || MOOD_TYPES[2];
+    return `<span style="color:${mood.color}">${mood.emoji}</span>`;
+}
+
+// When serving, calculate tip based on customer mood
+function getMoodTipMultiplier(moodIndex) {
+    const mood = MOOD_TYPES[moodIndex] || MOOD_TYPES[2];
+    return mood.tipMult;
+}
+
+// ======= PIXEL ART CAFÉ SCENE ======
+class PixelArtCafeScene {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.width = this.canvas.width || 480;
+        this.height = this.canvas.height || 300;
+        this.time = 0;
+        this.particles = [];
+        this.steamSources = [];
+        this.animFrame = null;
+        this.initParticles();
+    }
+
+    initParticles() {
+        // Steam sources: espresso machine, counter area
+        this.steamSources = [
+            { x: 160, y: 210, vx: 0.3, vy: -0.5 },
+            { x: 170, y: 200, vx: -0.2, vy: -0.4 },
+            { x: 310, y: 215, vx: 0.2, vy: -0.3 },
+        ];
+    }
+
+    addParticle(x, y) {
+        if (this.particles.length > 60) return;
+        this.particles.push({
+            x,
+            y,
+            vx: (Math.random() - 0.5) * 0.4 + (x < 240 ? 0.3 : -0.1),
+            vy: -0.4 - Math.random() * 0.6,
+            life: 1,
+            size: 2 + Math.random() * 3,
+        });
+    }
+
+    updateParticles(dt) {
+        for (const p of this.steamSources) {
+            if (Math.random() < 0.15) this.addParticle(p.x, p.y);
+        }
+        this.particles = this.particles.filter(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 0.018 * dt;
+            if (p.type === 'sparkle') p.size *= 0.99;
+            return p.life > 0;
+        });
+    }
+
+    drawParticles(ctx) {
+        for (const p of this.particles) {
+            const alpha = p.life * 0.35;
+            ctx.fillStyle = `rgba(200, 210, 230, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    drawBuilding(ctx, x, y, w, h, weatherType) {
+        // Building body with pixel-art style
+        const buildGrad = ctx.createLinearGradient(x, y, x + w, y + h);
+        if (weatherType === 'rainy' || weatherType === 'thunderstorm') {
+            buildGrad.addColorStop(0, '#3a3028');
+            buildGrad.addColorStop(1, '#504535');
+        } else {
+            buildGrad.addColorStop(0, '#6b5240');
+            buildGrad.addColorStop(0.5, '#7d6450');
+            buildGrad.addColorStop(1, '#6b5240');
+        }
+
+        // Main building shape (pixel-style with flat edges)
+        ctx.fillStyle = buildGrad;
+        ctx.fillRect(x + 5, y + 30, w - 10, h - 30);
+
+        // Roof
+        ctx.fillStyle = '#4a3728';
+        ctx.beginPath();
+        ctx.moveTo(x, y + 30);
+        ctx.lineTo(x + w / 2, y - 5);
+        ctx.lineTo(x + w, y + 30);
+        ctx.closePath();
+        ctx.fill();
+
+        // Roof outline
+        ctx.strokeStyle = '#8B7355';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Building outline (pixel style: thick borders)
+        ctx.strokeStyle = '#5a4530';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 5, y + 30, w - 10, h - 30);
+
+        return { x, y, w, h };
+    }
+
+    drawWindows(ctx, cx, cy, cw, ch) {
+        const winW = 35;
+        const winH = 45;
+        const spacing = 15;
+        const startX = cx + (cw - (3 * winW + 2 * spacing)) / 2;
+
+        for (let i = 0; i < 3; i++) {
+            const wx = startX + i * (winW + spacing);
+            const wy = cy + 50;
+
+            // Window frame (pixel style)
+            ctx.fillStyle = '#2a1f15';
+            ctx.fillRect(wx - 3, wy - 3, winW + 6, winH + 6);
+
+            // Window glow based on customer count
+            const customerCount = activeCustomers.filter(c => !c.wasServed).length;
+            const glowIntensity = Math.min(1, 0.2 + (customerCount / 10) * 0.8);
+
+            ctx.fillStyle = `rgba(255, ${Math.floor(200 * glowIntensity)}, ${Math.floor(80 * glowIntensity)}, ${glowIntensity})`;
+            ctx.fillRect(wx, wy, winW, winH);
+
+            // Window cross (pixel bars)
+            ctx.strokeStyle = '#5a4530';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(wx + winW / 2, wy);
+            ctx.lineTo(wx + winW / 2, wy + winH);
+            ctx.moveTo(wx, wy + winH / 2);
+            ctx.lineTo(wx + winW, wy + winH / 2);
+            ctx.stroke();
+        }
+    }
+
+    drawDoor(ctx, cx, cy, cw, ch) {
+        const doorW = 36;
+        const doorH = 55;
+        const dx = cx + cw / 2 - doorW / 2;
+        const dy = cy + ch - doorH - 5;
+
+        // Door body
+        ctx.fillStyle = '#5a3a1a';
+        ctx.fillRect(dx, dy, doorW, doorH);
+        ctx.strokeStyle = '#8B7355';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(dx, dy, doorW, doorH);
+
+        // Door handle (pixel circle)
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(dx + doorW - 8, dy + doorH / 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Door light (flickering)
+        const flicker = 0.5 + Math.sin(this.time * 0.004) * 0.15;
+        ctx.fillStyle = `rgba(255, 200, 80, ${flicker})`;
+        ctx.beginPath();
+        ctx.arc(dx + doorW / 2, dy + doorH / 2, 15 + Math.sin(this.time * 0.003) * 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    drawSign(ctx, cx, cy, cw, venueName) {
+        const signY = cy + 28;
+        // Sign board
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(cx + cw / 2 - 70, signY - 8, 140, 28);
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx + cw / 2 - 70, signY - 8, 140, 28);
+
+        // Neon text effect
+        const glowAlpha = 0.6 + Math.sin(this.time * 0.005) * 0.2;
+        ctx.shadowColor = '#FFD700';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = `rgba(255, 215, 0, ${glowAlpha})`;
+        ctx.font = 'bold 13px Courier New';
+        ctx.textAlign = 'center';
+        ctx.fillText('☕ ' + venueName, cx + cw / 2, signY + 10);
+        ctx.shadowBlur = 0;
+    }
+
+    drawCounter(ctx, cx, cy, cw, ch) {
+        const counterY = cy + ch - 35;
+        // Counter
+        ctx.fillStyle = '#8B6914';
+        ctx.fillRect(cx - 20, counterY, cw + 40, 18);
+        ctx.strokeStyle = '#A07828';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx - 20, counterY, cw + 40, 18);
+
+        // Espresso machine on counter
+        const esx = cx + cw / 2 - 30;
+        ctx.fillStyle = '#4a4a4a';
+        ctx.fillRect(esx, counterY - 25, 22, 25);
+        ctx.fillStyle = '#666';
+        ctx.fillRect(esx + 8, counterY - 32, 6, 8); // spout
+
+        // Machine indicator light
+        const blink = Math.sin(this.time * 0.01) > 0;
+        ctx.fillStyle = blink ? '#FF4500' : '#8B0000';
+        ctx.beginPath();
+        ctx.arc(esx + 11, counterY - 12, 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    drawCustomers(ctx, cafeState, cw) {
+        const customers = activeCustomers.filter(c => !c.wasServed);
+        const baseY = cafeState.y + cafeState.h - 5;
+
+        for (let i = 0; i < Math.min(customers.length, 8); i++) {
+            const c = customers[i];
+            const seatX = cafeState.x + 30 + i * ((cafeState.w - 60) / Math.max(1, Math.min(customers.length, 8) - 1));
+            const bob = Math.sin(this.time * 0.004 + i * 1.2) * 1.5;
+
+            // Draw customer emoji
+            ctx.font = '16px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(c.emoji, seatX, baseY - 8 + bob);
+
+            // Mood bubble (appears when impatient or angry)
+            if (c.moodIndex >= 3) {
+                const bubbleY = baseY - 28 + bob;
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.beginPath();
+                ctx.arc(seatX, bubbleY, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.font = '10px serif';
+                ctx.fillText(MOOD_TYPES[c.moodIndex].emoji, seatX, bubbleY + 4);
+            }
+
+            // Patience bar under customer (only when impatient)
+            if (c.moodIndex >= 3) {
+                const barW = 20;
+                const ratio = c.patienceLeft / c.maxPatience;
+                let color;
+                if (ratio > 0.4) color = '#FF9800';
+                else color = '#F44336';
+
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(seatX - barW / 2, baseY + 12, barW, 4);
+                ctx.fillStyle = color;
+                ctx.fillRect(seatX - barW / 2, baseY + 12, barW * ratio, 4);
+            }
+        }
+
+        // Walking customer arriving (animated entrance)
+        const walkProgress = (this.time * 0.03) % (cafeState.x + cw + 60);
+        const walkX = Math.max(-20, cafeState.x - 50 + walkProgress);
+        ctx.font = '14px serif';
+        ctx.fillText('🚶', walkX, baseY);
+    }
+
+    drawWaiters(ctx, cafeState) {
+        const waiterCount = gameState.autoServeRate > 0 ? Math.min(gameState.autoServeRate + 1, 3) : 0;
+        for (let i = 0; i < waiterCount; i++) {
+            const walkOffset = Math.sin(this.time * 0.002 + i * 2.5) * (cafeState.w / 3);
+            const wx = cafeState.x + cafeState.w / 2 + walkOffset;
+            const wy = cafeState.y + cafeState.h - 10;
+
+            ctx.font = '16px serif';
+            // Waiter carries tray
+            ctx.fillText('🧑‍🍳', wx, wy);
+        }
+    }
+
+    drawWeatherEffects(ctx) {
+        const weather = getCurrentWeather();
+        if (weather.type === 'rainy' || weather.type === 'thunderstorm') {
+            ctx.strokeStyle = weather.type === 'thunderstorm'
+                ? 'rgba(150, 180, 255, 0.4)'
+                : 'rgba(150, 180, 255, 0.25)';
+            ctx.lineWidth = 1;
+            const count = weather.type === 'thunderstorm' ? 60 : 35;
+            for (let i = 0; i < count; i++) {
+                const x = (i * 8 + this.time * 0.08) % this.width;
+                const y = (i * 11 + this.time * 0.25) % this.height;
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 3, y + 12);
+                ctx.stroke();
+            }
+        }
+
+        // Thunder flash
+        if (weather.type === 'thunderstorm' && Math.sin(this.time * 0.007) > 0.97) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.fillRect(0, 0, this.width, this.height);
+        }
+
+        // Hot shimmer
+        if (weather.type === 'hot') {
+            const shimmer = Math.sin(this.time * 0.003) * 0.05;
+            ctx.fillStyle = `rgba(255, 140, 0, ${shimmer})`;
+            ctx.fillRect(0, 0, this.width, this.height);
+        }
+
+        // Tet sparkles
+        if (weather.type === 'tet') {
+            for (let i = 0; i < 8; i++) {
+                const sx = (this.time * 0.1 + i * 70) % this.width;
+                const sy = 20 + Math.sin(this.time * 0.005 + i) * 30;
+                ctx.fillStyle = `rgba(255, 215, 0, ${0.4 + Math.sin(this.time * 0.01 + i) * 0.3})`;
+                ctx.font = '10px serif';
+                ctx.fillText('🎊', sx, sy);
+            }
+        }
+    }
+
+    drawGround(ctx, cafeState) {
+        const groundY = cafeState.y + cafeState.h;
+        // Ground line with pixels
+        ctx.fillStyle = '#5a5040';
+        ctx.fillRect(cafeState.x - 10, groundY, cafeState.w + 20, 8);
+
+        // Sidewalk tiles
+        ctx.strokeStyle = '#6a6050';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i < Math.floor(cafeState.w / 20); i++) {
+            const tx = cafeState.x + i * 20;
+            ctx.strokeRect(tx, groundY, 20, 8);
+        }
+    }
+
+    drawInfo(ctx) {
+        const weather = getCurrentWeather();
+        const customerCount = activeCustomers.filter(c => !c.wasServed).length;
+
+        ctx.fillStyle = 'rgba(0,0,0,0.75)';
+        ctx.fillRect(10, this.height - 32, 220, 28);
+
+        ctx.fillStyle = '#ddd';
+        ctx.font = '11px Courier New';
+        ctx.textAlign = 'left';
+        ctx.fillText(`👥 ${customerCount} khách`, 16, this.height - 14);
+        ctx.fillText(`${weather.emoji} ${weather.name}`, 130, this.height - 14);
+
+        // Day counter
+        ctx.fillStyle = '#FFD700';
+        ctx.textAlign = 'right';
+        ctx.fillText(`Ngày ${gameState.gameDay}`, this.width - 16, this.height - 14);
+    }
+
+    draw(ctx) {
+        const w = this.width;
+        const h = this.height;
+
+        // Clear & draw sky gradient
+        const weather = getCurrentWeather();
+        const weatherColors = {
+            sunny: ['#87CEEB', '#E8D5A0'],
+            cloudy: ['#708090', '#B0BEC5'],
+            rainy: ['#4a4a5a', '#6a6a7a'],
+            thunderstorm: ['#2a2a3a', '#1a1a2a'],
+            hot: ['#FF4500', '#FF8C00'],
+            tet: ['#DC143C', '#FFD700'],
+        };
+        const colors = weatherColors[weather.type] || weatherColors.sunny;
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, colors[0]);
+        grad.addColorStop(1, colors[1]);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Draw building
+        const cafeX = 50;
+        const cafeY = 30;
+        const cafeW = w - 100;
+        const cafeH = h - 60;
+
+        const state = this.drawBuilding(ctx, cafeX, cafeY, cafeW, cafeH, weather.type);
+        this.drawWindows(ctx, cafeX, cafeY, cafeW, cafeH);
+        this.drawDoor(ctx, cafeX, cafeY, cafeW, cafeH);
+        this.drawSign(ctx, cafeX, cafeY, cafeW, LOCATIONS[gameState.currentLocation]?.name || 'Street');
+        this.drawCounter(ctx, w / 2, cafeY + 30, cafeW, cafeH);
+        this.drawGround(ctx, state);
+
+        // Weather effects
+        this.drawWeatherEffects(ctx);
+
+        // Update & draw particles (steam)
+        this.updateParticles(16);
+        this.drawParticles(ctx);
+
+        // Draw people
+        this.drawCustomers(ctx, state, cafeW);
+        this.drawWaiters(ctx, state);
+
+        // Info overlay
+        this.drawInfo(ctx);
+    }
+
+    loop() {
+        this.time = Date.now() - this.startTime;
+        this.draw();
+        this.animFrame = requestAnimationFrame(() => this.loop());
+    }
+
+    start() {
+        this.startTime = Date.now();
+        this.loop();
+    }
+}
+
+// Instance reference
+let cafeSceneInstance = null;
 
 // ======= GAME STATE ======
 let gameState = {
@@ -233,122 +739,174 @@ function renderWeatherDisplay() {
     if (textEl) textEl.textContent = weather.name + " — " + weather.desc;
 }
 
+// ======= RENDER CAFÉ SCENE (pixel art canvas) ======
 function renderCafeScene() {
-    const bg = document.getElementById("cafe-bg");
-    const container = document.getElementById("customers-container");
-    const loc = LOCATIONS[gameState.currentLocation];
-    const weather = getCurrentWeather();
-
-    // Apply weather background
-    const weatherColors = {
-        sunny: 'linear-gradient(to bottom, #87CEEB 0%, #8B7355 60%, #696969 100%)',
-        cloudy: 'linear-gradient(to bottom, #708090 0%, #778899 60%, #2F4F4F 100%)',
-        rainy: 'linear-gradient(to bottom, #4a4a5a 0%, #5a5a6a 60%, #3a3a4a 100%)',
-        thunderstorm: 'linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 60%, #0a0a1a 100%)',
-        hot: 'linear-gradient(to bottom, #FF4500 0%, #FF6347 60%, #FF8C00 100%)',
-        tet: 'linear-gradient(to bottom, #FF0000 0%, #FFD700 50%, #FF0000 100%)'
-    };
-    bg.style.background = weatherColors[weather.type] || weatherColors.sunny;
-    container.innerHTML = "";
-
-    const count = getCustomerCount();
-
-    // Pixel art customers with unique emoji
-    for (let i = 0; i < Math.min(count, 20); i++) {
-        const charData = CUSTOMER_EMOJIS[Math.floor(Math.random() * CUSTOMER_EMOJIS.length)];
-        const div = document.createElement("div");
-        div.className = "customer animate-fadeIn";
-        div.textContent = charData.emoji;
-        div.style.animationDelay = `${Math.random() * 2}s`;
-        div.title = charData.name; // tooltip
-        div.style.fontSize = (24 + Math.random() * 8) + "px"; // varied sizes for depth
-        container.appendChild(div);
+    const sceneEl = document.getElementById("cafe-scene");
+    if (sceneEl && !cafeSceneInstance) {
+        cafeSceneInstance = new PixelArtCafeScene("cafe-scene");
     }
 }
 
+// ======= ORDERS PANEL (with customer AI) ======
 function renderOrders() {
     const list = document.getElementById("orders-list");
-    const loc = LOCATIONS[gameState.currentLocation];
-    const count = Math.min(loc.customers + Math.floor(getCustomerCount() * 0.5), 8);
     list.innerHTML = "";
 
-    if (count === 0) {
-        list.innerHTML = "<div style='padding:10px;color:var(--text-dim);font-size:9px;'>⏳ Đang chờ khách...</div>";
+    // Get active customers from AI system
+    const orderCustomers = getActiveCustomerOrders();
+
+    if (orderCustomers.length === 0) {
+        list.innerHTML = "<div style='padding:10px;color:var(--text-dim);font-size:9px;'>⏳ Đang chờ khách đến...</div>";
         return;
     }
 
-    for (let i = 0; i < count; i++) {
-        const maxItems = Math.min(gameState.menuUnlocked, MENU_ITEMS.length);
-        const menuItem = MENU_ITEMS[Math.floor(Math.random() * maxItems)];
+    for (let i = 0; i < orderCustomers.length; i++) {
+        const c = orderCustomers[i];
+        const mood = MOOD_TYPES[c.moodIndex] || MOOD_TYPES[2];
+
+        // Determine button style based on mood
+        let btnClass = "serve-btn";
+        if (c.moodIndex >= 4) btnClass += " urgent-serve";
+
         const div = document.createElement("div");
-        div.className = "order-item animate-fadeIn";
+        div.className = `order-item animate-fadeIn`;
         div.style.animationDelay = `${i * 0.1}s`;
+
+        // Order color tint based on mood
+        let borderColor = mood.color;
+        if (c.moodIndex >= 4) {
+            // Flashing red border for angry customers
+            const flash = Math.sin(Date.now() * 0.01) > 0;
+            borderColor = flash ? '#F44336' : '#FF6B6B';
+        }
+
+        div.style.borderLeft = `3px solid ${borderColor}`;
         div.innerHTML = `
             <div class="order-info">
-                <span style="font-size:16px">${menuItem.icon}</span>
-                <div>${menuItem.name}</div>
+                <span style="font-size:18px">${c.emoji}</span>
+                <div>
+                    <strong>${c.name}</strong> — ${c.order.icon} ${c.order.name}
+                    <br><small style="color:var(--text-dim)">Mood: ${mood.desc}</small>
+                </div>
             </div>
             <div>
-                <div class="order-price">${menuItem.price}₫</div>
-                <button class="serve-btn" onclick="serveOrder('${menuItem.id}')">SERVE!</button>
+                <div class="order-price">${c.order.price}₫</div>
+                <div>${formatPatienceBar(c.patienceLeft, c.maxPatience)}</div>
+                <button class="${btnClass}" onclick="serveOrder('${c.id}')">SERVE!</button>
             </div>
         `;
+
+        // Click handler for the serve button
+        const btn = div.querySelector('button');
+        btn.onclick = (e) => { e.stopPropagation(); serveOrder(c.id); };
+
         list.appendChild(div);
     }
 }
 
-// ======= SERVE ORDER ======
-function serveOrder(menuItemId) {
-    const item = MENU_ITEMS.find(m => m.id === menuItemId);
-    if (!item) return;
-
-    // Check stock
-    if (item.needsBeans && gameState.supplierStock.beans <= 0) {
-        showNotification("⚠️ Hết cà phê!");
-        return;
-    }
-    if (item.needsMilk && gameState.supplierStock.milk <= 0) {
-        showNotification("⚠️ Hết sữa!");
-        return;
-    }
-    if (gameState.supplierStock.cups <= 0) {
-        showNotification("⚠️ Hết cốc!");
-        return;
+// ======= SERVE ORDER (with customer AI) ======
+function serveOrder(customerIdOrMenuId) {
+    // Try to find active customer first
+    let customer = null;
+    if (customerIdOrMenuId && customerIdOrMenuId.startsWith('c_')) {
+        customer = activeCustomers.find(c => c.id === customerIdOrMenuId);
     }
 
-    // Consume supplies
-    if (item.needsBeans) gameState.supplierStock.beans -= 0.1;
-    if (item.needsMilk) gameState.supplierStock.milk -= 0.2;
-    gameState.supplierStock.cups -= 1;
+    let menuItem, earned;
 
-    // Calculate revenue
-    let price = item.price;
-    let mult = 1;
+    if (customer) {
+        // Serving a specific customer
+        menuItem = customer.order;
+        customer.wasServed = true;
+        customer.serveTime = Date.now();
 
-    for (const [tid, count] of Object.entries(gameState.ownedItems)) {
-        const tItem = TREND_ITEMS.find(t => t.id === tid);
-        if (tItem && tItem.effect === "revenue") mult += tItem.value * count;
+        // Mood bonus calculation
+        const moodMult = getMoodTipMultiplier(customer.moodIndex);
+        const patienceBonus = customer.patienceLeft / customer.maxPatience; // 0-1
+
+        // Calculate revenue with customer mood influence
+        let price = menuItem.price;
+        let mult = 1;
+
+        for (const [tid, count] of Object.entries(gameState.ownedItems)) {
+            const tItem = TREND_ITEMS.find(t => t.id === tid);
+            if (tItem && tItem.effect === "revenue") mult += tItem.value * count;
+        }
+
+        for (const uId of gameState.upgradesBought) {
+            const u = UPGRADES.find(x => x.id === uId);
+            if (u && u.type === "revenue") mult += u.value;
+        }
+
+        const weather = getCurrentWeather();
+        mult *= weather.revenueMod;
+        mult *= moodMult; // mood affects tip/revenue!
+        mult *= (0.8 + patienceBonus * 0.4); // patience bonus
+
+        earned = Math.floor(price * mult);
+
+        // Feedback message based on mood
+        let feedbackMsg = `✅ +${earned}₫ | ${menuItem.name}`;
+        if (customer.moodIndex >= 4) {
+            feedbackMsg += " 😡 Khách giận dữ! Tip giảm mạnh!";
+        } else if (customer.moodIndex >= 3) {
+            feedbackMsg += " 😤 Khách khó chịu...";
+        } else if (customer.moodIndex === 1) {
+            feedbackMsg += " 🤩 Khách vui mừng! Tip x2!";
+        } else if (customer.moodIndex === 0) {
+            feedbackMsg += " 😊 Khách hài lòng! Tip +30%!";
+        }
+        showNotification(feedbackMsg);
+
+    } else {
+        // Fallback: legacy menuItem ID string serving
+        menuItem = MENU_ITEMS.find(m => m.id === customerIdOrMenuId);
+        if (!menuItem) return;
+
+        if (menuItem.needsBeans && gameState.supplierStock.beans <= 0) {
+            showNotification("⚠️ Hết cà phê!");
+            return;
+        }
+        if (menuItem.needsMilk && gameState.supplierStock.milk <= 0) {
+            showNotification("⚠️ Hết sữa!");
+            return;
+        }
+        if (gameState.supplierStock.cups <= 0) {
+            showNotification("⚠️ H hết cốc!");
+            return;
+        }
+
+        if (menuItem.needsBeans) gameState.supplierStock.beans -= 0.1;
+        if (menuItem.needsMilk) gameState.supplierStock.milk -= 0.2;
+        gameState.supplierStock.cups -= 1;
+
+        let price = menuItem.price;
+        let mult = 1;
+
+        for (const [tid, count] of Object.entries(gameState.ownedItems)) {
+            const tItem = TREND_ITEMS.find(t => t.id === tid);
+            if (tItem && tItem.effect === "revenue") mult += tItem.value * count;
+        }
+
+        for (const uId of gameState.upgradesBought) {
+            const u = UPGRADES.find(x => x.id === uId);
+            if (u && u.type === "revenue") mult += u.value;
+        }
+
+        const weather = getCurrentWeather();
+        mult *= weather.revenueMod;
+
+        earned = Math.floor(price * mult);
+        showNotification(`✅ +${earned}₫ | ${menuItem.name}`);
     }
 
-    for (const uId of gameState.upgradesBought) {
-        const u = UPGRADES.find(x => x.id === uId);
-        if (u && u.type === "revenue") mult += u.value;
-    }
-
-    const weather = getCurrentWeather();
-    mult *= weather.revenueMod;
-
-    const earned = Math.floor(price * mult);
     gameState.coins += earned;
     gameState.dailyRevenue += earned;
     gameState.totalRevenue += earned;
     gameState.totalServed++;
-
     addXP(10);
     checkQuestProgress("serve", 1);
     checkQuestProgress("earn", earned);
-
-    showNotification(`✅ +${earned}₫ | ${item.name} served!`);
     saveGame();
     renderAll();
 }
@@ -608,6 +1166,22 @@ function startGameLoop() {
         const delta = (now - gameState.lastTick) / 1000;
         gameState.lastTick = now;
 
+        // === Customer AI: update patience, mood ===
+        updateCustomerAI(delta);
+
+        // Spawn new customer periodically based on location
+        const loc = LOCATIONS[gameState.currentLocation];
+        const maxCustomers = Math.floor(loc.customers * 2.5);
+        const activeCount = activeCustomers.filter(c => !c.wasServed).length;
+
+        if (activeCount < maxCustomers && Math.random() < 0.4) {
+            const menuItem = MENU_ITEMS[Math.floor(Math.random() * Math.min(gameState.menuUnlocked, MENU_ITEMS.length))];
+            addCustomer(menuItem);
+        }
+
+        // Remove angry customers who left
+        activeCustomers = activeCustomers.filter(c => !(c.wasServed && c.patienceLeft <= 0));
+
         // Auto serve
         if (gameState.autoServeRate > 0) {
             const served = Math.floor(gameState.autoServeRate * delta / 60);
@@ -625,12 +1199,10 @@ function startGameLoop() {
             gameState.gameDay++;
             gameState.lastDayChange = now;
 
-            // Daily costs
             const dailyWage = gameState.autoServeRate * 50000;
             gameState.dailyCosts = dailyWage;
             gameState.coins -= dailyWage;
 
-            // Supplier events
             if (Math.random() < 0.02) {
                 showNotification("📦 Biến động giá nguyên liệu!");
             }
@@ -667,6 +1239,13 @@ function init() {
     renderAll();
     renderWeatherDisplay();
     updateTrendBanner();
+
+    // Start PixelArt cafe scene
+    const sceneEl = document.getElementById("cafe-scene");
+    if (sceneEl && !cafeSceneInstance) {
+        cafeSceneInstance = new PixelArtCafeScene("cafe-scene");
+    }
+
     startGameLoop();
 }
 
