@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Cafe Trendy Simulator V8</title>
 <style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1410;font-family:'Courier New',monospace;color:#f5e6d3;display:flex;height:100vh;overflow:hidden}#topbar{position:fixed;top:0;left:0;right:0;z-index:10;background:#2a1f15;border-bottom:2px solid #4a3520;padding:8px 16px;display:flex;gap:10px;font-size:13px}
 .stat{background:#3d2b1a;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:4px}.val{color:#ffd700;font-weight:bold;font-size:15px}
-#main{margin-top:48px;display:flex;flex:1;height:calc(100vh - 48px)}#gameCanvas{width:512px;height:384px;background:#0f0b08;border-right:2px solid #4a3520}
+#main{margin-top:48px;display:flex;flex:1;height:calc(100vh - 48px)}#gameCanvas{width:512px;height:384px;background:#0f0b08;border-right:2px solid #4a3520;display:block}
 #panel{width:400px;display:flex;flex-direction:column;background:#2a1f15}#tabs{display:flex;border-bottom:2px solid #4a3520}
 .tab{flex:1;padding:10px;text-align:center;background:#3d2b1a;border:none;color:#c9a96e;cursor:pointer;font-size:12px;font-family:'Courier New',monospace;border-right:1px solid #4a3520}.tab.active{background:#2a1f15;color:#ffd700}
 #content{flex:1;overflow-y:auto;padding:10px}
@@ -330,11 +330,16 @@ function gameLoop(ts) {
       if (G.tick % 30 === 0) G.w = G.w === 'sunny' ? 'sunny' : 'rainy';
       
       // Customer spawn rate by time
-      var sp = 3, h = (6 + G.tick * HPT) % 24;
-      if (h >= 7 && h <= 9) sp = 18;
-      else if (h >= 11 && h <= 13) sp = 12;
-      else if (h >= 17 && h <= 20) sp = 15;
+      var sp = 5, h = (6 + G.tick * HPT) % 24;
+      if (h >= 7 && h <= 9) sp = 25;
+      else if (h >= 10 && h <= 11) sp = 18;
+      else if (h >= 11 && h <= 13) sp = 14;
+      else if (h >= 13 && h <= 17) sp = 10;
+      else if (h >= 17 && h <= 20) sp = 20;
+      else if (h >= 20 && h <= 21) sp = 5;
+      else sp = 2;
       if (G.r > 50) sp += 3;
+      if (G.r > 70) sp += 5;
       
       if (Math.random() * 100 < sp) {
         if (spawnCust()) G.ct++;
@@ -607,6 +612,8 @@ function updateUI() {
   renderPanel();
 }
 
+// ===== AUTO START: spawn first customer immediately after init =====
+
 // ===== INIT (runs last, after all functions defined) =====
 G = {m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
 mapData = genMap();
@@ -616,9 +623,12 @@ seatData = genSeats();
 canvasEl = document.getElementById('gameCanvas');
 ctx = canvasEl.getContext('2d');
 
-addMsg('Welcome! Hire staff then click menu to serve customers', 'gd');
+addMsg('Welcome! Cafe is open. Hire staff to auto-serve customers!', 'gd');
 renderPanel();
 requestAnimationFrame(gameLoop);
+
+// Auto-spawn 2 customers immediately on startup so you see the cafe alive
+setTimeout(function() { spawnCust(); addMsg('Khach dau tien den!','gd'); }, 1000);
 
 // Auto-save every 60 seconds
 setInterval(function() {
