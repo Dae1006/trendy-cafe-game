@@ -1,307 +1,381 @@
-<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><title>Cafe Trendy Simulator V8</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#1a1410;font-family:'Courier New',monospace;color:#f5e6d3;display:flex;height:100vh;overflow:hidden}#topbar{position:fixed;top:0;left:0;right:0;z-index:10;background:#2a1f15;border-bottom:2px solid #4a3520;padding:8px 16px;display:flex;gap:10px;font-size:13px}
-.stat{background:#3d2b1a;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:4px}.val{color:#ffd700;font-weight:bold;font-size:15px}
-#main{margin-top:48px;display:flex;flex:1;height:calc(100vh - 48px)}#gameCanvas{width:512px;height:384px;background:#0f0b08;border-right:2px solid #4a3520;display:block}
-#panel{width:400px;display:flex;flex-direction:column;background:#2a1f15}#tabs{display:flex;border-bottom:2px solid #4a3520}
-.tab{flex:1;padding:10px;text-align:center;background:#3d2b1a;border:none;color:#c9a96e;cursor:pointer;font-size:12px;font-family:'Courier New',monospace;border-right:1px solid #4a3520}.tab.active{background:#2a1f15;color:#ffd700}
-#content{flex:1;overflow-y:auto;padding:10px}
-.card{background:#3d2b1a;border-radius:6px;padding:8px;margin-bottom:6px;cursor:pointer;border:1px solid transparent;transition:.15s}.card:hover{border-color:#ffd700;background:#4a3520}
-.sec h3{color:#ffd700;font-size:14px;margin-bottom:8px}.nm{font-size:14px;font-weight:bold}.ds{font-size:11px;color:#b89a6e}.pr{font-size:12px;color:#ffd700}
-.bu{background:#2d6b2d;color:white;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;margin-top:4px;font-family:'Courier New',monospace}.bu:hover{background:#3d8b3d}
-.bar{width:100%;height:6px;background:#1a1410;border-radius:3px;margin:3px 0}.barFill{height:100%;border-radius:3px;background:linear-gradient(90deg,#4ecdc4,#27ae60)}
-.barHp{background:linear-gradient(90deg,#ff6b6b,#ffd700)}.barSt{background:#4ecdc4}.barFu{background:#a855f7}
-.msgLog{position:absolute;bottom:10px;left:10px;background:rgba(42,31,21,.9);border:1px solid #4a3520;border-radius:6px;padding:5px 8px;font-size:11px;color:#b89a6e;max-width:280px}
-.mg{margin-bottom:1px}.gd{color:#4ecdc4}.bd{color:#ff6b6b}.inf{color:#ffd700}
-.kr{display:flex;gap:5px;margin-bottom:3px}.ki{flex:1;background:#1a1410;border-radius:3px;padding:4px;text-align:center}.ki .kl{font-size:9px;color:#b89a6e}.ki .kv{font-size:12px;font-weight:bold;color:#ffd700}
-#pauseBtn{position:absolute;top:8px;left:8px;z-index:5;background:#3d2b1a;border:1px solid #4a3520;color:#c9a96e;padding:4px 8px;font-size:14px;cursor:pointer;border-radius:4px}#pauseBtn:hover{background:#4a3520}
-</style></head><body>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Cafe Trendy Simulator V9 - Debug Edition</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a1410;
+  font-family: 'Courier New', monospace;
+  color: #f5e6d3;
+  height: 100vh;
+  overflow: hidden;
+}
+#topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+  background: #2a1f15; border-bottom: 2px solid #4a3520;
+  padding: 8px 16px; display: flex; gap: 10px; font-size: 13px;
+}
+.stat {
+  background: #3d2b1a; padding: 4px 10px; border-radius: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+.val { color: #ffd700; font-weight: bold; font-size: 15px; }
+#main {
+  margin-top: 48px;
+  display: flex;
+  height: calc(100vh - 48px);
+  width: 100%;
+}
+#gameCanvas {
+  width: 512px;
+  height: 384px;
+  background: #0f0b08;
+  border-right: 2px solid #4a3520;
+  display: block;
+  flex-shrink: 0;
+}
+#panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #2a1f15;
+  min-width: 300px;
+}
+#tabs { display: flex; border-bottom: 2px solid #4a3520; }
+.tab {
+  flex: 1; padding: 10px; text-align: center; background: #3d2b1a;
+  border: none; color: #c9a96e; cursor: pointer; font-size: 12px;
+  font-family: 'Courier New', monospace;
+  border-right: 1px solid #4a3520;
+}
+.tab.active { background: #2a1f15; color: #ffd700; }
+#content { flex: 1; overflow-y: auto; padding: 10px; }
+.card {
+  background: #3d2b1a; border-radius: 6px; padding: 8px;
+  margin-bottom: 6px; cursor: pointer; border: 1px solid transparent;
+  transition: .15s;
+}
+.card:hover { border-color: #ffd700; background: #4a3520; }
+.sec h3 { color: #ffd700; font-size: 14px; margin-bottom: 8px; }
+.nm { font-size: 14px; font-weight: bold; }
+.ds { font-size: 11px; color: #b89a6e; }
+.pr { font-size: 12px; color: #ffd700; }
+.bu {
+  background: #2d6b2d; color: white; border: none; padding: 5px 12px;
+  border-radius: 4px; cursor: pointer; margin-top: 4px;
+  font-family: 'Courier New', monospace;
+}
+.bu:hover { background: #3d8b3d; }
+.bar { width: 100%; height: 6px; background: #1a1410; border-radius: 3px; margin: 3px 0; }
+.barFill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4ecdc4, #27ae60); }
+.barHp { background: linear-gradient(90deg, #ff6b6b, #ffd700); }
+.kr { display: flex; gap: 5px; margin-bottom: 3px; }
+.ki {
+  flex: 1; background: #1a1410; border-radius: 3px; padding: 4px; text-align: center;
+}
+.ki .kl { font-size: 9px; color: #b89a6e; }
+.ki .kv { font-size: 12px; font-weight: bold; color: #ffd700; }
+#debugLog {
+  position: fixed; bottom: 5px; left: 5px; z-index: 100;
+  background: rgba(0,0,0,0.9); border: 1px solid #4ecdc4;
+  border-radius: 6px; padding: 8px; font-size: 11px; color: #4ecdc4;
+  max-width: 400px; max-height: 200px; overflow-y: auto;
+}
+#debugLog .err { color: #ff6b6b; }
+#debugLog .ok { color: #4ecdc4; }
+#debugLog .warn { color: #ffd700; }
+</style>
+</head>
+<body>
 
 <div id="topbar">
-<div class="stat">&#x1F4B0; <span class="val" id="vMoney">$500</span></div>
-<div class="stat">&#x2B50; <span class="val" id="vRep">0</span></div>
-<div class="stat">&#x1F550; <span class="val" id="vTime">Day 1 - 6:00 AM</span></div>
-<div class="stat">&#x2600; <span class="val" id="vWeather">Sunny</span></div>
-<div class="stat">&#x1F465; <span class="val" id="vCust">0/8</span></div>
-<button class="stat" style="cursor:pointer" onclick="G.paused=!Gpaused">&#x23F8;</button>
+  <div class="stat"><span class="val" id="vMoney">$500</span></div>
+  <div class="stat">REP:<span class="val" id="vRep">0</span></div>
+  <div class="stat">DAY:<span class="val" id="vDay">1</span></div>
+  <div class="stat">TIME:<span class="val" id="vTime">6:00AM</span></div>
+  <div class="stat">GUESTS:<span class="val" id="vCust">0/8</span></div>
 </div>
 
 <div id="main">
-<canvas id="gameCanvas" width="512" height="384"></canvas>
-<div id="panel"><div id="tabs"><button class="tab active" onclick="switchTab(0)">Menu</button><button class="tab" onclick="switchTab(1)">Staff</button><button class="tab" onclick="switchTab(2)">Shop</button><button class="tab" onclick="switchTab(3)">Economy</button></div><div id="content"></div></div>
+  <canvas id="gameCanvas" width="512" height="384"></canvas>
+  <div id="panel">
+    <div id="tabs">
+      <button class="tab active" onclick="switchTab(0)">Menu</button>
+      <button class="tab" onclick="switchTab(1)">Staff</button>
+      <button class="tab" onclick="switchTab(2)">Shop</button>
+    </div>
+    <div id="content"></div>
+  </div>
 </div>
 
-<div class="msgLog" id="msgLog"></div>
+<div id="debugLog"><b>[DEBUG]</b></div>
 
 <script>
-// ===== V8: FIXED - All bugs resolved =====
-// Fixes: 1) canvas declared before use, 2) auto-serve logic (staff cook orders), 
-//         3) proper customer lifecycle (seated->cooking->eating->leave), 
-//         4) clean syntax
+// =========================================
+// V9 - CLEAN DEBUG VERSION
+// =========================================
 
-var G = {m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
-var cid = 0, mapData = [], seatData = [];
+var debug = function(msg, cls) {
+  var d = document.getElementById('debugLog');
+  if (!d) return;
+  var span = document.createElement('div');
+  span.className = cls || 'ok';
+  span.textContent = msg;
+  d.appendChild(span);
+  if (d.children.length > 50) d.removeChild(d.firstChild);
+};
 
-// Canvas must be defined before gameLoop/renderGame runs
+// ===== CONFIG =====
+var TILE = 32, COLS = 16, ROWS = 12, TICK = 200, HPT = 0.25; // faster ticks for visibility
+
+var MENU = [
+  {id:'espresso', n:'Espresso', p:3, w:5},
+  {id:'latte', n:'Latte', p:5, w:8},
+  {id:'cappuccino', n:'Cappuccino', p:5, w:8},
+  {id:'egg_coffee', n:'Viet Egg Coffee', p:8, w:12},
+  {id:'pho', n:'Pho', p:8, w:15},
+  {id:'sandwich', n:'Sandwich', p:6, w:8},
+  {id:'cake', n:'Cake Slice', p:5, w:3}
+];
+
+var CTYPES = [
+  {id:'cl', n:'Coffee Lover', e:'\u2615', c:'#8B4513', pa:30, tip:.8},
+  {id:'nomad', n:'Digital Nomad', e:'\uD83D\uDCBB', c:'#4a90d9', pa:90, tip:.4},
+  {id:'couple', n:'Couple', e:'\uD83D\uDC91', c:'#e84393', pa:60, tip:.9},
+  {id:'biz', n:'Business Person', e:'\uD83D\uDCBC', c:'#636e72', pa:20, tip:.7}
+];
+
+var STAFF_T = [
+  {id:'barista', n:'Barista', e:'\u2615', cost:300, sal:5},
+  {id:'cook', n:'Cook', e:'\uD83C\uDF73', cost:250, sal:4},
+  {id:'server', n:'Server', e:'\uD83E\uDDF9', cost:200, sal:3}
+];
+
+// ===== GAME STATE =====
+var G = {
+  m: 500, r: 0, d: 1, tick: 0, w: 'sunny',
+  queue: [], staff: [], decs: [], orders: [],
+  paused: false, over: false
+};
+
+var cid = 0;
+var mapData = [];
+var seatData = [];
 var canvasEl, ctx;
 
-// Menu items
-var MENU = [
-  {id:'espresso',n:'Espresso',p:3,w:10},{id:'americano',n:'Americano',p:4,w:12},{id:'latte',n:'Latte',p:5,w:18},{id:'cappuccino',n:'Cappuccino',p:5,w:20},
-  {id:'mocha',n:'Mocha',p:6,w:24},{id:'coldbrew',n:'Cold Brew',p:5,w:15},{id:'egg_coffee',n:'Viet Egg Coffee',p:8,w:30},{id:'coconut',n:'Coconut Coffee',p:7,w:28},
-  {id:'green_tea',n:'Green Tea',p:3,w:10},{id:'matcha',n:'Matcha Latte',p:6,w:22},{id:'juice',n:'Fresh Juice',p:5,w:18},{id:'smoothie',n:'Smoothie',p:6,w:20},
-  {id:'lemonade',n:'Lemonade',p:4,w:15},{id:'milkshake',n:'Milkshake',p:6,w:22},{id:'cake',n:'Cake Slice',p:5,w:5},{id:'croissant',n:'Croissant',p:4,w:5},
-  {id:'cookies',n:'Cookies x3',p:3,w:3},{id:'sandwich',n:'Sandwich',p:6,w:30},{id:'pho',n:'Pho',p:8,w:45},{id:'fried_rice',n:'Fried Rice',p:7,w:40}
-];
-
-// Customer types
-var CTYPES = [
-  {id:'cl',n:'Coffee Lover',e:'&#9749;',sp:[8,15],pa:30,w:{6:25,8:40,10:15,17:30},tip:.8,tm:1.3,c:'#8B4513'},
-  {id:'nomad',n:'Digital Nomad',e:'&#x1F4BB;',sp:[12,25],pa:180,w:{9:60,12:50,15:70},tip:.4,tm:.8,c:'#4a90d9'},
-  {id:'couple',n:'Couple',e:'&#x1F491;',sp:[15,35],pa:120,w:{14:15,17:50,21:40},tip:.9,tm:1.5,c:'#e84393'},
-  {id:'family',n:'Family',e:'&#x1F468;&#x1F469;&#x1F467;',sp:[18,45],pa:90,w:{14:45,17:30},tip:.6,tm:1.0,c:'#fdcb6e'},
-  {id:'tourist',n:'Tourist',e:'&#x1F4F7;',sp:[8,18],pa:60,w:{10:25,14:55},tip:.3,tm:.5,c:'#00b894'},
-  {id:'biz',n:'Business Person',e:'&#x1F4BC;',sp:[12,22],pa:20,w:{6:35,8:65,10:40},tip:.7,tm:1.1,c:'#636e72'},
-  {id:'artist',n:'Artist',e:'&#x1F3A8;',sp:[8,18],pa:240,w:{10:20,14:30,17:25},tip:.4,tm:.9,c:'#a855f7'}
-];
-
-// Staff types
-var STAFF_T = [
-  {id:'barista',n:'Barista',e:'&#x2615;',cost:500,sal:8,c:'#c48b3a'},
-  {id:'cook',n:'Cook',e:'&#x1F373;',cost:400,sal:7,c:'#d4502e'},
-  {id:'server',n:'Server',e:'&#x1F9F9;',cost:300,sal:6,c:'#2980b9'},
-  {id:'cashier',n:'Cashier',e:'&#x1F4B0;',cost:250,sal:5,c:'#27ae60'}
-];
-
-// Decorations
-var DECOS = [
-  {id:'neon_cat',n:'Neon Cat Sign',ap:5,cost:200,co:'#ff69b4'},
-  {id:'poster',n:'Vintage Posters',ap:3,cost:150,co:'#c9a96e'},
-  {id:'moss_wall',n:'Live Moss Wall',ap:4,cost:500,co:'#27ae60'},
-  {id:'bookshelf',n:'Bookshelf Display',ap:6,cost:400,co:'#8B6914'},
-  {id:'led_strip',n:'LED Strip Lights',ap:2,cost:100,co:'#ffd700'},
-  {id:'mirror',n:'Mirror Frame',ap:3,cost:180,co:'#b0c4de'},
-  {id:'succulent',n:'Potted Succulent',ap:2,cost:30,co:'#6b8e23'},
-  {id:'candle',n:'Candle Holder',ap:3,cost:40,co:'#ff8c00'},
-  {id:'flower_vase',n:'Flower Vase',ap:3,cost:35,co:'#db7093'},
-  {id:'bean_planter',n:'Coffee Bean Planter',ap:2,cost:25,co:'#8B4513'},
-  {id:'palm_tree',n:'Potted Palm Tree',ap:4,cost:200,co:'#2d6b2d'},
-  {id:'floor_lamp',n:'Floor Lamp',ap:3,cost:150,co:'#ffd700'},
-  {id:'fountain',n:'Water Fountain',ap:5,cost:600,co:'#4169e1'},
-  {id:'record_player',n:'Vintage Record Player',ap:7,cost:800,co:'#2f2f2f'},
-  {id:'painting',n:'Art Painting',ap:4,cost:250,co:'#9370db'},
-  {id:'string_lights',n:'String Lights',ap:3,cost:80,co:'#ffd700'},
-  {id:'hanging_plant',n:'Hanging Plant Basket',ap:4,cost:60,co:'#32cd32'},
-  {id:'pendant_lamp',n:'Pendant Lamp',ap:5,cost:200,co:'#daa520'}
-];
-
-// ===== MAP + SEATS =====
-function genMap() {
-  var m = [];
+// ===== INIT MAP =====
+function initMap() {
+  debug('=== INIT MAP ===', 'ok');
   for (var y = 0; y < ROWS; y++) {
-    m[y] = [];
+    mapData[y] = [];
     for (var x = 0; x < COLS; x++) {
-      if (y === 0 || x === 0 || x === COLS - 1) m[y][x] = {t:'wall', c:'#5C4A32'};
-      else if (x >= 4 && x <= 9 && y <= 2) m[y][x] = {t:'counter', c:'#7B4A3A'};
-      else m[y][x] = {t:'walkable', c: (x + y) % 2 === 0 ? '#3d2b1a' : '#4a3520'};
-    }
-  }
-  return m;
-}
-
-function genSeats() {
-  var s = [];
-  for (var x = 5; x <= 8; x++) s.push({x:x, y:3, type:'counter', occ:null});
-  for (var r = 7; r <= 9; r++) { s.push({x:7,y:r,type:'table',occ:null}); s.push({x:8,y:r,type:'table',occ:null}); }
-  for (var r2 = 10; r2 <= 11; r2++) { s.push({x:7,y:r2,type:'sofa',occ:null}); s.push({x:8,y:r2,type:'sofa',occ:null}); }
-  return s;
-}
-
-function isWalkable(x, y) {
-  return y >= 0 && y < ROWS && x >= 0 && x < COLS && mapData[y] && mapData[y][x] && mapData[y][x].t !== 'wall';
-}
-
-// ===== PATHFINDING (A*) =====
-function astar(sx, sy, ex, ey) {
-  var open = [{x:sx,y:sy,g:0,f:0,p:[sx+','+sy]}];
-  var cl = new Set();
-  var i = 0;
-  while (open.length > 0 && i < 200) {
-    i++;
-    open.sort(function(a,b){return a.f - b.f});
-    var c = open.shift();
-    if (c.x === ex && c.y === ey) return c.p.map(function(p){return p.split(',').map(Number)});
-    cl.add(c.x+','+c.y);
-    var dirs = [[0,1],[0,-1],[1,0],[-1,0]];
-    for (var d = 0; d < dirs.length; d++) {
-      var nx = c.x + dirs[d][0], ny = c.y + dirs[d][1];
-      if (nx < 0 || ny < 0 || nx >= COLS || ny >= ROWS) continue;
-      var k = nx+','+ny;
-      if (cl.has(k)) continue;
-      var w = mapData[ny][nx].t === 'wall' ? 99 : 1;
-      var g2 = c.g + w;
-      var f2 = g2 + (Math.abs(nx - ex) + Math.abs(ny - ey));
-      if (!open.find(function(o){return o.x === nx && o.y === ny})) {
-        open.push({x:nx,y:ny,g:g2,f:f2,p:[].concat(c.p, [nx+','+ny])});
+      if (y === 0 || x === 0 || x === COLS - 1) {
+        mapData[y][x] = { t: 'wall', c: '#5C4A32' };
+      } else if (x >= 4 && x <= 9 && y <= 2) {
+        mapData[y][x] = { t: 'counter', c: '#7B4A3A' };
+      } else {
+        mapData[y][x] = { t: 'walkable', c: (x + y) % 2 === 0 ? '#3d2b1a' : '#4a3520' };
       }
     }
   }
-  return [{x:sx,y:sy}];
+
+  // Seats
+  seatData = [];
+  for (var x = 5; x <= 8; x++) {
+    seatData.push({ x: x, y: 3, type: 'counter', occ: null });
+  }
+  for (var r = 7; r <= 10; r++) {
+    seatData.push({ x: 7, y: r, type: 'table', occ: null });
+    seatData.push({ x: 8, y: r, type: 'table', occ: null });
+  }
+
+  debug('Map created: ' + mapData.length + ' rows', 'ok');
+  debug('Seats: ' + seatData.length + ' available', 'ok');
+
+  // Walkable check
+  var wCount = 0;
+  for (var y2 = 1; y2 < ROWS - 1; y2++) {
+    for (var x2 = 1; x2 < COLS - 1; x2++) {
+      if (mapData[y2][x2].t === 'walkable') wCount++;
+    }
+  }
+  debug('Walkable tiles: ' + wCount, 'ok');
+}
+
+// ===== PATHFINDING A* =====
+function astar(sx, sy, ex, ey) {
+  if (sx === ex && sy === ey) return [{ x: sx, y: sy }];
+  var open = [{ x: sx, y: sy, g: 0, f: 0, p: [sx + ',' + sy] }];
+  var cl = {};
+  while (open.length > 0) {
+    open.sort(function(a, b) { return a.f - b.f; });
+    var c = open.shift();
+    if (c.x === ex && c.y === ey) return c.p;
+    if (cl[c.x + ',' + c.y]) continue;
+    cl[c.x + ',' + c.y] = true;
+    var dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+    for (var d2 = 0; d2 < 4; d2++) {
+      var nx = c.x + dirs[d2][0], ny = c.y + dirs[d2][1];
+      if (nx < 1 || ny < 1 || nx >= COLS - 1 || ny >= ROWS - 1) continue;
+      if (mapData[ny] && mapData[ny][nx] && mapData[ny][nx].t === 'wall') continue;
+      if (cl[nx + ',' + ny]) continue;
+      var g2 = c.g + 1;
+      var f2 = g2 + Math.abs(nx - ex) + Math.abs(ny - ey);
+      open.push({ x: nx, y: ny, g: g2, f: f2, p: c.p.concat([nx + ',' + ny]) });
+    }
+  }
+  return [{ x: sx, y: sy }]; // fallback
 }
 
 // ===== HELPERS =====
-function addMsg(t, cls) {
-  var l = document.getElementById('msgLog');
-  var d = document.createElement('div');
-  d.className = 'mg';
-  d.style.color = (cls === 'gd') ? '#4ecdc4' : (cls === 'bd') ? '#ff6b6b' : '#ffd700';
-  d.textContent = t;
-  l.prepend(d);
-  if (l.children.length > 8) l.removeChild(l.lastChild);
+function addMsg(t) {
+  debug('[MSG] ' + t);
 }
 
-function getAp() {
-  var s = 0;
-  for (var i = 0; i < G.decs.length; i++) {
-    var def = DECOS.find(function(dd){return dd.id === G.decs[i].id});
-    s += (def) ? def.ap : 0;
+function findFreeSeat() {
+  for (var i = 0; i < seatData.length; i++) {
+    if (!seatData[i].occ) return seatData[i];
   }
-  return s;
+  return null;
 }
 
 // ===== CUSTOMERS =====
-function spawnCust() {
-  var free = seatData.find(function(s){return !s.occ});
-  if (!free || G.queue.length >= 8) return null;
-  var best = CTYPES[0], bs = 0, totalH = G.tick * HPT, curH = (6 + totalH) % 24;
-  for (var ci = 0; ci < CTYPES.length; ci++) {
-    var ct = CTYPES[ci];
-    var w = ct.w || {}, base = w[Math.floor(curH)] || w[12] || 15;
-    var mult = (G.r / 100 + .5) * (G.w === 'rainy' ? 1.3 : 1);
-    var score = base * mult / CTYPES.length;
-    if (score > bs) { bs = score; best = ct; }
+function spawnCust(type) {
+  var freeSeat = findFreeSeat();
+  if (!freeSeat) {
+    debug('No free seats!', 'warn');
+    return false;
   }
-  if (bs < 3) return null;
-  var c2 = {id: ++cid, type: best, x:-1, y:-1, seat: free, st:'enter', pat: 40+Math.random()*80|0, mp: 0, ord: null};
-  c2.mp = c2.pat;
-  G.queue.push(c2);
-  return c2;
+
+  var ct = type || CTYPES[Math.floor(Math.random() * CTYPES.length)];
+  var cust = {
+    id: ++cid,
+    type: ct,
+    x: -1, y: -1,
+    seat: freeSeat,
+    st: 'enter', // enter -> move -> seated -> cooking -> eating -> leave
+    pat: 60 + Math.random() * 60,
+    mp: 0,
+    ord: null,
+    elapse: 0
+  };
+  cust.mp = cust.pat;
+
+  debug('New customer: ' + ct.n + ' (ID:' + cust.id + ')', 'ok');
+  G.queue.push(cust);
+  return true;
 }
 
-// FIXED: Full customer lifecycle with auto-cook from staff
-function updateCust() {
-  for (var ci = 0; ci < G.queue.length; ci++) {
-    var cust = G.queue[ci];
-    if (!cust) continue;
-    
-    // State: enter -> move to seat
-    if (cust.st === 'enter') {
-      cust.x = 2; cust.y = 3; cust.st = 'move';
+function updateCustomers() {
+  for (var i = 0; i < G.queue.length; i++) {
+    var c = G.queue[i];
+    if (!c) continue;
+
+    if (c.st === 'enter') {
+      c.x = 1; c.y = ROWS - 2; c.st = 'move';
     }
-    // State: move -> reach seat
-    else if (cust.st === 'move' && !cust.seat.occ) {
-      var p = astar(cust.x, cust.y, cust.seat ? cust.seat.x : 7, cust.seat ? cust.seat.y : 6);
-      if (p.length > 1 && isWalkable(p[1][0], p[1][1])) {
-        cust.x = p[1][0]; cust.y = p[1][1];
+    else if (c.st === 'move' && !c.seat.occ) {
+      var path = astar(c.x, c.y, c.seat ? c.seat.x : 7, c.seat ? c.seat.y : 8);
+      if (path.length > 1) {
+        var next = path[1].split(',').map(Number);
+        c.x = next[0]; c.y = next[1];
       } else {
-        cust.seat.occ = cust; cust.st = 'seated';
-        cust.pat = 40 + Math.random() * 80 | 0; cust.mp = cust.pat;
+        // Reached seat
+        c.seat.occ = c;
+        c.st = 'seated';
+        c.pat = 60 + Math.random() * 60;
+        c.mp = c.pat;
+        debug(c.type.e + ' Sit down at (' + c.seat.x + ',' + c.seat.y + ')', 'ok');
+
+        // Auto-order after 1 tick
+        setTimeout(function(cid2) {
+          var found = G.queue.find(function(cc) { return cc.id === cid2; });
+          if (found && found.st === 'seated' && !found.ord) {
+            var item = MENU[Math.floor(Math.random() * MENU.length)];
+            found.ord = { name: item.n, prepTime: item.w, elapse: 0, done: false };
+            G.orders.push({ cid: cid2, name: item.n, prepTime: item.w, elapse: 0, done: false });
+            found.st = 'cooking';
+            debug(c.type.e + ' Order: ' + item.n, 'ok');
+          }
+        }, 300); // 1 tick to place order
       }
     }
-    // State: seated -> place order (auto if staff available, else player click)
-    else if (cust.st === 'seated' && !cust.ord) {
-      cust.pat--;
-      if (cust.pat <= 5) {
-        addMsg(cust.type.e + ' Bỏ đi vì chờ lau!', 'bd');
-        removeCust(cust);
+    else if (c.st === 'seated') {
+      c.pat--;
+      if (c.pat <= 5) {
+        debug(c.type.e + ' Leave! Too impatient!', 'err');
+        removeCustomer(c);
       } else {
-        var items = MENU.filter(function(m){return m.p > 0});
-        if (items.length) {
-          var it = items[Math.floor(Math.random() * items.length)];
-          cust.ord = {name: it.n, prepTime: it.w, elapse: 0, done: false};
-          G.orders.push({cid: cust.id, name: it.n, prepTime: it.w, elapse: 0, done: false});
-          addMsg(cust.type.e + ' ' + cust.type.n + ' goi ' + it.n, 'gd');
-          cust.st = 'cooking';
-        }
+        // Wait for cooking to complete
       }
     }
-    // State: cooking -> staff auto-cook, timer counts down
-    else if (cust.st === 'cooking') {
-      var ord = G.orders.find(function(o){return o.cid === cust.id});
+    else if (c.st === 'cooking') {
+      var ord = G.orders.find(function(o) { return o.cid === c.id; });
       if (ord && !ord.done) {
         ord.elapse++;
         if (ord.elapse >= ord.prepTime) {
-          ord.done = true; ord.status = 'done';
+          ord.done = true;
+          ord.status = 'done';
           G.r = Math.min(100, G.r + 3);
-          addMsg('Done! ' + cust.type.e + ' ' + ord.name, 'gd');
-          cust.st = 'eating'; cust.et = 0;
+          debug(c.type.e + ' Order done: ' + ord.name + ' (+REP)', 'ok');
+          c.st = 'eating';
+          c.et = 0;
         }
       }
-      // Patience while cooking
-      if (cust.pat <= 5) {
+      if (c.pat <= 5) {
         G.r = Math.max(0, G.r - 3);
-        addMsg(cust.type.e + ' Gioi vi ch! ' + cust.type.n, 'bd');
-        removeCust(cust);
-      } else {
-        // Count patience during cooking too
-        if (G.tick % 10 === 0) cust.pat--;
+        debug(c.type.e + ' Leave! Angry!', 'err');
+        removeCustomer(c);
       }
     }
-    // State: eating -> leave after timer
-    else if (cust.st === 'eating') {
-      cust.et++;
-      var ord2 = G.orders.find(function(o){return o.cid === cust.id});
-      if (ord2 && cust.et >= 5) {
-        var itemDef = MENU.find(function(m){return m.n === ord2.name});
-        var price = itemDef ? itemDef.p : 3;
+    else if (c.st === 'eating') {
+      c.et++;
+      var ord2 = G.orders.find(function(o) { return o.cid === c.id; });
+      if (c.et >= 5 && ord2) {
+        var menuItem = MENU.find(function(m) { return m.n === ord2.name; });
+        var price = menuItem ? menuItem.p : 3;
         var tip = Math.floor(price * 0.15);
         G.m += price + tip;
-        G.tipsAll += tip;
-        G.revenue += price + tip;
-        if (cust.seat) cust.seat.occ = null;
-        addMsg(cust.type.e + ' tra $' + (price + tip), 'gd');
-        removeCust(cust);
+        debug(c.type.e + ' Pay $' + (price + tip) + ' (' + price + '+$'+tip+')', 'ok');
+        removeCustomer(c);
       }
     }
   }
 }
 
-function removeCust(cust) {
-  var idx = G.queue.indexOf(cust);
+function removeCustomer(c) {
+  var idx = G.queue.indexOf(c);
   if (idx >= 0) G.queue.splice(idx, 1);
-  if (cust.seat) cust.seat.occ = null;
+  if (c.seat) c.seat.occ = null;
 }
 
 // ===== STAFF =====
 function hireStaff(id) {
-  var s = STAFF_T.find(function(t){return t.id === id});
+  var s = STAFF_T.find(function(t) { return t.id === id; });
   if (!s || G.m < s.cost) return;
   G.m -= s.cost;
-  G.staff.push({id: s.id, name: s.n, stamina: 100, tasks: 0, x: 6, y: 1});
-  addMsg('Da tuyen ' + s.e + ' ' + s.n + ' cho $' + s.cost, 'gd');
+  G.staff.push({ id: s.id, name: s.n, tasks: 0, x: 6, y: 1 });
+  debug('Hired: ' + s.e + ' ' + s.n + ' for $' + s.cost, 'ok');
   renderPanel();
 }
 
-// FIXED: Staff auto-cook orders!
 function updateStaff() {
   for (var si = 0; si < G.staff.length; si++) {
     var staff = G.staff[si];
-    var pending = G.orders.find(function(o){return !o.done});
+    var pending = G.orders.find(function(o) { return !o.done; });
     if (pending) {
       staff.x = 7; staff.y = 2;
-      // Cook speed by type: cook=6, barista=10, server=14, cashier=18
-      var cookSpeed = (staff.id === 'cook') ? 6 : (staff.id === 'barista') ? 10 : (staff.id === 'server') ? 14 : 18;
-      if (Math.random() < (1 / cookSpeed)) {
-        pending.elapse += cookSpeed;
+      var speed = (staff.id === 'cook') ? 3 : (staff.id === 'barista') ? 5 : 8;
+      if (G.tick % speed === 0) {
+        pending.elapse++;
         if (pending.elapse >= pending.prepTime) {
-          pending.done = true; pending.status = 'done';
+          pending.done = true;
+          pending.status = 'done';
           G.r = Math.min(100, G.r + 2);
           staff.tasks++;
-          addMsg(staff.name + ' xong ' + pending.name + '! (+REP)', 'gd');
-        } else {
-          // Show progress occasionally
-          if (G.tick % 3 === 0 && Math.random() < 0.1) {
-            addMsg(staff.name + ' dang nau...', 'inf');
-          }
+          debug(staff.name + ' done: ' + pending.name, 'ok');
         }
       }
     } else {
@@ -310,183 +384,113 @@ function updateStaff() {
   }
 }
 
-// ===== GAME LOOP =====
-var lt = 0;
-function gameLoop(ts) {
-  if (!lt) lt = ts;
-  var d = ts - lt;
-  lt = ts;
-  if (d > TICK) d = TICK;
-  
-  if (!G.paused && d >= TICK) {
-    var ticks = Math.floor(d / TICK);
-    for (var i = 0; i < ticks; i++) {
-      G.tick++;
-      var tH = G.tick * HPT;
-      var curH = (6 + tH) % 24;
-      if (curH >= 21) { endDay(); break; }
-      
-      // Weather changes
-      if (G.tick % 30 === 0) G.w = G.w === 'sunny' ? 'sunny' : 'rainy';
-      
-      // Customer spawn rate by time
-      var sp = 5, h = (6 + G.tick * HPT) % 24;
-      if (h >= 7 && h <= 9) sp = 25;
-      else if (h >= 10 && h <= 11) sp = 18;
-      else if (h >= 11 && h <= 13) sp = 14;
-      else if (h >= 13 && h <= 17) sp = 10;
-      else if (h >= 17 && h <= 20) sp = 20;
-      else if (h >= 20 && h <= 21) sp = 5;
-      else sp = 2;
-      if (G.r > 50) sp += 3;
-      if (G.r > 70) sp += 5;
-      
-      if (Math.random() * 100 < sp) {
-        if (spawnCust()) G.ct++;
-      }
-      
-      // Customer AI + cooking (auto from staff)
-      updateCust();
-      // Staff auto-cook orders!
-      updateStaff();
-    }
-  }
-  
-  renderGame();
-  updateUI();
-  requestAnimationFrame(gameLoop);
-}
-
-function endDay() {
-  G.d++;
-  G.m -= G.exp;
-  G.revenue = 0;
-  G.exp = 0;
-  G.queue = [];
-  G.orders = [];
-  seatData.forEach(function(s){s.occ = null});
-  addMsg('Ngay ' + G.d + ' bat dau!', 'inf');
-  if (G.m < -500) { G.over = true; alert('Ngan sach am! Game over.'); }
-}
-
 // ===== RENDERING =====
 function renderGame() {
+  if (!canvasEl || !ctx) {
+    debug('Canvas NOT ready!', 'err');
+    return;
+  }
+
   var c2 = canvasEl.getContext('2d');
+  if (!c2) { debug('getContext failed!', 'err'); return; }
+
+  // Clear
   c2.fillStyle = '#0f0b08';
   c2.fillRect(0, 0, 512, 384);
-  
+
   // Map tiles
   for (var y = 0; y < ROWS; y++) {
     for (var x = 0; x < COLS; x++) {
-      var t = mapData[y] ? mapData[y][x] : null;
+      var t = mapData[y] && mapData[y][x];
       if (!t) continue;
       c2.fillStyle = t.c;
-      c2.fillRect(x * TILE, y * TILE, TILE, TILE);
+      c2.fillRect(x * TILE, y * TILE, TILE - 1, TILE - 1);
+
+      // Wall top line
       if (t.t === 'wall') {
         c2.fillStyle = '#4a3520';
-        c2.fillRect(x * TILE, y * TILE, TILE, 3);
+        c2.fillRect(x * TILE, y * TILE + TILE - 3, TILE, 3);
       } else if (t.t === 'counter') {
         c2.fillStyle = '#8B5A3A';
-        c2.fillRect(x * TILE + 1, y * TILE + 1, TILE - 2, TILE / 2);
+        c2.fillRect(x * TILE + 1, y * TILE + 1, TILE - 2, 14);
       }
     }
   }
-  
-  // Occupied seats
-  for (var i = 0; i < G.queue.length; i++) {
-    var sc = G.queue[i];
-    if ((sc.st === 'seated' || sc.st === 'cooking' || sc.st === 'eating') && sc.seat) {
-      c2.fillStyle = 'rgba(0,0,0,.3)';
-      c2.fillRect(sc.seat.x * TILE, sc.seat.y * TILE, TILE, TILE);
-    }
+
+  // Seats labels
+  for (var si = 0; si < seatData.length; si++) {
+    var seat = seatData[si];
+    c2.fillStyle = '#ffd700';
+    c2.font = '10px monospace';
+    c2.fillText('S' + si, seat.x * TILE + 8, seat.y * TILE + 28);
   }
-  
-  // Decorations
-  for (var di = 0; di < G.decs.length; di++) {
-    var d = G.decs[di];
-    c2.fillStyle = d.co || '#888';
-    c2.globalAlpha = .7;
-    c2.beginPath();
-    c2.arc((7 + di % 5) * TILE + 16, (2 + Math.floor(di / 5)) * TILE + 16, 10, 0, Math.PI * 2);
-    c2.fill();
-    c2.globalAlpha = 1;
-  }
-  
-  // Customers (walking/standing)
+
+  // Customers (walking)
   for (var ci = 0; ci < G.queue.length; ci++) {
     var cust = G.queue[ci];
-    if (cust.x >= -1 && (cust.st === 'enter' || cust.st === 'move')) {
-      var px = cust.x * TILE, py = cust.y * TILE;
+    if (cust.st === 'enter' || cust.st === 'move') {
       c2.fillStyle = cust.type.c;
-      c2.fillRect(px + 8, py + 6, 16, 14);
+      c2.fillRect(cust.x * TILE + 8, cust.y * TILE + 6, 16, 14);
+      // Head
       c2.fillStyle = '#f0d0a0';
-      c2.fillRect(px + 10, py, 12, 8);
-      
+      c2.fillRect(cust.x * TILE + 10, cust.y * TILE, 12, 8);
       // Patience bar
       var pct = Math.max(0, cust.pat / cust.mp);
-      var col2 = (pct > .5) ? '#4ecdc4' : (pct > .2) ? '#ffd700' : '#ff6b6b';
+      var col = pct > .5 ? '#4ecdc4' : pct > .2 ? '#ffd700' : '#ff6b6b';
       c2.fillStyle = '#1a1410';
-      c2.fillRect(px + 4, py - 10, 24, 3);
-      c2.fillStyle = col2;
-      c2.fillRect(px + 4, py - 10, 24 * pct, 3);
+      c2.fillRect(cust.x * TILE + 4, cust.y * TILE - 8, 24, 3);
+      c2.fillStyle = col;
+      c2.fillRect(cust.x * TILE + 4, cust.y * TILE - 8, 24 * pct, 3);
     }
-    // Seated customers
+    // Seated/cooking/eating
     if ((cust.st === 'seated' || cust.st === 'cooking' || cust.st === 'eating') && cust.seat) {
-      var spx = cust.seat.x * TILE, spy = cust.seat.y * TILE;
       c2.fillStyle = cust.type.c;
-      c2.fillRect(spx + 10, spy + 8, 12, 10);
+      c2.fillRect(cust.seat.x * TILE + 10, cust.seat.y * TILE + 8, 12, 10);
     }
   }
-  
+
   // Staff
-  for (var si = 0; si < G.staff.length; si++) {
-    var stf = G.staff[si];
-    var spx2 = stf.x * TILE, spy2 = stf.y * TILE;
+  for (var sti = 0; sti < G.staff.length; sti++) {
+    var stf = G.staff[sti];
     c2.fillStyle = '#c48b3a';
-    c2.fillRect(spx2 + 8, spy2 + 6, 16, 14);
+    c2.fillRect(stf.x * TILE + 6, stf.y * TILE + 4, 20, 18);
     c2.fillStyle = '#f0d0a0';
-    c2.fillRect(spx2 + 10, spy2, 12, 8);
-    c2.fillStyle = '#c48b3a';
-    c2.fillRect(spx2 + 8, spy2 - 2, 20, 4);
+    c2.fillRect(stf.x * TILE + 8, stf.y * TILE, 16, 10);
+    // Staff ID label
+    c2.fillStyle = '#fff';
+    c2.font = '9px monospace';
+    c2.fillText('SF', stf.x * TILE + 4, stf.y * TILE - 4);
   }
-  
-  // Cooking indicators
+
+  // Cooking flames
   for (var oi = 0; oi < G.orders.length; oi++) {
     var ord = G.orders[oi];
     if (!ord.done) {
-      c2.font = 'bold 12px sans-serif';
       c2.fillStyle = '#ff8c00';
-      c2.fillText('t', (7 + oi % 4) * TILE, 1 * TILE - 4);
+      c2.font = 'bold 14px sans-serif';
+      c2.fillText('\uD83D\uDD25', 7 * TILE + (oi % 4) * 16, TILE - 4);
     }
   }
-  
+
   // Night overlay
-  var tH2 = G.tick * HPT, h2 = 6 + tH2;
+  var h = Math.floor((6 + G.tick * HPT) % 24);
   var dk = 0;
-  if (h2 > 20) dk = (h2 - 20) * .08;
-  if (h2 < 7) dk = (7 - h2) * .06;
-  if (dk > 0) {
-    c2.fillStyle = 'rgba(0,0,25,' + Math.min(dk, .3) + ')';
+  if (h > 20) dk = (h - 20) * .08;
+  if (h < 7) dk = (7 - h) * .06;
+  if (dk > 0 && dk <= .3) {
+    c2.fillStyle = 'rgba(0,0,25,' + dk + ')';
     c2.fillRect(0, 0, 512, 384);
   }
-  
-  // Rain effect
-  if (G.w === 'rainy') {
-    for (var ri = 0; ri < 30; ri++) {
-      var rx = (Date.now() / 8 + ri * 41) % 512;
-      var ry = (Date.now() / 3 + ri * 49) % 384;
-      c2.strokeStyle = 'rgba(100,180,255,.1)';
-      c2.lineWidth = 1;
-      c2.beginPath();
-      c2.moveTo(rx, ry);
-      c2.lineTo(rx + 1, ry + 7);
-      c2.stroke();
-    }
-  }
+
+  // Debug overlay info
+  c2.fillStyle = '#4ecdc4';
+  c2.font = '12px monospace';
+  c2.fillText('TICK:' + G.tick + ' QUEUE:' + G.queue.length + ' ORDERS:' + G.orders.length, 10, 380);
 }
 
 // ===== UI =====
 var curTab = 0;
+
 function switchTab(i) {
   curTab = i;
   var tabs = document.querySelectorAll('.tab');
@@ -497,143 +501,156 @@ function switchTab(i) {
 }
 
 function renderPanel() {
-  var c2 = document.getElementById('content');
-  if (curTab === 0) c2.innerHTML = rMenu();
-  else if (curTab === 1) c2.innerHTML = rStaff();
-  else if (curTab === 2) c2.innerHTML = rShop();
-  else c2.innerHTML = rEco();
-}
+  var content = document.getElementById('content');
+  if (!content) return;
 
-function rMenu() {
-  var h = '<div class="sec"><h3>COFFEE MENU</h3>';
-  
-  var categories = [
-    ['coffee', 'Coffee'], ['special', 'Special'], ['tea', 'Tea'],
-    ['bev', 'Beverage'], ['dessert', 'Dessert'], ['food', 'Food']
-  ];
-  
-  for (var catI = 0; catI < categories.length; catI++) {
-    var catName = categories[catI][1];
-    var items = MENU.filter(function(m){return m.p > 0});
-    if (items.length) {
-      h += '<div style="margin:5px 0"><b>' + catName + '</b>';
-      for (var itemI = 0; itemI < items.length; itemI++) {
-        var it = items[itemI];
-        h += '<div class="card" onclick="serveCust(\'' + it.id + '\')">';
-        h += '<span class="nm">' + it.n + '</span><br>';
-        h += '<span class="ds">Prep: ' + it.w + 's</span><br>';
-        h += '<span class="pr">$' + it.p + '</span></div>';
-      }
+  if (curTab === 0) {
+    content.innerHTML = '<div class="sec"><h3>MENU</h3>';
+    for (var mi = 0; mi < MENU.length; mi++) {
+      var item = MENU[mi];
+      content.innerHTML += '<div class="card" onclick="serveOrder(\'' + item.id + '\')">';
+      content.innerHTML += '<span class="nm">' + item.n + '</span><br>';
+      content.innerHTML += '<span class="ds">Prep: ' + item.w + 's</span> ';
+      content.innerHTML += '<span class="pr">$' + item.p + '</span></div>';
     }
-  }
-  return h;
-}
-
-function rStaff() {
-  var h = '<div class="sec"><h3>STAFF (have: ' + G.staff.length + ')</h3>';
-  for (var si = 0; si < G.staff.length; si++) {
-    var s = G.staff[si];
-    h += '<div class="card"><span class="nm">' + s.name + '</span><br>Tasks: ' + s.tasks + '</div>';
-  }
-  for (var sti = 0; sti < STAFF_T.length; sti++) {
-    var st = STAFF_T[sti];
-    var canAfford = G.m >= st.cost;
-    h += '<div class="card"><span class="nm">' + st.e + ' ' + st.n + '</span><br>';
-    h += '<button class="bu" onclick="hireStaff(\'' + st.id + '\')">';
-    h += (canAfford ? 'HIRE $' + st.cost : 'No money') + '</button></div>';
-  }
-  return h;
-}
-
-function rShop() {
-  var h = '<div class="sec"><h3>DECORATIONS (AP:' + getAp() + ')</h3>';
-  for (var di = 0; di < DECOS.length; di++) {
-    var d = DECOS[di];
-    var owned = G.decs.find(function(dd){return dd.id === d.id});
-    h += '<div class="card">' + d.n + '<br><span class="ds">+' + d.ap + ' AP</span><br>$' + d.cost;
-    if (owned) {
-      h += ' OK';
-    } else {
-      var canBuy = G.m >= d.cost;
-      h += ' <button class="bu" onclick="buyDeco(\'' + d.id + '\')">BUY</button>';
+    content.innerHTML += '</div>';
+  } else if (curTab === 1) {
+    content.innerHTML = '<div class="sec"><h3>STAFF (' + G.staff.length + ')</h3>';
+    for (var si = 0; si < G.staff.length; si++) {
+      content.innerHTML += '<div class="card"><span class="nm">' + G.staff[si].name + '</span><br>Tasks: ' + G.staff[si].tasks + '</div>';
     }
-    h += '</div>';
+    for (var sti2 = 0; sti2 < STAFF_T.length; sti2++) {
+      var st = STAFF_T[sti2];
+      content.innerHTML += '<div class="card"><span class="nm">' + st.e + ' ' + st.n + '</span><br>';
+      content.innerHTML += '<button class="bu" onclick="hireStaff(\'' + st.id + '\')">';
+      content.innerHTML += (G.m >= st.cost ? 'HIRE $' + st.cost : 'NO MONEY') + '</button></div>';
+    }
+    content.innerHTML += '</div>';
+  } else if (curTab === 2) {
+    content.innerHTML = '<div class="sec"><h3>DECORATIONS (' + G.decs.length + '/18)</h3><p style="color:#b89a6e;font-size:11px">Coming in V10...</p></div>';
   }
-  return h;
 }
 
-function rEco() {
-  var prof = G.revenue - G.exp;
-  var h = '<div class="sec"><h3>ECONOMY</h3>';
-  h += '<div class="kr">';
-  h += '<div class="ki"><div class="kl">Cash</div><div class="kv">$' + G.m + '</div></div>';
-  h += '<div class="ki"><div class="kl">Revenue</div><div class="kv">$' + G.revenue + '</div></div>';
-  h += '<div class="ki"><div class="kl">Expenses</div><div class="kv">$' + G.exp + '</div></div>';
-  h += '</div>';
-  h += '<div class="barHp" style="margin:8px 0;height:10px;width:' + Math.max(0, G.r) + '%"></div>';
-  h += '<p>Rep: ' + Math.round(G.r) + '/100</p>';
-  h += '<h3>Tips today: $' + G.tipsT + ' | Total tips: $' + G.tipsAll + '</h3>';
-  h += '<h3>Win: $10K + Rep 80 | Lose: <$500</h3></div>';
-  return h;
-}
-
-// ===== SERVE (manual override — auto-serve works with staff) =====
-function serveCust(id) {
-  var item = MENU.find(function(m){return m.id === id});
+function serveOrder(id) {
+  var item = MENU.find(function(m) { return m.id === id; });
   if (!item) return;
-  var seated = G.queue.find(function(c){return c.st === 'seated' && !c.ord});
-  if (!seated) return addMsg('No customer seated!', 'bd');
-  seated.ord = {name: item.n, prepTime: item.w, elapse: 0, done: false};
-  seated.st = 'cooking';
-  G.orders.push({cid: seated.id, name: item.n, prepTime: item.w, elapse: 0, done: false});
-  addMsg('Serve ' + item.n, 'gd');
-  renderPanel();
-}
 
-function buyDeco(id) {
-  var d = DECOS.find(function(dd){return dd.id === id});
-  if (!d || G.m < d.cost) return;
-  G.m -= d.cost;
-  G.decs.push(d);
-  addMsg('Buy ' + d.n, 'gd');
+  var seated = G.queue.find(function(c) { return c.st === 'seated' && !c.ord; });
+  if (!seated) {
+    addMsg('No customer seated!');
+    return;
+  }
+
+  seated.ord = { name: item.n, prepTime: item.w, elapse: 0, done: false };
+  seated.st = 'cooking';
+  G.orders.push({ cid: seated.id, name: item.n, prepTime: item.w, elapse: 0, done: false });
+  addMsg('Serve ' + item.n);
   renderPanel();
 }
 
 // ===== UI UPDATE =====
 function updateUI() {
-  document.getElementById('vMoney').textContent = '$' + G.m.toLocaleString();
-  document.getElementById('vRep').textContent = Math.round(G.r);
-  var h = Math.floor((6 + G.tick * HPT) % 24);
-  var m2 = Math.floor(((6 + G.tick * HPT) % 1) * 60);
-  var h12 = h % 12 || 12;
-  document.getElementById('vTime').textContent = 'Day ' + G.d + ' - ' + String(h12).padStart(2, '0') + ':' + String(m2).padStart(2, '0') + ' ' + (h < 12 ? 'AM' : 'PM');
-  document.getElementById('vWeather').textContent = G.w === 'rainy' ? 'Rainy' : 'Sunny';
-  document.getElementById('vCust').textContent = G.queue.length + '/8';
+  var vMoney = document.getElementById('vMoney');
+  var vRep = document.getElementById('vRep');
+  var vDay = document.getElementById('vDay');
+  var vTime = document.getElementById('vTime');
+  var vCust = document.getElementById('vCust');
+
+  if (vMoney) vMoney.textContent = '$' + G.m;
+  if (vRep) vRep.textContent = Math.round(G.r);
+  if (vDay) vDay.textContent = G.d;
+  if (vTime) {
+    var h = Math.floor((6 + G.tick * HPT) % 24);
+    var m = Math.floor(((6 + G.tick * HPT) % 1) * 60);
+    var h12 = h % 12 || 12;
+    vTime.textContent = String(h12).padStart(2, '0') + ':' + String(m).padStart(2, '0') + (h < 12 ? 'AM' : 'PM');
+  }
+  if (vCust) vCust.textContent = G.queue.length + '/8';
+
   renderPanel();
 }
 
-// ===== AUTO START: spawn first customer immediately after init =====
+// ===== GAME LOOP =====
+var lt = 0;
 
-// ===== INIT (runs last, after all functions defined) =====
-G = {m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
-mapData = genMap();
-seatData = genSeats();
+function gameLoop(ts) {
+  if (!lt) lt = ts;
+  var d = ts - lt;
+  lt = ts;
+  if (d > TICK * 4) d = TICK * 4; // cap delta for tab switch
 
-// Create DOM references (now all functions are defined)
+  if (!G.paused && d >= TICK) {
+    var ticks = Math.floor(d / TICK);
+    for (var ti = 0; ti < ticks; ti++) {
+      G.tick++;
+
+      // Spawn customers (every few ticks during business hours)
+      var curH = Math.floor((6 + G.tick * HPT) % 24);
+      var spawnChance = 3; // base chance per tick
+      if (curH >= 7 && curH <= 9) spawnChance = 15; // morning rush
+      else if (curH >= 10 && curH <= 14) spawnChance = 8; // lunch
+      else if (curH >= 17 && curH <= 20) spawnChance = 12; // evening
+
+      var freeSeat = findFreeSeat();
+      if (G.queue.length < 8 && Math.random() * 100 < spawnChance && freeSeat) {
+        if (!spawnCust()) {
+          debug('Spawn failed!', 'err');
+        }
+      }
+
+      updateCustomers();
+      updateStaff();
+
+      // End day check
+      if (curH >= 21) {
+        addMsg('Day ' + G.d + ' ended!');
+        G.d++;
+        G.m -= G.exp;
+        G.revenue = 0;
+        G.queue = [];
+        G.orders = [];
+        for (var sr = 0; sr < seatData.length; sr++) { seatData[sr].occ = null; }
+      }
+    }
+
+    renderGame();
+    updateUI();
+  }
+
+  requestAnimationFrame(gameLoop);
+}
+
+// ===== INIT (FINAL) =====
+debug('=== GAME STARTING ===', 'ok');
+debug('Checking DOM elements...', 'warn');
+
+var testCanvas = document.getElementById('gameCanvas');
+if (!testCanvas) { debug('ERROR: canvas element NOT found!', 'err'); } else { debug('canvas element FOUND', 'ok'); }
+
+var testContent = document.getElementById('content');
+if (!testContent) { debug('ERROR: content panel NOT found!', 'err'); } else { debug('content panel FOUND', 'ok'); }
+
+debug('Initializing...', 'warn');
+initMap();
+debug('Map initialized, starting game loop...', 'ok');
+
+// Now get canvas element for rendering
 canvasEl = document.getElementById('gameCanvas');
-ctx = canvasEl.getContext('2d');
+ctx = canvasEl ? canvasEl.getContext('2d') : null;
+if (!canvasEl) { debug('FATAL: canvasEl is null!', 'err'); }
+else if (!ctx) { debug('FATAL: getContext returned null!', 'err'); }
+else { debug('Canvas context ready: ' + canvasEl.width + 'x' + canvasEl.height, 'ok'); }
 
-addMsg('Welcome! Cafe is open. Hire staff to auto-serve customers!', 'gd');
-renderPanel();
+debug('Starting game loop...', 'ok');
 requestAnimationFrame(gameLoop);
 
-// Auto-spawn 2 customers immediately on startup so you see the cafe alive
-setTimeout(function() { spawnCust(); addMsg('Khach dau tien den!','gd'); }, 1000);
+// Spawn first customer immediately
+setTimeout(function() {
+  debug('--- Auto-spawning first customer ---', 'warn');
+  if (!spawnCust()) { debug('First spawn FAILED!', 'err'); }
+}, 500);
 
-// Auto-save every 60 seconds
-setInterval(function() {
-  if (G && !G.over) {
-    try { localStorage.setItem('cafe_save', JSON.stringify(G)); } catch(e) {}
-  }
-}, 60000);
-</script></body></html>
+debug('=== GAME READY ===', 'ok');
+</script>
+</body>
+</html>
