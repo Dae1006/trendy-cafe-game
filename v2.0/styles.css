@@ -1,247 +1,127 @@
 /* ============================================
-   QUÁN TRENDY CAFÉ — PIXEL ART EDITION
-   FIXED: selectors match HTML, font stack supports Vietnamese + emoji
+   TRENDY CAFé v2.0 — PIXEL ART (ENGLISH)
+   Clean, minimal CSS. ASCII-only text everywhere.
    ============================================ */
 
+/* ---------- Google Font ---------- */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ---------- Base Reset ---------- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ---------- Reset ---------- */
+* { margin:0; padding:0; box-sizing:border-box; }
 
-/* ---------- CSS Variables ---------- */
+/* ---------- Variables ---------- */
 :root {
-    --primary: #8B4513;
-    --primary-light: #D2691E;
-    --secondary: #F4A460;
-    --accent: #FF6347;
-    --gold: #FFD700;
-    --bg-dark: #1a1a2e;
-    --bg-medium: #16213e;
-    --bg-light: #0f3460;
-    --text: #e8e8e8;
-    --text-dim: #a0a0b0;
-    --common: #b0b0b0;
-    --rare: #4169E1;
-    --epic: #9932CC;
-    --legendary: #FFD700;
+  --primary:#8B4513; --accent:#FF6347; --gold:#FFD700;
+  --bg:#1a1a2e; --mid:#16213e; --card:#0f3460;
+  --txt:#e8e8e8; --dim:#a0a0b0;
+  --rarity-common:#b0b0b0; --rare:#4169E1; --epic:#9932CC; --legendary:#FFD700;
 }
 
-/* ---------- Body / Font Stack ---------- */
+/* ---------- Font — ASCII only, pixel look ---------- */
 body {
-    /* Press Start 2P for the pixel look, but fallback to a Vietnamese-friendly font for diacritics & emoji */
-    font-family: 'Press Start 2P', 'Noto Sans KR', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif;
-    background: var(--bg-dark);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-    image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;
+  font-family: 'Press Start 2P', monospace;
+  background:var(--bg); color:var(--txt);
+  min-height:100vh; overflow-x:hidden;
 }
 
-/* ---- Header (#hdr in HTML) ---- */
+/* All interactive text inherits this */
+.nav-text, .label-text, .card-label, .stat-value { font-family:'Press Start 2P', monospace; }
+
+/* ---------- Header ---------- */
 #hdr {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px;
-    background: linear-gradient(135deg, var(--bg-dark), var(--bg-light));
-    border-bottom: 4px solid var(--gold);
-    box-shadow: 0 4px 0 0 #000;
+  display:flex; justify-content:space-between; padding:10px 15px;
+  background:linear-gradient(135deg,var(--bg),var(--card));
+  border-bottom:4px solid var(--gold); box-shadow:0 4px 0 #000;
 }
-
-.coin-display, .level-display {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-size: 10px;
-    line-height: 1.6;
+.coin-display,.level-display {
+  display:flex; gap:6px; align-items:center;
+  font-size:10px; line-height:2;
 }
+#coins,#xp,#xpn { color:var(--gold); text-shadow:2px 2px 0 #000; }
 
-#coins, #xp, #xpn {
-    font-weight: bold;
-    color: var(--gold);
-    text-shadow: 2px 2px 0 #000;
+/* ---------- XP Bar ---------- */
+#xp-wrap { width:100%; height:8px; background:#333; border-bottom:2px solid #000; }
+#xp-bar   { height:100%; background:linear-gradient(90deg,#4169E1,#9932CC); transition:width .3s; }
+
+/* ---------- Weather Bar ---------- */
+#wweather { padding:6px 15px; background:var(--accent); display:flex; align-items:center; justify-content:space-between; font-size:10px; font-weight:bold; border-bottom:4px solid #000; }
+.w-emoji   { font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif; margin-right:6px; }
+
+/* ---------- Tabs / Nav bars ---------- */
+.tab-bar { display:flex; gap:4px; padding:8px 10px; background:var(--bg); overflow-x:auto; border-bottom:4px solid var(--primary); }
+.nav-btn { flex:1; min-width:55px; padding:7px 4px; border:3px solid #000; background:var(--card); color:var(--dim); font-size:8px; cursor:pointer; font-family:'Press Start 2P',monospace; transition:.1s; }
+.nav-btn:hover { background:#1a4a80; border-color:var(--gold); }
+.nav-btn.on   { background:var(--primary); color:#fff; border-color:var(--gold); box-shadow:inset 1px 1px 0 rgba(255,255,255,.3),inset -1px -1px 0 rgba(0,0,0,.3),0 4px 0 #000; }
+.nav-btn:disabled { opacity:.3; cursor:not-allowed; border-color:#333; }
+
+/* ---------- Canvas Scene ---------- */
+#scene-wrap { position:relative; height:220px; overflow:hidden; background:#000; border-bottom:4px solid var(--primary); }
+#scene-canvas { width:100%; height:100%; display:block; image-rendering:pixelated; }
+
+/* ---------- Panels ---------- */
+#pnl { min-height:200px; }
+.pan    { display:none; padding:15px; background:var(--mid); }
+.pan.on  { display:block; }
+
+/* ---------- Lists (all panels use same layout) ---------- */
+#ol,#ml,#cl,#fl,#il,#ql,#ul,#al,#sll,#slp,#so,#hl { display:flex; flex-direction:column; gap:5px; font-family:'Press Start 2P',monospace; }
+
+/* ---------- Cards ---------- */
+.card,.shop-item,.item-card,.upgrade-item,.quest-item {
+  display:flex; align-items:center; padding:10px;
+  background:var(--card); margin-bottom:8px; border:2px solid #000;
+  border-left:4px solid var(--rarity-common); box-shadow:inset 1px 1px 0 rgba(255,255,255,.1);
 }
+.item-card.common   { border-left-color:var(--rarity-common); }
+.item-card.rare     { border-left-color:var(--rare); }
+.item-card.epic     { border-left-color:var(--epic); }
+.item-card.legendary{ border-left-color:var(--legendary); }
 
-/* ---- XP Bar ---- */
-#xp-wrap { width: 100%; height: 8px; background: #333; border-bottom: 2px solid #000; }
-#xp-bar   { height: 100%; background: linear-gradient(90deg, #4169E1, #9932CC); transition: width .3s; }
+.card .pr,.item-price,.upgrade-cost,.order-price { color:var(--gold); font-weight:bold; font-size:9px; text-shadow:2px 2px 0 #000; }
+.card span:first-child,.item-name,.upgrade-name   { flex:1; font-weight:bold; font-size:9px; line-height:2; font-family:'Press Start 2P',monospace; }
 
-/* ---- Weather Bar (#weather in HTML) ---- */
-#weather {
-    padding: 6px 15px;
-    background: linear-gradient(90deg, var(--accent), #FF8C00);
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 10px; font-weight: bold;
-    border-bottom: 4px solid #000;
-    box-shadow: inset 0 -4px 0 0 rgba(0,0,0,.3);
+/* ---------- Buttons ---------- */
+.btn,.buy-btn,.serve-btn,.upgrade-btn,.supply-btn,.modal-btn {
+  padding:4px 12px; border:2px solid #000; background:var(--accent); color:#fff; font-size:8px;
+  cursor:pointer; font-family:'Press Start 2P',monospace; box-shadow:2px 2px 0 #000; transition:.05s;
 }
+.btn:hover,.buy-btn:hover { transform:translate(-1px,-1px); box-shadow:3px 3px 0 #000; }
+.btn:active, .buy-btn:active { transform:translate(2px,2px); box-shadow:none; }
+.btn:disabled,.buy-btn:disabled { background:#555; cursor:not-allowed; transform:none; }
 
-.weather-tip { font-size: 9px; opacity: .8; }
+/* ---------- Item emoji ---------- */
+.item-emoji { font-size:24px; margin-right:10px; filter:drop-shadow(2px 2px 0 #000); font-family:'Segoe UI Emoji','Apple Color Emoji',sans-serif; }
 
-/* Weather background classes */
-.weather-sunny     { background: linear-gradient(to bottom, #87CEEB 0%, #8B7355 60%, #696969 100%); }
-.weather-cloudy    { background: linear-gradient(to bottom, #708090 0%, #778899 60%, #2F4F4F 100%); }
-.weather-rainy     { background: linear-gradient(to bottom, #4a4a5a 0%, #5a5a6a 60%, #3a3a4a 100%); }
-.weather-thunderstorm{ background: linear-gradient(to bottom, #2a2a3a 0%, #1a1a2a 60%, #0a0a1a 100%); }
-.weather-hot       { background: linear-gradient(to bottom, #FF4500 0%, #FF6347 60%, #FF8C00 100%); }
-.weather-tet       { background: linear-gradient(to bottom, #FF0000 0%, #FFD700 50%, #FF0000 100%); }
+/* ---------- Progress bars ---------- */
+.quest-progress,.mood-bar,.stock-bar { height:6px; background:#333; border:1px solid #000; overflow:hidden; margin-top:4px; }
+.quest-progress-bar,.mood-fill.high   { height:100%; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width .3s; }
+.mood-fill.mid  { height:100%; background:#FFD700; }
+.mood-fill.low  { height:100%; background:#dc3545; }
 
-/* ---- Locations (#locs in HTML) ---- */
-#locs {
-    display: flex; gap: 5px; padding: 8px 10px;
-    background: var(--bg-dark); overflow-x: auto;
-    border-bottom: 4px solid var(--primary);
-}
+/* ---------- Modal ---------- */
+.modal       { position:fixed; inset:0; background:rgba(0,0,0,.85); display:flex; justify-content:center; align-items:center; z-index:1000; font-family:'Press Start 2P',monospace; }
+.modal.hidden { display:none; }
+.modal-content { background:var(--mid); width:90%; max-width:400px; max-height:80vh; overflow-y:auto; border:4px solid var(--gold); box-shadow:0 8px 0 #000; padding:15px; font-family:'Press Start 2P',monospace; }
 
-.loc-btn, .nb {               /* support both old & new class names */
-    flex: 1; min-width: 60px; padding: 8px 5px;
-    border: 3px solid #000; border-radius: 0;
-    background: var(--bg-light); color: var(--text-dim);
-    font-size: 8px; cursor: pointer; transition: all .1s;
-    font-family: 'Press Start 2P', monospace;
-    box-shadow: inset 2px 2px 0 rgba(255,255,255,.2), inset -2px -2px 0 rgba(0,0,0,.3);
-}
-.loc-btn:hover, .nb:hover     { background: #1a4a80; border-color: var(--gold); }
-.loc-btn.active, .nb.on       { background: var(--primary); color: #fff; border-color: var(--gold);
-    box-shadow: inset 2px 2px 0 rgba(255,255,255,.3), inset -2px -2px 0 rgba(0,0,0,.3), 0 4px 0 #000; }
-.loc-btn:disabled, .nb:disabled { opacity: .3; cursor: not-allowed; border-color: #333; }
+/* ---------- Notification ---------- */
+#notif { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--primary); color:#fff; padding:10px 20px; border:3px solid var(--gold); box-shadow:0 4px 0 #000; z-index:9999; font-size:9px; display:none; animation:fadeIn .3s; font-family:'Press Start 2P',monospace; }
 
-/* ---- Scene Canvas (#scene-wrap / #scene-canvas) ---- */
-#scene-wrap {
-    position: relative; height: 220px; overflow: hidden;
-    border-bottom: 4px solid var(--primary); background: #000;
-}
-#scene-canvas { width: 100%; height: 100%; display: block; }
+/* ---------- Loading ---------- */
+#loading { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:9999; font-family:'Press Start 2P',monospace; }
+.spinner { width:48px; height:48px; border:6px solid var(--primary); border-top-color:var(--gold); animation:spin .8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { margin-top:12px; font-size:10px; color:var(--dim); }
 
-/* Pixel grid overlay */
-#scene-wrap::after {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    background-image: linear-gradient(rgba(0,0,0,.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(0,0,0,.03) 1px, transparent 1px);
-    background-size: 4px 4px; pointer-events: none; z-index: 1;
-}
-
-/* ---- Panels (#pnl / .pan in HTML) ---- */
-#pnl { position: relative; min-height: 200px; }
-.pan { display: none; padding: 15px; background: var(--bg-medium); }
-.pan.on  { display: block; }
-
-/* Shared inner list styles (orders, menu, etc.) */
-#ol, #ml, #cl, #fl, #il, #ql, #ul, #al, #sll, #slp, #so, #hl {
-    display: flex; flex-direction: column; gap: 5px;
-}
-
-/* ---- Bottom Nav (#nav / .nb in HTML) ---- */
-#nav {
-    display: flex; position: sticky; bottom: 0;
-    background: var(--bg-dark); border-top: 4px solid var(--gold);
-    box-shadow: 0 -4px 0 0 #000; z-index: 100;
-}
-.nb { padding: 10px 2px; font-size: 8px; }
-
-/* ---- Buttons (shared) ---- */
-button, .btn, .buy-btn, .serve-btn, .supply-btn, .upgrade-btn,
-.staff-hire-btn, .fire-btn, .complete-quest, .filter-btn, .market-tab {
-    cursor: pointer;
-}
-.btn, .buy-btn, .serve-btn, .upgrade-btn, .supply-btn {
-    padding: 4px 12px; border: 2px solid #000; border-radius: 0;
-    background: var(--accent); color: #fff; font-size: 8px;
-    font-family: 'Press Start 2P', monospace;
-    box-shadow: 2px 2px 0 #000; transition: all .05s;
-}
-.btn:hover, .buy-btn:hover, .serve-btn:hover, .upgrade-btn:hover {
-    transform: translate(-1px,-1px); box-shadow: 3px 3px 0 #000;
-}
-.btn:active, .buy-btn:active, .serve-btn:active { transform: translate(2px,2px); box-shadow: none; }
-.btn:disabled, .buy-btn:disabled { background: #555; cursor: not-allowed; transform: none; box-shadow: 2px 2px 0 #000; }
-
-/* ---- Cards (shared for orders, staff, etc.) ---- */
-.card, .shop-item, .item-card, .upgrade-item, .quest-item {
-    display: flex; align-items: center; padding: 10px;
-    background: var(--bg-light); margin-bottom: 8px; border: 2px solid #000;
-    border-left: 4px solid var(--common);
-    box-shadow: inset 2px 2px 0 rgba(255,255,255,.1);
-}
-.item-card.common { border-left-color: var(--common); }
-.item-card.rare   { border-left-color: var(--rare); }
-.item-card.epic   { border-left-color: var(--epic); }
-.item-card.legendary{ border-left-color: var(--legendary); }
-
-.card .pr, .item-card .item-price, .upgrade-item .upgrade-cost, .order-item .order-price {
-    color: var(--gold); font-weight: bold; font-size: 9px; text-shadow: 2px 2px 0 #000;
-}
-.card span:first-child, .item-card .item-name, .upgrade-item .upgrade-name {
-    flex: 1; font-weight: bold; font-size: 9px; line-height: 1.8;
-}
-
-/* ---- Item emoji ---- */
-.item-emoji, .item-icon { font-size: 24px; margin-right: 10px; filter: drop-shadow(2px 2px 0 #000); }
-
-/* ---- Rarity badge ---- */
-.item-rarity {
-    font-size: 7px; padding: 2px 6px; display: inline-block;
-    margin-top: 3px; border: 1px solid #000;
-}
-.item-rarity.common   { background: var(--common); color: #333; }
-.item-rarity.rare     { background: var(--rare);   color: #fff; }
-.item-rarity.epic     { background: var(--epic);   color: #fff; }
-.item-rarity.legendary{ background: var(--legendary);color: #333; }
-
-/* ---- Quest progress bar ---- */
-.quest-progress { margin-top: 6px; height: 8px; background: #333; border: 1px solid #000; overflow: hidden; }
-.quest-progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); transition: width .3s; }
-
-/* ---- Mood / stock bars ---- */
-.mood-bar, .stock-bar { height: 6px; background: #333; border: 1px solid #000; margin: 2px 0; overflow: hidden; }
-.mood-bar-fill   { height: 100%; transition: width .3s; }
-.stock-bar-fill  { height: 100%; transition: width .3s; }
-.mood-bar-fill.high { background: #28a745; }
-.mood-bar-fill.mid  { background: #FFD700; }
-.mood-bar-fill.low  { background: #dc3545; }
-
-/* ---- Modal ---- */
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,.85);
-    display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.modal.hidden { display: none; }
-.modal-content { background: var(--bg-medium); width: 90%; max-width: 400px; max-height: 80vh;
-    overflow-y: auto; border: 4px solid var(--gold); box-shadow: 0 8px 0 #000; }
-#modal-body { padding: 15px; }
-
-/* ---- Notification ---- */
-#notif {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--primary); color: #fff; padding: 10px 20px; border: 3px solid var(--gold);
-    box-shadow: 0 4px 0 #000; z-index: 9999; font-size: 9px; display: none;
-    animation: fadeIn .3s;
-}
-
-/* ---- Loading spinner ---- */
-#loading { position: fixed; inset: 0; background: var(--bg-dark);
-    display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
-.spinner { width: 48px; height: 48px; border: 6px solid var(--primary-light); border-top-color: var(--gold);
-    animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { margin-top: 12px; font-size: 10px; color: var(--text-dim); }
-
-/* ---- Animations (shared) ---- */
+/* ---------- Animations ---------- */
 @keyframes pop   { 0%{transform:scale(.5);opacity:0} 50%{transform:scale(1.2)} 100%{transform:scale(1);opacity:1} }
 @keyframes fadeIn{ from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-.animate-pop { animation: pop .3s ease-out; }
-.animate-fadeIn { animation: fadeIn .3s ease-out; }
 
-/* ---- Scrollbar ---- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); border: 1px solid #000; }
-::-webkit-scrollbar-thumb { background: var(--primary); border: 1px solid #000; }
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar { width:8px; }
+::-webkit-scrollbar-track { background:var(--bg); border:1px solid #000; }
+::-webkit-scrollbar-thumb { background:var(--primary); border:1px solid #000; }
 
-/* ---- Responsive ---- */
-@media (min-width: 481px) {
-    body::after {
-        content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-        border-left: 4px solid var(--primary); border-right: 4px solid var(--primary);
-    }
+/* ---------- Responsive ---------- */
+@media (min-width:481px) {
+  body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:9999; border-left:4px solid var(--primary); border-right:4px solid var(--primary); }
 }
-
-/* ---- Text fallback for Vietnamese diacritics in Press Start 2P ---- */
-.pan, .pan *, #hdr *, #nav *, #notif { font-family: 'Press Start 2P', 'Noto Sans KR', 'Segoe UI Emoji', 'Apple Color Emoji', 'Segoe UI Symbol', 'Arial Unicode MS', sans-serif !important; }
