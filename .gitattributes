@@ -1,2 +1,3 @@
 * text=auto
-*.html text eol=lf
+# HTML files with emoji — treat as binary to prevent git encoding corruption
+*.html binary

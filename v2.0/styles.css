@@ -26,10 +26,16 @@
     --legendary: #FFD700;
 }
 
+/* ---------- Emoji Font Stack (critical for Android Chrome) ---------- */
+.emoji {
+    /* Multi-font emoji stack — tries system emoji fonts first, then falls back to monospace */
+    font-family: 'Noto Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Apple Color Emoji', 'Android Emoji', 'EmojiOne Color', sans-serif;
+}
+
 /* ---------- Body / Font Stack ---------- */
 body {
-    /* Web-safe monospace — pixel look, no external downloads needed */
-    font-family: 'Courier New', 'Lucida Console', monospace;
+    /* Multi-font stack: emoji fonts first, then pixel monospace */
+    font-family: 'Noto Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Apple Color Emoji', 'Android Emoji', 'EmojiOne Color', 'Courier New', 'Lucida Console', monospace;
     background: var(--bg-dark);
     color: var(--text);
     min-height: 100vh;
@@ -177,6 +183,23 @@ button, .btn, .buy-btn, .serve-btn, .supply-btn, .upgrade-btn,
 
 /* ---- Item emoji ---- */
 .item-emoji, .item-icon { font-size: 24px; margin-right: 10px; filter: drop-shadow(2px 2px 0 #000); }
+
+/* Universal emoji rendering fix for Android Chrome
+   Forces device-native emoji fonts regardless of body font */
+.emoji,
+[onclick*="show"],
+cust,
+.nav-icon,
+.icon-only {
+    font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', 'Android Emoji', 'EmojiOne Color', sans-serif !important;
+}
+
+/* Force emoji rendering on any element that should show emoji */
+emoji-fix {
+    display: inline-block;
+    font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+    line-height: 1;
+}
 
 /* ---- Rarity badge ---- */
 .item-rarity {

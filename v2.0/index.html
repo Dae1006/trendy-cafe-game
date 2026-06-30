@@ -3,108 +3,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>☕ Quán Trendy Café v2.0 — Pixel Art Edition</title>
+<title>\u2615\uFE0F Quán Trendy Caf\'e v2.0 — Pixel Art Edition</title>
 <link rel="stylesheet" href="styles.css">
-<!-- NO external Google Fonts — all web-safe fallback -->
+<!-- NO external Google Fonts -->
 <style>
-/* Font rendering optimization */
 body { font-family: 'Courier New', Courier, monospace; }
+/* Force emoji rendering on ALL elements via CSS fallback stack */
+* { font-variant-emoji: text; }
 </style>
 </head>
 <body>
 
-<!-- Loading Screen -->
 <div id="loading">
   <div class="spinner"></div>
-  <div class="loading-text">☕ Đang mở quán...</div>
+  <div class="loading-text">\u2615\uFE0F Đang mở quán...</div>
 </div>
 
-<!-- Notification -->
 <div id="notif"></div>
 
-<!-- Header -->
 <div id="hdr">
-  <div class="coin-display">💰 <span id="coins">500</span></div>
-  <div class="level-display">Lv.<span id="lv">1</span> ⭐<span id="xp">0</span>/<span id="xpn">100</span></div>
+  <div class="coin-display">\u{1F4B0} <span id="coins">500</span></div>
+  <div class="level-display">Lv.<span id="lv">1</span> \u2B50<span id="xp">0</span>/<span id="xpn">100</span></div>
 </div>
 <div id="xp-wrap"><div id="xp-bar"></div></div>
 
-<!-- Weather Bar -->
-<div id="weather">☀️ Nắng</div>
+<div id="weather">\u2600\uFE0F N\'ng</div>
 
-<!-- Canvas Scene -->
 <div id="scene-wrap">
   <canvas id="scene-canvas"></canvas>
 </div>
 
-<!-- Locations -->
 <div id="locs"></div>
 
-<!-- Navigation -->
 <div id="nav">
-  <button class="nb on" data-tab="orders">📋Order</button>
-  <button class="nb" data-tab="menu">🍽️Menu</button>
-  <button class="nb" data-tab="chart">📊Chart</button>
-  <button class="nb" data-tab="staff">👥Staff</button>
-  <button class="nb" data-tab="supplier">🏭Supply</button>
-  <button class="nb" data-tab="shop">🛒Shop</button>
-  <button class="nb" data-tab="items">🎒Items</button>
-  <button class="nb" data-tab="quests">📌Quest</button>
-  <button class="nb" data-tab="up">⬆️Up</button>
-  <button class="nb" data-tab="achieve">🏆Achi</button>
+  <button class="nb on" data-tab="orders">\u{1F4CB}Order</button>
+  <button class="nb" data-tab="menu">\u{1F37D}\uFE0FMenu</button>
+  <button class="nb" data-tab="chart">\u{1F4CA}Chart</button>
+  <button class="nb" data-tab="staff">\u{1F465}Staff</button>
+  <button class="nb" data-tab="supplier">\u{1F3ED}Supply</button>
+  <button class="nb" data-tab="shop">\u{1F6D2}Shop</button>
+  <button class="nb" data-tab="items">\u{1F39E}\uFE0FItems</button>
+  <button class="nb" data-tab="quests">\u{1F4CC}Quest</button>
+  <button class="nb" data-tab="up">\u23E6\uFE0FUp</button>
+  <button class="nb" data-tab="achieve">\u{1F3C6}Achi</button>
 </div>
 
-<!-- Panels -->
 <div id="pnl">
-  <!-- Orders Panel -->
-  <div class="pan on" id="p-orders">
-    <div id="ol"></div>
-  </div>
-  <!-- Menu Panel -->
-  <div class="pan" id="p-menu">
-    <div id="ml"></div>
-  </div>
-  <!-- Revenue Chart Panel -->
-  <div class="pan" id="p-chart">
-    <div id="cl"></div>
-  </div>
-  <!-- Staff Panel -->
+  <div class="pan on" id="p-orders"><div id="ol"></div></div>
+  <div class="pan" id="p-menu"><div id="ml"></div></div>
+  <div class="pan" id="p-chart"><div id="cl"></div></div>
   <div class="pan" id="p-staff">
     <div id="hl"></div>
     <div id="sll"></div>
   </div>
-  <!-- Supplier Panel -->
-  <div class="pan" id="p-supplier">
-    <div id="slp"></div>
-  </div>
-  <!-- Shop Panel -->
-  <div class="pan" id="p-shop">
-    <div id="so"></div>
-  </div>
-  <!-- Items Panel -->
+  <div class="pan" id="p-supplier"><div id="slp"></div></div>
+  <div class="pan" id="p-shop"><div id="so"></div></div>
   <div class="pan" id="p-items">
     <div id="fl"></div>
     <div id="il"></div>
   </div>
-  <!-- Quests Panel -->
-  <div class="pan" id="p-quests">
-    <div id="ql"></div>
-  </div>
-  <!-- Upgrades Panel -->
-  <div class="pan" id="p-up">
-    <div id="ul"></div>
-  </div>
-  <!-- Achievements Panel -->
-  <div class="pan" id="p-achieve">
-    <div id="al"></div>
-  </div>
+  <div class="pan" id="p-quests"><div id="ql"></div></div>
+  <div class="pan" id="p-up"><div id="ul"></div></div>
+  <div class="pan" id="p-achieve"><div id="al"></div></div>
 </div>
 
-<!-- Save/Load Modal -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <div id="modal-body"></div>
-    <button class="btn" onclick="closeModal()">Đóng</button>
+    <button class="btn" onclick="closeModal()">\u0110óng</button>
   </div>
 </div>
 
