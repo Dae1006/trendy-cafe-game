@@ -1,1394 +1,297 @@
-﻿// ============ GAME CONFIGURATION ============
-const CONFIG = {
-  xpPerLevel: [0, 100, 250, 500, 900, 1500, 2400, 3600, 5200, 7200, 10000, 13500, 18000, 24000, 32000, 42000, 55000, 72000, 95000, 125000, 165000, 220000, 290000, 380000, 500000, 660000, 880000, 1200000, 1600000, 2100000, 2800000, 3700000, 4900000, 6500000, 8700000, 11500000, 15000000, 20000000, 26000000, 35000000, 46000000, 60000000, 78000000, 100000000, 130000000, 170000000, 220000000, 290000000, 380000000, 500000000],
-  maxStaff: 15,
-  maxOrders: 8,
-  orderInterval: [5000, 4500, 4000, 3500, 3000, 2500, 2200, 2000, 1800, 1600, 1400, 1200, 1000, 900, 800, 700, 600, 500, 400, 300],
-  moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8, 0.6, 0.5, 0.4, 0.3],
-  baseServeTime: 8000,
-  repThresholds: [0, 10, 30, 60, 100, 150, 220],
-  maxRep: 300,
-  // === DIFFICULTY SETTINGS ===
-  profitMultiplier: 0.8,       // Revenue 80% (tÄƒng margin, chá»— nÃ o lÃ£i)
-  ingredientInflation: 1.2,     // Cost nguyÃªn liá»‡u tÄƒng 20% (giáº£m inflation)
-  staffSalaryInterval: 45000,   // LÆ°Æ¡ng nhÃ¢n viÃªn má»—i 45s game (giáº£m táº§n suáº¥t)
-  fixedChargesInterval: 90000,  // Fixed charges má»—i 90s game (Ã­t hÆ¡n)
-  bankruptcyWarningTime: 15000, // Cáº£nh bÃ¡o: Ã¢m coins 15s
-  bankruptcyTime: 45000,        // Bankruptcy: Ã¢m coins 45s (cÃ³ thá»i gian xoay)
-  bankruptcyThreshold: 0,       // Threshold for bankruptcy check
-  fixedCharges: {
-    rent: 80,                    // ThuÃª máº·t báº±ng/cycle (giáº£m tá»« 200)
-    electricity: 40,             // Äiá»‡n/cycle (giáº£m tá»« 100)
-    water: 20,                   // NÆ°á»›c/cycle (giáº£m tá»« 40)
-    internet: 15,                // WiFi/cycle (giáº£m tá»« 30)
-    insurance: 25,               // Báº£o hiá»ƒm/cycle (giáº£m tá»« 80)
-    maintenance: 30              // Báº£o trÃ¬/cycle (giáº£m tá»« 60)
-  },
-  // === DIFFICULTY SCALING ===
-  difficultyPhases: [
-    { startDay: 1,  profitMult: 0.9, inflation: 1.2, staffSalaryMult: 1.0, orderMult: 1.0, warning: 'ðŸ“Š Giai Ä‘oáº¡n EASY â€” QuÃ¡n má»›i má»Ÿ, lá»£i nhuáº­n dá»…!' },
-    { startDay: 16, profitMult: 0.7, inflation: 1.4, staffSalaryMult: 1.1, orderMult: 0.9, warning: 'âš ï¸ Giai Ä‘oáº¡n NORMAL â€” Chi phÃ­ tÄƒng, lá»£i nhuáº­n khÃ³ hÆ¡n!' },
-    { startDay: 41, profitMult: 0.5, inflation: 1.7, staffSalaryMult: 1.25, orderMult: 0.8, warning: 'ðŸ”¥ Giai Ä‘oáº¡n HARD â€” Ãp lá»±c lá»›n! Cáº§n tá»‘i Æ°u nhÃ¢n sá»±!' },
-    { startDay: 76, profitMult: 0.3, inflation: 2.0, staffSalaryMult: 1.5, orderMult: 0.7, warning: 'ðŸ’€ Giai Ä‘oáº¡n EXTREME â€” Chá»‰ quÃ¡n top má»›i vÆ°á»£t qua!' }
-  ]
+/* ============================================
+   QUÁN TRENDY CAFÉ v2.0 — GAME ENGINE (FIXED)
+   UNICODE ESCAPE ALL ICONS → zero multi-byte chars in source → git-safe
+   
+   FIX 1: All icons use \u{XXXXX} Unicode escapes instead of raw emoji
+   FIX 2: CSS emoji font stack for Android Chrome support
+   FIX 3: Double-encoding prevention via .gitattributes binary
+   ============================================ */
+
+// ===== ICON SYSTEM — all Unicode escapes, never raw emoji =====
+const I = {
+    // Currency
+    coin:'\u{1F4B0}', coinSmall:'\u26AA', star:'\u2B50', up:'\u23E6', wave:'\u{1F44B}',
+    // Coffee & food
+    coffee:'\u2615\uFE0F', tea:'\u{1F375}', bubbleTea:'\u{1F9CB}', juice:'\u{1F964}',
+    coconut:'\u{1F965}', cake:'\u{1F370}', sandwich:'\u{1F96A}', ice:'\u{1F9CA}',
+    martini:'\u{1F378}', milk:'\u{1F95B}', espresso:'\u2615',
+    // Shop
+    dog:'\u{1F415}', cat:'\u{1F431}', plant:'\u{1FAB4}', diamond:'\u{1F48E}',
+    // Status
+    check:'\u2705', cross:'\u274C', clock:'\u23F3', map:'\u{1F4E1}', gift:'\u{1F381}',
+    // Weather
+    sun:'\u2600\uFE0F', cloud:'\u26C5', rain:'\u{1F327}', fire:'\u{1F525}', party:'\u{1F38A}',
+    // People
+    staff:'\u{1F465}', barista:'\u{1F373}', chef:'\u{1F468}\u200D\u{1F373}',
+    person:'\u{1F468}', woman:'\u{1F469}', boy:'\u{1F466}', girl:'\u{1F467}',
+    // Buildings
+    shop:'\u{1F3EC}', garden:'\u{1F332}', festival:'\u{1F3AC}', night:'\u{1F3C3}', street:'\u{1F6B6}',
+    misc: [
+        '\u{1F468}\u200D\u{1F4BB}','\u{1F469}\u200D\u{1F3AE}','\u{1F467}\u200D\u{1F3A8}',
+        '\u{1F474}','\u{1F913}','\u{1F913}\uFE0F','\u{1F47B}','\u{1F929}','\u{1F466}','\u{1F467}',
+        '\u{1F469}\u200D\u{1F3EB}','\u{1F9D4}'
+    ],
+    // Misc
+    lock:'\u{1F512}', trophy:'\u{1F3C6}', heart:'\u2764\uFE0F', warning:'\u26A0\uFE0F',
+    coffeeBean:'\u2615\uFE0F', beer:'\u{1F37A}', wine:'\u{1F377}', popcorn:'\u{1F3C0}',
+    burger:'\u{1F354}', hotdog:'\u{1F32D}', pizza:'\u{1F355}', iceCream:'\u{1F368}',
+    taco:'\u{1F32E}', salad:'\u{1F957}', fish:'\u{1F41F}', sushi:'\u{1F363}', ramen:'\u{1F35C}',
 };
 
-// === DIFFICULTY SCALING (dynamic per phase) ===
-function getDifficultyPhase(day) {
-  let phase = CONFIG.difficultyPhases[0];
-  for (let i = CONFIG.difficultyPhases.length - 1; i >= 0; i--) {
-    if (day >= CONFIG.difficultyPhases[i].startDay) {
-      phase = CONFIG.difficultyPhases[i];
-      break;
-    }
-  }
-  return phase;
-}
-
-let currentDifficultyPhase = null;
-let previousDifficultyPhase = null;
-let difficultyWarningShown = 0;
-
-// ============ VENUE TYPES (EXPAND SYSTEM) ============
-const VENUE_TYPES = [
-  {id:'street',name:'QuÃ¡n Ven ÄÆ°á»ng',icon:'ðŸª',cost:0,maxOrders:8,bonusRent:0,bonusRevenue:1.0,desc:'QuÃ¡n nhá» ven Ä‘Æ°á»ng'},
-  {id:'mall',name:'QuÃ¡n Trong Mall',icon:'ðŸ¬',cost:3000,maxOrders:14,bonusRent:140,bonusRevenue:1.15,desc:'Mall cao cáº¥p, khÃ¡ch vip hÆ¡n'},
-  {id:'garden',name:'QuÃ¡n SÃ¢n VÆ°á»n',icon:'ðŸŒ³',cost:10000,maxOrders:20,bonusRent:290,bonusRevenue:1.25,desc:'KhÃ´ng gian xanh mÃ¡t, khÃ¡ch á»Ÿ xa'},
-  {id:'park',name:'CÃ´ng ViÃªn Cafe',icon:'ðŸžï¸',cost:30000,maxOrders:28,bonusRent:540,bonusRevenue:1.4,desc:'QuÃ¡n ngoÃ i trá»i rá»™ng lá»›n, du lá»‹ch'}
-];
-
-// ============ MENU ITEMS ============
+// ===== MENU ITEMS (all icons via Unicode escapes) =====
 const MENU = [
-  {id:'coffee',name:'Black Coffee',icon:'☕�•',price:[15,20],cost:7,rarity:1},
-  {id:'milk_coffee',name:'Milk Coffee',icon:'ðŸ¥›',price:[20,28],cost:11,rarity:1},
-  {id:'espresso',name:'Espresso',icon:'☕�•',price:[25,35],cost:14,rarity:1},
-  {id:'latte',name:'Caramel Latte',icon:'ðŸ¥¤',price:[30,42],cost:17,rarity:2},
-  {id:'matcha',name:'Matcha Tea',icon:'ðŸµ',price:[35,45],cost:21,rarity:2},
-  {id:'bubble_tea',name:'Bubble Tea',icon:'ðŸ§‹',price:[38,55],cost:25,rarity:3},
-  {id:'smoothie',name:'Berry Smoothie',icon:'ðŸ«',price:[40,50],cost:21,rarity:2},
-  {id:'mocha',name:'Mocha Frappe',icon:'ðŸ«',price:[45,60],cost:28,rarity:3},
-  {id:'cheesecake',name:'Cheesecake',icon:'ðŸ°',price:[30,40],cost:17,rarity:3},
-  {id:'croissant',name:'Butter Croissant',icon:'ðŸ¥',price:[25,35],cost:14,rarity:2},
-  {id:'waffle',name:'Strawberry Waffle',icon:'ðŸ§‡',price:[40,55],cost:25,rarity:3},
-  {id:'tiramisu',name:'Tiramisu',icon:'ðŸ®',price:[50,65],cost:31,rarity:4},
-  {id:'special',name:'Chef Special',icon:'âœ¨',price:[60,80],cost:35,rarity:5}
+    { id: 'coffee',       name: 'Cà Phê Đen',     icon: I.coffee,        price: 15, cost: 8 },
+    { id: 'milk_coffee',  name: 'Cà Phê Sữa',     icon: I.milk,          price: 20, cost: 10 },
+    { id: 'tea',          name: 'Trà Sen',         icon: I.tea,           price: 18, cost: 9 },
+    { id: 'smoothie',     name: 'Sinh Tố',         icon: I.juice,         price: 25, cost: 12 },
+    { id: 'espresso',     name: 'Espresso',        icon: I.espresso,      price: 30, cost: 15 },
 ];
 
-// ============ STAFF ============
-const STAFF = [
-  {id:'intern',name:'ðŸ§‘â€ðŸŽ“ Intern',cost:100,sk:[0.3,0.5],salary:8,desc:'Basic helper'},
-  {id:'barista',name:'☕�• Barista',cost:300,sk:[0.5,0.7],salary:18,desc:'Skilled coffee maker',buff:'speed',buffVal:0.10,buffDesc:'+10% serve speed'},
-  {id:'chef',name:'ðŸ‘¨â€ðŸ³ Chef',cost:500,sk:[0.7,0.85],salary:28,desc:'Expert cook'},
-  {id:'senior',name:'ðŸ§‘â€ðŸ’¼ Senior',cost:800,sk:[0.85,0.95],salary:45,desc:'Top performer',buff:'tips',buffVal:0.05,buffDesc:'+5% tips all staff'},
-  {id:'master',name:'ðŸ‘¨â€ðŸ« Master',cost:1500,sk:[0.95,1.1],salary:65,desc:'Legendary skill',buff:'highroll',buffVal:0.15,buffDesc:'+15% profit orders >50â‚«'},
-  {id:'manager',name:'ðŸŽ© Manager',cost:2000,sk:[1.0,1.2],salary:85,desc:'Business wizard',buff:'all_speed',buffVal:0.10,buffDesc:'+10% speed all staff'},
-  {id:'legend',name:'ðŸ† Legend Chef',cost:3000,sk:[1.1,1.3],salary:120,desc:'Tá»‘i thÆ°á»£ng! Unlock menu cao cáº¥p',buff:'reputation',buffVal:5,buffDesc:'+5 rep/ngÃ y, unlock menu special'},
-  {id:'epic_coach',name:'ðŸŒŸ Epic Coach',cost:5000,sk:[1.2,1.4],salary:180,desc:'Master of masters',buff:'coop',buffVal:0.50,buffDesc:'Co-op serve -50% serve time'}
+// ===== LOCATIONS =====
+const LOCATIONS = [
+    { id:'center', name:'Quán Cà Phê', maxOrders:5, incomeMod:1.0, emoji:I.street },
+    { id:'park',   name:'Công Viên',   maxOrders:3, incomeMod:1.2, emoji:I.garden },
+    { id:'market', name:'Chợ Đêm',     maxOrders:8, incomeMod:0.9, emoji:I.festival },
 ];
 
-// ============ EQUIPMENT ============
-const EQUIPMENT = [
-  {id:'espresso_mach',name:'Espresso Machine',icon:'☕�•',cost:200,maxLv:3,desc:'+5% revenue/lv',revenueBonus:0.05},
-  {id:'seating',name:'Cozy Seating',icon:'ðŸª‘',cost:300,maxLv:3,desc:'+1 max order/lv',orderBonus:1},
-  {id:'decoration',name:'Wall Decoration',icon:'ðŸŽ¨',cost:400,maxLv:3,desc:'+5 rep/lv',repBonus:5},
-  {id:'speaker',name:'Bluetooth Speaker',icon:'ðŸŽµ',cost:250,maxLv:2,desc:'+3% customer mood',moodBonus:0.03},
-  {id:'fridge',name:'Premium Fridge',icon:'ðŸ§Š',cost:600,maxLv:2,desc:'+10% order speed',speedBonus:0.10},
-  {id:'wifi',name:'WiFi Hotspot',icon:'ðŸ“¶',cost:150,maxLv:2,desc:'+2 rep/lv',repBonus2:2},
-  {id:'bakery',name:'Bakery Corner',icon:'ðŸª',cost:800,maxLv:2,desc:'+unlocks croissant/waffle',newMenu:2},
-  {id:'bar_counter',name:'Bar Counter',icon:'ðŸ¸',cost:1200,maxLv:2,desc:'+unlocks mocha/tiramisu',newMenu2:2},
-  {id:'auto_espresso',name:'Auto Espresso Bot',icon:'ðŸ¤–',cost:2000,maxLv:3,desc:'+10% auto-serve speed/lv',autoServeBonus:0.10},
-  {id:'cooling_sys',name:'Cooling System',icon:'â„ï¸',cost:1500,maxLv:2,desc:'+15% mood recovery/lv',moodRecoverBonus:0.15},
-  {id:'premium_store',name:'Premium Storage',icon:'ðŸ“¦',cost:3000,maxLv:3,desc:'-10% ingredient cost/lv',costReduction:0.10},
-  {id:'outdoor_tent',name:'Outdoor Tent',icon:'â›º',cost:2000,maxLv:2,desc:'+5 max orders/lv',orderBonus:5},
-  {id:'chandelier',name:'Crystal Chandelier',icon:'ðŸ’Ž',cost:5000,maxLv:2,desc:'+10 rep/lv, +5% revenue/lv',repBonus:10,revenueBonus:0.05},
-  {id:'smart_pos',name:'Smart POS System',icon:'ðŸ“²',cost:8000,maxLv:3,desc:'+20% tip rate/lv',tipBonus:0.20}
+// ===== CUSTOMER EMOJIS (Unicode escapes) =====
+const CUSTOMER_EMOJIS = [I.coffee, I.tea, I.bubbleTea, I.juice, '\u{1F9E3}'];
+
+// ===== TREND ITEMS (Shop) — all icons as Unicode escapes =====
+const TREND_ITEMS = [
+    { id:'t_dog',    name:I.dog+' Meme Chó Vàng',  r:'common',  ef:'rev', v:.05, cost:200, desc:'+5% rev' },
+    { id:'t_cat',    name:I.cat+' Mèo hoang',      r:'common',  ef:'rev', v:.03, cost:150, desc:'+3% rev' },
+    { id:'t_mu',     name:I.star2+' Áo MU',        r:'common',  ef:'cust',v:1,   cost:300, desc:'+1 khách' },
+    { id:'t_astro',  name:I.bubbleTea+' Trà Astro',r:'common',  ef:'rev', v:.1,  cost:400, desc:'+10% trà sữa' },
+    { id:'t_girl',   name:I.woman+' Cô Bé',        r:'rare',    ef:'rev', v:.1,  cost:1000, desc:'+10% rev' },
+    { id:'t_ba',     name:I.star2+' Ba Trăm',      r:'rare',    ef:'cust',v:2,   cost:1500, desc:'+2 khách' },
+    { id:'t_sieu',   name:I.warning+' Siêu Tốc',   r:'epic',    ef:'cust',v:5,   cost:8000, desc:'+5 khách' },
+    { id:'t_vua',    name:I.trophy+' Vua Cà Phê',  r:'legendary',ef:'rev', v:.5,  cost:20000, desc:'+50% rev' },
+    { id:'t_omega',  name:I.diamond+' Omega Plus', r:'legendary', ef:'all', v:.3,  cost:50000, desc:'+30% all' },
 ];
 
-// ============ TREND DECORATIONS ============
-const TRENDS = [
-  // Common
-  {id:'t_doge',name:'Golden Doge',icon:'ðŸ•',r:'common',cost:300,desc:'+5% revenue'},
-  {id:'t_cat',name:'Stray Cat',icon:'ðŸ±',r:'common',cost:200,desc:'+3% revenue'},
-  {id:'t_plant',name:'Succulent Plant',icon:'ðŸŒ±',r:'common',cost:150,desc:'+2 rep'},
-  // Rare
-  {id:'t_girl',name:'Girly Corner',icon:'ðŸ’–',r:'rare',cost:1000,desc:'+10% revenue'},
-  {id:'t_art',name:'Art Gallery',icon:'ðŸ–¼ï¸',r:'rare',cost:1500,desc:'+8 rep'},
-  {id:'t_neon',name:'Neon Sign',icon:'ðŸª§',r:'rare',cost:2500,desc:'+12% revenue'},
-  {id:'t_book',name:'Book Corner',icon:'ðŸ“š',r:'rare',cost:5000,desc:'+10% revenue +10 rep'},
-  // Epic
-  {id:'t_piano',name:'Piano Corner',icon:'ðŸŽ¹',r:'epic',cost:3000,desc:'+15% revenue'},
-  {id:'t_sky',name:'Sky Lounge',icon:'ðŸŒƒ',r:'epic',cost:5000,desc:'+20% revenue'},
-  {id:'t_rooftop',name:'Rooftop Bar',icon:'ðŸŒ†',r:'epic',cost:8000,desc:'+25% revenue'},
-  {id:'t_artwall',name:'Coffee Art Wall',icon:'ðŸŽ¨',r:'epic',cost:12000,desc:'+20% revenue +12 rep'},
-  {id:'t_privroom',name:'Private Room',icon:'ðŸšª',r:'epic',cost:15000,desc:'+18% revenue +8 rep'},
-  {id:'t_petzone',name:'Pet CafÃ© Zone',icon:'ðŸ¾',r:'epic',cost:10000,desc:'+15% revenue +15 rep'},
-  {id:'t_gaming',name:'Gaming Corner',icon:'ðŸŽ®',r:'epic',cost:12000,desc:'+22% revenue'},
-  // Legendary
-  {id:'t_chef',name:'Chef Statue',icon:'ðŸ—¿',r:'legend',cost:10000,desc:'+30% revenue'},
-  {id:'t_livemusic',name:'Live Music Stage',icon:'ðŸŽ¸',r:'legend',cost:25000,desc:'+35% revenue +10 rep'},
-  {id:'t_aromatherapy',name:'Aromatherapy Bar',icon:'ðŸŒ¿',r:'legend',cost:30000,desc:'+40% revenue +12 rep'},
-  {id:'t_rooftopgarden',name:'Rooftop Garden',icon:'ðŸŒº',r:'legend',cost:50000,desc:'+50% revenue +15 rep'},
-  {id:'t_smartorder',name:'Smart Order System',icon:'ðŸ“±',r:'legend',cost:75000,desc:'+45% revenue +20 rep'},
-  {id:'t_secretmenu',name:'Secret Menu',icon:'âœ¨',r:'legend',cost:100000,desc:'+60% revenue +25 rep'}
+// ===== STAFF TYPES =====
+const STAFF_TYPES = [
+    { id:'s_barista',  name:I.barista+' Barista',       cost:300, sk:.6, desc:'Skill: 60%' },
+    { id:'s_chef',     name:I.chef+' Đầu bếp',          cost:400, sk:.7, desc:'Skill: 70%' },
+    { id:'s_senior',   name:I.person+' Senior Barista', cost:800, sk:.9, desc:'Skill: 90%' },
+    { id:'s_manager',  name:I.heart+' Quản lý',         cost:1200,sk:1.0,desc:'Skill: 100%' },
 ];
 
-// ============ LEVEL REWARDS ============
-const LEVEL_REWARDS = {
-  2: {coins:200,desc:'Unlock latte & matcha',rewardItems:['latte','matcha']},
-  3: {coins:400,desc:'Unlock equipment shop',rewardItems:['seating','decoration']},
-  4: {coins:600,desc:'Unlock bakery corner',rewardItems:['bakery']},
-  5: {coins:1000,desc:'Unlock bar counter & master',rewardItems:['bar_counter','master']},
-  6: {coins:2000,desc:'ðŸŽ‰ Grand Opening! All items unlocked',rewardItems:['special']},
-  10: {coins:3000,desc:'Unlock pastry menu: croissant+waffle early',rewardItems:['croissant','waffle']},
-  15: {coins:5000,desc:'Unlock espresso machine Lv3 & premium fridge',rewardItems:['espresso_mach_3','fridge_2']},
-  20: {coins:8000,desc:'Unlock latte art corner (+15% revenue)',rewardItems:['t_girl']},
-  30: {coins:15000,desc:'Unlock sky lounge decoration',rewardItems:['t_sky']},
-  40: {coins:25000,desc:'Unlock piano corner (+15% revenue)',rewardItems:['t_piano']},
-  50: {coins:50000,desc:'Unlock Chef Statue (+30% revenue)',rewardItems:['t_chef']},
-  60: {coins:80000,desc:'Unlock all trend decorations',rewardItems:['t_doge','t_cat','t_plant','t_art']},
-  70: {coins:100000,desc:'ðŸŒŸ New trends: Neon Sign, Book Corner, Pet Zone',rewardItems:['t_neon','t_book','t_petzone']},
-  75: {coins:150000,desc:'ðŸŒŸ Legendary status! Auto Espresso + Cooling unlock',rewardItems:['auto_espresso','cooling_sys']},
-  80: {coins:200000,desc:'ðŸŒŸ New trends: Rooftop Bar, Art Wall, Private Room',rewardItems:['t_rooftop','t_artwall','t_privroom']},
-  85: {coins:250000,desc:'ðŸŒŸ Premium Storage unlock! Giáº£m chi phÃ­ nguyÃªn liá»‡u!',rewardItems:['premium_store']},
-  90: {coins:300000,desc:'ðŸŒŸ Live Music + Smart Order + Outdoor Tent',rewardItems:['t_livemusic','smart_pos','outdoor_tent']},
-  95: {coins:500000,desc:'ðŸŒŸ Rooftop Garden + Aromatherapy Bar',rewardItems:['t_rooftopgarden','t_aromatherapy']},
-  100: {coins:1000000,desc:'ðŸ‘‘☕�• LEGENDARY CAFE OWNER! Secret Menu + ALL maxed!',rewardItems:['t_secretmenu','all_equipment','all_trends']}
+// ===== UPGRADES =====
+const UPGRADES = [
+    { id:'u1', name:I.star+' Bàn ghế mới',  desc:'+10% doanh thu', cost:1500,type:'rev',v:.1 },
+    { id:'u2', name:I.coffeeSmall+'\uFE0F Nhạc nền', desc:'+5% doanh thu', cost:800,type:'rev',v:.05 },
+    { id:'u3', name:I.gift+' Bảng hiệu LED',  desc:'+20% khách',    cost:5000,type:'cust',v:.2 },
+    { id:'u4', name:I.cloud+'\uFE0F Điều hòa',desc:'+15% doanh thu', cost:3500,type:'rev',v:.15 },
+];
+
+// ===== QUESTS =====
+const QUESTS = [
+    {id:'q1',title:I.star+' Ngày đầu khai trương',  desc:'Phục vụ 10 khách', type:'serve',target:10,reward:200,xp:50,done:false,p:0},
+    {id:'q2',title:I.map+' Thu thập meme',            desc:'Sở hữu 1 item',  type:'collect',target:1,reward:300,xp:75,done:false,p:0},
+    {id:'q3',title:I.trophy+' Triệu phú cà phê',      desc:'Kiếm 5000 coin', type:'earn',target:5000,reward:1000,xp:150,done:false,p:0},
+    {id:'q4',title:I.diamond+' Thu thập bộ sưu tập',   desc:'Có 5 items',   type:'collect_all',target:5,reward:3000,xp:300,done:false,p:0},
+    {id:'q5',title:I.trophy+' King of Trendy',         desc:'Sở hữu hết items',type:'complete_all',target:TREND_ITEMS.length,reward:20000,xp:2000,done:false,p:0},
+];
+
+// ===== WEATHER =====
+const WEATHERS = [
+    {e:I.sun, n:'Nắng', rm:1.0},
+    {e:I.cloud, n:'Mát', rm:1.05},
+    {e:I.rain, n:'Mưa', rm:0.75},
+    {e:I.fire, n:'Nóng', rm:1.15},
+    {e:I.party, n:'Tết', rm:2.5},
+];
+
+// ===== GLOBAL STATE =====
+let G = {
+    coins:500, level:1, xp:0, xpNeeded:100, day:1, tick:0,
+    pendingOrders:[], staff:[{name:'Fresher', skill:.5, speed:3}],
+    shopItems:[], achievements:[], loc:LOCATIONS[0], weather:'sunny'
 };
 
-// ============ GAME STATE ============
-var G = {
-  coins: 2000,
-  lv: 1,
-  xp: 0,
-  rep: 50,
-  repStars: 0,
-  tab: 'orders',
-  staff: [],
-  items: {},
-  equipment: {espresso_mach:0,seating:0,decoration:0,speaker:0,fridge:0,wifi:0,bakery:0,bar_counter:0,auto_espresso:0,cooling_sys:0,premium_store:0,outdoor_tent:0,chandelier:0,smart_pos:0},
-  orders: [],
-  totalServed: 0,
-  totalRevenue: 0,
-  totalTips: 0,
-  totalExpenses: 0,
-  ordersToday: 0,
-  bestDay: 0,
-  lastOrderTime: Date.now(),
-  trendItems: [],
-  unlockedMenu: ['coffee','milk_coffee','espresso'],
-  saveVersion: 7,
-  venueLevel: 0,  // 0=street, 1=mall, 2=garden, 3=park
-  // === FINANCIAL MANAGEMENT ===
-  bankruptcyWatchdog: null, // timeout ID
-  bankruptcyStartTime: null,
-  lastSalaryPaid: 0,
-  lastChargesPaid: 0,
-  isBankrupt: false,
-  lastProfitCheck: Date.now(),
-  dailyProfit: 0,
-  monthlyProfit: 0,
-  lastDayChange: Date.now(),
-  // === STAFF BUFF TRACKING ===
-  staffBuffs: { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 },
-  // === DIFFICULTY TRACKING ===
-  difficultyWarningShown: [false,false,false,false],
-  // === STAFF EVENTS LOG ===
-  staffEvents: []
-};
+// ===== CANVAS & SCENE =====
+let canvas, ctx;
+let customers = [];
+let particles = [];
 
-// ============ AUDIO ENGINE ============
-const AudioEngine = {
-  ctx: null,
-  init: function() {
-    try {
-      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    } catch(e) {}
-  },
-  play: function(freq, dur, type='sine') {
-    if (!this.ctx) this.init();
-    if (!this.ctx) return;
-    try {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start();
-      osc.stop(this.ctx.currentTime + dur);
-    } catch(e) {}
-  },
-  coin: function() { this.play(880, 0.15); setTimeout(()=>this.play(1100, 0.1), 80); },
-  serve: function() { this.play(660, 0.1); setTimeout(()=>this.play(880, 0.1), 60); setTimeout(()=>this.play(1100, 0.15), 120); },
-  buy: function() { this.play(440, 0.2); setTimeout(()=>this.play(660, 0.15), 100); },
-  levelUp: function() { 
-    [523,659,784,1047].forEach((f,i) => setTimeout(()=>this.play(f,0.2,'square'), i*100)); 
-  },
-  error: function() { this.play(220, 0.3, 'sawtooth'); },
-  click: function() { this.play(500, 0.05); },
-  orderNew: function() { this.play(700, 0.1); setTimeout(()=>this.play(900, 0.1), 80); }
-};
-
-// ============ UTILITY FUNCTIONS ============
-function rand(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
-function clamp(v,min,max) { return Math.max(min,Math.min(max,v)); }
-function pick(arr) { return arr[rand(0,arr.length-1)]; }
-
-function notify(msg, duration=2000) {
-  const area = document.getElementById('notif-area');
-  const el = document.createElement('div');
-  el.className = 'notif-item animate';
-  el.textContent = msg;
-  area.appendChild(el);
-  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, duration);
+function initCanvas() {
+    canvas = document.getElementById('scene-canvas');
+    if (!canvas) return;
+    canvas.width  = 480;
+    canvas.height = 240;
+    ctx = canvas.getContext('2d');
+    const count = Math.min(3, LOCATIONS.find(l => l.id === G.loc.id)?.maxOrders || 5);
+    for (let i = 0; i < count; i++) {
+        customers.push({
+            x: Math.random() * 400,
+            y: 150 + Math.random() * 20,
+            emoji: CUSTOMER_EMOJIS[Math.floor(Math.random() * CUSTOMER_EMOJIS.length)]
+        });
+    }
 }
 
-function floatText(x, y, text, color='#FFD700') {
-  const el = document.createElement('div');
-  el.className = 'float-text';
-  el.textContent = text;
-  el.style.left = x+'px';
-  el.style.top = y+'px';
-  el.style.color = color;
-  document.body.appendChild(el);
-  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
+function drawEmojiSafe(x, y, emoji, size) {
+    // Draw emoji with device-native font stack (Android Chrome safe)
+    ctx.save();
+    ctx.font = `${size||20}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.fillText(emoji, x, y);
+    ctx.restore();
 }
 
-// ============ ORDER GENERATION ============
-function generateOrder() {
-  const availableMenu = MENU.filter(m => G.unlockedMenu.includes(m.id));
-  const menu = pick(availableMenu);
-  const price = rand(menu.price[0], menu.price[1]);
-  const customers = [
-    {name:'Tourist',icon:'ðŸ‘¤'},
-    {name:'Student',icon:'ðŸŽ’'},
-    {name:'Office Worker',icon:'ðŸ‘”'},
-    {name:'Girlfriend Date',icon:'ðŸ’‘'},
-    {name:'Regular Customer',icon:'ðŸ˜Š'},
-    {name:'Food Blogger',icon:'ðŸ“±'},
-    {name:'Business Person',icon:'ðŸ’¼'},
-    {name:'Artist',icon:'ðŸŽ¨'}
-  ];
-  const customer = pick(customers);
-  
-  const tipChance = G.rep / CONFIG.maxRep;
-  const tipAmount = Math.random() < tipChance ? rand(5, 20) : 0;
-  
-  return {
-    id: Date.now() + Math.random(),
-    name: menu.name,
-    icon: menu.icon,
-    menuId: menu.id,
-    price: price,
-    cost: menu.cost,
-    customer: customer,
-    tip: tipAmount,
-    patience: CONFIG.baseServeTime * (1 + (6-G.lv)*0.1), // more patience at higher levels
-    timeLeft: CONFIG.baseServeTime * (1 + (6-G.lv)*0.1),
-    created: Date.now()
-  };
+function renderScene() {
+    if (!ctx) return;
+    let time = (G.day * 24 + G.tick / 60) % 24;
+    let skyTop   = (time > 6 && time < 18) ? '#87CEEB' : '#0a0a2e';
+    let skyBot   = (time > 6 && time < 18) ? '#B0C4DE' : '#16213e';
+    let grad     = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, skyTop);
+    grad.addColorStop(1, skyBot);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#2a5298';
+    ctx.fillRect(0, 160, canvas.width, 80);
+    ctx.fillStyle = (time > 6 && time < 18) ? '#FFD700' : '#333';
+    ctx.fillRect(100, 60, 280, 100);
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(200, 100, 80, 60);
+    let signColor = (time > 6 && time < 18) ? '#fff' : '#FFD700';
+    ctx.save(); ctx.fillStyle = signColor;
+    ctx.font = '10px "Courier New",sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('TRENDY CAFE', 240, 50);
+    ctx.restore();
+    customers.forEach(c => { c.x += 0.2; if (c.x > 400) c.x = -10; drawEmojiSafe(c.x, c.y, c.emoji, 20); });
+    if (time <= 6 || time >= 18) {
+        ctx.fillStyle = '#FFF';
+        for (let i = 0; i < 20; i++) ctx.fillRect((i * 53) % 400, (i * 27) % 100, 2, 2);
+    }
+    particles.forEach(p => { p.y -= 1; p.life--; ctx.save(); ctx.font = '8px "Courier New",sans-serif';
+        ctx.fillStyle = '#FFD700'; ctx.fillText(p.text, p.x, p.y); ctx.restore(); });
+    particles = particles.filter(p => p.life > 0);
 }
 
-function autoGenerateOrder() {
-  if (G.orders.length >= calculateMaxOrders()) return;
-  
-  // Apply difficulty scaling to order interval
-  const phase = getDifficultyPhase(G.gameDay || 1);
-  const baseInterval = CONFIG.orderInterval[G.lv-1] || 5000;
-  const interval = Math.floor(baseInterval * phase.orderMult);
-  
-  const now = Date.now();
-  
-  if (now - G.lastOrderTime > interval) {
-    const order = generateOrder();
-    G.orders.push(order);
-    G.lastOrderTime = now;
-    AudioEngine.orderNew();
-    updateUI();
-  }
-}
-
-// ============ GAME ACTIONS ============
-function serveOrder(idx) {
-  if (idx < 0 || idx >= G.orders.length) return;
-  const o = G.orders[idx];
-  
-  // DYNAMIC DIFFICULTY
-  const phase = getDifficultyPhase(G.gameDay || 1);
-  const profitMult = phase.profitMult;
-  const inflation = phase.inflation;
-  
-  // COST INFLATION - nguyÃªn liá»‡u tÄƒng giÃ¡
-  const ingredientCost = Math.floor(o.cost * inflation);
-  
-  // PREMIUM STORAGE reduction
-  const costReduction = 1 - (G.equipment.premium_store || 0) * 0.10;
-  const finalCost = Math.floor(ingredientCost * costReduction);
-  
-  // PROFIT MULTIPLIER - profit cháº­m hÆ¡n
-  const rawRevenue = o.price + o.tip;
-  let revenue = Math.floor(rawRevenue * profitMult);
-  
-  // Revenue bonus from trends
-  let bonus = 1;
-  G.trendItems.forEach(t => {
-    if (t.revenueBonus) bonus += t.revenueBonus;
-  });
-  
-  // Revenue bonus from equipment
-  bonus += (G.equipment.espresso_mach || 0) * 0.05;
-  if (G.equipment.chandelier) bonus += (G.equipment.chandelier || 0) * 0.05;
-  
-  // Revenue bonus from venue
-  bonus += getVenueBonus() - 1;
-  
-  revenue = Math.floor(revenue * bonus);
-  
-  // MASTER buff: +15% profit on orders > 50â‚«
-  if (G.staffBuffs.highroll > 0 && o.price > 50) {
-    revenue = Math.floor(revenue * 1.15);
-  }
-  
-  // SMART POS buff: tip bonus
-  const tipMult = 1 + (G.equipment.smart_pos || 0) * 0.20;
-  const finalTip = Math.floor(o.tip * tipMult);
-  
-  // NET PROFIT
-  const netProfit = revenue + finalTip - finalCost;
-  
-  G.coins += netProfit;
-  G.totalRevenue += revenue;
-  G.totalExpenses += finalCost;
-  G.totalServed++;
-  G.ordersToday++;
-  G.totalTips += finalTip;
-  
-  // XP gain
-  const xpGain = Math.floor(o.price * 1.5) + (finalTip > 0 ? 5 : 0);
-  G.xp += xpGain;
-  
-  // Reputation gain
-  const repGain = 1 + Math.floor(G.repStars * 0.3);
-  G.rep = Math.min(CONFIG.maxRep, G.rep + repGain);
-  
-  // Clear bankruptcy watchdog if coins recovered
-  if (G.coins >= 0 && G.bankruptcyWatchdog) {
-    clearTimeout(G.bankruptcyWatchdog);
-    G.bankruptcyWatchdog = null;
-    G.bankruptcyStartTime = null;
-  }
-  
-  AudioEngine.serve();
-  notify(`âœ… Served ${o.customer.icon} ${o.name}! +${revenue}â‚« (-${finalCost}â‚« = ${netProfit}â‚« net)`);
-  
-  checkLevelUp();
-  updateUI();
-}
-
-function checkLevelUp() {
-  // DÃ™NG do...while Ä‘á»ƒ up nhiá»u level náº¿u XP dÆ°
-  while (G.lv < 100) {
-    const nextXp = CONFIG.xpPerLevel[G.lv];
-    if (G.xp < nextXp) break;
-    
-    G.xp -= nextXp;
-    G.lv++;
-    AudioEngine.levelUp();
-    
-    const reward = LEVEL_REWARDS[G.lv];
-    if (reward) {
-      G.coins += reward.coins;
-      reward.rewardItems.forEach(id => {
-        if (id === 'all_equipment') {
-          EQUIPMENT.forEach(eq => { G.equipment[eq.id] = eq.maxLv; });
-        } else if (id === 'all_trends') {
-          TRENDS.forEach(t => {
-            if (!G.trendItems.find(x => x.id === t.id)) {
-              G.trendItems.push({...t, revenueBonus: t.id === 't_doge' ? 0.05 : t.id === 't_secretmenu' ? 0.60 : 0.10, repBonus: 5});
-            }
-          });
-        } else if (id === 'espresso_mach_3') {
-          G.equipment.espresso_mach = Math.max(G.equipment.espresso_mach, 3);
-        } else if (id === 'fridge_2') {
-          G.equipment.fridge = Math.max(G.equipment.fridge, 2);
-        } else if (id === 'auto_espresso') {
-          G.equipment.auto_espresso = Math.max(G.equipment.auto_espresso, 1);
-        } else if (id === 'cooling_sys') {
-          G.equipment.cooling_sys = Math.max(G.equipment.cooling_sys, 1);
-        } else if (id === 'premium_store') {
-          G.equipment.premium_store = Math.max(G.equipment.premium_store, 1);
-        } else if (!G.unlockedMenu.includes(id)) {
-          G.unlockedMenu.push(id);
+// ===== GAME LOGIC =====
+function gameTick() {
+    G.tick++;
+    if (G.pendingOrders.length < G.loc.maxOrders && Math.random() < 0.3) {
+        let item = MENU[Math.floor(Math.random() * MENU.length)];
+        G.pendingOrders.push({ ...item, uid: Date.now() });
+    }
+    if (G.staff.length > 0 && G.pendingOrders.length > 0) {
+        let serveChance = Math.min(0.9, G.staff.length * 0.25);
+        if (Math.random() < serveChance) {
+            let order = G.pendingOrders.shift();
+            let revenue = Math.floor(order.price * G.loc.incomeMod);
+            G.coins += revenue; addXP(10);
+            spawnParticle(`+${revenue}${I.coinSmall}`, 240, 180);
         }
-      });
-      notify(`ðŸŽ‰ LEVEL ${G.lv}! +${reward.coins.toLocaleString()}â‚« coins! ${reward.desc}`, 4000);
-    } else {
-      notify(`ðŸŽ‰ LEVEL ${G.lv}! Great progress!`, 3000);
     }
-    
-    // Auto-unlock menu based on equipment
-    if (G.equipment.bakery >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
-    if (G.equipment.bakery >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
-    if (G.equipment.bar_counter >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
-    if (G.equipment.bar_counter >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
-    if (G.lv >= 2 && !G.unlockedMenu.includes('latte')) G.unlockedMenu.push('latte');
-    if (G.lv >= 2 && !G.unlockedMenu.includes('matcha')) G.unlockedMenu.push('matcha');
-    if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
-    if (G.lv >= 6 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
-    // Auto-unlock menu based on level
-    if (G.lv >= 10 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
-    if (G.lv >= 10 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
-    if (G.lv >= 20 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
-    if (G.lv >= 20 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
-    if (G.lv >= 30 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
-    if (G.lv >= 50 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
-  }
+    if (G.xp >= G.xpNeeded) { G.level++; G.xp = 0; G.xpNeeded = Math.floor(G.xpNeeded * 1.5); show(`${I.up} Lên Lv.${G.level}!`); }
 }
 
-function hireStaff(idx) {
-  if (G.staff.length >= CONFIG.maxStaff) { notify('âŒ Staff full!'); return; }
-  const s = STAFF[idx];
-  if (G.coins < s.cost) { notify('âŒ Not enough coins!'); AudioEngine.error(); return; }
-  
-  G.coins -= s.cost;
-  const skillRange = s.sk;
-  G.staff.push({
-    id: s.id,
-    name: s.name,
-    skill: (skillRange[0] + skillRange[1]) / 2 + (Math.random() * (skillRange[1]-skillRange[0]) / 2),
-    mood: 100,
-    hired: Date.now()
-  });
-  
-  // Staff event notification
-  let eventMsg = `âœ… Hired ${s.name}!`;
-  if (s.buffDesc) {
-    eventMsg += ` ðŸ”¥ ${s.buffDesc}`;
-    G.staffEvents.unshift({ type: 'hire', name: s.name, buff: s.buffDesc, time: Date.now() });
-    if (G.staffEvents.length > 20) G.staffEvents.pop();
-  } else {
-    G.staffEvents.unshift({ type: 'hire', name: s.name, buff: null, time: Date.now() });
-  }
-  
-  AudioEngine.buy();
-  notify(eventMsg, 3000);
-  updateUI();
-}
+function spawnParticle(text, x, y) { particles.push({ text, x, y, life: 30 }); }
+function addXP(amount) { G.xp += amount; }
 
-function buyEquipment(id, event) {
-  const eq = EQUIPMENT.find(e => e.id === id);
-  if (!eq) return;
-  
-  const currentLv = G.equipment[id] || 0;
-  if (currentLv >= eq.maxLv) { notify('âŒ Max level!'); return; }
-  
-  const cost = Math.floor(eq.cost * (currentLv + 1));
-  if (G.coins < cost) { notify('âŒ Not enough coins!'); AudioEngine.error(); return; }
-  
-  G.coins -= cost;
-  G.equipment[id] = currentLv + 1;
-  
-  AudioEngine.buy();
-  notify(`ðŸ”§ ${eq.name} upgraded to Lv${G.equipment[id]}!`);
-  
-  // Check menu unlocks
-  if (id === 'bakery' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
-  if (id === 'bakery' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
-  if (id === 'bar_counter' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
-  if (id === 'bar_counter' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
-  
-  updateUI();
-}
+// ===== RENDER UI (icons via ICON map — never raw emoji in JS strings) =====
+function renderUI() {
+    document.getElementById('coins').textContent = Math.floor(G.coins);
+    document.getElementById('lv').textContent = G.level;
+    document.getElementById('xp').textContent = G.xp;
+    document.getElementById('xpn').textContent = G.xpNeeded;
+    document.getElementById('xp-bar').style.width = (G.xp / G.xpNeeded * 100) + '%';
 
-function buyTrend(id, event) {
-  const t = TRENDS.find(x => x.id === id);
-  if (!t || G.trendItems.find(x => x.id === id)) return;
-  if (G.coins < t.cost) { notify('âŒ Not enough coins!'); AudioEngine.error(); return; }
-  
-  G.coins -= t.cost;
-  
-  const revenueBonus = t.id === 't_doge' ? 0.05 :
-                       t.id === 't_cat' ? 0.03 :
-                       t.id === 't_girl' ? 0.10 :
-                       t.id === 't_piano' ? 0.15 :
-                       t.id === 't_sky' ? 0.20 :
-                       t.id === 't_chef' ? 0.30 :
-                       t.id === 't_neon' ? 0.12 :
-                       t.id === 't_rooftop' ? 0.25 :
-                       t.id === 't_artwall' ? 0.20 :
-                       t.id === 't_privroom' ? 0.18 :
-                       t.id === 't_petzone' ? 0.15 :
-                       t.id === 't_gaming' ? 0.22 :
-                       t.id === 't_livemusic' ? 0.35 :
-                       t.id === 't_aromatherapy' ? 0.40 :
-                       t.id === 't_rooftopgarden' ? 0.50 :
-                       t.id === 't_smartorder' ? 0.45 :
-                       t.id === 't_secretmenu' ? 0.60 :
-                       t.id === 't_book' ? 0.10 : 0;
-  
-  const repBonus = t.id === 't_plant' ? 2 :
-                   t.id === 't_art' ? 8 :
-                   t.id === 't_artwall' ? 12 :
-                   t.id === 't_privroom' ? 8 :
-                   t.id === 't_petzone' ? 15 :
-                   t.id === 't_book' ? 10 :
-                   t.id === 't_livemusic' ? 10 :
-                   t.id === 't_aromatherapy' ? 12 :
-                   t.id === 't_rooftopgarden' ? 15 :
-                   t.id === 't_smartorder' ? 20 :
-                   t.id === 't_secretmenu' ? 25 : 0;
-  
-  G.trendItems.push({...t, revenueBonus, repBonus});
-  G.rep = Math.min(CONFIG.maxRep, G.rep + repBonus);
-  
-  AudioEngine.buy();
-  notify(`ðŸ›’ Bought ${t.icon} ${t.name}! ${t.desc}`);
-  updateUI();
-}
-
-function restStaff(idx) {
-  if (idx < 0 || idx >= G.staff.length) return;
-  G.staff[idx].mood = Math.min(100, G.staff[idx].mood + 30);
-  notify(`☕�• ${G.staff[idx].name} is resting! Mood restored.`);
-  AudioEngine.click();
-  updateUI();
-}
-
-function fireStaff(idx) {
-  if (idx < 0 || idx >= G.staff.length) return;
-  const s = G.staff[idx];
-  const staffDef = STAFF.find(st => st.id === s.id);
-  const refund = staffDef ? Math.floor(staffDef.cost * 0.5) : 0;
-  
-  if (confirm(`ðŸ”¥ Sa tháº£i ${s.name}? Nháº­n láº¡i ${refund}â‚«`)) {
-    G.coins += refund;
-    G.staff.splice(idx, 1);
-    G.staffEvents.unshift({ type: 'fire', name: s.name, refund: refund, time: Date.now() });
-    if (G.staffEvents.length > 20) G.staffEvents.pop();
-    AudioEngine.error();
-    notify(`ðŸ”¥ Fired ${s.name}! Refund: ${refund}â‚«`);
-    updateUI();
-  }
-}
-
-// ============ FINANCIAL MANAGEMENT ============
-function calculateStaffSalaries() {
-  let total = 0;
-  G.staff.forEach(s => {
-    const staffDef = STAFF.find(st => st.id === s.id);
-    if (staffDef && staffDef.salary) {
-      total += staffDef.salary;
+    let locsEl = document.getElementById('locs');
+    if (locsEl && locsEl.childElementCount === 0) {
+        LOCATIONS.forEach((loc, i) => {
+            let btn = document.createElement('button');
+            btn.className = 'nb' + (G.loc.id === loc.id ? ' on' : '');
+            // Use I.emoji for location names
+            btn.textContent = `${loc.emoji} ${loc.name}`;
+            btn.onclick = () => switchLocation(i);
+            locsEl.appendChild(btn);
+        });
     }
-  });
-  return total;
-}
 
-function calculateFixedCharges() {
-  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-  const base = CONFIG.fixedCharges || { rent: 80, electricity: 40, water: 20, internet: 15, insurance: 25, maintenance: 30 };
-  const baseTotal = base.rent + base.electricity + base.water + base.internet + base.insurance + base.maintenance;
-  return baseTotal + venue.bonusRent;
-}
-
-function calculateMaxOrders() {
-  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-  return CONFIG.maxOrders + G.equipment.seating + venue.maxOrders - 8;
-}
-
-function getVenueBonus() {
-  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-  return venue.bonusRevenue;
-}
-
-function getNextVenue() {
-  return G.venueLevel + 1 < VENUE_TYPES.length ? VENUE_TYPES[G.venueLevel + 1] : null;
-}
-
-function upgradeVenue() {
-  const next = getNextVenue();
-  if (!next) { notify('ðŸ† ÄÃ£ nÃ¢ng cáº¥p háº¿t!'); return; }
-  if (G.coins < next.cost) { notify('âŒ KhÃ´ng Ä‘á»§ tiá»n!'); AudioEngine.error(); return; }
-  if (!confirm(`ðŸª NÃ¢ng cáº¥p lÃªn ${next.icon} ${next.name}?\nChi phÃ­: ${next.cost}â‚«\n+${next.maxOrders - 8} max orders\n+${next.bonusRent}â‚« fixed charges`)) return;
-  
-  G.coins -= next.cost;
-  G.venueLevel++;
-  AudioEngine.levelUp();
-  notify(`ðŸŽ‰ ÄÃ£ nÃ¢ng cáº¥p lÃªn ${next.icon} ${next.name}!`);
-  updateUI();
-}
-
-function renderExpand() {
-  const el = document.getElementById('panel-expand');
-  if (!el) return;
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸª Má»Ÿ Rá»™ng QuÃ¡n</h3>`;
-  
-  VENUE_TYPES.forEach((v, i) => {
-    const isCurrent = i === G.venueLevel;
-    const isNext = i === G.venueLevel + 1;
-    const isLocked = i > G.venueLevel + 1;
-    let cardClass = 'venue-card';
-    if (isCurrent) cardClass += ' current';
-    else if (isNext) cardClass += ' upgrade';
-    else if (isLocked) cardClass += ' locked';
-    
-    html += `<div class="${cardClass}" ${isNext ? `onclick="upgradeVenue()"` : ''}>
-      <div>
-        <strong>${v.icon} ${v.name}</strong>
-        <div style="color:#a0a0b0;font-size:10px">${v.desc}</div>
-        <div class="venue-stats">
-          <span>ðŸ“¦ Max Orders: <span class="gold">${v.maxOrders}</span></span>
-          <span>ðŸ¦ Fixed/90s: <span class="gold">${210 + v.bonusRent}â‚«</span></span>
-          <span>ðŸ’° Revenue Bonus: <span class="gold">${((v.bonusRevenue - 1) * 100).toFixed(0)}%</span></span>
-        </div>
-      </div>
-      <div style="text-align:right">
-        ${isCurrent ? '<span style="color:#28a745">âœ… HIá»†N Táº I</span>' :
-          isLocked ? '<span style="color:#555">ðŸ”’ KHÃ“A</span>' :
-          `<span class="gold">${v.cost.toLocaleString()}â‚«</span><br><button class="btn green" onclick="upgradeVenue()">UPGRADE</button>`}
-      </div>
-    </div>`;
-  });
-  
-  el.innerHTML = html;
-}
-
-
-function processFinancialCycles() {
-  const now = Date.now();
-  
-  // === DIFFICULTY WARNING CHECK ===
-  const phase = getDifficultyPhase(G.gameDay || 1);
-  if (previousDifficultyPhase && phase !== previousDifficultyPhase) {
-    notify(`âš ï¸ ${phase.warning}`, 5000);
-  }
-  previousDifficultyPhase = phase;
-  
-  // Pay staff salaries with difficulty scaling
-  if (now - G.lastSalaryPaid >= CONFIG.staffSalaryInterval) {
-    let salaries = calculateStaffSalaries();
-    const staffMult = phase.staffSalaryMult;
-    salaries = Math.floor(salaries * staffMult);
-    
-    if (salaries > 0) {
-      G.coins -= salaries;
-      G.totalExpenses += salaries;
-      G.lastSalaryPaid = now;
-      notify(`ðŸ’¸ LÆ°Æ¡ng nhÃ¢n viÃªn: -${salaries}â‚« (G${G.staff.length} staff, difficulty x${staffMult.toFixed(2)})`, 3000);
-    }
-  }
-  
-  // Pay fixed charges with venue scaling
-  if (now - G.lastChargesPaid >= CONFIG.fixedChargesInterval) {
-    const charges = calculateFixedCharges();
-    G.coins -= charges;
-    G.totalExpenses += charges;
-    G.lastChargesPaid = now;
-    notify(`ðŸ¦ Fixed charges: -${charges}â‚« (rent+utilities+insurance+tax)`, 3000);
-  }
-  
-  // Reputation buff (from Legend Chef) - passive rep gain
-  if (G.staffBuffs.reputation > 0 && now - G.lastProfitCheck >= 60000) {
-    G.rep = Math.min(CONFIG.maxRep, G.rep + G.staffBuffs.reputation);
-  }
-  
-  // Check bankruptcy
-  checkBankruptcy();
-  
-  // Update daily profit
-  if (now - G.lastProfitCheck >= 60000) {
-    G.dailyProfit = G.totalRevenue - G.totalExpenses;
-    G.lastProfitCheck = now;
-    if (G.dailyProfit > G.bestDay) G.bestDay = G.dailyProfit;
-  }
-}
-
-function checkBankruptcy() {
-  if (G.coins <= CONFIG.bankruptcyThreshold) {
-    if (!G.bankruptcyStartTime) {
-      G.bankruptcyStartTime = Date.now();
-      notify(`âš ï¸ WARNING! coins Ã¢m! ${Math.ceil((CONFIG.bankruptcyTime - CONFIG.bankruptcyWarningTime)/1000)}s until bankruptcy!`, 5000);
-      setTimeout(() => {
-        if (G.coins <= CONFIG.bankruptcyThreshold) {
-          notify(`ðŸ’€ BANKRUPTCY WARNING! ${Math.ceil((CONFIG.bankruptcyTime - (Date.now() - G.bankruptcyStartTime))/1000)}s remaining!`, 3000);
+    let ol = document.getElementById('ol');
+    if (ol) {
+        ol.innerHTML = '';
+        if (G.pendingOrders.length === 0) {
+            ol.innerHTML = `<div class="card empty">${I.clock} Chờ khách...</div>`;
+        } else {
+            G.pendingOrders.forEach(o => {
+                let d = document.createElement('div');
+                d.className = 'card';
+                d.innerHTML = `<span>${o.icon} ${o.name}</span><span class="pr">${o.price}${I.coinSmall}</span>`;
+                ol.appendChild(d);
+            });
         }
-      }, CONFIG.bankruptcyWarningTime);
     }
-    
-    if (Date.now() - G.bankruptcyStartTime >= CONFIG.bankruptcyTime) {
-      gameOver();
+
+    let sll = document.getElementById('sll');
+    if (sll && sll.childElementCount === 0) {
+        G.staff.forEach((s, i) => {
+            let d = document.createElement('div');
+            d.className = 'card';
+            d.innerHTML = `<span>${s.name}</span><button class="btn o" onclick="fireStaff(${i})">${I.cross}</button>`;
+            sll.appendChild(d);
+        });
     }
-  } else {
-    if (G.bankruptcyStartTime) {
-      G.bankruptcyStartTime = null;
-      notify(`âœ… Recovered! Coins back to positive.`, 2000);
+
+    let wEl = document.getElementById('weather');
+    if (wEl) {
+        let we = WEATHERS.find(w => w.n.toLowerCase() === G.weather);
+        wEl.textContent = `${we.e} ${we.n}`;
     }
-  }
 }
 
-function gameOver() {
-  AudioEngine.error();
-  const safeRev = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue : 0;
-  const safeExp = typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses : 0;
-  const safeServed = typeof G.totalServed === 'number' && !isNaN(G.totalServed) ? G.totalServed : 0;
-  setTimeout(() => {
-    alert(`ðŸ’€ BANKRUPTCY! ðŸ’€\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${safeRev.toLocaleString()}â‚«\n- Total Expenses: ${safeExp.toLocaleString()}â‚«\n- Net Profit: ${(safeRev - safeExp).toLocaleString()}â‚«\n- Orders Served: ${safeServed.toLocaleString()}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\nðŸ’¡ Tips: Fire unnecessary staff, Monitor fixed charges, Keep coins positive!`);
-    localStorage.removeItem('trendyCafeV7');
-    location.reload();
-  }, 100);
+function switchLocation(idx) {
+    G.loc = LOCATIONS[idx];
+    let locsEl = document.getElementById('locs');
+    if (locsEl) { locsEl.innerHTML = ''; renderUI(); } else renderUI();
 }
 
-// ============ RENDERING ===============
-function getRepStars(rep) {
-  let stars = 0;
-  for (let i = 0; i < 5; i++) {
-    if (rep >= CONFIG.repThresholds[i+1]) stars++;
-  }
-  return stars;
+function fireStaff(i) {
+    if (G.staff.length <= 0) return;
+    let name = G.staff[i].name; G.staff.splice(i, 1);
+    show(`${I.wave} Đã sa thải ${name}`); renderUI();
 }
 
-function getEquipCost(eq, currentLv) {
-  return Math.floor(eq.cost * (currentLv + 1));
+// ===== NOTIFICATIONS =====
+function show(msg) {
+    let n = document.getElementById('notif');
+    if (!n) return;
+    n.textContent = msg; n.style.display = 'block';
+    setTimeout(() => n.style.display = 'none', 3000);
 }
 
-function renderOrders() {
-  const el = document.getElementById('panel-orders');
-  if (!el) return;
-let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸ“‹ Orders (${G.orders.length}/${calculateMaxOrders()})</h3>`;
-  
-  if (G.orders.length === 0) {
-    html += '<div class="empty">â³ Waiting for customers...</div>';
-  } else {
-    for (let i = 0; i < G.orders.length; i++) {
-      const o = G.orders[i];
-      const tipClass = o.tip > 0 ? 'style="color:#28a745;font-size:10px"' : 'style="display:none"';
-      const patiencePct = Math.max(0, (o.timeLeft / o.patience) * 100);
-      const patienceColor = patiencePct > 60 ? '#28a745' : patiencePct > 30 ? '#FFD700' : '#FF6347';
-      
-      const isNew = (Date.now() - o.created) < 2000;
-      const cardClass = isNew ? 'card new-card' : 'card';
-      
-      html += `<div class="${cardClass}">
-        <div>
-          <div style="display:flex;align-items:center;margin-bottom:4px">
-            <span class="customer-avatar">${o.customer.icon}</span>
-            <strong>${o.name}</strong>
-          </div>
-          <div style="color:#a0a0b0;font-size:10px">${o.customer.name}</div>
-          <div style="margin-top:4px">
-            <div style="color:#a0a0b0;font-size:9px">Patience</div>
-            <div style="width:80px;height:6px;background:#333;border-radius:3px;overflow:hidden">
-              <div id="patience-${i}" style="width:${patiencePct}%;height:100%;background:${patienceColor};border-radius:3px;transition:width 0.3s, background 0.3s"></div>
-            </div>
-          </div>
-        </div>
-        <div style="text-align:right">
-          <div><span class="gold">${o.price}â‚«</span></div>
-          <div style="color:#28a745;font-size:10px" ${tipClass}>+${o.tip}â‚« tip!</div>
-          <button class="btn green" onclick="serveOrder(${i})">SERVE</button>
-        </div>
-      </div>`;
-    }
-  }
-  
-  html += `<div style="margin-top:10px;padding:8px;background:#16213e;border-radius:6px;font-size:11px">
-    <span style="color:#a0a0b0">Next order:</span> <span class="gold">${Math.ceil((CONFIG.orderInterval[G.lv-1] || 5000)/1000)}s</span>
-  </div>`;
-  
-  el.innerHTML = html;
-}
-
-function renderMenu() {
-  const el = document.getElementById('panel-menu');
-  if (!el) return;
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸ½ï¸ Menu (${G.unlockedMenu.length}/${MENU.length})</h3>`;
-  
-  MENU.forEach(m => {
-    const unlocked = G.unlockedMenu.includes(m.id);
-    const rarityColor = m.rarity === 5 ? '#FFD700' : m.rarity === 4 ? '#e74c3c' : m.rarity >= 3 ? '#9b59b6' : m.rarity >= 2 ? '#3498db' : '#a0a0b0';
-    
-    html += `<div class="card" style="${unlocked ? '' : 'opacity:0.4'}">
-      <div>
-        <strong>${m.icon} ${m.name}</strong>
-        <div style="color:${rarityColor};font-size:9px">â˜…${'â˜…'.repeat(m.rarity)}</div>
-        <div style="color:#a0a0b0;font-size:10px">Cost: ${m.cost}â‚« | Price: ${m.price[0]}-${m.price[1]}â‚«</div>
-      </div>
-      <div>
-        ${unlocked ? '<span style="color:#28a745">âœ… Unlocked</span>' : '<span style="color:#FF6347;font-size:10px">ðŸ”’ Locked</span>'}
-      </div>
-    </div>`;
-  });
-  
-  el.innerHTML = html;
-}
-
-function renderStats() {
-  const el = document.getElementById('panel-stats');
-  if (!el) return;
-  
-  const stars = getRepStars(G.rep);
-  const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
-  const xpPct = (G.xp / nextXp) * 100;
-  const lvl = G.lv;
-  const badgeClass = 'l'+lvl;
-  
-  let html = `<div class="section-title">ðŸ“Š Statistics</div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’° Coins</span><span class="stat-value">${typeof G.coins === 'number' && !isNaN(G.coins) ? G.coins.toLocaleString() : 0}â‚«</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“ˆ Total Revenue</span><span class="stat-value">${typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue.toLocaleString() : 0}â‚«</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’Ž Total Tips</span><span class="stat-value">${typeof G.totalTips === 'number' && !isNaN(G.totalTips) ? G.totalTips.toLocaleString() : 0}â‚«</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’¸ Total Expenses</span><span class="stat-value">${typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses.toLocaleString() : 0}â‚«</span></div>`;
-  const netP = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) && typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalRevenue - G.totalExpenses : 0;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“Š Net Profit</span><span class="stat-value">${netP.toLocaleString()}â‚«</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">☕�• Orders Served</span><span class="stat-value">${G.totalServed}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“‹ Orders Today</span><span class="stat-value">${G.ordersToday}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“Š Best Day Record</span><span class="stat-value">${G.bestDay} orders</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">â­ Reputation</span><span class="stat-value">${G.rep} (${'â˜…'.repeat(stars)}${'â˜†'.repeat(5-stars)})</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“¦ Equipment Lv</span><span class="stat-value">${Object.values(G.equipment).reduce((a,b)=>a+b,0)}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸŽ¨ Trend Items</span><span class="stat-value">${G.trendItems.length}/${TRENDS.length}</span></div>`;
-  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
-  html += `<div class="stat-row"><span class="stat-label">${venue.icon} QuÃ¡n</span><span class="stat-value">${venue.name}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’° Revenue Bonus</span><span class="stat-value">${((venue.bonusRevenue - 1) * 100).toFixed(0)}%</span></div>`;
-  
-  // === DIFFICULTY INFO ===
-  const phase = getDifficultyPhase(G.gameDay || 1);
-  html += `<div class="section-title">ðŸ“ˆ Difficulty Phase</div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“… Game Day</span><span class="stat-value">${G.gameDay || 1}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">âš”ï¸ Phase</span><span class="stat-value">${phase.startDay}-</span></span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’¹ Profit Mult</span><span class="stat-value">x${phase.profitMult.toFixed(2)}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“ˆ Inflation</span><span class="stat-value">x${phase.inflation.toFixed(2)}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ’¸ Salary Mult</span><span class="stat-value">x${phase.staffSalaryMult.toFixed(2)}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">ðŸ“¦ Order Interval</span><span class="stat-value">x${phase.orderMult.toFixed(2)}</span></div>`;
-  
-  html += `<div class="section-title">ðŸŽ¯ Level Progress</div>`;
-  html += `<div class="stat-row"><span class="stat-label">Current Level</span><span class="stat-value level-badge ${badgeClass}">Lv${G.lv}</span></div>`;
-  html += `<div class="stat-row"><span class="stat-label">XP Progress</span><span class="stat-value">${G.xp}/${nextXp}</span></div>`;
-  html += `<div style="width:100%;height:10px;background:#333;border-radius:5px;overflow:hidden;margin:8px 0">
-    <div style="width:${xpPct}%;height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width 0.5s;border-radius:5px"></div>
-  </div>`;
-  
-  if (LEVEL_REWARDS[G.lv+1]) {
-    const next = LEVEL_REWARDS[G.lv+1];
-    html += `<div class="section-title">ðŸŽ Next Level Reward</div>`;
-    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#28a745">`;
-    html += `Lv${G.lv+1}: +${next.coins}â‚« coins<br>${next.desc}</div>`;
-  }
-  
-  // === RESTART BUTTON ===
-  html += `<div class="section-title">ðŸ”§ Game Control</div>`;
-  html += `<div style="text-align:center;padding:10px 0">
-    <button class="btn" style="background:#e74c3c;padding:12px 24px;font-size:14px;font-weight:bold">ðŸ”„ Game Over - ChÆ¡i Láº¡i</button>
-  </div>`;
-  
-  el.innerHTML = html;
-}
-
-function restartGame() {
-  if (confirm('ðŸ”¥ ChÆ¡i láº¡i tá»« Ä‘áº§u? Má»i tiáº¿n Ä‘á»™ sáº½ bá»‹ máº¥t!')) {
-    localStorage.removeItem('trendyCafeV7');
-    location.reload();
-  }
-}
-
-function renderStaff() {
-  const el = document.getElementById('panel-staff');
-  if (!el) return;
-  
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸ‘¥ Hire Staff (${G.staff.length}/${CONFIG.maxStaff})</h3>`;
-  
-  // === BUFF STATUS DISPLAY ===
-  let activeBuffs = [];
-  G.staff.forEach(s => {
-    const sDef = STAFF.find(st => st.id === s.id);
-    if (sDef && sDef.buffDesc) {
-      activeBuffs.push(`${sDef.icon || 'ðŸŒŸ'} ${sDef.buffDesc}`);
-    }
-  });
-  if (activeBuffs.length > 0) {
-    html += `<div style="padding:8px;background:#16213e;border:1px solid #FFD700;border-radius:6px;margin-bottom:10px;font-size:11px">`;
-    html += `<div style="color:#FFD700;margin-bottom:4px">ðŸ”¥ ACTIVE BUFFS:</div>`;
-    activeBuffs.forEach(b => { html += `<div style="color:#28a745;margin:2px 0">âœ… ${b}</div>`; });
-    html += `</div>`;
-  }
-  
-  // === REPUTATION BUFF (from Legend Chef) ===
-  if (G.staffBuffs.reputation > 0) {
-    html += `<div style="padding:6px;background:linear-gradient(90deg,#164829,#1a1a4e);border:1px solid #9b59b6;border-radius:6px;margin-bottom:8px;font-size:11px;color:#9b59b6">`;
-    html += `â­ Reputation passive: +${G.staffBuffs.reputation}/ngÃ y (Legend Chef active)</div>`;
-  }
-  
-  html += `<div class="section-title">ðŸ“‹ Available Staff</div>`;
-  STAFF.forEach((s, idx) => {
-    const canHire = G.coins >= s.cost && G.staff.length < CONFIG.maxStaff;
-    let buffInfo = '';
-    if (s.buffDesc) buffInfo = `<div style="color:#FFD700;font-size:9px">ðŸ”¥ ${s.buffDesc}</div>`;
-    html += `<div class="card">
-      <div>
-        <strong>${s.name}</strong>
-        <div style="color:#a0a0b0;font-size:10px">${s.desc}</div>
-        <div style="color:#3498db;font-size:10px">Skill: ${Math.floor(s.sk[0]*100)}-${Math.floor(s.sk[1]*100)}%</div>
-        ${buffInfo}
-      </div>
-      <div>
-        <span class="gold">${s.cost}â‚«</span><br>
-        <button class="btn green" ${canHire ? '' : 'disabled'} onclick="hireStaff(${idx})">HIRE</button>
-      </div>
-    </div>`;
-  });
-  
-  if (G.staff.length > 0) {
-    html += `<div class="section-title">ðŸ‘¨â€ðŸ’¼ Your Staff</div>`;
-    G.staff.forEach((s, idx) => {
-      const moodClass = s.mood > 60 ? 'mood-high' : s.mood > 30 ? 'mood-med' : 'mood-low';
-      const sDef = STAFF.find(st => st.id === s.id);
-      let buffTag = '';
-      if (sDef && sDef.buffDesc) {
-        buffTag = `<div style="color:#FFD700;font-size:9px;margin-top:2px">ðŸ”¥ ${sDef.buffDesc}</div>`;
-      }
-      html += `<div class="card">
-        <div>
-          <strong>${s.name}</strong>
-          <div style="color:#a0a0b0;font-size:10px">Skill: ${Math.floor(s.skill*100)}%</div>
-          <div style="font-size:11px">Mood: 
-            <span class="mood-bar ${moodClass}">
-              <span class="mood-fill" style="width:${s.mood}%"></span>
-            </span>
-            <span style="font-size:10px">${Math.floor(s.mood)}%</span>
-          </div>
-          ${buffTag}
-        </div>
-        <div style="text-align:right">
-          <button class="btn blue" onclick="restStaff(${idx})">REST</button>
-          <button class="btn" style="background:#e74c3c" onclick="fireStaff(${idx})">FIRE</button>
-        </div>
-      </div>`;
+// ===== PANEL SWITCHING =====
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.nb').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.nb').forEach(b => b.classList.remove('on'));
+            this.classList.add('on');
+            let tab = this.dataset.tab;
+            document.querySelectorAll('.pan').forEach(p => p.classList.remove('on'));
+            let target = document.getElementById('p-' + tab);
+            if (target) target.classList.add('on');
+        });
     });
-  }
-  
-  el.innerHTML = html;
-}
-
-function renderEquip() {
-  const el = document.getElementById('panel-equip');
-  if (!el) return;
-  
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸ”§ Equipment Shop</h3>`;
-  let hiddenCount = 0;
-  
-  EQUIPMENT.forEach(eq => {
-    const currentLv = G.equipment[eq.id] || 0;
-    const maxed = currentLv >= eq.maxLv;
-    const cost = getEquipCost(eq, currentLv);
-    const canBuy = G.coins >= cost && !maxed;
-    
-    // Hide new equipment until level 10
-    const isNewEquip = !['espresso_mach','seating','decoration','speaker','fridge','wifi','bakery','bar_counter'].includes(eq.id);
-    if (isNewEquip && G.lv < 10) {
-      hiddenCount++;
-      return;
-    }
-    
-    html += `<div class="card" style="${currentLv > 0 ? '' : ''}">
-      <div>
-        <strong>${eq.icon} ${eq.name} Lv${currentLv}/${eq.maxLv}</strong>
-        <div style="color:#a0a0b0;font-size:10px">${eq.desc}</div>
-        ${!maxed ? `<div style="color:#FFD700;font-size:10px">Upgrade: ${cost}â‚«</div>` : '<div style="color:#28a745;font-size:10px">MAX LEVEL</div>'}
-      </div>
-      <div>
-        <button class="btn purple" ${canBuy ? '' : 'disabled'} onclick="buyEquipment('${eq.id}')">${maxed ? 'MAX' : 'UPGRADE'}</button>
-      </div>
-    </div>`;
-  });
-  
-  if (G.lv < 10) {
-    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#a0a0b0;margin-top:8px">`;
-    html += `ðŸ”’ Cáº§n Lv10 Ä‘á»ƒ má»Ÿ khÃ³a thiáº¿t bá»‹ má»›i!`;
-    html += `</div>`;
-  }
-  
-  html += `<div class="section-title">ðŸ“¦ Current Equipment</div>`;
-  let eqHtml = '<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;line-height:1.8">';
-  EQUIPMENT.forEach(eq => {
-    const lv = G.equipment[eq.id] || 0;
-    if (lv > 0 || !['auto_espresso','cooling_sys','premium_store','outdoor_tent','chandelier','smart_pos'].includes(eq.id) || G.lv >= 10) {
-      eqHtml += `${eq.icon} ${eq.name}: <span class="gold">Lv${lv}</span> ${'â–ˆ'.repeat(lv)}${'â–‘'.repeat(eq.maxLv-lv)}<br>`;
-    }
-  });
-  eqHtml += '</div>';
-  el.innerHTML = html + eqHtml;
-}
-
-function renderShop() {
-  const el = document.getElementById('panel-shop');
-  if (!el) return;
-  
-  let html = `<h3 style="color:#FFD700;margin-bottom:8px">ðŸ›’ Trend Decorations (${G.trendItems.length}/${TRENDS.length})</h3>`;
-  
-  TRENDS.forEach(t => {
-    const owned = G.trendItems.find(x => x.id === t.id);
-    const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : '#FFD700';
-    const rarityEmoji = t.r === 'common' ? 'â¬œ' : t.r === 'rare' ? 'ðŸŸª' : t.r === 'epic' ? 'ðŸŸ¥' : 'ðŸŸ¨';
-    
-    // Hide legendary items until level 70
-    if (t.r === 'legend' && G.lv < 70 && !owned) return;
-    // Hide new rare items until level 70
-    if (['t_neon','t_book','t_petzone'].includes(t.id) && G.lv < 70 && !owned) return;
-    // Hide new epic items until level 80
-    if (['t_rooftop','t_artwall','t_privroom','t_gaming'].includes(t.id) && G.lv < 80 && !owned) return;
-    
-    html += `<div class="card ${owned ? 'epic' : ''}">
-      <div>
-        <strong style="color:${rarityColor}">${rarityEmoji} ${t.icon} ${t.name}</strong>
-        <div style="color:#a0a0b0;font-size:10px">${t.desc}</div>
-      </div>
-      <div>
-        ${owned ? '<span style="color:#28a745">âœ… OWNED</span>' : `<span class="gold">${t.cost.toLocaleString()}â‚«</span><br><button class="btn" onclick="buyTrend('${t.id}')">BUY</button>`}
-      </div>
-    </div>`;
-  });
-  
-  if (G.lv < 70) {
-    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#a0a0b0;margin-top:8px">`;
-    html += `ðŸ”’ Cáº§n Lv70+ Ä‘á»ƒ má»Ÿ khÃ³a trend items má»›i!`;
-    html += `</div>`;
-  }
-  
-  el.innerHTML = html;
-}
-
-// ============ UPDATE UI ============
-function updateUI() {
-  const coins = document.getElementById('coins');
-  if (coins) coins.textContent = G.coins;
-  
-  const lvBadge = document.getElementById('lv-badge');
-  if (lvBadge) {
-    lvBadge.textContent = G.lv;
-    lvBadge.className = 'gold level-badge l'+G.lv;
-  }
-  
-  const lvText = document.getElementById('lv-text');
-  if (lvText) lvText.textContent = 'Lv'+G.lv;
-  
-  const xpFill = document.getElementById('xp-fill');
-  if (xpFill) {
-    const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
-    const pct = Math.min(100, (G.xp / nextXp) * 100);
-    xpFill.style.width = pct + '%';
-  }
-  
-  const stars = getRepStars(G.rep);
-  const repStars = document.getElementById('rep-stars');
-  if (repStars) repStars.textContent = 'â˜…'.repeat(stars) + 'â˜†'.repeat(5-stars);
-  
-  const tabs = document.querySelectorAll('.tab');
-  for (let i = 0; i < tabs.length; i++) {
-    tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab') === G.tab);
-  }
-  
-  const panels = document.querySelectorAll('[id^="panel-"]');
-  panels.forEach(p => p.style.display = 'none');
-  const panel = document.getElementById('panel-' + G.tab);
-  if (panel) panel.style.display = 'block';
-  
-  switch(G.tab) {
-    case 'orders': renderOrders(); break;
-    case 'menu': renderMenu(); break;
-    case 'stats': renderStats(); break;
-    case 'staff': renderStaff(); break;
-    case 'equip': renderEquip(); break;
-    case 'shop': renderShop(); break;
-    case 'expand': renderExpand(); break;
-  }
-}
-
-// ============ TAB SWITCHING ============
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', function() {
-    G.tab = this.getAttribute('data-tab');
-    AudioEngine.click();
-    updateUI();
-  });
 });
 
-// ============ PATIENCE TIMER ============
-let lastOrderCount = 0;
-let lastGameDay = G.gameDay || 1;
-setInterval(function() {
-  processFinancialCycles(); // Process salaries + charges
-  
-  // === GAME DAY TRACKING (1 day = 60 seconds real time) ===
-  if (!G.gameDay) G.gameDay = 1;
-  if (Date.now() - G.lastDayChange >= 60000) {
-    G.gameDay++;
-    G.lastDayChange = Date.now();
-    
-    // Legend Chef reputation buff trigger
-    if (G.staffBuffs.reputation > 0) {
-      G.rep = Math.min(CONFIG.maxRep, G.rep + G.staffBuffs.reputation);
-      notify(`â­ Legend Chef buff: +${G.staffBuffs.reputation} rep (daily)`);
+// ===== INITIALIZATION =====
+function init() {
+    initCanvas(); renderUI();
+    let loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.style.display = 'none';
+    function loop() {
+        let now = Date.now();
+        if (now - (init.lastTick || now) > 2000) { gameTick(); init.lastTick = now; }
+        renderScene(); requestAnimationFrame(loop);
     }
-    
-    // Staff mood decay (daily)
-    G.staff.forEach(s => {
-      s.mood = Math.max(0, s.mood - 1);
-    });
-    
-    notify(`ðŸ“… NgÃ y ${G.gameDay}! (Difficulty phase: ${getDifficultyPhase(G.gameDay).startDay}+)`, 3000);
-  }
-  
-  let changed = false;
-  
-  let changed = false;
-  // Decrease patience for all orders
-  for (let i = G.orders.length - 1; i >= 0; i--) {
-    G.orders[i].timeLeft -= 1000;
-    if (G.orders[i].timeLeft <= 0) {
-      const lost = G.orders[i];
-      G.orders.splice(i, 1);
-      G.rep = Math.max(0, G.rep - 3);
-      notify(`ðŸ˜¡ ${lost.customer.icon} ${lost.customer.name} left! Rep -3`, 3000);
-      changed = true;
-    } else {
-      // Chá»‰ cáº­p nháº­t thanh patience, KHÃ”NG rebuild DOM
-      const el = document.getElementById('patience-' + i);
-      if (el) {
-        const pct = Math.max(0, (G.orders[i].timeLeft / G.orders[i].patience) * 100);
-        const color = pct > 60 ? '#28a745' : pct > 30 ? '#FFD700' : '#FF6347';
-        el.style.width = pct + '%';
-        el.style.background = color;
-      }
-    }
-  }
-  // Chá»‰ rebuild khi cÃ³ Ä‘Æ¡n má»›i Ä‘áº¿n hoáº·c Ä‘Æ¡n bá»‹ máº¥t (sá»‘ Ä‘Æ¡n thay Ä‘á»•i)
-  if (G.orders.length !== lastOrderCount) {
-    lastOrderCount = G.orders.length;
-    if (G.tab === 'orders') renderOrders();
-  }
-}, 1000);
-
-// ============ AUTO ORDER GENERATION ============
-setInterval(function() {
-  autoGenerateOrder();
-}, 1000);
-
-// ============ AUTO SERVE (staff) ============
-let lastAutoServe = 0;
-setInterval(function() {
-  const now = Date.now();
-  if (now - lastAutoServe < 3500) return; // throttle 3.5s
-  
-  if (G.staff.length === 0 || G.orders.length === 0) return;
-  
-  let servedAny = false;
-  
-  // CALCULATE ACTIVE BUFFS
-  let allSpeedBuff = 0;
-  let tipsBuff = 0;
-  let highrollBuff = 0;
-  let coopBuff = 0;
-  let repBuff = 0;
-  let autoServeBuff = 0;
-  let moodRecoverBuff = 0;
-  
-  G.staff.forEach(s => {
-    const sDef = STAFF.find(st => st.id === s.id);
-    if (sDef && sDef.buff) {
-      switch(sDef.buff) {
-        case 'all_speed': allSpeedBuff += sDef.buffVal; break;
-        case 'tips': tipsBuff += sDef.buffVal; break;
-        case 'highroll': highrollBuff += sDef.buffVal; break;
-        case 'coop': coopBuff += sDef.buffVal; break;
-        case 'reputation': repBuff += sDef.buffVal; break;
-      }
-    }
-  });
-  if (G.equipment.auto_espresso) autoServeBuff = G.equipment.auto_espresso * 0.10;
-  if (G.equipment.cooling_sys) moodRecoverBuff = G.equipment.cooling_sys * 0.15;
-  
-  G.staffBuffs = { all_speed: allSpeedBuff, tips: tipsBuff, highroll: highrollBuff, reputation: repBuff, coop: coopBuff };
-  
-  for (let si = 0; si < G.staff.length; si++) {
-    if (G.orders.length === 0) break;
-    
-    const s = G.staff[si];
-    if (s.mood < 5) continue;
-    
-    // CO-OP SERVE: Master/Epic Coach reduce time by 50%
-    let serveMod = 1;
-    if (coopBuff > 0 && si < G.staff.length - 1) {
-      const nextStaff = G.staff[si + 1];
-      if (nextStaff && nextStaff.mood > 20) serveMod = 0.5;
-    }
-    
-    // AUTO SERVE speed bonus
-    const autoServeRate = (3500 * (1 - autoServeBuff)) < 1000 ? 1000 : 3500 * (1 - autoServeBuff);
-    
-    // All speed buff from Manager
-    const speedMult = 1 + allSpeedBuff;
-    
-    // Mood recovery bonus from Cooling System
-    const moodRecoveryRate = 2 + moodRecoverBuff * 2;
-    
-    // TÃ­nh skill thá»±c táº¿
-    const skillValue = s.skill * (s.mood / 100) * speedMult;
-    const servedCount = Math.max(1, Math.floor(skillValue * 2)); // tá»‘i thiá»ƒu 1 náº¿u cÃ³ skill
-    
-    for (let srv = 0; srv < servedCount && G.orders.length > 0; srv++) {
-      const o = G.orders[0];
-      let bonus = 1;
-      G.trendItems.forEach(t => { if(t.revenueBonus) bonus += t.revenueBonus; });
-      bonus += (G.equipment.espresso_mach || 0) * 0.05;
-      if (G.equipment.chandelier) bonus += (G.equipment.chandelier || 0) * 0.05;
-      
-      // HIGH ROLLER buff
-      let revenue = Math.floor((o.price + o.tip) * CONFIG.profitMultiplier * bonus);
-      if (highrollBuff > 0 && o.price > 50) {
-        revenue = Math.floor(revenue * 1.15);
-      }
-      
-      // PREMIUM STORAGE
-      const costReduction = 1 - (G.equipment.premium_store || 0) * 0.10;
-      const menuDef = MENU.find(m => m.id === o.menuId);
-      const finalCost = menuDef ? Math.floor(menuDef.cost * CONFIG.ingredientInflation * costReduction) : 0;
-      
-      G.coins += (revenue - finalCost);
-      G.totalRevenue += revenue;
-      G.totalServed++;
-      G.ordersToday++;
-      G.totalTips += o.tip;
-      G.xp += Math.floor(o.price * 1.5);
-      G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
-      
-      // Mood decay with cooling system
-      const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
-      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoveryBuff * 2));
-      
-      G.orders.splice(0, 1);
-      notify(`ðŸ¤– ${s.name} auto-served ${o.icon} ${o.name}! +${revenue}â‚« (-${finalCost}â‚« = ${revenue-finalCost}â‚« net)`);
-      AudioEngine.serve();
-      servedAny = true;
-      lastAutoServe = Date.now();
-    }
-  }
-  
-  if (servedAny) {
-    checkLevelUp();
-    updateUI();
-  }
-}, 3500); // Every 3.5s
-
-// ============ MOOD RECOVERY ============
-setInterval(function() {
-  let moodRecoverBuff = 0;
-  G.staff.forEach(s => {
-    const sDef = STAFF.find(st => st.id === s.id);
-    if (sDef && sDef.buff === 'reputation') moodRecoverBuff += 2;
-  });
-  const baseRecovery = 2 + (G.equipment.cooling_sys || 0) * 0.3 + moodRecoverBuff;
-  G.staff.forEach(s => {
-    if (s.mood < 100) {
-      s.mood = Math.min(100, s.mood + baseRecovery);
-    }
-  });
-}, 10000); // Every 10s
-
-// ============ SAVE / LOAD ============
-function saveGame() {
-  try {
-    const saveData = JSON.stringify(G);
-    localStorage.setItem('trendyCafeV7', saveData);
-  } catch(e) {}
+    loop();
+    setInterval(renderUI, 500);
 }
 
-function loadGame() {
-  try {
-    const data = localStorage.getItem('trendyCafeV7');
-    if (data) {
-      const saved = JSON.parse(data);
-      // Merge with defaults
-      Object.keys(saved).forEach(key => {
-        if (G.hasOwnProperty(key)) {
-          G[key] = saved[key];
-        }
-      });
-      
-      // Ensure new fields exist
-      if (!G.staffBuffs) G.staffBuffs = { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 };
-      if (!G.lastDayChange) G.lastDayChange = Date.now();
-      
-      // Ensure trend items have bonus fields
-      G.trendItems.forEach(t => {
-        const trendDef = TRENDS.find(x => x.id === t.id);
-        if (trendDef) {
-          t.revenueBonus = trendDef.id === 't_doge' ? 0.05 :
-                           trendDef.id === 't_cat' ? 0.03 :
-                           trendDef.id === 't_girl' ? 0.10 :
-                           trendDef.id === 't_piano' ? 0.15 :
-                           trendDef.id === 't_sky' ? 0.20 :
-                           trendDef.id === 't_chef' ? 0.30 :
-                           trendDef.id === 't_neon' ? 0.12 :
-                           trendDef.id === 't_rooftop' ? 0.25 :
-                           trendDef.id === 't_artwall' ? 0.20 :
-                           trendDef.id === 't_privroom' ? 0.18 :
-                           trendDef.id === 't_petzone' ? 0.15 :
-                           trendDef.id === 't_gaming' ? 0.22 :
-                           trendDef.id === 't_livemusic' ? 0.35 :
-                           trendDef.id === 't_aromatherapy' ? 0.40 :
-                           trendDef.id === 't_rooftopgarden' ? 0.50 :
-                           trendDef.id === 't_smartorder' ? 0.45 :
-                           trendDef.id === 't_secretmenu' ? 0.60 :
-                           trendDef.id === 't_book' ? 0.10 : 0;
-          t.repBonus = trendDef.id === 't_plant' ? 2 :
-                       trendDef.id === 't_art' ? 8 :
-                       trendDef.id === 't_artwall' ? 12 :
-                       trendDef.id === 't_privroom' ? 8 :
-                       trendDef.id === 't_petzone' ? 15 :
-                       trendDef.id === 't_book' ? 10 :
-                       trendDef.id === 't_livemusic' ? 10 :
-                       trendDef.id === 't_aromatherapy' ? 12 :
-                       trendDef.id === 't_rooftopgarden' ? 15 :
-                       trendDef.id === 't_smartorder' ? 20 :
-                       trendDef.id === 't_secretmenu' ? 25 : 0;
-        }
-      });
-      
-      // Ensure new equipment fields exist
-      ['auto_espresso','cooling_sys','premium_store','outdoor_tent','chandelier','smart_pos'].forEach(eq => {
-        if (!G.equipment[eq]) G.equipment[eq] = 0;
-      });
-      
-      notify('ðŸ’¾ Game loaded! V7 Ultimate', 1500);
-    }
-  } catch(e) {}
-}
-
-setInterval(saveGame, 30000); // Auto-save every 30s
-
-// ============ START GAME ============
-loadGame();
-G.lastOrderTime = Date.now();
-G.lastDayChange = Date.now();
-if (!G.gameDay) G.gameDay = 1;
-if (!G.staffBuffs) G.staffBuffs = { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 };
-
-// Initialize audio on first user interaction
-document.addEventListener('click', function initAudio() {
-  AudioEngine.init();
-  document.removeEventListener('click', initAudio);
-}, {once: true});
-
-console.log('âœ… Trendy Cafe V6 started!');
-console.log('âœ… Unlocked menu:', G.unlockedMenu);
-console.log('âœ… Staff:', G.staff.length);
-console.log('âœ… Equipment:', G.equipment);
-console.log('âœ… Trends:', G.trendItems.length);
-updateUI();
-
-</script>
-
-  <!-- Pixel Art Scene -->
-  <script src="cafe_scene_v7.js"></script>
-</body>
-</html>
-
+window.addEventListener('load', init);
