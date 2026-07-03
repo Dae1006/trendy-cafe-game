@@ -16,6 +16,12 @@
 #pauseBtn{position:absolute;top:8px;left:8px;z-index:5;background:#3d2b1a;border:1px solid #4a3520;color:#c9a96e;padding:4px 8px;font-size:14px;cursor:pointer;border-radius:4px}#pauseBtn:hover{background:#4a3520}
 </style></head><body>
 
+<!-- Loading screen -->
+<div id="loadScreen" style="position:fixed;inset:0;background:#1a1410;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;color:#c9a96e;font-family:'Courier New',monospace">
+  <div style="font-size:32px;margin-bottom:20px">☕</div>
+  <div style="font-size:18px">Đang tải quán...<br><span style="font-size:12px;color:#b89a6e">Loading cafe...</span></div>
+</div>
+
 <div id="topbar">
 <div class="stat">&#x1F4B0; <span class="val" id="vMoney">$500</span></div>
 <div class="stat">&#x2B50; <span class="val" id="vRep">0</span></div>
@@ -321,7 +327,7 @@ function updateStaff() {
 }
 
 // ===== GAME LOOP =====
-var lt = 0;
+var lt = null;
 function gameLoop(ts) {
   if (!lt) lt = ts;
   var d = ts - lt;
@@ -337,7 +343,7 @@ function gameLoop(ts) {
       if (curH >= 21) { endDay(); break; }
       
       // Weather changes
-      if (G.tick % 30 === 0) G.w = G.w === 'sunny' ? 'sunny' : 'rainy';
+      if (G.tick % 30 === 0) G.w = G.w === 'sunny' ? 'rainy' : 'sunny';
       
       // Customer spawn rate by time
       var sp = 3, h = (6 + G.tick * HPT) % 24;
@@ -618,22 +624,40 @@ function updateUI() {
 }
 
 // ===== INIT (runs last, after all functions defined) =====
-G = {m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
-mapData = genMap();
-seatData = genSeats();
+// Use DOMContentLoaded to ensure canvas element exists before we grab it
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startGame);
+} else {
+  startGame();
+}
 
-// Create DOM references (now all functions are defined)
-canvasEl = document.getElementById('gameCanvas');
-ctx = canvasEl.getContext('2d');
+function startGame() {
+  // Remove loading screen
+  var ls = document.getElementById('loadScreen');
+  if (ls) ls.remove();
 
-addMsg('Welcome! Hire staff then click menu to serve customers', 'gd');
-renderPanel();
-requestAnimationFrame(gameLoop);
-
-// Auto-save every 60 seconds
-setInterval(function() {
-  if (G && !G.over) {
-    try { localStorage.setItem('cafe_save', JSON.stringify(G)); } catch(e) {}
+  // Create DOM references (ensure canvas exists first)
+  canvasEl = document.getElementById('gameCanvas');
+  if (!canvasEl) {
+    console.error('ERROR: #gameCanvas not found! DOM not ready?');
+    return;
   }
-}, 60000);
+  ctx = canvasEl.getContext('2d');
+
+  // Reset game state (in case localStorage had stale data)
+  G = {m:500,r:0,d:1,tick:0,w:'sunny',seats:[],queue:[],staff:[],decs:[],orders:[],ct:0,revenue:0,exp:0,tipsT:0,tipsAll:0,qd:{},paused:false,over:false};
+  mapData = genMap();
+  seatData = genSeats();
+
+  addMsg('Welcome! Hire staff then click menu to serve customers', 'gd');
+  renderPanel();
+  requestAnimationFrame(gameLoop);
+
+  // Auto-save every 60 seconds
+  setInterval(function() {
+    if (G && !G.over) {
+      try { localStorage.setItem('cafe_save', JSON.stringify(G)); } catch(e) {}
+    }
+  }, 60000);
+}
 </script></body></html>
