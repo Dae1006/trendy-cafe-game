@@ -1,736 +1,1128 @@
 /**
- * CafeSceneV7 — Layer cảnh quán Top-Down cho Trendy Cafe V7 Ultimate
- * File độc lập, không sửa code game core. Chỉ poll từ object G.
- * Canvas 320×200px, render qua fillRect (pixel art).
+ * CafeSceneV2 — Complete rewrite of Top-Down cafe scene (pixel art)
+ * Canvas 320×200px, fully self-contained, polls G object.
+ * Features: bigger detailed customers, smooth staff animation,
+ *           detailed interior, weather effects, neon glow, V7 palette.
  */
-
 (function() {
 'use strict';
 
-// ======================== CONSTANTS / PALETTE ========================
-const C = {
-  W: 320, H: 200,                // canvas dimensions
-  BG:       '#0f3460',           // dark blue background
-  ACCENT:   '#FFD700',           // gold accent
-  BUILDING: '#8B4513',           // building wall brown
-  BLDG_LIT: '#A0522D',           // building lit (day)
-  BAR:      '#D2691E',           // bar counter wood
-  FLOOR:    '#808080',           // floor tile gray
-  DOOR:     '#654321',           // deep brown door
-  DOOR_KNOB:'#FFD700',           // gold doorknob
-  GLASS:    'rgba(255,255,255,0.12)', // window glass
-  GLASS_GLOW:'rgba(255,215,0,0.35)',  // window neon glow
-  WALL_INNER:'#16213e',          // interior wall dark
-  STAFF_W:  '#FFFFFF',           // staff white apron
-  STAFF_F:  '#F5F5DC',           // staff skin tone
-  STEAM:    'rgba(255,255,255,0.6)',   // steam particles
-};
+/* ================================================================
+   PALETTE — V7 Ultimate (warm + dark)
+   ================================================================ */
+const PAL = Object.freeze({
+  bgDark:     '#0f3460',
+  bgMid:      '#16213e',
+  bgNight:    '#0a1628',
+  gold:       '#FFD700',
+  warmRed:    '#FF6347',
+  wall:       '#2c1810',
+  wallLight:  '#3d2517',
+  floor:      '#1a0f0a',
+  floorTile:  '#23160e',
+  barTop:     '#5c3a1e',
+  barFront:   '#4a2e15',
+  shelfWood:  '#4e3428',
+  doorFrame:  '#2c1810',
+  doorPanel:  '#1a0f0a',
+  glassWin:   'rgba(180,210,255,0.15)',
+  glassGlow:  'rgba(255,215,0,0.3)',
+  neonPink:   '#ff2d95',
+  neonCyan:   '#00e5ff',
+  neonWarm:   '#ffb86c',
+  steam:      'rgba(255,255,255,0.45)',
+  plantGreen: '#2e7d32',
+  plantLight: '#4caf50',
+  plantPot:   '#8d6e63',
+  lampGlow:   'rgba(255,215,0,0.25)',
+  frameBrown: '#5d4037',
+  frameGold:  '#bf9a38',
+  canvasBg:   '#0d1b2a',
+});
 
-// Customer pastel palette
-const CUSTOMER_PALETTES = [
-  {head:'#e74c3c',body:'#9b59b6'},{head:'#3498db',body:'#2ecc71'},
-  {head:'#f39c12',body:'#e67e22'},{head:'#1abc9c',body:'#8e44ad'},
-  {head:'#e91e63',body:'#00bcd4'},{head:'#ff5722',body:'#ffc107'},
-  {head:'#607d8b',body:'#795548'},{head:'#009688',body:'#4caf50'},
-];
+/* ================================================================
+   LAYOUT CONSTANTS (grid in px on 320×200)
+   ================================================================ */
+const L = Object.freeze({
+  // Interior area (inside building walls)
+  innerLeft:   50,
+  innerTop:    36,
+  innerRight:  270,
+  innerBottom: 184,
+  innerW:      220,
+  innerH:      148,
 
-// ======================== STATE ========================
-const CafeSceneV7 = {
-  // Canvas refs
+  // Bar (left wall)
+  barX:        54,
+  barY:        36,
+  barW:        36,
+  barH:        90,
+
+  // Door (right wall)
+  doorX:       270,
+  doorY:       130,
+  doorW:       18,
+  doorH:       40,
+
+  // Bookshelf / Decor center
+  shelfX:      155,
+  shelfY:      40,
+  shelfW:      24,
+  shelfH:      50,
+
+  // Plant positions
+  plantL: {x: 68, y: 138},
+  plantR: {x: 240, y: 48},
+
+  // Lamp drop positions (ceiling)
+  lamps: [
+    {x: 90, y: 52},
+    {x: 130, y: 52},
+    {x: 170, y: 52},
+    {x: 210, y: 52},
+  ],
+
+  // Tables (seated area between bar and shelves)
+  tables: [
+    {x: 100, y: 90, w: 28, h: 18},
+    {x: 140, y: 130, w: 28, h: 18},
+    {x: 195, y: 95, w: 28, h: 18},
+    {x: 230, y: 135, w: 28, h: 18},
+  ],
+
+  // Table seat offsets (relative to table center)
+  seats: [
+    {dx: -14, dy: 0},   // left
+    {dx:  14, dy: 0},   // right
+    {dx:  0, dy: -10},  // top
+    {dx:  0, dy:  10},  // bottom
+  ],
+
+  // Coffee machine on bar
+  coffeeMachineX: 68,
+  coffeeMachineY: 50,
+});
+
+/* ================================================================
+   CUSTOMER PALETTES (head + shirt + pants)
+   ================================================================ */
+const CUST_PAL = Object.freeze([
+  { head:'#e74c3c', body:'#8e44ad', pants:'#2c3e50', skin:'#f1c27d' },
+  { head:'#3498db', body:'#e67e22', pants:'#27ae60', skin:'#d4a574' },
+  { head:'#f39c12', body:'#e74c3c', pants:'#16a085', skin:'#f5cba7' },
+  { head:'#1abc9c', body:'#9b59b6', pants:'#2980b9', skin:'#edbb99' },
+  { head:'#e91e63', body:'#00bcd4', pants:'#c0392b', skin:'#f0dbb7' },
+  { head:'#ff5722', body:'#ffc107', pants:'#78909c', skin:'#d4a574' },
+  { head:'#607d8b', body:'#4caf50', pants:'#e67e22', skin:'#f5cba7' },
+  { head:'#009688', body:'#ff5722', pants:'#607d8b', skin:'#edbb99' },
+]);
+
+/* ================================================================
+   STAFF PATHS (bar → table → bar)  (absolute coords)
+   ================================================================ */
+const STAFF_PATHS = Object.freeze(L.tables.map(function(t) {
+  return [
+    {x: L.barX + L.barW, y: t.y},        // from bar edge
+    {x: t.x - 12, y: t.y + t.h/2},       // table side
+    {x: t.x,      y: t.y + t.h/2 + 8},   // behind table (serving)
+    {x: t.x + 12, y: t.y + t.h/2},       // other side
+    {x: L.barX + L.barW, y: t.y},        // back to bar
+  ];
+}));
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function clamp(v, lo, hi) { return v < lo ? lo : (v > hi ? hi : v); }
+function lerp(a, b, t)    { return a + (b - a) * t; }
+function dist(ax, ay, bx, by) { var dx=ax-bx, dy=ay-by; return Math.sqrt(dx*dx+dy*dy); }
+
+/* ================================================================
+   ENTITY CLASSES
+   ================================================================ */
+
+/* ---- Weather Particle ---- */
+class WParticle {
+  constructor(type) {
+    this.type = type; // 'rain' | 'snow'
+    this.reset();
+  }
+  reset() {
+    this.x = Math.random() * 320;
+    this.y = -8 - Math.random() * 40;
+    this.speed = 60 + Math.random() * 40;
+    this.size  = this.type === 'rain' ? (1.5 + Math.random()) : (1 + Math.random() * 1.5);
+    this.life  = this.type === 'rain' ? 3.5 : (5 + Math.random() * 3);
+    this.maxLife = this.life;
+    if (this.type === 'snow') {
+      this.rot   = Math.random() * Math.PI * 2;
+      this.rotSp = (Math.random() - 0.5) * 2;
+      this.wobbleAmp = 8 + Math.random() * 12;
+      this.wobbleSp = 1.5 + Math.random();
+    }
+    if (this.type === 'rain') {
+      this.angle = Math.PI / 4; // diagonal
+    }
+    this.alive = true;
+    this.splash = false;
+    this.splashLife = 0;
+  }
+  update(dt) {
+    if (!this.alive) return;
+    this.life -= dt;
+    if (this.type === 'rain') {
+      this.x += Math.cos(this.angle) * this.speed * dt;
+      this.y += Math.sin(this.angle) * this.speed * dt;
+      // hit floor
+      if (this.y > 186) {
+        this.splash = true;
+        this.splashLife = 0.25;
+        setTimeout(() => { this.alive = false; }, 200);
+      }
+    } else {
+      this.wobbleX = Math.sin(performance.now() * 0.001 * this.wobbleSp) * this.wobbleAmp;
+      this.x += (this.wobbleX - (this.wobbleX - (Math.sin((performance.now() - dt*1000) * 0.001 * this.wobbleSp) * this.wobbleAmp))) * dt * 0.5;
+      this.y += this.speed * dt * 0.6; // slower fall for snow
+      this.rot += this.rotSp * dt;
+      if (this.y > 192) { this.alive = false; }
+    }
+  }
+  draw(ctx, time) {
+    if (!this.alive) return;
+    var a = clamp(this.life / this.maxLife, 0, 1);
+
+    if (this.type === 'rain' && this.splash) {
+      ctx.globalAlpha = a * 0.6;
+      ctx.fillStyle = '#a8d8ea';
+      // splash dots
+      for (var i = 0; i < 3; i++) {
+        var sx = this.x + Math.cos(i * 2.1) * (this.splashLife * 6);
+        var sy = 186 - Math.sin(i * 2.1) * (this.splashLife * 4);
+        ctx.fillRect(sx, sy, 1, 1);
+      }
+      return;
+    }
+
+    if (this.type === 'rain') {
+      ctx.globalAlpha = a * 0.5;
+      ctx.strokeStyle = '#89c4f4';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.x + Math.cos(this.angle) * 6, this.y + Math.sin(this.angle) * 6);
+      ctx.stroke();
+    } else {
+      ctx.globalAlpha = a * 0.8;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rot);
+      // 4-point star
+      var s = this.size;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(-s/2, -s/6, s, s/3);
+      ctx.fillRect(-s/6, -s/2, s/3, s);
+      ctx.translate(-this.x, -this.y);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ---- Customer Entity ---- */
+class Customer {
+  constructor(paletteIdx) {
+    this.palette = CUST_PAL[paletteIdx % CUST_PAL.length];
+    this.tableIdx = -1;   // -1 = walking, ≥0 = seated at table
+    this.state = 'entering'; // entering → walking → seated → leaving
+    this.pathIdx = 0;     // current waypoint index (walking)
+    this.speed = 48 + Math.random() * 24;
+
+    this.x = L.doorX + 9;
+    this.y = L.doorY + L.doorH + 4;
+
+    // target
+    this.tgtX = this.x;
+    this.tgtY = this.y;
+
+    // seat offset within table
+    this.seatDx = 0;
+    this.seatDy = 0;
+
+    // animation
+    this.fadeAlpha = 0;
+    this.fadeDir = 1;   // 1=fade in, -1=fade out
+    this.seatedTime = 0;
+    this.walkPhase = 0;
+    this.bobAmount = 0;   // bounce amount on seated
+    this.bobTarget = 0;
+
+    this.legPhase = 0;    // leg animation cycle
+    this.armPhase = 0;
+
+    this.exitTimer = 18 + Math.random() * 24; // seconds to wait before leaving
+    this.alive = true;
+    this.entered = false;
+
+    // customer size: 6px wide × 8px tall (head+body)
+    this.bodW = 6;
+    this.bodH = 8;
+  }
+
+  reset() {
+    this.tableIdx = -1;
+    this.state = 'entering';
+    this.pathIdx = 0;
+    this.fadeAlpha = 0;
+    this.fadeDir = 1;
+    this.seatedTime = 0;
+    this.walkPhase = 0;
+    this.bobAmount = 0;
+    this.bobTarget = 0;
+    this.legPhase = 0;
+    this.armPhase = 0;
+    this.exitTimer = 18 + Math.random() * 24;
+    this.alive = true;
+    this.entered = false;
+    // start at door, going in
+    this.x = L.doorX + 9;
+    this.y = L.doorY + L.doorH + 2;
+  }
+
+  pickTable() {
+    // find empty seat slot
+    for (var i = 0; i < L.tables.length; i++) {
+      if (this.tableIdx === -1 && !seats[i].occupied) {
+        this.seatDx = Math.random() > 0.5 ? L.seats[i % L.seats.length].dx : -L.seats[i % L.seats.length].dx;
+        this.seatDy = Math.random() > 0.5 ? L.seats[i % L.seats.length].dy : -L.seats[i % L.seats.length].dy;
+        this.tableIdx = i;
+        seats[i].occupied = true;
+        // bounce on seated
+        this.bobTarget = 4;
+        return;
+      }
+    }
+    // all full → just walk to any table and stand
+    var ti = Math.floor(Math.random() * L.tables.length);
+    this.tgtX = L.tables[ti].x + L.tables[ti].w/2;
+    this.tgtY = L.tables[ti].y - 4;
+    this.state = 'waiting';
+    this.bobTarget = 0;
+  }
+
+  update(dt) {
+    if (!this.alive) return;
+
+    // fade in/out
+    var fadeRate = dt * 3;
+    this.fadeAlpha += this.fadeDir * fadeRate;
+    this.fadeAlpha = clamp(this.fadeAlpha, 0, 1);
+    if (this.fadeAlpha >= 1 && this.fadeDir > 0) { this.fadeDir = 0; }
+    if (this.fadeAlpha <= 0 && this.fadeDir < 0) { this.alive = false; return; }
+
+    var t = performance.now() * 0.001;
+
+    switch(this.state) {
+      case 'entering':
+        // walk toward center
+        var cx = (L.innerLeft + L.innerRight) / 2;
+        var cy = (L.innerTop + L.innerBottom) / 2;
+        this.moveTowards(cx, cy, dt);
+        if (dist(this.x, this.y, cx, cy) < 6) {
+          this.state = 'walking';
+          this.pickTable();
+          this.bobTarget = 3; // bounce when seated
+        }
+        break;
+
+      case 'walking':
+        if (this.tableIdx >= 0) {
+          var tt = L.tables[this.tableIdx];
+          var tx = tt.x + tt.w/2 + this.seatDx;
+          var ty = tt.y + tt.h/2 + this.seatDy;
+          this.moveTowards(tx, ty, dt);
+          if (dist(this.x, this.y, tx, ty) < 3) {
+            this.state = 'seated';
+            this.seatedTime = 0;
+            this.bobTarget = 4; // bounce!
+          }
+        }
+        break;
+
+      case 'seated':
+        this.seatedTime += dt;
+        // bob idle (gentle up-down)
+        if (this.seatDy !== 0) {
+          this.bobAmount = Math.sin(t * 2.5 + this.palette.head.charCodeAt(1)) * 1.2;
+        } else {
+          this.bobAmount = Math.sin(t * 3 + this.palette.head.charCodeAt(1)) * 0.8;
+        }
+        // exit timer
+        this.exitTimer -= dt;
+        if (this.exitTimer <= 5 && !this.fadeDir) {
+          this.fadeDir = -1;
+          this.state = 'leaving';
+          // free seat
+          if (this.tableIdx >= 0) { seats[this.tableIdx].occupied = false; }
+          // walk to door
+          this.tgtX = L.doorX + 9;
+          this.tgtY = L.doorY + L.doorH + 2;
+        }
+        break;
+
+      case 'leaving':
+        if (this.fadeAlpha <= 0) return; // dead handled by fade
+        this.moveTowards(this.tgtX, this.tgtY, dt);
+        if (dist(this.x, this.y, this.tgtX, this.tgtY) < 4 && this.seatedTime > 5) {
+          this.alive = false;
+        }
+        break;
+
+      default: // waiting / unknown
+        break;
+    }
+
+    // walk animation
+    this.walkPhase += dt * 6;
+    this.legPhase = Math.sin(this.walkPhase) * 2;
+    this.armPhase = -Math.sin(this.walkPhase) * 1.5;
+  }
+
+  moveTowards(tx, ty, dt) {
+    var dx = tx - this.x;
+    var dy = ty - this.y;
+    var d = Math.sqrt(dx*dx + dy*dy);
+    if (d < 2) return;
+    var mx = (dx / d) * this.speed * dt;
+    var my = (dy / d) * this.speed * dt;
+    this.x += clamp(mx, -4, 4);
+    this.y += clamp(my, -4, 4);
+
+    // boundary clamping inside interior
+    this.x = clamp(this.x, L.innerLeft + 3, L.innerRight - 3);
+    this.y = clamp(this.y, L.innerTop + 3, L.innerBottom - 3);
+  }
+
+  draw(ctx) {
+    if (!this.alive || this.fadeAlpha <= 0.01) return;
+    ctx.globalAlpha = this.fadeAlpha;
+    var x = Math.round(this.x);
+    var y = Math.round(this.y + this.bobAmount);
+    var p = this.palette;
+    var isSeated = (this.state === 'seated' || this.seatDy !== 0);
+
+    // ---- HEAD (3×3px) ----
+    ctx.fillStyle = p.skin;
+    ctx.fillRect(x - 1, y - 5, 3, 3);   // face
+
+    // hair (matches shirt color — darker variant)
+    var hairDk = p.body;
+    ctx.fillStyle = hairDk;
+    ctx.fillRect(x - 1, y - 6, 3, 2);   // top of head
+
+    // body (4×5px torso)
+    ctx.fillStyle = p.body;
+    ctx.fillRect(x - 2, y - 2, 4, 5);
+
+    // legs (visible when standing, not seated)
+    if (!isSeated || this.state === 'entering' || this.state === 'walking') {
+      ctx.fillStyle = p.pants;
+      // left leg + right leg with animation offset
+      var legOff = Math.abs(this.legPhase) > 1 ? 2 : 0;
+      ctx.fillRect(x - 2, y + 3, 2, 2 + legOff);  // left
+      ctx.fillRect(x + 1, y + 3, 2, 2 - legOff);  // right
+
+      // arms with swing animation
+      ctx.fillStyle = p.body;
+      var armA = this.armPhase;
+      ctx.fillRect(x - 3, y - 1 + armA, 2, 3);   // left arm
+      ctx.fillRect(x + 2, y - 1 - armA, 2, 3);   // right arm
+    } else {
+      // seated: just shoulders visible, arms on table
+      ctx.fillStyle = p.body;
+      ctx.fillRect(x - 3, y, 2, 2);  // left shoulder/arm
+      ctx.fillRect(x + 2, y, 2, 2);  // right shoulder/arm
+    }
+
+    // eyes (tiny white dots) when facing forward enough
+    if (!isSeated || Math.abs(this.seatDx) > 0) {
+      ctx.fillStyle = '#1a1a2e';
+      ctx.fillRect(x - 1, y - 4, 1, 1);
+      ctx.fillRect(x + 1, y - 4, 1, 1);
+    }
+
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ================================================================
+   GLOBAL SEAT TRACKING (simple)
+   ================================================================ */
+var seats = []; // will be init'd when needed
+
+function ensureSeats() {
+  if (seats.length > 0) return;
+  for (var i = 0; i < L.tables.length; i++) {
+    seats.push({ occupied: false });
+  }
+}
+
+/* ================================================================
+   MAIN SCENE RENDERER
+   ================================================================ */
+var CafeSceneV2 = {
   canvas: null, ctx: null, wrapper: null,
+  lastTick: 0,
+  animPhase: 0,
 
-  // Simulation state
-  customers: [],      // active customer entities
-  particles: [],      // weather/steam particles
-  neonPhase: 0,       // rotating neon sign phase
-  nightAlpha: 0,      // day/night overlay darkness (0-0.55)
-  lastTick: 0,        // timestamp for frame pacing
+  // entity pools
+  customers: [],
+  particles: [],
 
-  // Polling state snapshots (from G)
-  _g: null,           // reference to game global G
-  _gameDay: 1,
-  _venueLevel: 0,
-  _weatherType: 'clear',
-  _staffCount: 0,
-  _orderCount: 0,
+  // weather state
+  weatherType: 'clear',   // clear | rain | snow | fog
+  weatherIntensity: 0,    // 0-1
+  lastWeatherChange: 0,
 
-  // Weather state
-  _weatherState: { type: 'clear', particles: [] },
+  // day/night
+  nightAlpha: 0.15,       // base overlay (dynamic)
+  dayPhase: 0,            // 0=noon → 0.5=midnight
 
-  // Internal timing
-  _spawnTimer: 0,
-  _tickInterval: 60,   // ms per logic tick inside rAF loop
+  // neon sign phase
+  neonPhase: 0,
 
-  /** ==================== INIT ==================== */
-  init() {
-    this.wrapper = document.getElementById('cafe-scene-wrapper');
-    if (!this.wrapper) {
-      console.warn('[CafeSceneV7] #cafe-scene-wrapper not found — skipping');
-      return false;
-    }
+  // customer spawn timer
+  _spawnTimer: 2,
+  _maxCustomers: 6,
 
+  /* ---- init ---- */
+  init(wrapperEl) {
+    this.wrapper = wrapperEl;
     this.canvas = document.createElement('canvas');
-    this.canvas.id = 'cafe-canvas';
-    this.canvas.width  = C.W;
-    this.canvas.height = C.H;
-    this.canvas.style.width  = '100%';
-    this.canvas.style.height = 'auto';
+    this.canvas.width = 320;
+    this.canvas.height = 200;
+    this.canvas.style.width = '320px';
+    this.canvas.style.height = '200px';
     this.canvas.style.display = 'block';
-    this.wrapper.appendChild(this.canvas);
 
+    // pixel-art crisp rendering
     this.ctx = this.canvas.getContext('2d');
-    this._g = window.G;
-    if (!this._g) {
-      console.warn('[CafeSceneV7] G not found — will poll later');
-    }
+    this.ctx.imageSmoothingEnabled = false;
 
-    // Start render loop
-    this._running = true;
-    this._lastFrameTime = 0;
-    requestAnimationFrame(t => this._loop(t));
+    wrapperEl.innerHTML = '';
+    wrapperEl.appendChild(this.canvas);
 
-    console.log('[CafeSceneV7] Cafe scene initialized ✅');
-    return true;
+    this.lastTick = performance.now();
+    this._tickLoop();
   },
 
-  /** ==================== MAIN LOOP ==================== */
-  _loop(timestamp) {
-    if (!this._running) return;
-
-    const dt = timestamp - (this._lastFrameTime || timestamp);
-    this._lastFrameTime = timestamp;
-
-    // Throttle logic to ~60fps equivalent with fixed timestep
-    this._spawnTimer += dt;
-    if (this._spawnTimer >= this._tickInterval) {
-      this._logic(this._spawnTimer / 1000);
-      this._spawnTimer = 0;
-    }
-
-    this._draw();
-    requestAnimationFrame(t => this._loop(t));
-  },
-
-  /** ==================== LOGIC (poll G each tick) ==================== */
-  _logic(dtSec) {
-    // Poll game state safely
-    const g = window.G;
-    if (g) this._g = g;
-    if (!this._g) return;
-
-    // Update snapshots
-    const prevDay = this._gameDay;
-    this._gameDay = (this._g.gameDay != null) ? this._g.gameDay : 1;
-    this._venueLevel = (this._g.venueLevel != null) ? this._g.venueLevel : 0;
-    this._orderCount = (this._g.orders || []).length;
-
-    // Weather polling
-    const weather = this._getWeather();
-    if (weather !== this._weatherState.type) {
-      this._weatherState.type = weather;
-      this._initWeatherParticles(weather);
-    }
-
-    // Day/night cycle
-    this._updateNightAlpha();
-
-    // Neon color phase
-    this.neonPhase += dtSec * 0.3;
-
-    // Spawn customers based on order queue (simulated)
-    this._spawnTimerReal = this._spawnTimerReal || 0;
-    this._spawnTimerReal += dtSec;
-    const spawnInterval = Math.max(2, 5 - this._venueLevel * 0.8);
-    if (this._spawnTimerReal >= spawnInterval && this.customers.length < 3 + this._venueLevel) {
-      this._spawnCustomer();
-      this._playSFX('door');
-      this._spawnTimerReal = 0;
-    }
-
-    // Update customer lifecycle
-    for (let i = this.customers.length - 1; i >= 0; i--) {
-      const c = this.customers[i];
-      if (!c) continue;
-
-      switch (c.state) {
-        case 'walking_in':
-          c.timer -= dtSec;
-          if (c.timer <= 0) {
-            // Find nearest empty table
-            const freeTable = this._findFreeTable();
-            if (freeTable !== -1) {
-              c.targetTable = freeTable;
-              c.state = 'seated';
-              c.x = freeTable.x + 5;
-              c.y = freeTable.y + 5;
-              c.timer = 3 + Math.random() * 4; // sitting duration (serve time)
-            } else {
-              c.state = 'leaving';
-              c.exitSide = 'left';
-              c.timer = 1.5;
-            }
-          }
-          break;
-
-        case 'seated':
-          c.timer -= dtSec;
-          // Auto-serve: reduce timer based on staff count
-          const effectiveSpeed = this._g && this._g.staffBuffs ?
-            1 + (this._g.staffBuffs.all_speed || 0) : 1;
-          c.serveTime -= dtSec * effectiveSpeed;
-          if (c.serveTime <= 0) {
-            c.state = 'finishing';
-            c.timer = 0.5;
-            this._playSFX('pay');
-          }
-          break;
-
-        case 'finishing':
-          c.timer -= dtSec;
-          if (c.timer <= 0) {
-            c.state = 'walking_out';
-            c.exitSide = Math.random() > 0.3 ? 'right' : 'left';
-            c.timer = 2;
-            c.bobTimer = 0;
-          }
-          break;
-
-        case 'walking_out':
-          c.timer -= dtSec;
-          if (c.x >= C.W + 15 || c.x <= -15) {
-            this.customers.splice(i, 1);
-          } else {
-            c.x += (c.exitSide === 'right' ? 30 : -30) * dtSec;
-          }
-          break;
-
-        case 'leaving':
-          c.timer -= dtSec;
-          if (c.timer <= 0) {
-            this.customers.splice(i, 1);
-          } else {
-            c.x = c.exitSide === 'left' ? Math.max(-20, c.x - 25 * dtSec) : C.W + 20;
-          }
-          break;
+  /* ---- poll G object & start ---- */
+  bootstrap() {
+    var self = this;
+    function poll() {
+      if (typeof G !== 'undefined' && G.cafe_scene_wrapper) {
+        self.init(G.cafe_scene_wrapper);
+        // sync initial weather
+        if (G.weather) {
+          self.weatherType = G.weather.current || 'clear';
+          self.weatherIntensity = G.weather.intensity != null ? G.weather.intensity : 0;
+        }
+      } else {
+        setTimeout(poll, 150);
       }
+    }
+    poll();
+  },
 
-      // Idle bobbing when seated
-      if (c.state === 'seated') {
-        c.bobTimer = (c.bobTimer || 0) + dtSec * 3;
+  /* ---- main tick loop ---- */
+  _tickLoop() {
+    var now = performance.now();
+    var dt = Math.min((now - this.lastTick) / 1000, 0.05);
+    this.lastTick = now;
+    this.animPhase += dt;
+
+    // poll G for updates
+    if (typeof G !== 'undefined' && G.weather) {
+      var gw = G.weather;
+      if (gw.current && gw.current !== this.weatherType) {
+        this.weatherType = gw.current;
+        this.particles = [];
+        if (this.weatherType === 'rain') { this.weatherIntensity = Math.min((gw.intensity || 0) + 0.3, 1); }
+        else if (this.weatherType === 'snow') { this.weatherIntensity = Math.min((gw.intensity || 0) + 0.2, 1); }
       }
     }
 
-    // Update particles
-    this._updateParticles(dtSec);
+    // dynamic night overlay based on dayPhase
+    if (typeof G !== 'undefined' && G._timeOfDay != null) {
+      var dp = G._timeOfDay; // 0=6am → 1=6pm cycle? Use it for brightness
+      this.dayPhase = dp;
+      this.nightAlpha = 0.05 + (1 - Math.abs(2 * dp - 1)) * 0.3;
+    }
+
+    this._update(dt);
+    this._render();
+
+    requestAnimationFrame(this._tickLoop.bind(this));
   },
 
-  /** ==================== RENDERING ==================== */
-  _draw() {
-    const ctx = this.ctx;
-    if (!ctx) return;
-    const w = C.W, h = C.H;
+  /* ---- update entities ---- */
+  _update(dt) {
+    // spawn customers
+    this._spawnTimer -= dt;
+    if (this._spawnTimer <= 0 && this.customers.filter(function(c){return c.alive && (c.state==='seated'||c.state==='entering'||c.state==='walking');}).length < this._maxCustomers) {
+      var palIdx = Math.floor(Math.random() * CUST_PAL.length);
+      ensureSeats();
+      // check if any seat is free
+      var freeSeat = false;
+      for (var s = 0; s < seats.length; s++) {
+        if (!seats[s].occupied) { freeSeat = true; break; }
+      }
+      if (freeSeat) {
+        this.customers.push(new Customer(palIdx));
+      }
+      this._spawnTimer = 4 + Math.random() * 8;
+    }
 
-    // === Sky / Weather layer ===
-    this._drawSky(ctx);
+    // update customers
+    for (var i = 0; i < this.customers.length; i++) {
+      this.customers[i].update(dt);
+    }
+    // prune dead customers
+    this.customers = this.customers.filter(function(c){ return c.alive || c.fadeAlpha > 0; });
 
-    // === Building exterior (top half) ===
-    this._drawBuilding(ctx);
+    // weather particles
+    if (this.weatherType === 'rain' || this.weatherType === 'snow') {
+      var intensity = this.weatherIntensity;
+      if (intensity < 0.05) {
+        this.particles = [];
+      } else {
+        var spawnRate = this.weatherType === 'rain' ? 80 : 25; // per second
+        if (Math.random() < spawnRate * intensity * dt) {
+          this.particles.push(new WParticle(this.weatherType));
+        }
+        // keep max particles manageable
+        while (this.particles.length > 120) this.particles.shift();
+      }
+    } else {
+      if (this.particles.length > 0) this.particles = [];
+    }
 
-    // === Bar counter ===
+    for (var j = 0; j < this.particles.length; j++) {
+      this.particles[j].update(dt);
+    }
+    this.particles = this.particles.filter(function(p){ return p.alive; });
+
+    this.neonPhase += dt * 2.5;
+  },
+
+  /* ---- render everything ---- */
+  _render() {
+    var ctx = this.ctx;
+    var W = 320, H = 200;
+
+    // 1) Background (outside sky gradient)
+    var grad = ctx.createLinearGradient(0, 0, 0, H);
+    if (this.dayPhase < 0.25) { // morning
+      grad.addColorStop(0, '#87CEEB');
+      grad.addColorStop(0.6, '#e8d5a3');
+      grad.addColorStop(1, PAL.bgDark);
+    } else if (this.dayPhase < 0.45) { // noon
+      grad.addColorStop(0, '#4a90d9');
+      grad.addColorStop(0.6, '#f0e68c');
+      grad.addColorStop(1, PAL.bgMid);
+    } else if (this.dayPhase < 0.65) { // sunset
+      grad.addColorStop(0, '#FF6347');
+      grad.addColorStop(0.3, '#ffb86c');
+      grad.addColorStop(0.7, PAL.bgMid);
+      grad.addColorStop(1, PAL.bgNight);
+    } else { // night
+      grad.addColorStop(0, '#0a1628');
+      grad.addColorStop(1, '#050d1a');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // ground (sidewalk area)
+    ctx.fillStyle = PAL.floorTile;
+    ctx.fillRect(L.innerLeft, L.innerBottom + 2, L.innerW, H - L.innerBottom - 2);
+
+    // sidewalk line
+    ctx.fillStyle = '#3d2b1f';
+    ctx.fillRect(L.innerLeft - 4, L.innerBottom, L.innerW + 8, 3);
+
+    // 2) Building exterior walls
+    this._drawExterior(ctx);
+
+    // 3) Interior floor
+    this._drawInteriorFloor(ctx);
+
+    // 4) Bar counter (left wall)
     this._drawBar(ctx);
 
-    // === Tables & customers ===
+    // 5) Tables + seats
     this._drawTables(ctx);
 
-    // === Draw seated customers ===
-    for (const c of this.customers) {
-      if (c.state === 'seated' && c.targetTable !== undefined) {
-        const bobY = Math.sin(c.bobTimer || 0) * 1.5;
-        ctx.fillStyle = c.color.head;
-        ctx.fillRect(c.x, c.y + bobY - 2, 4, 4); // head
-        ctx.fillStyle = c.color.body;
-        ctx.fillRect(c.x, c.y + bobY + 2, 4, 3); // body
-      }
-    }
+    // 6) Bookshelf / Decor center
+    this._drawBookshelf(ctx);
 
-    // === Staff walk animation (between bar and tables) ===
-    this._drawStaff(ctx);
-
-    // === Steam from bar ===
-    this._drawSteam(ctx);
-
-    // === Entrance door ===
+    // 7) Door (right wall)
     this._drawDoor(ctx);
 
-    // === Neon sign ===
+    // 8) Plants
+    this._drawPlants(ctx);
+
+    // 9) Hanging lamps
+    this._drawLamps(ctx);
+
+    // 10) Wall art / posters
+    this._drawWallArt(ctx);
+
+    // 11) Customers (seated + standing)
+    for (var i = 0; i < this.customers.length; i++) {
+      if (this.customers[i].alive) this.customers[i].draw(ctx);
+    }
+
+    // 12) Weather particles (rain/snow overlay)
+    for (var j = 0; j < this.particles.length; j++) {
+      this.particles[j].draw(ctx, this.animPhase);
+    }
+
+    // 13) Neon sign
     this._drawNeonSign(ctx);
 
-    // === Night overlay ===
-    if (this.nightAlpha > 0.01) {
-      ctx.fillStyle = `rgba(5,5,30,${this.nightAlpha})`;
-      ctx.fillRect(0, 0, w, h);
-      // Window glow at night
-      ctx.fillStyle = `rgba(255,215,0,${this.nightAlpha * 1.8})`;
-      ctx.fillRect(44, 32, 28, 28); // window1
-      ctx.fillRect(96, 32, 28, 28); // window2
+    // 14) Night overlay
+    if (this.nightAlpha > 0.05) {
+      ctx.fillStyle = 'rgba(5,10,20,' + this.nightAlpha.toFixed(2) + ')';
+      ctx.fillRect(0, 0, W, H);
     }
 
-    // === Floor tile pattern ===
-    this._drawFloor(ctx);
-
-    // === Weather overlay particles ===
-    this._drawWeatherOverlay(ctx);
-
-    // === HUD corner decorations ===
-    ctx.fillStyle = C.ACCENT;
-    ctx.font = '8px Courier New';
-    ctx.fillText(`Day ${this._gameDay}`, 4, h - 6);
-    ctx.fillText(`Lv${(this._g && this._g.lv) ? this._g.lv : '?'}`, w - 30, h - 6);
+    // 15) Vignette (corner darkening)
+    this._drawVignette(ctx);
   },
 
-  _drawSky(ctx) {
-    const isNight = this.nightAlpha > 0.15;
-    if (isNight) {
-      ctx.fillStyle = '#0a0a2e';
-    } else {
-      // Gradient sky based on day progress
-      const dayPhase = ((this._gameDay % 10) / 10);
-      if (dayPhase < 0.35 || dayPhase > 0.85) {
-        ctx.fillStyle = '#1a1a4e'; // night-ish sky
-      } else {
-        ctx.fillStyle = C.BG;
-      }
-    }
-    ctx.fillRect(0, 0, C.W, 22);
+  /* ---- draw: building exterior ---- */
+  _drawExterior(ctx) {
+    var wall = PAL.wall;
+    var wallL = PAL.wallLight;
 
-    // Sun/moon
-    if (!isNight) {
-      const sunY = 8 + Math.sin(this._gameDay * 0.5) * 4;
-      ctx.fillStyle = '#FFD700';
-      ctx.beginPath();
-      ctx.arc(280, sunY, 6, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.fillStyle = '#e0e0e0';
-      ctx.beginPath();
-      ctx.arc(280, 10, 5, 0, Math.PI * 2);
-      ctx.fill();
+    // Top wall (ceiling visible from top-down)
+    ctx.fillStyle = wall;
+    ctx.fillRect(L.innerLeft, L.innerTop - 20, L.innerW + 6, 20);
+    // Wall bricks pattern
+    ctx.fillStyle = wallL;
+    for (var bx = L.innerLeft; bx < L.innerLeft + L.innerW + 4; bx += 18) {
+      ctx.fillRect(bx, L.innerTop - 18, 16, 2);
+      ctx.fillRect(bx + 9, L.innerTop - 10, 16, 2);
     }
 
-    // Weather indicator icon
-    const w = this._weatherState.type;
-    ctx.font = '14px sans-serif';
-    if (w === 'rain') ctx.fillText('🌧️', 8, 17);
-    else if (w === 'snow') ctx.fillText('❄️', 8, 17);
-    else ctx.fillText('☀️', 8, 17);
-  },
+    // Right wall (excluding door gap)
+    ctx.fillStyle = wall;
+    ctx.fillRect(L.innerRight, L.innerTop, 8, L.doorY - L.innerTop);
+    ctx.fillRect(L.innerRight, L.doorY + L.doorH, 8, L.innerBottom - L.doorY - L.doorH);
 
-  _drawBuilding(ctx) {
-    // Main building wall (top-down view: outer walls)
-    const isLit = this.nightAlpha < 0.2;
-    ctx.fillStyle = C.BUILDING;
-    // Top wall
-    ctx.fillRect(30, 22, 260, 18);
-    // Side walls (left/right borders)
-    ctx.fillRect(30, 22, 6, 145);  // left wall
-    ctx.fillRect(284, 22, 6, 145); // right wall
+    // Roof overhang (outside)
+    ctx.fillStyle = '#1a0f0a';
+    ctx.fillRect(L.innerLeft - 2, L.innerTop - 24, L.innerW + 6, 5);
 
-    // Windows (top-down = looking at glowing glass rectangles)
-    const winColors = isLit ? [C.GLASS_GLOW, C.GLASS] : [C.GLASS_GLOW, C.GLASS];
-    ctx.fillStyle = winColors[0];
-    ctx.fillRect(44, 32, 28, 28); // window1 (warm glow inside)
-    ctx.fillStyle = '#5c3317';
-    ctx.fillRect(44, 32, 28, 2); // window frame top
-    ctx.fillRect(44, 58, 28, 2); // window frame bottom
-    ctx.fillRect(44, 32, 2, 28); // window frame left
-    ctx.fillRect(70, 32, 2, 28); // window frame right
-
-    ctx.fillStyle = winColors[1];
-    ctx.fillRect(96, 32, 28, 28); // window2
-    ctx.fillStyle = '#5c3317';
-    ctx.fillRect(96, 32, 28, 2);
-    ctx.fillRect(96, 58, 28, 2);
-    ctx.fillRect(96, 32, 2, 28);
-    ctx.fillRect(122, 32, 2, 28);
-
-    // Interior walls (top-down view showing floor layout)
-    ctx.fillStyle = C.WALL_INNER;
-    ctx.fillRect(36, 40, 248, 105);
-
-    // Bar counter area divider
-    ctx.fillStyle = '#1a1a3e';
-    ctx.fillRect(36, 72, 248, 2);
-
-    // Floor tiles (grid pattern)
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    // Sign board above door area
+    ctx.fillStyle = '#1a0f0a';
+    ctx.fillRect(L.innerRight + 2, L.doorY - 18, 16, 28);
+    ctx.strokeStyle = PAL.gold;
     ctx.lineWidth = 1;
-    for (let tx = 36; tx < 284; tx += 16) {
-      ctx.beginPath(); ctx.moveTo(tx, 90); ctx.lineTo(tx, 170); ctx.stroke();
-    }
-    for (let ty = 90; ty < 170; ty += 16) {
-      ctx.beginPath(); ctx.moveTo(36, ty); ctx.lineTo(284, ty); ctx.stroke();
+    ctx.strokeRect(L.innerRight + 3, L.doorY - 17, 14, 26);
+
+    // "CAFE" text approximation (mini blocks)
+    ctx.fillStyle = PAL.gold;
+    var tx = L.innerRight + 5, ty = L.doorY - 14;
+    // C
+    ctx.fillRect(tx, ty, 3, 1); ctx.fillRect(tx, ty+2, 3, 1); ctx.fillRect(tx, ty+4, 1, 1); ctx.fillRect(tx, ty+5, 3, 1);
+    // A
+    ctx.fillRect(tx+6, ty+1, 1, 5); ctx.fillRect(tx+7, ty+4, 2, 1); ctx.fillRect(tx+8, ty, 1, 3); ctx.fillRect(tx+9, ty+1, 1, 1);
+    // F
+    ctx.fillRect(tx+11, ty, 2, 6); ctx.fillRect(tx+11, ty, 4, 1); ctx.fillRect(tx+11, ty+2, 3, 1);
+    // E
+    ctx.fillRect(tx+15, ty, 2, 6); ctx.fillRect(tx+15, ty, 4, 1); ctx.fillRect(tx+15, ty+2, 3, 1); ctx.fillRect(tx+15, ty+4, 4, 1);
+
+    // Left wall (outside edge)
+    ctx.fillStyle = wall;
+    ctx.fillRect(L.innerLeft - 8, L.innerTop, 8, L.innerBottom - L.innerTop);
+    // Brick pattern left wall
+    ctx.fillStyle = wallL;
+    for (var by = L.innerTop + 10; by < L.innerBottom; by += 12) {
+      ctx.fillRect(L.innerLeft - 7, by, 6, 2);
     }
 
-    // Floor fill
-    ctx.fillStyle = C.FLOOR;
-    for (let tx = 36; tx < 284; tx += 32) {
-      for (let ty = 90; ty < 170; ty += 32) {
-        if ((Math.floor(tx / 16) + Math.floor(ty / 16)) % 2 === 0) {
-          ctx.fillRect(tx, ty, 16, 16);
-        }
-      }
-    }
+    // Corner detail (bottom-left)
+    ctx.fillStyle = '#0d0705';
+    ctx.fillRect(L.innerLeft - 8, L.innerBottom - 4, 10, 6);
+    // step
+    ctx.fillStyle = '#2c1810';
+    ctx.fillRect(L.innerLeft - 10, L.innerBottom + 1, 14, 3);
   },
 
+  /* ---- draw: interior floor with tile pattern ---- */
+  _drawInteriorFloor(ctx) {
+    var fl = PAL.floor;
+    var ft = PAL.floorTile;
+    ctx.fillStyle = fl;
+    ctx.fillRect(L.innerLeft + 2, L.innerTop + 2, L.innerW - 4, L.innerH - 4);
+
+    // Tile lines
+    ctx.strokeStyle = 'rgba(60,40,30,0.4)';
+    ctx.lineWidth = 0.5;
+    for (var tx = L.innerLeft + 2; tx < L.innerRight - 2; tx += 14) {
+      ctx.beginPath(); ctx.moveTo(tx, L.innerTop + 2); ctx.lineTo(tx, L.innerBottom - 2); ctx.stroke();
+    }
+    for (var ty = L.innerTop + 2; ty < L.innerBottom - 2; ty += 14) {
+      ctx.beginPath(); ctx.moveTo(L.innerLeft + 2, ty); ctx.lineTo(L.innerRight - 2, ty); ctx.stroke();
+    }
+
+    // Rug under tables area
+    ctx.fillStyle = 'rgba(139,69,19,0.15)';
+    ctx.fillRect(L.tables[0].x - 10, L.tables[0].y - 8,
+                 L.tables[L.tables.length-1].x - L.tables[0].x + 40 + 20,
+                 L.tables[L.tables.length-1].y - L.tables[0].y + 36);
+  },
+
+  /* ---- draw: bar counter (left wall interior) ---- */
   _drawBar(ctx) {
-    // Bar counter as long rectangle at bottom of interior
-    ctx.fillStyle = C.BAR;
-    ctx.fillRect(50, 76, 220, 14);
-    // Bar top edge highlight
-    ctx.fillStyle = 'rgba(255,255,200,0.3)';
-    ctx.fillRect(50, 76, 220, 2);
+    var bt = PAL.barTop;
+    var bf = PAL.barFront;
+    ctx.fillStyle = bt;
+    ctx.fillRect(L.barX, L.barY, L.barW, L.barH);
 
-    // Coffee cups on bar (pixel art style)
-    for (let i = 0; i < 3; i++) {
-      const bx = 130 + i * 20;
+    // Bar counter top highlight
+    ctx.fillStyle = 'rgba(255,215,0,0.1)';
+    ctx.fillRect(L.barX + 2, L.barY + 2, L.barW - 4, 3);
+
+    // Front edge
+    ctx.fillStyle = bf;
+    ctx.fillRect(L.barX + L.barW - 2, L.barY, 6, L.barH);
+
+    // Wood grain lines on bar top
+    ctx.strokeStyle = 'rgba(80,50,30,0.3)';
+    ctx.lineWidth = 0.5;
+    for (var gy = L.barY + 8; gy < L.barY + L.barH - 4; gy += 6) {
+      ctx.beginPath();
+      ctx.moveTo(L.barX + 2, gy);
+      ctx.lineTo(L.barX + L.barW - 6, gy + Math.sin(gy * 0.3) * 1);
+      ctx.stroke();
+    }
+
+    // Coffee machine on bar (small pixel detail)
+    var cmx = L.coffeeMachineX, cmy = L.coffeeMachineY;
+    ctx.fillStyle = '#4a4a5a';
+    ctx.fillRect(cmx, cmy, 8, 12);
+    ctx.fillStyle = '#3a3a4a';
+    ctx.fillRect(cmx + 1, cmy + 1, 6, 3); // top panel
+    ctx.fillStyle = PAL.warmRed; // indicator light
+    ctx.fillRect(cmx + 5, cmy + 7, 2, 2);
+
+    // Cups on bar counter
+    for (var ci = 0; ci < 3; ci++) {
+      var cupY = L.barY + 20 + ci * 14;
       ctx.fillStyle = '#f5f5dc';
-      ctx.fillRect(bx, 78, 6, 5);
-      ctx.fillStyle = C.BAR;
-      ctx.fillRect(bx + 1, 79, 4, 3); // dark coffee inside
+      ctx.fillRect(L.barX + 8, cupY, 4, 6);
+      ctx.fillStyle = '#d4a574'; // coffee color inside
+      ctx.fillRect(L.barX + 9, cupY + 1, 2, 3);
     }
 
-    // Bar label (tiny text)
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = '6px Courier New';
-    ctx.fillText('BAR', 154, 85);
+    // Espresso steam (tiny particles)
+    var t = performance.now() * 0.001;
+    for (var si = 0; si < 3; si++) {
+      var sOff = Math.sin(t * 1.5 + si * 2) * 2;
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.2 + Math.sin(t*2+si)*0.1).toFixed(2) + ')';
+      ctx.fillRect(cmx + 3 + sOff, cmy - 2 - si * 4, 1, 2);
+    }
   },
 
+  /* ---- draw: tables and chairs ---- */
   _drawTables(ctx) {
-    // Table positions (in interior)
-    this._tablePositions = [
-      {x: 50, y: 100}, {x: 106, y: 100}, {x: 162, y: 100},
-      {x: 50, y: 140}, {x: 106, y: 140}, {x: 162, y: 140},
-    ];
+    for (var i = 0; i < L.tables.length; i++) {
+      var t = L.tables[i];
+      // Table top (rounded rectangle approx via blocks)
+      ctx.fillStyle = '#6b4423';
+      ctx.fillRect(t.x, t.y, t.w, t.h);
+      // Highlight edge
+      ctx.fillStyle = 'rgba(255,215,0,0.08)';
+      ctx.fillRect(t.x + 1, t.y + 1, t.w - 2, 2);
 
-    for (const t of this._tablePositions) {
-      // Table top
-      ctx.fillStyle = '#8B6914';
-      ctx.fillRect(t.x, t.y, 36, 22);
-      // Table edge highlight
-      ctx.fillStyle = 'rgba(255,255,200,0.2)';
-      ctx.fillRect(t.x + 1, t.y + 1, 34, 3);
-      // Chair indicators (4 small rects at corners)
-      ctx.fillStyle = '#654321';
-      ctx.fillRect(t.x - 3, t.y - 3, 6, 4);
-      ctx.fillRect(t.x + 33, t.y - 3, 6, 4);
-      ctx.fillRect(t.x - 3, t.y + 21, 6, 4);
-      ctx.fillRect(t.x + 33, t.y + 21, 6, 4);
+      // Coffee cup on table (tiny detail)
+      var cupX = t.x + t.w/2 - 2;
+      var cupY = t.y + t.h/2 - 3;
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(cupX, cupY, 4, 3);
+      ctx.fillStyle = '#8b4513'; // coffee
+      ctx.fillRect(cupX + 1, cupY + 1, 2, 1);
     }
   },
 
-  _drawStaff(ctx) {
-    // Walk barista from bar to tables (animated pixel figure)
-    const phase = (Date.now() / 800) % (Math.PI * 2);
-    const staffCount = this._g && this._g.staff ? Math.min(this._g.staff.length, 3) : 1;
+  /* ---- draw: bookshelf / decor (center) ---- */
+  _drawBookshelf(ctx) {
+    var sx = L.shelfX, sy = L.shelfY;
+    // Shelf body
+    ctx.fillStyle = PAL.shelfWood;
+    ctx.fillRect(sx, sy, L.shelfW, L.shelfH);
 
-    for (let s = 0; s < staffCount; s++) {
-      // Interpolate between bar and nearest table
-      const tables = this._tablePositions || [];
-      const targetTable = tables[s % tables.length];
-      if (!targetTable) continue;
+    // Shelves (horizontal dividers)
+    ctx.fillStyle = '#3a2418';
+    for (var sl = 0; sl < 5; sl++) {
+      ctx.fillRect(sx + 1, sy + sl * 10 + 2, L.shelfW - 2, 2);
+    }
 
-      const walkCycle = Math.sin(phase + s * 2);
-      const progress = (walkCycle + 1) / 2; // 0-1 oscillation
-
-      // Bar center
-      const barX = 160, barY = 83;
-      const tableCenterX = targetTable.x + 18;
-      const tableCenterY = targetTable.y + 11;
-
-      const sx = barX + (tableCenterX - barX) * progress;
-      const sy = barY + (tableCenterY - barY) * progress;
-
-      // Staff body (white apron rectangle)
-      ctx.fillStyle = C.STAFF_W;
-      ctx.fillRect(sx, sy - 3, 6, 8);
-      // Head
-      ctx.fillStyle = C.STAFF_F;
-      ctx.fillRect(sx + 1, sy - 5, 4, 3);
-      // Apron detail
-      ctx.fillStyle = '#e0e0e0';
-      ctx.fillRect(sx + 2, sy, 2, 6);
-
-      // Tray (when near table)
-      if (progress > 0.6 && progress < 0.9) {
-        ctx.fillStyle = C.ACCENT;
-        ctx.fillRect(sx + 6, sy - 1, 3, 4);
+    // Books on shelves (colorful blocks)
+    var bookColors = ['#e74c3c','#3498db','#2ecc71','#f39c12','#9b59b6','#1abc9c','#ff6347','#FFD700'];
+    for (var sh = 0; sh < 4; sh++) {
+      var shelfY = sy + sh * 10 + 4;
+      var bookX = sx + 2;
+      while (bookX < sx + L.shelfW - 4) {
+        var bw = 2 + Math.floor(Math.random() * 3); // pre-decidable, but visual only
+        var bi = (sh * 3 + bookX) % bookColors.length;
+        ctx.fillStyle = bookColors[bi];
+        ctx.fillRect(bookX, shelfY, 2, 6);
+        bookX += bw;
       }
     }
+
+    // Small plant on top of shelf
+    ctx.fillStyle = PAL.plantPot;
+    ctx.fillRect(sx + 8, sy - 6, 8, 5);
+    ctx.fillStyle = PAL.plantLight;
+    ctx.fillRect(sx + 7, sy - 12, 10, 6);
+    ctx.fillStyle = PAL.plantGreen;
+    ctx.fillRect(sx + 9, sy - 14, 6, 3);
+
+    // Top decoration (small framed picture leaning)
+    ctx.fillStyle = PAL.frameGold;
+    ctx.fillRect(sx + 2, sy + L.shelfH - 14, 6, 8);
+    ctx.fillStyle = '#4a90d9';
+    ctx.fillRect(sx + 3, sy + L.shelfH - 13, 4, 6);
   },
 
-  _drawSteam(ctx) {
-    // Steam rising from coffee cups on bar
-    const t = Date.now() / 500;
-    for (let i = 0; i < 8; i++) {
-      const baseX = 134 + i * 5;
-      const steamY = 76 - ((t * 20 + i * 15) % 40);
-      const alpha = 0.4 - (steamY - 36) / 100;
-      if (alpha > 0 && steamY > 36) {
-        ctx.fillStyle = `rgba(255,255,255,${Math.max(0, alpha)})`;
-        const size = 2 + Math.sin(t + i) * 1;
-        ctx.fillRect(baseX, steamY, size, size);
-      }
-    }
-  },
-
+  /* ---- draw: door (right wall) ---- */
   _drawDoor(ctx) {
-    // Entrance door at bottom center of building
-    const dx = 150, dy = 167, dw = 20, dh = 13;
-    ctx.fillStyle = C.DOOR;
-    ctx.fillRect(dx, dy, dw, dh);
+    var dx = L.doorX, dy = L.doorY;
+
+    // Door frame
+    ctx.fillStyle = PAL.doorFrame;
+    ctx.fillRect(dx - 2, dy - 2, L.doorW + 4, L.doorH + 4);
+
+    // Door panel
+    ctx.fillStyle = PAL.doorPanel;
+    ctx.fillRect(dx, dy, L.doorW, L.doorH);
+
+    // Window in door
+    ctx.fillStyle = PAL.glassWin;
+    ctx.fillRect(dx + 4, dy + 6, 10, 8);
+
     // Doorknob
-    ctx.fillStyle = C.DOOR_KNOB;
-    ctx.fillRect(dx + 14, dy + 6, 2, 2);
-    // Door frame highlight
-    ctx.fillStyle = 'rgba(255,215,0,0.2)';
-    ctx.fillRect(dx - 1, dy, dw + 2, dh);
+    ctx.fillStyle = PAL.gold;
+    ctx.fillRect(dx + 14, dy + L.doorH/2 - 1, 3, 3);
+
+    // Light coming from door (subtle glow)
+    ctx.fillStyle = 'rgba(255,215,0,0.06)';
+    ctx.fillRect(dx - 6, dy + L.doorH, 8, 4);
   },
 
+  /* ---- draw: plants ---- */
+  _drawPlants(ctx) {
+    // Plant bottom-left
+    var p1x = L.plantL.x, p1y = L.plantL.y;
+    ctx.fillStyle = PAL.plantPot;
+    ctx.fillRect(p1x - 4, p1y, 8, 6);
+    ctx.fillRect(p1x - 2, p1y + 6, 4, 3); // pot rim
+    // Foliage layers
+    for (var ly = 0; ly < 3; ly++) {
+      var fy = p1y - 4 - ly * 5;
+      ctx.fillStyle = ly === 0 ? PAL.plantLight : PAL.plantGreen;
+      ctx.fillRect(p1x - 6 + ly, fy, 12 - ly*2, 5);
+    }
+
+    // Plant top-right (hanging)
+    var p2x = L.plantR.x, p2y = L.plantR.y;
+    // String
+    ctx.fillStyle = '#8B4513';
+    ctx.fillRect(p2x + 5, p2y - 16, 1, 10);
+    // Hanging pot
+    ctx.fillStyle = PAL.plantPot;
+    ctx.fillRect(p2x + 1, p2y - 8, 8, 6);
+    // Leaves cascading
+    for (var l2 = 0; l2 < 4; l2++) {
+      var leafX = p2x + 2 + Math.sin(l2 * 1.5) * 3;
+      var leafY = p2y - 2 - l2 * 4;
+      ctx.fillStyle = l2 % 2 === 0 ? PAL.plantLight : PAL.plantGreen;
+      ctx.fillRect(leafX, leafY, 4 + (l2%2), 3);
+    }
+  },
+
+  /* ---- draw: hanging lamps ---- */
+  _drawLamps(ctx) {
+    var t = performance.now() * 0.001;
+    for (var li = 0; li < L.lamps.length; li++) {
+      var lamp = L.lamps[li];
+
+      // Hanging wire
+      ctx.fillStyle = '#3a3a4a';
+      ctx.fillRect(lamp.x - 1, lamp.y - 8, 2, 8);
+
+      // Lamp shade (triangle)
+      ctx.fillStyle = '#4a3020';
+      ctx.fillRect(lamp.x - 5, lamp.y, 10, 4);
+      ctx.fillRect(lamp.x - 3, lamp.y + 4, 6, 2);
+
+      // Lamp glow (pulsing)
+      var glowAlpha = 0.18 + Math.sin(t * 1.2 + li * 1.7) * 0.04;
+      ctx.fillStyle = 'rgba(255,215,0,' + glowAlpha.toFixed(3) + ')';
+      ctx.fillRect(lamp.x - 12, lamp.y + 6, 24, 28);
+
+      // Center bulb light
+      ctx.fillStyle = 'rgba(255,230,150,0.6)';
+      ctx.fillRect(lamp.x - 1, lamp.y + 5, 3, 3);
+
+      // Light cone (subtle)
+      ctx.fillStyle = 'rgba(255,215,0,0.04)';
+      ctx.fillRect(lamp.x - 8, lamp.y + 6, 2, 30);
+      ctx.fillRect(lamp.x + 6, lamp.y + 6, 2, 30);
+    }
+  },
+
+  /* ---- draw: wall art / posters ---- */
+  _drawWallArt(ctx) {
+    // Large artwork on back wall (above shelves area)
+    var artX = L.shelfX + L.shelfW + 8;
+    var artY = L.innerTop + 14;
+
+    // Frame
+    ctx.fillStyle = PAL.frameBrown;
+    ctx.fillRect(artX - 2, artY - 2, 24, 16);
+
+    // Canvas (abstract art blocks)
+    ctx.fillStyle = '#2c5f7c';
+    ctx.fillRect(artX, artY, 12, 10);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(artX + 4, artY + 2, 8, 4);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(artX + 6, artY + 6, 6, 4);
+
+    // Small photo frames on left wall (inside)
+    var frameY1 = L.barY - 10;
+    for (var fi = 0; fi < 2; fi++) {
+      ctx.fillStyle = PAL.frameGold;
+      ctx.fillRect(L.innerRight + 4, frameY1 + fi * 36, 8, 10);
+      // Photo placeholder
+      ctx.fillStyle = ['#d4a574','#f0dbb7'][fi];
+      ctx.fillRect(artX > 0 ? L.shelfX - 28 : 10, frameY1 + fi * 36 + 1, 6, 8);
+    }
+
+    // Menu board near bar area
+    var menuX = L.barX + L.barW + 4;
+    var menuY = L.barY - 6;
+    ctx.fillStyle = '#2c1810';
+    ctx.fillRect(menuX, menuY, 12, 16);
+    // Menu lines
+    ctx.fillStyle = PAL.gold;
+    for (var ml = 0; ml < 5; ml++) {
+      ctx.fillRect(menuX + 2, menuY + 2 + ml * 3, 8, 1);
+    }
+  },
+
+  /* ---- draw: neon sign ---- */
   _drawNeonSign(ctx) {
-    // Rotating neon sign: "☕ OPEN" at top center of building
-    const colors = ['#FF6B6B', '#4ECDC4', '#FFE66D', '#A78BFA'];
-    const ci = Math.floor(this.neonPhase * 2) % colors.length;
-    ctx.fillStyle = colors[ci];
-    ctx.font = 'bold 9px Courier New';
-    ctx.fillText('☕ OPEN', 134, 20);
+    var t = this.neonPhase;
+    // Sign position (above door)
+    var signX = L.innerRight + 4;
+    var signY = L.doorY - 30;
 
-    // Glow effect
-    ctx.fillStyle = colors[(ci + 1) % colors.length];
-    ctx.globalAlpha = 0.2;
-    ctx.fillRect(130, 14, 50, 12);
+    // Multi-layer glow effect
+    for (var g = 3; g >= 1; g--) {
+      var glowAlpha = (0.08 / g) * (0.6 + Math.sin(t) * 0.4);
+      var colors = [PAL.neonPink, PAL.neonCyan, PAL.neonWarm];
+      ctx.fillStyle = colors[g - 1].replace(')', ',' + glowAlpha + ')').replace('rgb', 'rgba');
+
+      // Can't directly use hex with alpha, approximate with overlay
+      var r, gr, b;
+      if (g === 1) { // pink
+        r=255; gr=45; b=149;
+      } else if (g === 2) { // cyan
+        r=0; gr=229; b=255;
+      } else { // warm
+        r=255; gr=184; b=108;
+      }
+      ctx.fillStyle = 'rgba(' + r + ',' + gr + ',' + b + ',' + glowAlpha.toFixed(3) + ')';
+
+      // Draw text outline for this glow layer (larger each layer)
+      this._drawNeonText(ctx, signX, signY, g * 1.5);
+    }
+
+    // Core text (bright white/colored center)
+    this._drawNeonText(ctx, signX, signY, 1);
+
+    // Reflection on ground below door
+    var reflAlpha = 0.04 + Math.sin(t) * 0.02;
+    ctx.fillStyle = 'rgba(255,45,149,' + reflAlpha.toFixed(3) + ')';
+    ctx.fillRect(signX - 4, L.doorY + L.doorH + 2, 28, 4);
+  },
+
+  _drawNeonText(ctx, ox, oy, scale) {
+    // "OPEN" in pixel art style
+    var s = scale;
+    var baseX = ox, baseY = oy;
+    ctx.fillStyle = '#fff';
+    if (scale > 1) ctx.globalAlpha = clamp(0.6 / scale, 0.1, 0.5);
+
+    // O
+    ctx.fillRect(baseX + s*0, baseY + s*0, s*5, s);     ctx.fillRect(baseX + s*4, baseY + s*0, s, s*3);
+    ctx.fillRect(baseX + s*0, baseY + s*2, s*5, s);     ctx.fillRect(baseX + s+1, baseY + s*3, s*3, s);
+    ctx.fillRect(baseX + s*0, baseY + s*4, s*5, s);
+
+    // P
+    ctx.fillRect(baseX + s*7, baseY + s*0, s*4, s);
+    ctx.fillRect(baseX + s*9, baseY + s*s, s, s*3);
+    ctx.fillRect(baseX + s*7, baseY + s*s, s*2, s);
+
+    // E (smaller)
+    ctx.fillRect(baseX + s*14, baseY + s*0, s*5, s);
+    ctx.fillRect(baseX + s*14, baseY + s*s, s, s*3);
+    ctx.fillRect(baseX + s*14, baseY + s*2, s*3, s);
+
+    // N (tiny)
+    ctx.fillRect(baseX + s*20, baseY + s*0, s, s*5);
+    ctx.fillRect(baseX + s*23, baseY + s*0, s, s*5);
+    ctx.fillRect(baseX + s*20, baseY + s*s, s*4, s);
+
     ctx.globalAlpha = 1;
+  }, // end _drawNeonText
+
+  /* ---- draw: vignette ---- */
+  _drawVignette(ctx) {
+    var cx = 160, cy = 100;
+    var grad = ctx.createRadialGradient(cx, cy, 40, cx, cy, 180);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.25)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 320, 200);
   },
 
-  _drawFloor(ctx) {
-    // Bottom area = street/patio floor
-    ctx.fillStyle = '#1a1a3e';
-    ctx.fillRect(0, 180, C.W, 20);
-    // Street line markings
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    ctx.setLineDash([6, 4]);
-    ctx.beginPath();
-    ctx.moveTo(0, 190); ctx.lineTo(C.W, 190);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  },
-
-  _drawWeatherOverlay(ctx) {
-    // Weather particles rendered as canvas elements
-    if (this._weatherState.type === 'rain') {
-      ctx.strokeStyle = 'rgba(174,214,241,0.5)';
-      ctx.lineWidth = 1;
-      for (const p of this.particles) {
-        const px = (p.x + this._weatherOffset * 60) % C.W;
-        const py = p.y % (C.H + 20);
-        ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(px - 1, py + 4);
-        ctx.stroke();
-      }
-    } else if (this._weatherState.type === 'snow') {
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      for (const p of this.particles) {
-        const px = (p.x + Math.sin(this._weatherOffset * 1.5) * 30) % C.W;
-        const py = (p.y + this._weatherOffset * 25) % (C.H + 10);
-        ctx.beginPath();
-        ctx.arc(px, py, p.size || 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  },
-
-  /** ==================== HELPERS ==================== */
-  _getWeather() {
-    // Poll from game G if available, else default
-    if (this._g && this._g.weatherType) return this._g.weatherType;
-    if (this._g && this._g.gameDay) {
-      // Simple deterministic weather by game day
-      const d = this._g.gameDay || 1;
-      const r = (d * 7 + 3) % 5;
-      if (r < 2) return 'clear';
-      if (r < 4) return 'rain';
-      return 'snow';
-    }
-    return 'clear';
-  },
-
-  _initWeatherParticles(type) {
-    this.particles = [];
-    if (type === 'rain') {
-      for (let i = 0; i < 60; i++) {
-        this.particles.push({ x: Math.random() * C.W, y: Math.random() * C.H });
-      }
-    } else if (type === 'snow') {
-      for (let i = 0; i < 35; i++) {
-        this.particles.push({ x: Math.random() * C.W, y: Math.random() * C.H, size: 1 + Math.random() * 2 });
-      }
-    } else {
+  /* ================================================================
+     PUBLIC API
+     ================================================================ */
+  getWeather() { return this.weatherType; },
+  setWeather(type) {
+    if (type !== this.weatherType) {
+      this.weatherType = type;
       this.particles = [];
-    }
-    this._weatherOffset = 0;
-  },
-
-  _updateParticles(dtSec) {
-    this._weatherOffset = (this._weatherOffset || 0) + dtSec;
-    if (!this.particles.length) return;
-    for (let i = 0; i < this.particles.length; i++) {
-      const p = this.particles[i];
-      if (this._weatherState.type === 'rain') {
-        p.y += 120 * dtSec;
-        if (p.y > C.H) p.y = -10;
-      } else if (this._weatherState.type === 'snow') {
-        p.y += 30 * dtSec;
-        p.x += Math.sin(this._weatherOffset * 2 + i) * 0.5;
-        if (p.y > C.H) p.y = -5;
-      }
+      if (type === 'rain') this.weatherIntensity = Math.min((typeof G !== 'undefined' && G.weather ? G.weather.intensity : 0.7), 1);
+      else if (type === 'snow') this.weatherIntensity = Math.min((typeof G !== 'undefined' && G.weather ? G.weather.intensity : 0.6), 1);
     }
   },
-
-  _updateNightAlpha() {
-    const phase = ((this._gameDay % 10) / 10); // normalized day phase [0,1]
-    let night = 0;
-    if (phase > 0.75) {
-      night = (phase - 0.75) / 0.25 * 0.55; // ramp up
-    } else if (phase < 0.25) {
-      night = (1 - phase / 0.25) * 0.55; // ramp down
-    }
-    this.nightAlpha = Math.max(0, Math.min(0.55, night));
-  },
-
-  _findFreeTable() {
-    const tables = this._tablePositions || [];
-    for (const t of tables) {
-      // Check if any customer is already seated at this table
-      const occupied = this.customers.some(c =>
-        c.state === 'seated' && c.targetTable !== undefined &&
-        Math.abs(t.x - tables[c.targetTable % tables.length].x) < 5
-      );
-      if (!occupied) return t;
-    }
-    return -1;
-  },
-
-  _spawnCustomer() {
-    const palette = CUSTOMER_PALETTES[Math.floor(Math.random() * CUSTOMER_PALETTES.length)];
-    this.customers.push({
-      x: C.W + 10,          // enter from right
-      y: 185,                // entrance Y position
-      state: 'walking_in',
-      timer: 2 + Math.random(), // walk-in duration
-      targetTable: undefined,
-      exitSide: 'right',
-      color: palette,
-      bobTimer: 0,
-      serveTime: 3 + Math.random() * 4, // how long to sit before being served
-    });
-  },
-
-  /** ==================== SOUND FX (Web Audio API) ==================== */
-  _audioCtx: null,
-  _playSFX(type) {
-    try {
-      if (!this._audioCtx) {
-        this._audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      const ctx = this._audioCtx;
-      if (!ctx) return;
-
-      const now = ctx.currentTime;
-      const gain = ctx.createGain();
-      gain.connect(ctx.destination);
-
-      switch (type) {
-        case 'door': {
-          // Ding-dong: 523 + 659Hz
-          [523, 659].forEach((freq, i) => {
-            const osc = ctx.createOscillator();
-            const g = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + i * 0.15);
-            g.gain.setValueAtTime(0.08, now + i * 0.15);
-            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.12);
-            osc.connect(g).connect(ctx.destination);
-            osc.start(now + i * 0.15);
-            osc.stop(now + i * 0.15 + 0.15);
-          });
-          break;
-        }
-        case 'pay': {
-          // Cash register: two-tone chime
-          [880, 1320].forEach((freq, i) => {
-            const osc = ctx.createOscillator();
-            const g = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, now + i * 0.1);
-            g.gain.setValueAtTime(0.06, now + i * 0.1);
-            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.15);
-            osc.connect(g).connect(ctx.destination);
-            osc.start(now + i * 0.1);
-            osc.stop(now + i * 0.1 + 0.18);
-          });
-          break;
-        }
-        case 'order': {
-          // Order buzzer: ascending sine sweep
-          const osc = ctx.createOscillator();
-          const g = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(700, now);
-          osc.frequency.linearRampToValueAtTime(1400, now + 0.15);
-          g.gain.setValueAtTime(0.08, now);
-          g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-          osc.connect(g).connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.22);
-          break;
-        }
-      }
-    } catch(e) { /* audio not available */ }
-  },
-
-  /** ==================== PUBLIC API ==================== */
-  start() {
-    this._running = true;
-    this._lastFrameTime = 0;
-    requestAnimationFrame(t => this._loop(t));
-  },
-
-  stop() {
-    this._running = false;
-  },
-
-  getRunning() { return this._running; }
+  addCustomer() { ensureSeats(); var c = new Customer(Math.floor(Math.random()*CUST_PAL.length)); this.customers.push(c); },
 };
 
-// ======================== AUTO-INIT ========================
-(function autoInit() {
-  // Wait for G to exist (game may load later)
-  function tryInit() {
-    if (window.G) {
-      CafeSceneV7.init();
-    } else {
-      setTimeout(tryInit, 200);
-    }
-  }
+})(); // end outer IIFE
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => setTimeout(tryInit, 300));
-  } else {
-    tryInit();
-  }
+/* ================================================================
+   BOOTSTRAP — poll for G object, then init
+   ================================================================ */
+(function bootstrapV2() {
+  CafeSceneV2.bootstrap();
 })();
 
-// Expose globally for external control
-window.CafeSceneV7 = CafeSceneV7;
-
-})();
+/* expose globally */
+if (typeof window !== 'undefined') { window.CafeSceneV2 = CafeSceneV2; }
