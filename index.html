@@ -93,6 +93,11 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <span>⭐ Rep: <span class="reputation-stars" id="rep-stars">☆☆☆☆☆</span></span>
 </div>
 
+<!-- ☕ CAFE SCENE LAYER — animated pixel art shop view -->
+<div id="cafe-scene-wrapper" style="margin:8px auto;width:100%;max-width:320px;padding:0 10px;">
+  <canvas id="cafe-canvas" width="320" height="200" style="width:100%;height:auto;display:block;border-radius:8px;border:2px solid #FFD700;background:#0f3460;"></canvas>
+</div>
+
 <div id="tabs">
   <button class="tab active" data-tab="orders">📋 Orders</button>
   <button class="tab" data-tab="menu">🍽️Menu</button>
@@ -1796,5 +1801,8 @@ console.log('✅ Trends:', G.trendItems.length);
 updateUI();
 
 </script>
+
+<!-- ☕ CAFE SCENE — animated pixel art shop layer -->
+<script src="cafe_scene_new.js"></script>
 </body>
 </html>
