@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>☕ Trendy Cafe - V7 Ultimate</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;overflow-x:hidden}
+html{overflow-x:hidden;position:relative}
+body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-width:480px;margin:0 auto;min-height:100vh;font-size:12px;overflow-x:hidden;position:relative}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes coinRain{0%{transform:translateY(-20px);opacity:1}100%{transform:translateY(30px);opacity:0}}
+@keyframes glow{0%,100%{text-shadow:0 0 5px #FFD700}50%{text-shadow:0 0 20px #FFD700,0 0 40px #FFD700}}
+@keyframes slideIn{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes sparkle{0%{opacity:0;transform:scale(0)}50%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0)}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+#hdr{padding:10px 15px;background:linear-gradient(135deg,#16213e,#1a1a4e);border-bottom:3px solid #FFD700;display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px}
+.gold{color:#FFD700}
+.gold:hover{animation:glow 1s ease-in-out}
+.xp-bar{width:100%;height:6px;background:#333;border-radius:3px;margin-top:4px;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width 0.5s}
+#tabs{display:flex;overflow-x:auto;border-bottom:2px solid #0f3460;background:#0f3460}
+.tab{padding:10px 12px;border:none;background:transparent;color:#a0a0b0;font-family:inherit;cursor:pointer;white-space:nowrap;font-size:12px;transition:all 0.3s}
+.tab.active{color:#FFD700;background:rgba(255,215,0,0.2)}
+.tab:hover{background:rgba(255,215,0,0.1)}
+#content{min-height:400px;padding:15px;background:#1a1a2e}
+.card{padding:12px;margin:8px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:2px solid #000;border-radius:8px;display:flex;justify-content:space-between;align-items:center;transition:transform 0.2s,box-shadow 0.2s;animation:none}
+.card.new-card{animation:none}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,215,0,0.2)}
+.card.rare{border-color:#9b59b6;background:linear-gradient(145deg,#2c1a4a,#1a1a4e)}
+.card.epic{border-color:#e74c3c;background:linear-gradient(145deg,#4a1a1a,#1a1a4e)}
+.btn{padding:8px 16px;border:2px solid #000;background:#FF6347;color:#fff;cursor:pointer;font-family:inherit;font-size:12px;margin:4px;border-radius:5px;transition:all 0.2s}
+.btn:hover{transform:scale(1.05);box-shadow:0 2px 10px rgba(255,99,71,0.4)}
+.btn:active{transform:scale(0.95)}
+.btn:disabled{background:#555;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.green{background:#28a745}
+.btn.green:hover{box-shadow:0 2px 10px rgba(40,167,69,0.4)}
+.btn.blue{background:#3498db}
+.btn.blue:hover{box-shadow:0 2px 10px rgba(52,152,219,0.4)}
+.btn.purple{background:#9b59b6}
+.btn.purple:hover{box-shadow:0 2px 10px rgba(155,89,182,0.4)}
+.empty{padding:20px;text-align:center;color:#a0a0b0}
+#notif{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#0f3460;color:#FFD700;padding:8px 16px;border:2px solid #FFD700;border-radius:8px;font-size:12px;z-index:999;display:none;text-align:center;min-width:200px}
+.float-text{position:fixed;pointer-events:none;font-size:16px;font-weight:bold;animation:floatUp 1s ease-out forwards;z-index:1000}
+#notif-area{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:998;display:flex;flex-direction:column;gap:5px;align-items:center}
+.notif-item{background:#16213e;color:#FFD700;padding:6px 14px;border:2px solid #FFD700;border-radius:20px;font-size:11px;animation:none}
+.notif-item.animate{animation:none}
+.equip-slot{padding:8px;margin:5px 0;background:#16213e;border:2px dashed #333;border-radius:6px;display:flex;justify-content:space-between;align-items:center}
+.equip-slot.owned{border-color:#28a745;border-style:solid}
+.equip-slot.locked{opacity:0.5;border-color:#555}
+.stat-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a3e}
+.stat-label{color:#a0a0b0}
+.stat-value{color:#FFD700}
+.mood-bar{width:60px;height:8px;background:#333;border-radius:4px;overflow:hidden;display:inline-block;vertical-align:middle}
+.mood-fill{height:100%;transition:width 0.5s}
+.mood-high .mood-fill{background:#28a745}
+.mood-med .mood-fill{background:#FFD700}
+.mood-low .mood-fill{background:#FF6347}
+.level-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:bold}
+.l1{background:#666}.l2{background:#95a5a6}.l3{background:#3498db}
+.l4{background:#9b59b6}.l5{background:#e74c3c}.l6{background:#FFD700;color:#000}
+#daynight{position:absolute;top:5px;right:10px;font-size:20px}
+.section-title{color:#FFD700;margin:15px 0 8px 0;font-size:13px;border-left:3px solid #FFD700;padding-left:8px}
+.customer-avatar{font-size:24px;margin-right:8px}
+.tip-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1001}
+.tip-content{background:#16213e;border:3px solid #FFD700;border-radius:12px;padding:20px;max-width:350px;text-align:center;animation:sparkle 0.5s ease-out}
+.tip-content h3{color:#FFD700;margin-bottom:10px}
+.tip-content p{color:#e8e8e8;margin-bottom:15px;line-height:1.6}
+.reputation-stars{color:#FFD700;letter-spacing:2px}
+.venue-card{padding:12px;margin:8px 0;background:linear-gradient(145deg,#0f3460,#16213e);border:2px solid #000;border-radius:8px;display:flex;justify-content:space-between;align-items:center;transition:transform 0.2s,box-shadow 0.2s}
+.venue-card.current{border-color:#28a745;background:linear-gradient(145deg,#164829,#1a1a4e)}
+.venue-card.upgrade{border-color:#FFD700;border-style:dashed;cursor:pointer}
+.venue-card.upgrade:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,215,0,0.2)}
+.venue-card.locked{opacity:0.5;border-color:#555}
+.venue-stats{font-size:10px;color:#a0a0b0}
+.venue-stats span{display:block;margin:2px 0}
+.venue-stats .gold{font-size:12px}
+</style>
+</head>
+<body>
+<div id="notif"></div>
+<div id="notif-area"></div>
+
+<div id="hdr" style="position:relative">
+  <span>💰 <span class="gold" id="coins">2000</span></span>
+  <span style="flex:1;text-align:center">
+    Lv<span class="gold level-badge" id="lv-badge">1</span> 
+    <span class="gold" id="lv-text">Lv1</span>
+    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+  </span>
+  <span>⭐ Rep: <span class="reputation-stars" id="rep-stars">☆☆☆☆☆</span></span>
+</div>
+
+<div id="tabs">
+  <button class="tab active" data-tab="orders">📋 Orders</button>
+  <button class="tab" data-tab="menu">🍽️Menu</button>
+  <button class="tab" data-tab="stats">📊Stats</button>
+  <button class="tab" data-tab="staff">👥Staff</button>
+  <button class="tab" data-tab="equip">🔧Equip</button>
+  <button class="tab" data-tab="shop">🛒Shop</button>
+  <button class="tab" data-tab="expand">🏪Expand</button>
+  <button class="tab" data-tab="trends">🌟Trends</button>
+  <button class="tab" data-tab="events">📅Events</button>
+</div>
+
+<div id="content">
+  <div id="panel-orders"></div>
+  <div id="panel-menu" style="display:none"></div>
+  <div id="panel-stats" style="display:none"></div>
+  <div id="panel-staff" style="display:none"></div>
+  <div id="panel-equip" style="display:none"></div>
+  <div id="panel-shop" style="display:none"></div>
+  <div id="panel-expand" style="display:none"></div>
+  <div id="panel-trends" style="display:none"></div>
+  <div id="panel-events" style="display:none"></div>
+</div>
+
+<script>
+// ============ GAME CONFIGURATION ============
+const CONFIG = {
+  xpPerLevel: [0, 100, 250, 500, 900, 1500, 2400, 3600, 5200, 7200, 10000, 13500, 18000, 24000, 32000, 42000, 55000, 72000, 95000, 125000, 165000, 220000, 290000, 380000, 500000, 660000, 880000, 1200000, 1600000, 2100000, 2800000, 3700000, 4900000, 6500000, 8700000, 11500000, 15000000, 20000000, 26000000, 35000000, 46000000, 60000000, 78000000, 100000000, 130000000, 170000000, 220000000, 290000000, 380000000, 500000000],
+  maxStaff: 15,
+  maxOrders: 8,
+  orderInterval: [5000, 4500, 4000, 3500, 3000, 2500, 2200, 2000, 1800, 1600, 1400, 1200, 1000, 900, 800, 700, 600, 500, 400, 300],
+  moodDecayRate: [2, 1.8, 1.5, 1.2, 1.0, 0.8, 0.6, 0.5, 0.4, 0.3],
+  baseServeTime: 8000,
+  repThresholds: [0, 10, 30, 60, 100, 150, 220],
+  maxRep: 300,
+  // === DIFFICULTY SETTINGS ===
+  profitMultiplier: 0.8,       // Revenue 80% (tăng margin, chỗ nào lãi)
+  ingredientInflation: 1.2,     // Cost nguyên liệu tăng 20% (giảm inflation)
+  staffSalaryInterval: 45000,   // Lương nhân viên mỗi 45s game (giảm tần suất)
+  fixedChargesInterval: 90000,  // Fixed charges mỗi 90s game (ít hơn)
+  bankruptcyWarningTime: 15000, // Cảnh báo: âm coins 15s
+  bankruptcyTime: 45000,        // Bankruptcy: âm coins 45s (có thời gian xoay)
+  bankruptcyThreshold: 0,       // Threshold for bankruptcy check
+  fixedCharges: {
+    rent: 80,                    // Thuê mặt bằng/cycle (giảm từ 200)
+    electricity: 40,             // Điện/cycle (giảm từ 100)
+    water: 20,                   // Nước/cycle (giảm từ 40)
+    internet: 15,                // WiFi/cycle (giảm từ 30)
+    insurance: 25,               // Bảo hiểm/cycle (giảm từ 80)
+    maintenance: 30              // Bảo trì/cycle (giảm từ 60)
+  },
+  // === DIFFICULTY SCALING ===
+  difficultyPhases: [
+    { startDay: 1,  profitMult: 0.9, inflation: 1.2, staffSalaryMult: 1.0, orderMult: 1.0, warning: '📊 Giai đoạn EASY — Quán mới mở, lợi nhuận dễ!' },
+    { startDay: 16, profitMult: 0.7, inflation: 1.4, staffSalaryMult: 1.1, orderMult: 0.9, warning: '⚠️ Giai đoạn NORMAL — Chi phí tăng, lợi nhuận khó hơn!' },
+    { startDay: 41, profitMult: 0.5, inflation: 1.7, staffSalaryMult: 1.25, orderMult: 0.8, warning: '🔥 Giai đoạn HARD — Áp lực lớn! Cần tối ưu nhân sự!' },
+    { startDay: 76, profitMult: 0.3, inflation: 2.0, staffSalaryMult: 1.5, orderMult: 0.7, warning: '💀 Giai đoạn EXTREME — Chỉ quán top mới vượt qua!' }
+  ]
+};
+
+// === DIFFICULTY SCALING (dynamic per phase) ===
+function getDifficultyPhase(day) {
+  let phase = CONFIG.difficultyPhases[0];
+  for (let i = CONFIG.difficultyPhases.length - 1; i >= 0; i--) {
+    if (day >= CONFIG.difficultyPhases[i].startDay) {
+      phase = CONFIG.difficultyPhases[i];
+      break;
+    }
+  }
+  return phase;
+}
+
+let currentDifficultyPhase = null;
+let previousDifficultyPhase = null;
+let difficultyWarningShown = 0;
+
+// ============ VENUE TYPES (EXPAND SYSTEM) ============
+const VENUE_TYPES = [
+  {id:'street',name:'Quán Ven Đường',icon:'🏪',cost:0,maxOrders:8,bonusRent:0,bonusRevenue:1.0,desc:'Quán nhỏ ven đường'},
+  {id:'mall',name:'Quán Trong Mall',icon:'🏬',cost:3000,maxOrders:14,bonusRent:140,bonusRevenue:1.15,desc:'Mall cao cấp, khách vip hơn'},
+  {id:'garden',name:'Quán Sân Vườn',icon:'🌳',cost:10000,maxOrders:20,bonusRent:290,bonusRevenue:1.25,desc:'Không gian xanh mát, khách ở xa'},
+  {id:'park',name:'Công Viên Cafe',icon:'🏞️',cost:30000,maxOrders:28,bonusRent:540,bonusRevenue:1.4,desc:'Quán ngoài trời rộng lớn, du lịch'}
+];
+
+// ============ MENU ITEMS ============
+const MENU = [
+  {id:'coffee',name:'Black Coffee',icon:'☕',price:[15,20],cost:7,rarity:1},
+  {id:'milk_coffee',name:'Milk Coffee',icon:'🥛',price:[20,28],cost:11,rarity:1},
+  {id:'espresso',name:'Espresso',icon:'☕',price:[25,35],cost:14,rarity:1},
+  {id:'latte',name:'Caramel Latte',icon:'🥤',price:[30,42],cost:17,rarity:2},
+  {id:'matcha',name:'Matcha Tea',icon:'🍵',price:[35,45],cost:21,rarity:2},
+  {id:'bubble_tea',name:'Bubble Tea',icon:'🧋',price:[38,55],cost:25,rarity:3},
+  {id:'smoothie',name:'Berry Smoothie',icon:'🫐',price:[40,50],cost:21,rarity:2},
+  {id:'mocha',name:'Mocha Frappe',icon:'🍫',price:[45,60],cost:28,rarity:3},
+  {id:'cheesecake',name:'Cheesecake',icon:'🍰',price:[30,40],cost:17,rarity:3},
+  {id:'croissant',name:'Butter Croissant',icon:'🥐',price:[25,35],cost:14,rarity:2},
+  {id:'waffle',name:'Strawberry Waffle',icon:'🧇',price:[40,55],cost:25,rarity:3},
+  {id:'tiramisu',name:'Tiramisu',icon:'🍮',price:[50,65],cost:31,rarity:4},
+  {id:'special',name:'Chef Special',icon:'✨',price:[60,80],cost:35,rarity:5}
+];
+
+// ============ STAFF ============
+const STAFF = [
+  {id:'intern',name:'🧑‍🎓 Intern',cost:100,sk:[0.3,0.5],salary:8,desc:'Basic helper'},
+  {id:'barista',name:'☕ Barista',cost:300,sk:[0.5,0.7],salary:18,desc:'Skilled coffee maker',buff:'speed',buffVal:0.10,buffDesc:'+10% serve speed'},
+  {id:'chef',name:'👨‍🍳 Chef',cost:500,sk:[0.7,0.85],salary:28,desc:'Expert cook'},
+  {id:'senior',name:'🧑‍💼 Senior',cost:800,sk:[0.85,0.95],salary:45,desc:'Top performer',buff:'tips',buffVal:0.05,buffDesc:'+5% tips all staff'},
+  {id:'master',name:'👨‍🏫 Master',cost:1500,sk:[0.95,1.1],salary:65,desc:'Legendary skill',buff:'highroll',buffVal:0.15,buffDesc:'+15% profit orders >50₫'},
+  {id:'manager',name:'🎩 Manager',cost:2000,sk:[1.0,1.2],salary:85,desc:'Business wizard',buff:'all_speed',buffVal:0.10,buffDesc:'+10% speed all staff'},
+  {id:'legend',name:'🏆 Legend Chef',cost:3000,sk:[1.1,1.3],salary:120,desc:'Tối thượng! Unlock menu cao cấp',buff:'reputation',buffVal:5,buffDesc:'+5 rep/ngày, unlock menu special'},
+  {id:'epic_coach',name:'🌟 Epic Coach',cost:5000,sk:[1.2,1.4],salary:180,desc:'Master of masters',buff:'coop',buffVal:0.50,buffDesc:'Co-op serve -50% serve time'}
+];
+
+// ============ EQUIPMENT ============
+const EQUIPMENT = [
+  {id:'espresso_mach',name:'Espresso Machine',icon:'☕',cost:200,maxLv:3,desc:'+5% revenue/lv',revenueBonus:0.05},
+  {id:'seating',name:'Cozy Seating',icon:'🪑',cost:300,maxLv:3,desc:'+1 max order/lv',orderBonus:1},
+  {id:'decoration',name:'Wall Decoration',icon:'🎨',cost:400,maxLv:3,desc:'+5 rep/lv',repBonus:5},
+  {id:'speaker',name:'Bluetooth Speaker',icon:'🎵',cost:250,maxLv:2,desc:'+3% customer mood',moodBonus:0.03},
+  {id:'fridge',name:'Premium Fridge',icon:'🧊',cost:600,maxLv:2,desc:'+10% order speed',speedBonus:0.10},
+  {id:'wifi',name:'WiFi Hotspot',icon:'📶',cost:150,maxLv:2,desc:'+2 rep/lv',repBonus2:2},
+  {id:'bakery',name:'Bakery Corner',icon:'🏪',cost:800,maxLv:2,desc:'+unlocks croissant/waffle',newMenu:2},
+  {id:'bar_counter',name:'Bar Counter',icon:'🍸',cost:1200,maxLv:2,desc:'+unlocks mocha/tiramisu',newMenu2:2},
+  {id:'auto_espresso',name:'Auto Espresso Bot',icon:'🤖',cost:2000,maxLv:3,desc:'+10% auto-serve speed/lv',autoServeBonus:0.10},
+  {id:'cooling_sys',name:'Cooling System',icon:'❄️',cost:1500,maxLv:2,desc:'+15% mood recovery/lv',moodRecoverBonus:0.15},
+  {id:'premium_store',name:'Premium Storage',icon:'📦',cost:3000,maxLv:3,desc:'-10% ingredient cost/lv',costReduction:0.10},
+  {id:'outdoor_tent',name:'Outdoor Tent',icon:'⛺',cost:2000,maxLv:2,desc:'+5 max orders/lv',orderBonus:5},
+  {id:'chandelier',name:'Crystal Chandelier',icon:'💎',cost:5000,maxLv:2,desc:'+10 rep/lv, +5% revenue/lv',repBonus:10,revenueBonus:0.05},
+  {id:'smart_pos',name:'Smart POS System',icon:'📲',cost:8000,maxLv:3,desc:'+20% tip rate/lv',tipBonus:0.20}
+];
+
+// ============ TREND DECORATIONS ============
+const TRENDS = [
+  // === COMMON (Lv1+) ===
+  {id:'t_doge',name:'Golden Doge',icon:'🐕',r:'common',cost:300,desc:'+5% revenue'},
+  {id:'t_cat',name:'Stray Cat',icon:'🐱',r:'common',cost:200,desc:'+3% revenue'},
+  {id:'t_plant',name:'Succulent Plant',icon:'🌱',r:'common',cost:150,desc:'+2 rep'},
+  {id:'t_neongirl',name:'Neon Girly Sign',icon:'💜',r:'common',cost:400,desc:'+6% revenue'},
+  {id:'t_fairy',name:'Fairy Light String',icon:'✨',r:'common',cost:500,desc:'+5% ambiance'},
+  {id:'t_miniplant',name:'Mini Plant Set',icon:'🪴',r:'common',cost:250,desc:'+3 rep'},
+  // === RARE (Lv20+) ===
+  {id:'t_girl',name:'Girly Corner',icon:'💖',r:'rare',cost:1000,desc:'+10% revenue'},
+  {id:'t_art',name:'Art Gallery',icon:'🖼️',r:'rare',cost:1500,desc:'+8 rep'},
+  {id:'t_neon',name:'Neon Sign',icon:'🪧',r:'rare',cost:2500,desc:'+12% revenue'},
+  {id:'t_book',name:'Book Corner',icon:'📚',r:'rare',cost:5000,desc:'+10% revenue +10 rep'},
+  {id:'t_mirror',name:'Mirror Room',icon:'🪞',r:'rare',cost:3000,desc:'+8% revenue, khách selfie'},
+  {id:'t_aesthetic',name:'Aesop Aesthetic Corner',icon:'🤍',r:'rare',cost:4000,desc:'+12% revenue, high-end'},
+  {id:'t_minimalist',name:'Minimalist Corner',icon:'🤍',r:'rare',cost:3500,desc:'+10% revenue, clean vibe'},
+  {id:'t_boho',name:'Bohemian Corner',icon:'🪷',r:'rare',cost:4000,desc:'+8% rep, artistic'},
+  {id:'t_kencoffe',name:'Egg Coffee Station',icon:'🥚',r:'rare',cost:5000,desc:'+10% revenue, viral VN'},
+  {id:'t_saltcoffee',name:'Salt Coffee Set',icon:'🧂',r:'rare',cost:4500,desc:'+8% revenue, trending'},
+  {id:'t_duriant',name:'Durian Coffee Station',icon:'🍈',r:'rare',cost:6000,desc:'+15% revenue, viral VN'},
+  {id:'t_kpop',name:'K-Pop Cafe Corner',icon:'🎤',r:'rare',cost:7000,desc:'+15% young customers'},
+  // === EPIC (Lv40+) ===
+  {id:'t_piano',name:'Piano Corner',icon:'🎹',r:'epic',cost:3000,desc:'+15% revenue'},
+  {id:'t_sky',name:'Sky Lounge',icon:'🌃',r:'epic',cost:5000,desc:'+20% revenue'},
+  {id:'t_rooftop',name:'Rooftop Bar',icon:'🌆',r:'epic',cost:8000,desc:'+25% revenue'},
+  {id:'t_artwall',name:'Coffee Art Wall',icon:'🎨',r:'epic',cost:12000,desc:'+20% revenue +12 rep'},
+  {id:'t_privroom',name:'Private Room',icon:'🚪',r:'epic',cost:15000,desc:'+18% revenue +8 rep'},
+  {id:'t_petzone',name:'Pet Café Zone',icon:'🐾',r:'epic',cost:10000,desc:'+15% revenue +15 rep'},
+  {id:'t_gaming',name:'Gaming Corner',icon:'🎮',r:'epic',cost:12000,desc:'+22% revenue'},
+  {id:'t_japanese',name:'Japanese Zen Corner',icon:'🎎',r:'epic',cost:8000,desc:'+10% rep, zen vibe'},
+  {id:'t_industrial',name:'Industrial Corner',icon:'🔧',r:'epic',cost:6000,desc:'+8% revenue, edgy'},
+  {id:'t_karaoke',name:'Karaoke Room',icon:'🎤',r:'epic',cost:10000,desc:'+15% evening customers'},
+  {id:'t_boardgame',name:'Board Game Corner',icon:'🎲',r:'epic',cost:7000,desc:'+12% young customers'},
+  {id:'t_cowork',name:'Co-Working Corner',icon:'💻',r:'epic',cost:6000,desc:'+8% remote workers'},
+  {id:'t_date',name:'Date Night Corner',icon:'💑',r:'epic',cost:8000,desc:'+10% couples'},
+  {id:'t_yoga',name:'Yoga Corner',icon:'🧘',r:'epic',cost:5000,desc:'+8% health customers'},
+  {id:'t_anime',name:'Anime Manga Corner',icon:'🎌',r:'epic',cost:9000,desc:'+12% young customers'},
+  {id:'t_lofig',name:'Lo-Fi Study Corner',icon:'🎧',r:'epic',cost:6000,desc:'+10% study customers'},
+  {id:'t_genshin',name:'Genshin Impact Corner',icon:'🌟',r:'epic',cost:11000,desc:'+12% young customers'},
+  {id:'t_mlbb',name:'Mobile Legends Corner',icon:'⚔️',r:'epic',cost:9000,desc:'+10% VN young customers'},
+  {id:'t_instawall',name:'Instagram Photo Wall',icon:'📸',r:'epic',cost:7500,desc:'+10% customers, photo ops'},
+  {id:'t_tiktok',name:'TikTok Dance Floor',icon:'🕺',r:'epic',cost:10000,desc:'+15% young customers, viral'},
+  {id:'t_duriancoffee',name:'Durian Latte Bar',icon:'🍈',r:'epic',cost:8000,desc:'+12% revenue, VN specialty'},
+  {id:'t_coconutcoffee',name:'Coconut Coffee Bar',icon:'🥥',r:'epic',cost:7000,desc:'+8% revenue, healthy trend'},
+  {id:'t_yuzucoffee',name:'Yuzu Coffee Station',icon:'🍋',r:'epic',cost:9000,desc:'+12% revenue, premium'},
+  {id:'t_rose',name:'Rose Latte Bar',icon:'🌹',r:'epic',cost:8000,desc:'+10% revenue, Instagrammable'},
+  {id:'t_avocado',name:'Avocado Toast Station',icon:'🥑',r:'epic',cost:6000,desc:'+10% revenue, healthy trend'},
+  // === LEGEND (Lv70+) ===
+  {id:'t_chef',name:'Chef Statue',icon:'🗿',r:'legend',cost:10000,desc:'+30% revenue'},
+  {id:'t_livemusic',name:'Live Music Stage',icon:'🎸',r:'legend',cost:25000,desc:'+35% revenue +10 rep'},
+  {id:'t_aromatherapy',name:'Aromatherapy Bar',icon:'🌿',r:'legend',cost:30000,desc:'+40% revenue +12 rep'},
+  {id:'t_rooftopgarden',name:'Rooftop Garden',icon:'🌺',r:'legend',cost:50000,desc:'+50% revenue +15 rep'},
+  {id:'t_smartorder',name:'Smart Order System',icon:'📱',r:'legend',cost:75000,desc:'+45% revenue +20 rep'},
+  {id:'t_secretmenu',name:'Secret Menu',icon:'✨',r:'legend',cost:100000,desc:'+60% revenue +25 rep'},
+  {id:'t_goldespresso',name:'Gold Espresso Machine',icon:'☕',r:'legend',cost:50000,desc:'+50% revenue +20 rep'},
+  {id:'t_diamondseating',name:'Diamond Seating',icon:'💎',r:'legend',cost:80000,desc:'+40% ambiance +25 rep'},
+  {id:'t_privatevip',name:'Private VIP Room',icon:'🚪',r:'legend',cost:100000,desc:'+35% revenue, VIP only'},
+  {id:'t_michelin',name:'Michelin Kitchen',icon:'🍳',r:'legend',cost:200000,desc:'+50% menu items +30 rep'},
+  // === SPORTS (Lv60+ / Event-Only) ===
+  {id:'t_inter',name:'Inter Milan Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+15% fan Inter +10% tips'},
+  {id:'t_real',name:'Real Madrid Jersey',icon:'⚪',r:'legend',cost:15000,desc:'+12% fan Real +8% tips'},
+  {id:'t_barca',name:'Barcelona Jersey',icon:'🔴',r:'legend',cost:15000,desc:'+10% fan Barca +8% tips'},
+  {id:'t_psg',name:'PSG Jersey',icon:'🔵',r:'legend',cost:15000,desc:'+12% fan PSG +10% tips'},
+  {id:'t_vnm',name:'Vietnam National Team',icon:'🟡',r:'legend',cost:10000,desc:'+25% VN customers'},
+  {id:'t_ucl',name:'UCL Trophy Display',icon:'🏆',r:'legend',cost:30000,desc:'+20% all customers'},
+  {id:'t_worldcup',name:'World Cup 2026',icon:'⚽',r:'legend',cost:40000,desc:'+20% all customers +15 rep'},
+  {id:'t_taylor',name:'Taylor Swift Corner',icon:'🎵',r:'legend',cost:20000,desc:'+12% young female customers'},
+  {id:'t_netflix',name:'Netflix Series Corner',icon:'📺',r:'legend',cost:15000,desc:'+8% ambiance'},
+  // === MYTHIC (Lv90+) ===
+  {id:'t_helipad',name:'Private Helipad',icon:'🚁',r:'mythic',cost:500000,desc:'+100% revenue, world-class'},
+  {id:'t_infinity',name:'Rooftop Infinity Pool',icon:'🏊',r:'mythic',cost:150000,desc:'+60% revenue, tourist hotspot'},
+  {id:'t_smarthome',name:'Smart Home System',icon:'🏠',r:'mythic',cost:40000,desc:'+20% efficiency -10% costs'},
+  {id:'t_jazz',name:'Jazz Corner',icon:'🎷',r:'mythic',cost:25000,desc:'+12% ambiance, upscale'},
+  {id:'t_dj',name:'DJ Booth',icon:'🎧',r:'mythic',cost:20000,desc:'+12% nightlife customers'},
+];
+
+// ============ LEVEL REWARDS ============
+// ============ LEVEL REWARDS V8 ============
+const LEVEL_REWARDS_V8 = {
+  2: {coins:200,desc:'Unlock latte & matcha',rewardItems:['latte','matcha']},
+  3: {coins:400,desc:'Unlock equipment shop',rewardItems:['seating','decoration']},
+  4: {coins:600,desc:'Unlock bakery corner',rewardItems:['bakery']},
+  5: {coins:1000,desc:'Unlock bar counter & master',rewardItems:['bar_counter','master']},
+  6: {coins:2000,desc:'🎉 Grand Opening!',rewardItems:['special']},
+  10: {coins:3000,desc:'Croissant+waffle',rewardItems:['croissant','waffle']},
+  15: {coins:5000,desc:'Espresso Lv3 + Fridge Lv2',rewardItems:['espresso_mach_3','fridge_2']},
+  20: {coins:8000,desc:'🔓 Rare items unlock',rewardItems:['t_girl','t_mirror','t_aesthetic','t_minimalist','t_kencoffe','t_saltcoffee','t_neongirl','t_fairy']},
+  30: {coins:15000,desc:'Sky Lounge',rewardItems:['t_sky']},
+  40: {coins:25000,desc:'🔓 Epic items unlock',rewardItems:['t_piano','t_japanese','t_jazz','t_boho','t_industrial','t_karaoke','t_boardgame','t_cowork','t_date','t_yoga','t_anime','t_lofig','t_genshin','t_mlbb','t_instawall','t_tiktok','t_duriancoffee','t_coconutcoffee','t_yuzucoffee','t_rose','t_avocado']},
+  50: {coins:50000,desc:'Chef Statue',rewardItems:['t_chef']},
+  60: {coins:100000,desc:'🔓 Sports items unlock',rewardItems:['t_inter','t_real','t_barca','t_psg','t_vnm','t_ucl','t_worldcup','t_taylor','t_netflix']},
+  65: {coins:120000,desc:'🔓 Seasonal menu system active',rewardItems:[]},
+  70: {coins:150000,desc:'🔓 Legendary items',rewardItems:['t_livemusic','t_aromatherapy','t_goldespresso']},
+  75: {coins:200000,desc:'Auto Espresso + Cooling + Premium Storage',rewardItems:['auto_espresso','cooling_sys','premium_store']},
+  80: {coins:250000,desc:'🔓 Epic seasonal menu items',rewardItems:['t_rooftop','t_rooftopgarden']},
+  85: {coins:300000,desc:'Smart Order + Secret Menu',rewardItems:['t_smartorder','t_secretmenu']},
+  90: {coins:500000,desc:'🔓 Mythic items',rewardItems:['t_helipad','t_infinity','t_smarthome','t_diamondseating','t_privatevip','t_michelin','t_worldcup']},
+  100: {coins:1000000,desc:'👑☕ LEGENDARY CAFE OWNER! All items maxed!',rewardItems:['all_equipment','all_trends']}
+};
+
+// Keep LEVEL_REWARDS for backward compat (alias)
+const LEVEL_REWARDS = LEVEL_REWARDS_V8;
+
+// ============ SPORTS EVENTS SYSTEM ============
+const SPORTS_EVENTS = [
+  {id:'inter_scudetto',name:'Inter Milan Scudetto!',team:'inter',icon:'🏆',duration:30,desc:'Inter vô địch Serie A!',fanRate:0.15,tipBonus:0.10},
+  {id:'ucl_final',name:'Champions League Final!',team:'all',icon:'🏆',duration:20,desc:'UCL Final — fan tăng 20%!',fanRate:0.20,tipBonus:0.15},
+  {id:'worldcup_2026',name:'World Cup 2026!',team:'all',icon:'⚽',duration:45,desc:'World Cup — khách tăng 25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'aff_cup_2026',name:'AFF Cup 2026!',team:'vnm',icon:'🏆',duration:30,desc:'AFF Cup — VN khách +25%!',fanRate:0.25,tipBonus:0.20},
+  {id:'messigoat',name:'Messi G.O.A.T.!',team:'argentina',icon:'🐐',duration:60,desc:'Messi G.O.A.T. — khách +20%!',fanRate:0.20,tipBonus:0.25},
+  {id:'ronaldogoat',name:'Ronaldo G.O.A.T.!',team:'real',icon:'🐐',duration:60,desc:'Ronaldo G.O.A.T. — khách +18%!',fanRate:0.18,tipBonus:0.20},
+  {id:'neymar_return',name:'Neymar Returns!',team:'psg',icon:'⭐',duration:30,desc:'Neymar trở lại — khách +15%!',fanRate:0.15,tipBonus:0.12},
+  {id:'euro_2028',name:'Euro 2028!',team:'europe',icon:'🏆',duration:35,desc:'Euro 2028 — khách châu Âu!',fanRate:0.18,tipBonus:0.15}
+];
+let currentSportsEvent = null;
+let sportsEventTimer = 0;
+
+function triggerRandomSportsEvent() {
+  if (currentSportsEvent) return;
+  if (Math.random() < 0.02) {
+    const event = SPORTS_EVENTS[Math.floor(Math.random() * SPORTS_EVENTS.length)];
+    currentSportsEvent = {...event, daysLeft: event.duration};
+    sportsEventTimer = event.duration;
+    notify(`⚽ ${event.desc}`, 5000);
+  }
+}
+
+function tickSportsEvent() {
+  if (!currentSportsEvent) return;
+  currentSportsEvent.daysLeft--;
+  if (currentSportsEvent.daysLeft <= 0) {
+    notify(`📅 ${currentSportsEvent.name} kết thúc!`, 3000);
+    currentSportsEvent = null;
+    sportsEventTimer = 0;
+  }
+}
+
+function getFanCustomerModifier() {
+  return currentSportsEvent ? 1.0 + currentSportsEvent.fanRate : 1.0;
+}
+function getFanTipBonus() {
+  return currentSportsEvent ? currentSportsEvent.tipBonus : 0;
+}
+
+// ============ SEASONAL MENU ROTATION ============
+const SEASONAL_MENUS = {
+  spring: {name:'Xuân',emoji:'🌸',shift:{latte:1.3,matcha:1.2,smoothie:1.5,cheesecake:1.2},desc:'Xuân về — trà & đồ nhẹ hot!'},
+  summer: {name:'Hè',emoji:'☀️',shift:{iced:1.8,bubble_tea:1.4,smoothie:1.6,mocha:1.3},desc:'Hè nắng — đồ lạnh cháy hàng!'},
+  autumn: {name:'Thu',emoji:'🍂',shift:{hot:1.5,espresso:1.4,tiramisu:1.3,black_coffee:1.3},desc:'Thu về — cà phê nóng & bánh hot!'},
+  winter: {name:'Đông',emoji:'❄️',shift:{hot:1.8,caramel_latte:1.6,cheesecake:1.4,croissant:1.3},desc:'Đông lạnh — đồ nóng & bánh hot!'}
+};
+let currentSeason = 'spring';
+function getCurrentSeason(day) {
+  const c = day % 360;
+  if (c < 90) return 'spring';
+  if (c < 180) return 'summer';
+  if (c < 270) return 'autumn';
+  return 'winter';
+}
+function getSeasonalDemand(menuId) {
+  return SEASONAL_MENUS[currentSeason]?.shift[menuId] || 1.0;
+}
+function getSeasonEmoji() { return SEASONAL_MENUS[currentSeason]?.emoji || '🌸'; }
+function getSeasonName() { return SEASONAL_MENUS[currentSeason]?.name || 'Xuân'; }
+function getSeasonDescription() { return SEASONAL_MENUS[currentSeason]?.desc || ''; }
+
+// ============ FAN CUSTOMERS SYSTEM ============
+const FAN_CUSTOMERS = {
+  coffee_fan:{icon:'☕',tipMult:1.15,revenueMult:1.05},
+  healthy_fan:{icon:'🥗',tipMult:1.1,revenueMult:1.0},
+  art_fan:{icon:'🎨',tipMult:1.05,revenueMult:1.0},
+  music_fan:{icon:'🎶',tipMult:1.08,revenueMult:1.0},
+  inter_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  real_fan:{icon:'⚪',tipMult:1.08,revenueMult:1.05},
+  barca_fan:{icon:'🔴',tipMult:1.08,revenueMult:1.05},
+  psg_fan:{icon:'🔵',tipMult:1.1,revenueMult:1.05},
+  vnm_fan:{icon:'🟡',tipMult:1.15,revenueMult:1.0},
+  ucl_fan:{icon:'🏆',tipMult:1.12,revenueMult:1.05},
+  taylor_fan:{icon:'🎵',tipMult:1.1,revenueMult:1.0},
+  netflix_fan:{icon:'📺',tipMult:1.05,revenueMult:1.0},
+  kpop_fan:{icon:'🎤',tipMult:1.08,revenueMult:1.0},
+  anime_fan:{icon:'🎌',tipMult:1.05,revenueMult:1.0},
+  genshin_fan:{icon:'🌟',tipMult:1.05,revenueMult:1.0},
+  mlbb_fan:{icon:'⚔️',tipMult:1.08,revenueMult:1.0}
+};
+function getAvailableFanTypes() {
+  const types = ['coffee_fan','healthy_fan','art_fan','music_fan'];
+  if (currentSportsEvent) types.push('inter_fan','real_fan','barca_fan','psg_fan','vnm_fan','ucl_fan');
+  if (G.trendItems.find(t=>t.id==='t_taylor')) types.push('taylor_fan');
+  if (G.trendItems.find(t=>t.id==='t_netflix')) types.push('netflix_fan');
+  if (G.trendItems.find(t=>t.id==='t_kpop')) types.push('kpop_fan');
+  if (G.trendItems.find(t=>t.id==='t_anime')) types.push('anime_fan');
+  if (G.trendItems.find(t=>t.id==='t_genshin')) types.push('genshin_fan');
+  if (G.trendItems.find(t=>t.id==='t_mlbb')) types.push('mlbb_fan');
+  return types;
+}
+
+// ============ GAME STATE ============
+var G = {
+  coins: 2000,
+  lv: 1,
+  xp: 0,
+  rep: 50,
+  repStars: 0,
+  tab: 'orders',
+  staff: [],
+  items: {},
+  equipment: {espresso_mach:0,seating:0,decoration:0,speaker:0,fridge:0,wifi:0,bakery:0,bar_counter:0,auto_espresso:0,cooling_sys:0,premium_store:0,outdoor_tent:0,chandelier:0,smart_pos:0},
+  orders: [],
+  totalServed: 0,
+  totalRevenue: 0,
+  totalTips: 0,
+  totalExpenses: 0,
+  ordersToday: 0,
+  bestDay: 0,
+  lastOrderTime: Date.now(),
+  trendItems: [],
+  unlockedMenu: ['coffee','milk_coffee','espresso'],
+  saveVersion: 7,
+  venueLevel: 0,  // 0=street, 1=mall, 2=garden, 3=park
+  // === FINANCIAL MANAGEMENT ===
+  bankruptcyWatchdog: null, // timeout ID
+  bankruptcyStartTime: null,
+  lastSalaryPaid: 0,
+  lastChargesPaid: 0,
+  isBankrupt: false,
+  lastProfitCheck: Date.now(),
+  dailyProfit: 0,
+  monthlyProfit: 0,
+  lastDayChange: Date.now(),
+  sportsEvent: null,  // V8: current active sports event
+  // === STAFF BUFF TRACKING ===
+  staffBuffs: { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 },
+  // === DIFFICULTY TRACKING ===
+  difficultyWarningShown: [false,false,false,false],
+  // === STAFF EVENTS LOG ===
+  staffEvents: []
+};
+
+// ============ AUDIO ENGINE ============
+const AudioEngine = {
+  ctx: null,
+  init: function() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+  },
+  play: function(freq, dur, type='sine') {
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + dur);
+    } catch(e) {}
+  },
+  coin: function() { this.play(880, 0.15); setTimeout(()=>this.play(1100, 0.1), 80); },
+  serve: function() { this.play(660, 0.1); setTimeout(()=>this.play(880, 0.1), 60); setTimeout(()=>this.play(1100, 0.15), 120); },
+  buy: function() { this.play(440, 0.2); setTimeout(()=>this.play(660, 0.15), 100); },
+  levelUp: function() { 
+    [523,659,784,1047].forEach((f,i) => setTimeout(()=>this.play(f,0.2,'square'), i*100)); 
+  },
+  error: function() { this.play(220, 0.3, 'sawtooth'); },
+  click: function() { this.play(500, 0.05); },
+  orderNew: function() { this.play(700, 0.1); setTimeout(()=>this.play(900, 0.1), 80); }
+};
+
+// ============ UTILITY FUNCTIONS ============
+function rand(min,max) { return Math.floor(Math.random()*(max-min+1))+min; }
+function clamp(v,min,max) { return Math.max(min,Math.min(max,v)); }
+function pick(arr) { return arr[rand(0,arr.length-1)]; }
+
+function notify(msg, duration=2000) {
+  const area = document.getElementById('notif-area');
+  const el = document.createElement('div');
+  el.className = 'notif-item animate';
+  el.textContent = msg;
+  area.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, duration);
+}
+
+function floatText(x, y, text, color='#FFD700') {
+  const el = document.createElement('div');
+  el.className = 'float-text';
+  el.textContent = text;
+  el.style.left = x+'px';
+  el.style.top = y+'px';
+  el.style.color = color;
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 1000);
+}
+
+// ============ ORDER GENERATION ============
+function generateOrder() {
+  const availableMenu = MENU.filter(m => G.unlockedMenu.includes(m.id));
+  const menu = pick(availableMenu);
+  const price = rand(menu.price[0], menu.price[1]);
+  const customers = [
+    {name:'Tourist',icon:'👤'},
+    {name:'Student',icon:'🎒'},
+    {name:'Office Worker',icon:'👔'},
+    {name:'Girlfriend Date',icon:'💑'},
+    {name:'Regular Customer',icon:'😊'},
+    {name:'Food Blogger',icon:'📱'},
+    {name:'Business Person',icon:'💼'},
+    {name:'Artist',icon:'🎨'}
+  ];
+  // V8: Add dynamic fan customers based on active event/trends
+  const fanTypes = getAvailableFanTypes();
+  fanTypes.forEach(ft => {
+    const fc = FAN_CUSTOMERS[ft];
+    if (fc) customers.push({name:ft.replace('_fan','')+' Fan',icon:fc.icon, fanType:ft, tipMult:fc.tipMult, revenueMult:fc.revenueMult});
+  });
+  const customer = pick(customers);
+  
+  const tipChance = G.rep / CONFIG.maxRep;
+  const tipAmount = Math.random() < tipChance ? rand(5, 20) : 0;
+  
+  return {
+    id: Date.now() + Math.random(),
+    name: menu.name,
+    icon: menu.icon,
+    menuId: menu.id,
+    price: price,
+    cost: menu.cost,
+    customer: customer,
+    tip: tipAmount,
+    patience: CONFIG.baseServeTime * (1 + (G.lv - 1) * 0.05), // patience TĂNG theo level, không giảm
+    timeLeft: CONFIG.baseServeTime * (1 + (G.lv - 1) * 0.05),
+    created: Date.now()
+  };
+}
+
+function getRepCustomerModifier() {
+  // Rep thấp → khách đến ít (auto-balance: cần speed phục vụ kịp)
+  // Rep 0-30:  0.3x (rất ít khách)
+  // Rep 30-50: 0.5x
+  // Rep 50-70: 0.7x
+  // Rep 70-90: 1.0x (bình thường)
+  // Rep 90-120: 1.3x (khách đông)
+  // Rep 120-160: 1.6x
+  // Rep 160-220: 1.9x
+  // Rep 220+: 2.2x (full)
+  const r = G.rep;
+  if (r < 30) return 0.3;
+  if (r < 50) return 0.5;
+  if (r < 70) return 0.7;
+  if (r < 90) return 0.9;
+  if (r < 120) return 1.1;
+  if (r < 160) return 1.4;
+  if (r < 220) return 1.8;
+  return 2.2;
+}
+
+function autoGenerateOrder() {
+  if (G.orders.length >= calculateMaxOrders()) return;
+  
+  // Apply difficulty scaling to order interval
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  const baseInterval = CONFIG.orderInterval[G.lv-1] || 5000;
+  
+  // REP-BASED CUSTOMER SCALING
+  // Nếu tốc độ phục vụ < tốc độ order → rep thấp sẽ tự động tăng khách (cân bằng)
+  // Nếu tốc độ phục vụ > tốc độ order → rep cao nhận thêm khách thưởng
+  const repMod = getRepCustomerModifier();
+  
+  // Fan customer modifier (sports events)
+  const fanMod = getFanCustomerModifier();
+  
+  // Calculate service capacity (orders per minute)
+  let totalSkill = 0;
+  G.staff.forEach(s => {
+    const sDef = STAFF.find(st => st.id === s.id);
+    if (sDef && s.mood > 5) {
+      let speedBuff = 0;
+      if (sDef.buff === 'all_speed') speedBuff += sDef.buffVal;
+      totalSkill += s.skill * (s.mood / 100) * (1 + speedBuff);
+    }
+  });
+  const serviceCapacity = totalSkill * (60 / (lastAutoServeInterval / 1000)); // orders per minute, dynamic based on difficulty
+  const orderRate = 60 / (baseInterval * phase.orderMult / 1000); // orders per minute incoming
+  
+  // Balance factor: nếu service capacity < incoming order rate → giảm repMod để khách không quá tải
+  // Nếu service capacity > incoming → tăng repMod để có nhiều khách hơn
+  let balanceMod = 1.0;
+  if (orderRate > serviceCapacity && serviceCapacity > 0) {
+    balanceMod = serviceCapacity / orderRate; // < 1, giảm khách để phù hợp
+  } else if (serviceCapacity > 0) {
+    balanceMod = Math.min(1.5, serviceCapacity / orderRate); // > 1, tối đa 1.5x
+  }
+  
+  const effectiveRepMod = repMod * balanceMod * fanMod;
+  const interval = Math.floor(baseInterval * phase.orderMult / effectiveRepMod);
+  
+  const now = Date.now();
+  
+  if (now - G.lastOrderTime > interval) {
+    const order = generateOrder();
+    G.orders.push(order);
+    G.lastOrderTime = now;
+    AudioEngine.orderNew();
+    updateUI();
+  }
+}
+
+// ============ GAME ACTIONS ============
+function serveOrder(idx) {
+  if (idx < 0 || idx >= G.orders.length) return;
+  const o = G.orders[idx];
+  
+  // DYNAMIC DIFFICULTY
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  const profitMult = phase.profitMult;
+  const inflation = phase.inflation;
+  
+  // COST INFLATION - nguyên liệu tăng giá
+  const ingredientCost = Math.floor(o.cost * inflation);
+  
+  // PREMIUM STORAGE reduction
+  const costReduction = 1 - (G.equipment.premium_store || 0) * 0.10;
+  const finalCost = Math.floor(ingredientCost * costReduction);
+  
+  // PROFIT MULTIPLIER - profit chậm hơn
+  const rawRevenue = o.price + o.tip;
+  let revenue = Math.floor(rawRevenue * profitMult);
+  
+  // Revenue bonus from trends
+  let bonus = 1;
+  G.trendItems.forEach(t => {
+    if (t.revenueBonus) bonus += t.revenueBonus;
+  });
+  
+  // Revenue bonus from equipment
+  bonus += (G.equipment.espresso_mach || 0) * 0.05;
+  if (G.equipment.chandelier) bonus += (G.equipment.chandelier || 0) * 0.05;
+  
+  // Revenue bonus from venue
+  bonus += getVenueBonus() - 1;
+  
+  revenue = Math.floor(revenue * bonus);
+  
+  // MASTER buff: +15% profit on orders > 50₫
+  if (G.staffBuffs.highroll > 0 && o.price > 50) {
+    revenue = Math.floor(revenue * 1.15);
+  }
+  
+  // FAN customer tip bonus
+  if (o.fanType && FAN_CUSTOMERS[o.fanType]) {
+    const fan = FAN_CUSTOMERS[o.fanType];
+    revenue = Math.floor(revenue * (fan.revenueMult || 1));
+    const fanTipBonus = Math.floor(finalTip * (fan.tipMult || 1));
+    G.totalTips += (fanTipBonus - finalTip);
+  }
+  
+  // SMART POS buff: tip bonus
+  const tipMult = 1 + (G.equipment.smart_pos || 0) * 0.20;
+  const finalTip = Math.floor(o.tip * tipMult);
+  
+  // NET PROFIT
+  const netProfit = revenue + finalTip - finalCost;
+  
+  G.coins += netProfit;
+  G.totalRevenue += revenue;
+  G.totalExpenses += finalCost;
+  G.totalServed++;
+  G.ordersToday++;
+  G.totalTips += finalTip;
+  
+  // XP gain
+  const xpGain = Math.floor(o.price * 1.5) + (finalTip > 0 ? 5 : 0);
+  G.xp += xpGain;
+  
+  // Reputation gain
+  const repGain = 1 + Math.floor(G.repStars * 0.3);
+  G.rep = Math.min(CONFIG.maxRep, G.rep + repGain);
+  
+  // Clear bankruptcy watchdog if coins recovered
+  if (G.coins >= 0 && G.bankruptcyWatchdog) {
+    clearTimeout(G.bankruptcyWatchdog);
+    G.bankruptcyWatchdog = null;
+    G.bankruptcyStartTime = null;
+  }
+  
+  AudioEngine.serve();
+  notify(`✅ Served ${o.customer.icon} ${o.name}! +${revenue}₫ (-${finalCost}₫ = ${netProfit}₫ net)`);
+  
+  checkLevelUp();
+  updateUI();
+}
+
+function checkLevelUp() {
+  // DÙNG do...while để up nhiều level nếu XP dư
+  while (G.lv < 100) {
+    const nextXp = CONFIG.xpPerLevel[G.lv];
+    if (G.xp < nextXp) break;
+    
+    G.xp -= nextXp;
+    G.lv++;
+    AudioEngine.levelUp();
+    
+    const reward = LEVEL_REWARDS[G.lv];
+    if (reward) {
+      G.coins += reward.coins;
+      reward.rewardItems.forEach(id => {
+        if (id === 'all_equipment') {
+          EQUIPMENT.forEach(eq => { G.equipment[eq.id] = eq.maxLv; });
+        } else if (id === 'all_trends') {
+          TRENDS.forEach(t => {
+            if (!G.trendItems.find(x => x.id === t.id)) {
+              G.trendItems.push({...t, revenueBonus: t.id === 't_doge' ? 0.05 : t.id === 't_secretmenu' ? 0.60 : 0.10, repBonus: 5});
+            }
+          });
+        } else if (id === 'espresso_mach_3') {
+          G.equipment.espresso_mach = Math.max(G.equipment.espresso_mach, 3);
+        } else if (id === 'fridge_2') {
+          G.equipment.fridge = Math.max(G.equipment.fridge, 2);
+        } else if (id === 'auto_espresso') {
+          G.equipment.auto_espresso = Math.max(G.equipment.auto_espresso, 1);
+        } else if (id === 'cooling_sys') {
+          G.equipment.cooling_sys = Math.max(G.equipment.cooling_sys, 1);
+        } else if (id === 'premium_store') {
+          G.equipment.premium_store = Math.max(G.equipment.premium_store, 1);
+        } else if (!G.unlockedMenu.includes(id)) {
+          G.unlockedMenu.push(id);
+        }
+      });
+      notify(`🎉 LEVEL ${G.lv}! +${reward.coins.toLocaleString()}₫ coins! ${reward.desc}`, 4000);
+    } else {
+      notify(`🎉 LEVEL ${G.lv}! Great progress!`, 3000);
+    }
+    
+    // Auto-unlock menu based on equipment
+    if (G.equipment.bakery >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+    if (G.equipment.bakery >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+    if (G.equipment.bar_counter >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+    if (G.equipment.bar_counter >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+    if (G.lv >= 2 && !G.unlockedMenu.includes('latte')) G.unlockedMenu.push('latte');
+    if (G.lv >= 2 && !G.unlockedMenu.includes('matcha')) G.unlockedMenu.push('matcha');
+    if (G.lv >= 4 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
+    if (G.lv >= 6 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
+    // Auto-unlock menu based on level
+    if (G.lv >= 10 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+    if (G.lv >= 10 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+    if (G.lv >= 20 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+    if (G.lv >= 20 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+    if (G.lv >= 30 && !G.unlockedMenu.includes('cheesecake')) G.unlockedMenu.push('cheesecake');
+    if (G.lv >= 50 && !G.unlockedMenu.includes('special')) G.unlockedMenu.push('special');
+  }
+}
+
+function hireStaff(idx) {
+  if (G.staff.length >= CONFIG.maxStaff) { notify('❌ Staff full!'); return; }
+  const s = STAFF[idx];
+  if (G.coins < s.cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= s.cost;
+  const skillRange = s.sk;
+  G.staff.push({
+    id: s.id,
+    name: s.name,
+    skill: (skillRange[0] + skillRange[1]) / 2 + (Math.random() * (skillRange[1]-skillRange[0]) / 2),
+    mood: 100,
+    hired: Date.now()
+  });
+  
+  // Staff event notification
+  let eventMsg = `✅ Hired ${s.name}!`;
+  if (s.buffDesc) {
+    eventMsg += ` 🔥 ${s.buffDesc}`;
+    G.staffEvents.unshift({ type: 'hire', name: s.name, buff: s.buffDesc, time: Date.now() });
+    if (G.staffEvents.length > 20) G.staffEvents.pop();
+  } else {
+    G.staffEvents.unshift({ type: 'hire', name: s.name, buff: null, time: Date.now() });
+  }
+  
+  AudioEngine.buy();
+  notify(eventMsg, 3000);
+  updateUI();
+}
+
+function buyEquipment(id, event) {
+  const eq = EQUIPMENT.find(e => e.id === id);
+  if (!eq) return;
+  
+  const currentLv = G.equipment[id] || 0;
+  if (currentLv >= eq.maxLv) { notify('❌ Max level!'); return; }
+  
+  const cost = Math.floor(eq.cost * (currentLv + 1));
+  if (G.coins < cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= cost;
+  G.equipment[id] = currentLv + 1;
+  
+  AudioEngine.buy();
+  notify(`🔧 ${eq.name} upgraded to Lv${G.equipment[id]}!`);
+  
+  // Check menu unlocks
+  if (id === 'bakery' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('croissant')) G.unlockedMenu.push('croissant');
+  if (id === 'bakery' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('waffle')) G.unlockedMenu.push('waffle');
+  if (id === 'bar_counter' && G.equipment[id] >= 1 && !G.unlockedMenu.includes('mocha')) G.unlockedMenu.push('mocha');
+  if (id === 'bar_counter' && G.equipment[id] >= 2 && !G.unlockedMenu.includes('tiramisu')) G.unlockedMenu.push('tiramisu');
+  
+  updateUI();
+}
+
+function buyTrend(id, event) {
+  const t = TRENDS.find(x => x.id === id);
+  if (!t || G.trendItems.find(x => x.id === id)) return;
+  if (G.coins < t.cost) { notify('❌ Not enough coins!'); AudioEngine.error(); return; }
+  
+  G.coins -= t.cost;
+  
+  const revenueBonus = t.id === 't_doge' ? 0.05 :
+                       t.id === 't_cat' ? 0.03 :
+                       t.id === 't_girl' ? 0.10 :
+                       t.id === 't_piano' ? 0.15 :
+                       t.id === 't_sky' ? 0.20 :
+                       t.id === 't_chef' ? 0.30 :
+                       t.id === 't_neon' ? 0.12 :
+                       t.id === 't_rooftop' ? 0.25 :
+                       t.id === 't_artwall' ? 0.20 :
+                       t.id === 't_privroom' ? 0.18 :
+                       t.id === 't_petzone' ? 0.15 :
+                       t.id === 't_gaming' ? 0.22 :
+                       t.id === 't_livemusic' ? 0.35 :
+                       t.id === 't_aromatherapy' ? 0.40 :
+                       t.id === 't_rooftopgarden' ? 0.50 :
+                       t.id === 't_smartorder' ? 0.45 :
+                       t.id === 't_secretmenu' ? 0.60 :
+                       t.id === 't_book' ? 0.10 : 0;
+  
+  const repBonus = t.id === 't_plant' ? 2 :
+                   t.id === 't_art' ? 8 :
+                   t.id === 't_artwall' ? 12 :
+                   t.id === 't_privroom' ? 8 :
+                   t.id === 't_petzone' ? 15 :
+                   t.id === 't_book' ? 10 :
+                   t.id === 't_livemusic' ? 10 :
+                   t.id === 't_aromatherapy' ? 12 :
+                   t.id === 't_rooftopgarden' ? 15 :
+                   t.id === 't_smartorder' ? 20 :
+                   t.id === 't_secretmenu' ? 25 : 0;
+  
+  G.trendItems.push({...t, revenueBonus, repBonus});
+  G.rep = Math.min(CONFIG.maxRep, G.rep + repBonus);
+  
+  AudioEngine.buy();
+  notify(`🛒 Bought ${t.icon} ${t.name}! ${t.desc}`);
+  updateUI();
+}
+
+function restStaff(idx) {
+  if (idx < 0 || idx >= G.staff.length) return;
+  G.staff[idx].mood = Math.min(100, G.staff[idx].mood + 30);
+  notify(`☕ ${G.staff[idx].name} is resting! Mood restored.`);
+  AudioEngine.click();
+  updateUI();
+}
+
+function fireStaff(idx) {
+  if (idx < 0 || idx >= G.staff.length) return;
+  const s = G.staff[idx];
+  const staffDef = STAFF.find(st => st.id === s.id);
+  const refund = staffDef ? Math.floor(staffDef.cost * 0.5) : 0;
+  
+  if (confirm(`🔥 Sa thải ${s.name}? Nhận lại ${refund}₫`)) {
+    G.coins += refund;
+    G.staff.splice(idx, 1);
+    G.staffEvents.unshift({ type: 'fire', name: s.name, refund: refund, time: Date.now() });
+    if (G.staffEvents.length > 20) G.staffEvents.pop();
+    AudioEngine.error();
+    notify(`🔥 Fired ${s.name}! Refund: ${refund}₫`);
+    updateUI();
+  }
+}
+
+// ============ FINANCIAL MANAGEMENT ============
+function calculateStaffSalaries() {
+  let total = 0;
+  G.staff.forEach(s => {
+    const staffDef = STAFF.find(st => st.id === s.id);
+    if (staffDef && staffDef.salary) {
+      total += staffDef.salary;
+    }
+  });
+  return total;
+}
+
+function calculateFixedCharges() {
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  const base = CONFIG.fixedCharges || { rent: 80, electricity: 40, water: 20, internet: 15, insurance: 25, maintenance: 30 };
+  const baseTotal = base.rent + base.electricity + base.water + base.internet + base.insurance + base.maintenance;
+  return baseTotal + venue.bonusRent;
+}
+
+function calculateMaxOrders() {
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  return CONFIG.maxOrders + G.equipment.seating + venue.maxOrders - 8;
+}
+
+function getVenueBonus() {
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  return venue.bonusRevenue;
+}
+
+function getNextVenue() {
+  return G.venueLevel + 1 < VENUE_TYPES.length ? VENUE_TYPES[G.venueLevel + 1] : null;
+}
+
+function upgradeVenue() {
+  const next = getNextVenue();
+  if (!next) { notify('🏆 Đã nâng cấp hết!'); return; }
+  if (G.coins < next.cost) { notify('❌ Không đủ tiền!'); AudioEngine.error(); return; }
+  if (!confirm(`🏪 Nâng cấp lên ${next.icon} ${next.name}?\nChi phí: ${next.cost}₫\n+${next.maxOrders - 8} max orders\n+${next.bonusRent}₫ fixed charges`)) return;
+  
+  G.coins -= next.cost;
+  G.venueLevel++;
+  AudioEngine.levelUp();
+  notify(`🎉 Đã nâng cấp lên ${next.icon} ${next.name}!`);
+  updateUI();
+}
+
+function renderExpand() {
+  const el = document.getElementById('panel-expand');
+  if (!el) return;
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🏪 Mở Rộng Quán</h3>`;
+  
+  VENUE_TYPES.forEach((v, i) => {
+    const isCurrent = i === G.venueLevel;
+    const isNext = i === G.venueLevel + 1;
+    const isLocked = i > G.venueLevel + 1;
+    let cardClass = 'venue-card';
+    if (isCurrent) cardClass += ' current';
+    else if (isNext) cardClass += ' upgrade';
+    else if (isLocked) cardClass += ' locked';
+    
+    html += `<div class="${cardClass}" ${isNext ? `onclick="upgradeVenue()"` : ''}>
+      <div>
+        <strong>${v.icon} ${v.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${v.desc}</div>
+        <div class="venue-stats">
+          <span>📦 Max Orders: <span class="gold">${v.maxOrders}</span></span>
+          <span>🏦 Fixed/90s: <span class="gold">${210 + v.bonusRent}₫</span></span>
+          <span>💰 Revenue Bonus: <span class="gold">${((v.bonusRevenue - 1) * 100).toFixed(0)}%</span></span>
+        </div>
+      </div>
+      <div style="text-align:right">
+        ${isCurrent ? '<span style="color:#28a745">✅ HIỆN TẠI</span>' :
+          isLocked ? '<span style="color:#555">🔒 KHÓA</span>' :
+          `<span class="gold">${v.cost.toLocaleString()}₫</span><br><button class="btn green" onclick="upgradeVenue()">UPGRADE</button>`}
+      </div>
+    </div>`;
+  });
+  
+  el.innerHTML = html;
+}
+
+
+function processFinancialCycles() {
+  const now = Date.now();
+  
+  // === DIFFICULTY WARNING CHECK ===
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  if (previousDifficultyPhase && phase !== previousDifficultyPhase) {
+    notify(`⚠️ ${phase.warning}`, 5000);
+  }
+  previousDifficultyPhase = phase;
+  
+  // Pay staff salaries with difficulty scaling
+  if (now - G.lastSalaryPaid >= CONFIG.staffSalaryInterval) {
+    let salaries = calculateStaffSalaries();
+    const staffMult = phase.staffSalaryMult;
+    salaries = Math.floor(salaries * staffMult);
+    
+    if (salaries > 0) {
+      G.coins -= salaries;
+      G.totalExpenses += salaries;
+      G.lastSalaryPaid = now;
+      notify(`💸 Lương nhân viên: -${salaries}₫ (G${G.staff.length} staff, difficulty x${staffMult.toFixed(2)})`, 3000);
+    }
+  }
+  
+  // Pay fixed charges with venue scaling
+  if (now - G.lastChargesPaid >= CONFIG.fixedChargesInterval) {
+    const charges = calculateFixedCharges();
+    G.coins -= charges;
+    G.totalExpenses += charges;
+    G.lastChargesPaid = now;
+    notify(`🏦 Fixed charges: -${charges}₫ (rent+utilities+insurance+tax)`, 3000);
+  }
+  
+  // Reputation buff (from Legend Chef) - passive rep gain
+  if (G.staffBuffs.reputation > 0 && now - G.lastProfitCheck >= 60000) {
+    G.rep = Math.min(CONFIG.maxRep, G.rep + G.staffBuffs.reputation);
+  }
+  
+  // Check bankruptcy
+  checkBankruptcy();
+  
+  // Update daily profit
+  if (now - G.lastProfitCheck >= 60000) {
+    G.dailyProfit = G.totalRevenue - G.totalExpenses;
+    G.lastProfitCheck = now;
+    if (G.dailyProfit > G.bestDay) G.bestDay = G.dailyProfit;
+  }
+}
+
+function checkBankruptcy() {
+  if (G.coins <= CONFIG.bankruptcyThreshold) {
+    if (!G.bankruptcyStartTime) {
+      G.bankruptcyStartTime = Date.now();
+      notify(`⚠️ WARNING! coins âm! ${Math.ceil((CONFIG.bankruptcyTime - CONFIG.bankruptcyWarningTime)/1000)}s until bankruptcy!`, 5000);
+      setTimeout(() => {
+        if (G.coins <= CONFIG.bankruptcyThreshold) {
+          notify(`💀 BANKRUPTCY WARNING! ${Math.ceil((CONFIG.bankruptcyTime - (Date.now() - G.bankruptcyStartTime))/1000)}s remaining!`, 3000);
+        }
+      }, CONFIG.bankruptcyWarningTime);
+    }
+    
+    if (Date.now() - G.bankruptcyStartTime >= CONFIG.bankruptcyTime) {
+      gameOver();
+    }
+  } else {
+    if (G.bankruptcyStartTime) {
+      G.bankruptcyStartTime = null;
+      notify(`✅ Recovered! Coins back to positive.`, 2000);
+    }
+  }
+}
+
+function gameOver() {
+  AudioEngine.error();
+  const safeRev = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue : 0;
+  const safeExp = typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses : 0;
+  const safeServed = typeof G.totalServed === 'number' && !isNaN(G.totalServed) ? G.totalServed : 0;
+  setTimeout(() => {
+    alert(`💀 BANKRUPTCY! 💀\n\nYour cafe has gone bankrupt!\n\nFinal Stats:\n- Total Revenue: ${safeRev.toLocaleString()}₫\n- Total Expenses: ${safeExp.toLocaleString()}₫\n- Net Profit: ${(safeRev - safeExp).toLocaleString()}₫\n- Orders Served: ${safeServed.toLocaleString()}\n- Final Level: ${G.lv}\n- Reputation: ${G.rep}\n\n💡 Tips: Fire unnecessary staff, Monitor fixed charges, Keep coins positive!`);
+    localStorage.removeItem('trendyCafeV7');
+    location.reload();
+  }, 100);
+}
+
+// ============ RENDERING ===============
+function getRepStars(rep) {
+  let stars = 0;
+  for (let i = 0; i < 5; i++) {
+    if (rep >= CONFIG.repThresholds[i+1]) stars++;
+  }
+  return stars;
+}
+
+function getEquipCost(eq, currentLv) {
+  return Math.floor(eq.cost * (currentLv + 1));
+}
+
+function renderOrders() {
+  const el = document.getElementById('panel-orders');
+  if (!el) return;
+let html = `<h3 style="color:#FFD700;margin-bottom:8px">📋 Orders (${G.orders.length}/${calculateMaxOrders()})</h3>`;
+  
+  if (G.orders.length === 0) {
+    html += '<div class="empty">⏳ Waiting for customers...</div>';
+  } else {
+    for (let i = 0; i < G.orders.length; i++) {
+      const o = G.orders[i];
+      const tipClass = o.tip > 0 ? 'style="color:#28a745;font-size:10px"' : 'style="display:none"';
+      const patiencePct = Math.max(0, (o.timeLeft / o.patience) * 100);
+      const patienceColor = patiencePct > 60 ? '#28a745' : patiencePct > 30 ? '#FFD700' : '#FF6347';
+      
+      const isNew = (Date.now() - o.created) < 2000;
+      const cardClass = isNew ? 'card new-card' : 'card';
+      
+      html += `<div class="${cardClass}">
+        <div>
+          <div style="display:flex;align-items:center;margin-bottom:4px">
+            <span class="customer-avatar">${o.customer.icon}</span>
+            <strong>${o.name}</strong>
+          </div>
+          <div style="color:#a0a0b0;font-size:10px">${o.customer.name}</div>
+          <div style="margin-top:4px">
+            <div style="color:#a0a0b0;font-size:9px">Patience</div>
+            <div style="width:80px;height:6px;background:#333;border-radius:3px;overflow:hidden">
+              <div id="patience-${i}" style="width:${patiencePct}%;height:100%;background:${patienceColor};border-radius:3px;transition:width 0.3s, background 0.3s"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div><span class="gold">${o.price}₫</span></div>
+          <div style="color:#28a745;font-size:10px" ${tipClass}>+${o.tip}₫ tip!</div>
+          <button class="btn green" onclick="serveOrder(${i})">SERVE</button>
+        </div>
+      </div>`;
+    }
+  }
+  
+  html += `<div style="margin-top:10px;padding:8px;background:#16213e;border-radius:6px;font-size:11px">
+    <span style="color:#a0a0b0">Next order:</span> <span class="gold">${Math.ceil((CONFIG.orderInterval[G.lv-1] || 5000)/1000)}s</span>
+  </div>`;
+  
+  el.innerHTML = html;
+}
+
+function renderMenu() {
+  const el = document.getElementById('panel-menu');
+  if (!el) return;
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🍽️ Menu (${G.unlockedMenu.length}/${MENU.length})</h3>`;
+  
+  MENU.forEach(m => {
+    const unlocked = G.unlockedMenu.includes(m.id);
+    const rarityColor = m.rarity === 5 ? '#FFD700' : m.rarity === 4 ? '#e74c3c' : m.rarity >= 3 ? '#9b59b6' : m.rarity >= 2 ? '#3498db' : '#a0a0b0';
+    
+    html += `<div class="card" style="${unlocked ? '' : 'opacity:0.4'}">
+      <div>
+        <strong>${m.icon} ${m.name}</strong>
+        <div style="color:${rarityColor};font-size:9px">★${'★'.repeat(m.rarity)}</div>
+        <div style="color:#a0a0b0;font-size:10px">Cost: ${m.cost}₫ | Price: ${m.price[0]}-${m.price[1]}₫</div>
+      </div>
+      <div>
+        ${unlocked ? '<span style="color:#28a745">✅ Unlocked</span>' : '<span style="color:#FF6347;font-size:10px">🔒 Locked</span>'}
+      </div>
+    </div>`;
+  });
+  
+  el.innerHTML = html;
+}
+
+function renderStats() {
+  const el = document.getElementById('panel-stats');
+  if (!el) return;
+  
+  const stars = getRepStars(G.rep);
+  const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
+  const xpPct = (G.xp / nextXp) * 100;
+  const lvl = G.lv;
+  const badgeClass = 'l'+lvl;
+  
+  let html = `<div class="section-title">📊 Statistics</div>`;
+  html += `<div class="stat-row"><span class="stat-label">💰 Coins</span><span class="stat-value">${typeof G.coins === 'number' && !isNaN(G.coins) ? G.coins.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📈 Total Revenue</span><span class="stat-value">${typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) ? G.totalRevenue.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💎 Total Tips</span><span class="stat-value">${typeof G.totalTips === 'number' && !isNaN(G.totalTips) ? G.totalTips.toLocaleString() : 0}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💸 Total Expenses</span><span class="stat-value">${typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalExpenses.toLocaleString() : 0}₫</span></div>`;
+  const netP = typeof G.totalRevenue === 'number' && !isNaN(G.totalRevenue) && typeof G.totalExpenses === 'number' && !isNaN(G.totalExpenses) ? G.totalRevenue - G.totalExpenses : 0;
+  html += `<div class="stat-row"><span class="stat-label">📊 Net Profit</span><span class="stat-value">${netP.toLocaleString()}₫</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">☕ Orders Served</span><span class="stat-value">${G.totalServed}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📋 Orders Today</span><span class="stat-value">${G.ordersToday}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📊 Best Day Record</span><span class="stat-value">${G.bestDay} orders</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">⭐ Reputation</span><span class="stat-value">${G.rep} (${'★'.repeat(stars)}${'☆'.repeat(5-stars)})</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📦 Equipment Lv</span><span class="stat-value">${Object.values(G.equipment).reduce((a,b)=>a+b,0)}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">🎨 Trend Items</span><span class="stat-value">${G.trendItems.length}/${TRENDS.length}</span></div>`;
+  const venue = VENUE_TYPES[G.venueLevel] || VENUE_TYPES[0];
+  html += `<div class="stat-row"><span class="stat-label">${venue.icon} Quán</span><span class="stat-value">${venue.name}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💰 Revenue Bonus</span><span class="stat-value">${((venue.bonusRevenue - 1) * 100).toFixed(0)}%</span></div>`;
+  
+  // === DIFFICULTY INFO ===
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  html += `<div class="section-title">📈 Difficulty Phase</div>`;
+  html += `<div class="stat-row"><span class="stat-label">📅 Game Day</span><span class="stat-value">${G.gameDay || 1}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">⚔️ Phase</span><span class="stat-value">${phase.startDay}-</span></span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💹 Profit Mult</span><span class="stat-value">x${phase.profitMult.toFixed(2)}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📈 Inflation</span><span class="stat-value">x${phase.inflation.toFixed(2)}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">💸 Salary Mult</span><span class="stat-value">x${phase.staffSalaryMult.toFixed(2)}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">📦 Order Interval</span><span class="stat-value">x${phase.orderMult.toFixed(2)}</span></div>`;
+  
+  html += `<div class="section-title">🎯 Level Progress</div>`;
+  html += `<div class="stat-row"><span class="stat-label">Current Level</span><span class="stat-value level-badge ${badgeClass}">Lv${G.lv}</span></div>`;
+  html += `<div class="stat-row"><span class="stat-label">XP Progress</span><span class="stat-value">${G.xp}/${nextXp}</span></div>`;
+  html += `<div style="width:100%;height:10px;background:#333;border-radius:5px;overflow:hidden;margin:8px 0">
+    <div style="width:${xpPct}%;height:100%;background:linear-gradient(90deg,#FFD700,#FF6347);transition:width 0.5s;border-radius:5px"></div>
+  </div>`;
+  
+  if (LEVEL_REWARDS[G.lv+1]) {
+    const next = LEVEL_REWARDS[G.lv+1];
+    html += `<div class="section-title">🎁 Next Level Reward</div>`;
+    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#28a745">`;
+    html += `Lv${G.lv+1}: +${next.coins}₫ coins<br>${next.desc}</div>`;
+  }
+  
+  // === RESTART BUTTON ===
+  html += `<div class="section-title">🔧 Game Control</div>`;
+  html += `<div style="text-align:center;padding:10px 0">
+    <button class="btn" style="background:#e74c3c;padding:12px 24px;font-size:14px;font-weight:bold">🔄 Game Over - Chơi Lại</button>
+  </div>`;
+  
+  el.innerHTML = html;
+}
+
+function restartGame() {
+  if (confirm('🔥 Chơi lại từ đầu? Mọi tiến độ sẽ bị mất!')) {
+    localStorage.removeItem('trendyCafeV7');
+    location.reload();
+  }
+}
+
+function renderStaff() {
+  const el = document.getElementById('panel-staff');
+  if (!el) return;
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">👥 Hire Staff (${G.staff.length}/${CONFIG.maxStaff})</h3>`;
+  
+  // === BUFF STATUS DISPLAY ===
+  let activeBuffs = [];
+  G.staff.forEach(s => {
+    const sDef = STAFF.find(st => st.id === s.id);
+    if (sDef && sDef.buffDesc) {
+      activeBuffs.push(`${sDef.icon || '🌟'} ${sDef.buffDesc}`);
+    }
+  });
+  if (activeBuffs.length > 0) {
+    html += `<div style="padding:8px;background:#16213e;border:1px solid #FFD700;border-radius:6px;margin-bottom:10px;font-size:11px">`;
+    html += `<div style="color:#FFD700;margin-bottom:4px">🔥 ACTIVE BUFFS:</div>`;
+    activeBuffs.forEach(b => { html += `<div style="color:#28a745;margin:2px 0">✅ ${b}</div>`; });
+    html += `</div>`;
+  }
+  
+  // === REPUTATION BUFF (from Legend Chef) ===
+  if (G.staffBuffs.reputation > 0) {
+    html += `<div style="padding:6px;background:linear-gradient(90deg,#164829,#1a1a4e);border:1px solid #9b59b6;border-radius:6px;margin-bottom:8px;font-size:11px;color:#9b59b6">`;
+    html += `⭐ Reputation passive: +${G.staffBuffs.reputation}/ngày (Legend Chef active)</div>`;
+  }
+  
+  html += `<div class="section-title">📋 Available Staff</div>`;
+  STAFF.forEach((s, idx) => {
+    const canHire = G.coins >= s.cost && G.staff.length < CONFIG.maxStaff;
+    let buffInfo = '';
+    if (s.buffDesc) buffInfo = `<div style="color:#FFD700;font-size:9px">🔥 ${s.buffDesc}</div>`;
+    html += `<div class="card">
+      <div>
+        <strong>${s.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${s.desc}</div>
+        <div style="color:#3498db;font-size:10px">Skill: ${Math.floor(s.sk[0]*100)}-${Math.floor(s.sk[1]*100)}%</div>
+        ${buffInfo}
+      </div>
+      <div>
+        <span class="gold">${s.cost}₫</span><br>
+        <button class="btn green" ${canHire ? '' : 'disabled'} onclick="hireStaff(${idx})">HIRE</button>
+      </div>
+    </div>`;
+  });
+  
+  if (G.staff.length > 0) {
+    html += `<div class="section-title">👨‍💼 Your Staff</div>`;
+    G.staff.forEach((s, idx) => {
+      const moodClass = s.mood > 60 ? 'mood-high' : s.mood > 30 ? 'mood-med' : 'mood-low';
+      const sDef = STAFF.find(st => st.id === s.id);
+      let buffTag = '';
+      if (sDef && sDef.buffDesc) {
+        buffTag = `<div style="color:#FFD700;font-size:9px;margin-top:2px">🔥 ${sDef.buffDesc}</div>`;
+      }
+      html += `<div class="card">
+        <div>
+          <strong>${s.name}</strong>
+          <div style="color:#a0a0b0;font-size:10px">Skill: ${Math.floor(s.skill*100)}%</div>
+          <div style="font-size:11px">Mood: 
+            <span class="mood-bar ${moodClass}">
+              <span class="mood-fill" style="width:${s.mood}%"></span>
+            </span>
+            <span style="font-size:10px">${Math.floor(s.mood)}%</span>
+          </div>
+          ${buffTag}
+        </div>
+        <div style="text-align:right">
+          <button class="btn blue" onclick="restStaff(${idx})">REST</button>
+          <button class="btn" style="background:#e74c3c" onclick="fireStaff(${idx})">FIRE</button>
+        </div>
+      </div>`;
+    });
+  }
+  
+  el.innerHTML = html;
+}
+
+function renderEquip() {
+  const el = document.getElementById('panel-equip');
+  if (!el) return;
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🔧 Equipment Shop</h3>`;
+  let hiddenCount = 0;
+  
+  EQUIPMENT.forEach(eq => {
+    const currentLv = G.equipment[eq.id] || 0;
+    const maxed = currentLv >= eq.maxLv;
+    const cost = getEquipCost(eq, currentLv);
+    const canBuy = G.coins >= cost && !maxed;
+    
+    // Hide new equipment until level 10
+    const isNewEquip = !['espresso_mach','seating','decoration','speaker','fridge','wifi','bakery','bar_counter'].includes(eq.id);
+    if (isNewEquip && G.lv < 10) {
+      hiddenCount++;
+      return;
+    }
+    
+    html += `<div class="card" style="${currentLv > 0 ? '' : ''}">
+      <div>
+        <strong>${eq.icon} ${eq.name} Lv${currentLv}/${eq.maxLv}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${eq.desc}</div>
+        ${!maxed ? `<div style="color:#FFD700;font-size:10px">Upgrade: ${cost}₫</div>` : '<div style="color:#28a745;font-size:10px">MAX LEVEL</div>'}
+      </div>
+      <div>
+        <button class="btn purple" ${canBuy ? '' : 'disabled'} onclick="buyEquipment('${eq.id}')">${maxed ? 'MAX' : 'UPGRADE'}</button>
+      </div>
+    </div>`;
+  });
+  
+  if (G.lv < 10) {
+    html += `<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#a0a0b0;margin-top:8px">`;
+    html += `🔒 Cần Lv10 để mở khóa thiết bị mới!`;
+    html += `</div>`;
+  }
+  
+  html += `<div class="section-title">📦 Current Equipment</div>`;
+  let eqHtml = '<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;line-height:1.8">';
+  EQUIPMENT.forEach(eq => {
+    const lv = G.equipment[eq.id] || 0;
+    if (lv > 0 || !['auto_espresso','cooling_sys','premium_store','outdoor_tent','chandelier','smart_pos'].includes(eq.id) || G.lv >= 10) {
+      eqHtml += `${eq.icon} ${eq.name}: <span class="gold">Lv${lv}</span> ${'█'.repeat(lv)}${'░'.repeat(eq.maxLv-lv)}<br>`;
+    }
+  });
+  eqHtml += '</div>';
+  el.innerHTML = html + eqHtml;
+}
+
+function renderShop() {
+  const el = document.getElementById('panel-shop');
+  if (!el) return;
+  
+  let html = `<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Decorations (${G.trendItems.length}/${TRENDS.length})</h3>`;
+  
+  // V8: Show categories
+  const categories = [
+    {label:'⚽ Sports Fans',r:'legend'},
+    {label:'🌟 Aesthetic',r:'rare'},
+    {label:'🎵 Music/Lifestyle',r:'epic'},
+    {label:'🎮 Pop Culture',r:'epic'},
+    {label:'👑 Mythic',r:'mythic'}
+  ];
+  
+  TRENDS.forEach(t => {
+    const owned = G.trendItems.find(x => x.id === t.id);
+    const rarityColor = t.r === 'common' ? '#a0a0b0' : t.r === 'rare' ? '#9b59b6' : t.r === 'epic' ? '#e74c3c' : t.r === 'legend' ? '#FFD700' : '#FF6347';
+    const rarityEmoji = t.r === 'common' ? '⬜' : t.r === 'rare' ? '🟪' : t.r === 'epic' ? '🟥' : t.r === 'legend' ? '🟨' : '🟧';
+    
+    // Hide legendary items until level 60
+    if (t.r === 'legend' && G.lv < 60 && !owned) return;
+    // Hide epic items until level 40
+    if (t.r === 'epic' && G.lv < 40 && !owned) return;
+    // Hide mythic items until level 90
+    if (t.r === 'mythic' && G.lv < 90 && !owned) return;
+    
+    html += `<div class="card ${owned ? 'epic' : ''}">
+      <div>
+        <strong style="color:${rarityColor}">${rarityEmoji} ${t.icon} ${t.name}</strong>
+        <div style="color:#a0a0b0;font-size:10px">${t.desc}</div>
+      </div>
+      <div>
+        ${owned ? '<span style="color:#28a745">✅ OWNED</span>' : `<span class="gold">${t.cost.toLocaleString()}₫</span><br><button class="btn" onclick="buyTrend('${t.id}')">BUY</button>`}
+      </div>
+    </div>`;
+  });
+  
+  el.innerHTML = html;
+}
+
+// ============ UPDATE UI ============
+function updateUI() {
+  const coins = document.getElementById('coins');
+  if (coins) coins.textContent = G.coins;
+  
+  const lvBadge = document.getElementById('lv-badge');
+  if (lvBadge) {
+    lvBadge.textContent = G.lv;
+    lvBadge.className = 'gold level-badge l'+G.lv;
+  }
+  
+  const lvText = document.getElementById('lv-text');
+  if (lvText) lvText.textContent = 'Lv'+G.lv;
+  
+  const xpFill = document.getElementById('xp-fill');
+  if (xpFill) {
+    const nextXp = CONFIG.xpPerLevel[G.lv] || 999999;
+    const pct = Math.min(100, (G.xp / nextXp) * 100);
+    xpFill.style.width = pct + '%';
+  }
+  
+  const stars = getRepStars(G.rep);
+  const repStars = document.getElementById('rep-stars');
+  if (repStars) repStars.textContent = '★'.repeat(stars) + '☆'.repeat(5-stars);
+  
+  const tabs = document.querySelectorAll('.tab');
+  for (let i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', tabs[i].getAttribute('data-tab') === G.tab);
+  }
+  
+  const panels = document.querySelectorAll('[id^="panel-"]');
+  panels.forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('panel-' + G.tab);
+  if (panel) panel.style.display = 'block';
+  
+  switch(G.tab) {
+    case 'orders': renderOrders(); break;
+    case 'menu': renderMenu(); break;
+    case 'stats': renderStats(); break;
+    case 'staff': renderStaff(); break;
+    case 'equip': renderEquip(); break;
+    case 'shop': renderShop(); break;
+    case 'expand': renderExpand(); break;
+    case 'trends': renderTrends(); break;
+    case 'events': renderEvents(); break;
+  }
+}
+
+// ============ TAB SWITCHING ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    G.tab = this.getAttribute('data-tab');
+    AudioEngine.click();
+    updateUI();
+  });
+});
+
+// ============ PATIENCE TIMER ============
+let lastOrderCount = 0;
+let lastGameDay = G.gameDay || 1;
+setInterval(function() {
+  processFinancialCycles(); // Process salaries + charges
+  
+  // === GAME DAY TRACKING (1 day = 60 seconds real time) ===
+  if (!G.gameDay) G.gameDay = 1;
+  if (Date.now() - G.lastDayChange >= 60000) {
+    G.gameDay++;
+    G.lastDayChange = Date.now();
+    
+    // V8: Season tracking
+    currentSeason = getCurrentSeason(G.gameDay);
+    
+    // V8: Sports events
+    tickSportsEvent();
+    triggerRandomSportsEvent();
+    
+    // Legend Chef reputation buff trigger
+    if (G.staffBuffs.reputation > 0) {
+      G.rep = Math.min(CONFIG.maxRep, G.rep + G.staffBuffs.reputation);
+      notify(`⭐ Legend Chef buff: +${G.staffBuffs.reputation} rep (daily)`);
+    }
+    
+    // Staff mood decay (daily)
+    G.staff.forEach(s => {
+      s.mood = Math.max(0, s.mood - 1);
+    });
+    
+    notify(`📅 Ngày ${G.gameDay}! (Difficulty phase: ${getDifficultyPhase(G.gameDay).startDay}+)`, 3000);
+  }
+  
+  let changed = false;
+  
+  // Decrease patience for all orders
+  for (let i = G.orders.length - 1; i >= 0; i--) {
+    G.orders[i].timeLeft -= 1000;
+    if (G.orders[i].timeLeft <= 0) {
+      const lost = G.orders[i];
+      G.orders.splice(i, 1);
+      G.rep = Math.max(0, G.rep - 3);
+      notify(`😡 ${lost.customer.icon} ${lost.customer.name} left! Rep -3`, 3000);
+      changed = true;
+    } else {
+      // Chỉ cập nhật thanh patience, KHÔNG rebuild DOM
+      const el = document.getElementById('patience-' + i);
+      if (el) {
+        const pct = Math.max(0, (G.orders[i].timeLeft / G.orders[i].patience) * 100);
+        const color = pct > 60 ? '#28a745' : pct > 30 ? '#FFD700' : '#FF6347';
+        el.style.width = pct + '%';
+        el.style.background = color;
+      }
+    }
+  }
+  // Chỉ rebuild khi có đơn mới đến hoặc đơn bị mất (số đơn thay đổi)
+  if (G.orders.length !== lastOrderCount) {
+    lastOrderCount = G.orders.length;
+    if (G.tab === 'orders') renderOrders();
+  }
+}, 1000);
+
+// ============ AUTO ORDER GENERATION ============
+setInterval(function() {
+  autoGenerateOrder();
+}, 1000);
+
+// ============ AUTO SERVE (staff) ============
+let lastAutoServe = 0;
+let lastAutoServeInterval = 3500;
+setInterval(function() {
+  const now = Date.now();
+  if (now - lastAutoServe < lastAutoServeInterval) return; // dynamic throttle
+  
+  if (G.staff.length === 0 || G.orders.length === 0) return;
+  
+  let servedAny = false;
+  
+  // === DYNAMIC DIFFICULTY ===
+  const phase = getDifficultyPhase(G.gameDay || 1);
+  
+  // === FIX: Update serve interval based on difficulty phase ===
+  // When difficulty increases (orderMult decreases), staff serve faster to keep up
+  lastAutoServeInterval = Math.max(1500, Math.floor(3500 * phase.orderMult));
+  
+  // CALCULATE ACTIVE BUFFS
+  let allSpeedBuff = 0;
+  let tipsBuff = 0;
+  let highrollBuff = 0;
+  let coopBuff = 0;
+  let repBuff = 0;
+  let autoServeBuff = 0;
+  let moodRecoverBuff = 0;
+  
+  G.staff.forEach(s => {
+    const sDef = STAFF.find(st => st.id === s.id);
+    if (sDef && sDef.buff) {
+      switch(sDef.buff) {
+        case 'all_speed': allSpeedBuff += sDef.buffVal; break;
+        case 'tips': tipsBuff += sDef.buffVal; break;
+        case 'highroll': highrollBuff += sDef.buffVal; break;
+        case 'coop': coopBuff += sDef.buffVal; break;
+        case 'reputation': repBuff += sDef.buffVal; break;
+      }
+    }
+  });
+  if (G.equipment.auto_espresso) autoServeBuff = G.equipment.auto_espresso * 0.10;
+  if (G.equipment.cooling_sys) moodRecoverBuff = G.equipment.cooling_sys * 0.15;
+  
+  G.staffBuffs = { all_speed: allSpeedBuff, tips: tipsBuff, highroll: highrollBuff, reputation: repBuff, coop: coopBuff };
+  
+  let tickServed = 0;
+  
+  for (let si = 0; si < G.staff.length; si++) {
+    if (G.orders.length === 0) break;
+    
+    const s = G.staff[si];
+    if (s.mood < 5) continue;
+    
+    // CO-OP SERVE: Master/Epic Coach reduce time by 50%
+    let serveMod = 1;
+    if (coopBuff > 0 && si < G.staff.length - 1) {
+      const nextStaff = G.staff[si + 1];
+      if (nextStaff && nextStaff.mood > 20) serveMod = 0.5;
+    }
+    
+    // AUTO SERVE speed bonus
+    let autoServeRate = lastAutoServeInterval * (1 - autoServeBuff);
+    if (autoServeRate < 1000) autoServeRate = 1000;
+    
+    // === FIX: Reduce serve interval as difficulty increases so staff can keep up ===
+    // At low difficulty, serve every 3500ms. At extreme difficulty, serve every 2000ms.
+    const difficultyServeReduction = phase.orderMult; // 1.0 -> 0.9 -> 0.8 -> 0.7
+    const difficultyServeInterval = Math.floor(autoServeRate * difficultyServeReduction);
+    
+    // Calculate minimum required patience for staff to actually serve in time
+    // Ensure patience >= serveInterval so staff can complete the serve before customer leaves
+    const minRequiredPatience = Math.max(o.patience, difficultyServeInterval * 1.2); // 20% buffer
+    
+    // If patience was shrunk below what's needed for staff to serve, restore it
+    if (o.timeLeft < minRequiredPatience) {
+      o.timeLeft = minRequiredPatience;
+      o.patience = minRequiredPatience;
+    }
+    
+    // All speed buff from Manager
+    const speedMult = 1 + allSpeedBuff;
+    
+    // Mood recovery bonus from Cooling System
+    const moodRecoveryRate = 2 + moodRecoverBuff * 2;
+    
+    // Tính skill thực tế → bao nhiêu đơn mỗi staff có thể serve mỗi tick
+    // Tăng scale: skill cao = serve nhiều hơn
+    const skillValue = s.skill * (s.mood / 100) * speedMult;
+    // Dynamic served count: factor in difficulty to keep multi-staff useful
+    const baseServedCount = Math.max(1, Math.ceil(skillValue * 3));
+    const servedCount = difficultyServeReduction >= 0.8 ? baseServedCount : Math.max(1, Math.ceil(baseServedCount * (1.0 - (1.0 - difficultyServeReduction) * 0.5)));
+    
+    for (let srv = 0; srv < servedCount && G.orders.length > 0; srv++) {
+      const o = G.orders[0];
+      let bonus = 1;
+      G.trendItems.forEach(t => { if(t.revenueBonus) bonus += t.revenueBonus; });
+      bonus += (G.equipment.espresso_mach || 0) * 0.05;
+      if (G.equipment.chandelier) bonus += (G.equipment.chandelier || 0) * 0.05;
+      
+      // HIGH ROLLER buff
+      let revenue = Math.floor((o.price + o.tip) * phase.profitMult * bonus);
+      if (highrollBuff > 0 && o.price > 50) {
+        revenue = Math.floor(revenue * 1.15);
+      }
+      
+      // PREMIUM STORAGE
+      const costReduction = 1 - (G.equipment.premium_store || 0) * 0.10;
+      const menuDef = MENU.find(m => m.id === o.menuId);
+      const finalCost = menuDef ? Math.floor(menuDef.cost * phase.inflation * costReduction) : 0;
+      
+      const netProfit = revenue - finalCost;
+      G.coins += netProfit;
+      G.totalRevenue += revenue;
+      G.totalExpenses += finalCost;
+      G.totalServed++;
+      G.ordersToday++;
+      
+      // SMART POS + Senior tips buff
+      const tipMult = 1 + (G.equipment.smart_pos || 0) * 0.20;
+      const finalTip = Math.floor(o.tip * tipMult);
+      const finalTipWithBuff = tipsBuff > 0 ? Math.floor(finalTip * (1 + tipsBuff)) : finalTip;
+      G.totalTips += finalTipWithBuff;
+      
+      // XP gain
+      const xpGain = Math.floor(o.price * 1.5) + (finalTipWithBuff > 0 ? 5 : 0);
+      G.xp += xpGain;
+      G.rep = Math.min(CONFIG.maxRep, G.rep + 1);
+      
+      // Mood decay with cooling system
+      const decay = CONFIG.moodDecayRate[G.lv-1] || 2;
+      s.mood = Math.max(0, Math.min(100, s.mood - decay + moodRecoverBuff * 2));
+      
+      G.orders.splice(0, 1);
+      tickServed++;
+    }
+  }
+  
+  if (tickServed > 0) {
+    servedAny = true;
+    lastAutoServe = Date.now();
+    // Hiển thị danh sách staff đã serve
+    const servingStaffNames = G.staff
+      .filter(s => s.mood > 5)
+      .slice(0, Math.min(tickServed, G.staff.length))
+      .map(s => s.name.split(' ')[0])
+      .join(', ');
+    if (tickServed > 1) {
+      notify(`🤖 ${tickServed} đơn: ${servingStaffNames} — phục vụ xong!`);
+    } else {
+      notify(`🤖 ${servingStaffNames} — phục vụ 1 đơn!`);
+    }
+    checkLevelUp();
+    updateUI();
+  }
+}, 3500); // Every 3.5s
+
+// ============ MOOD RECOVERY ============
+setInterval(function() {
+  let moodRecoverBuff = 0;
+  G.staff.forEach(s => {
+    const sDef = STAFF.find(st => st.id === s.id);
+    if (sDef && sDef.buff === 'reputation') moodRecoverBuff += 2;
+  });
+  const baseRecovery = 2 + (G.equipment.cooling_sys || 0) * 0.3 + moodRecoverBuff;
+  G.staff.forEach(s => {
+    if (s.mood < 100) {
+      s.mood = Math.min(100, s.mood + baseRecovery);
+    }
+  });
+}, 10000); // Every 10s
+
+// ============ SAVE / LOAD ============
+function saveGame() {
+  try {
+    // Sync sports event to game state
+    if (currentSportsEvent) G.sportsEvent = {...currentSportsEvent};
+    const saveData = JSON.stringify(G);
+    localStorage.setItem('trendyCafeV7', saveData);
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const data = localStorage.getItem('trendyCafeV7');
+    if (data) {
+      const saved = JSON.parse(data);
+      // Merge with defaults
+      Object.keys(saved).forEach(key => {
+        if (G.hasOwnProperty(key)) {
+          G[key] = saved[key];
+        }
+      });
+      
+      // Ensure new fields exist
+      if (!G.staffBuffs) G.staffBuffs = { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 };
+      if (!G.lastDayChange) G.lastDayChange = Date.now();
+      
+      // Ensure trend items have bonus fields
+      G.trendItems.forEach(t => {
+        const trendDef = TRENDS.find(x => x.id === t.id);
+        if (trendDef) {
+          t.revenueBonus = trendDef.id === 't_doge' ? 0.05 :
+                           trendDef.id === 't_cat' ? 0.03 :
+                           trendDef.id === 't_girl' ? 0.10 :
+                           trendDef.id === 't_piano' ? 0.15 :
+                           trendDef.id === 't_sky' ? 0.20 :
+                           trendDef.id === 't_chef' ? 0.30 :
+                           trendDef.id === 't_neon' ? 0.12 :
+                           trendDef.id === 't_rooftop' ? 0.25 :
+                           trendDef.id === 't_artwall' ? 0.20 :
+                           trendDef.id === 't_privroom' ? 0.18 :
+                           trendDef.id === 't_petzone' ? 0.15 :
+                           trendDef.id === 't_gaming' ? 0.22 :
+                           trendDef.id === 't_livemusic' ? 0.35 :
+                           trendDef.id === 't_aromatherapy' ? 0.40 :
+                           trendDef.id === 't_rooftopgarden' ? 0.50 :
+                           trendDef.id === 't_smartorder' ? 0.45 :
+                           trendDef.id === 't_secretmenu' ? 0.60 :
+                           trendDef.id === 't_book' ? 0.10 : 0;
+          t.repBonus = trendDef.id === 't_plant' ? 2 :
+                       trendDef.id === 't_art' ? 8 :
+                       trendDef.id === 't_artwall' ? 12 :
+                       trendDef.id === 't_privroom' ? 8 :
+                       trendDef.id === 't_petzone' ? 15 :
+                       trendDef.id === 't_book' ? 10 :
+                       trendDef.id === 't_livemusic' ? 10 :
+                       trendDef.id === 't_aromatherapy' ? 12 :
+                       trendDef.id === 't_rooftopgarden' ? 15 :
+                       trendDef.id === 't_smartorder' ? 20 :
+                       trendDef.id === 't_secretmenu' ? 25 : 0;
+        }
+      });
+      
+      // Ensure new equipment fields exist
+      ['auto_espresso','cooling_sys','premium_store','outdoor_tent','chandelier','smart_pos'].forEach(eq => {
+        if (!G.equipment[eq]) G.equipment[eq] = 0;
+      });
+      
+      // Sync currentSportsEvent
+      currentSportsEvent = G.sportsEvent || null;
+      
+      // V8: Season tracking
+      if (G.gameDay) currentSeason = getCurrentSeason(G.gameDay);
+      
+      notify('💾 Game loaded! V8 Ultimate', 1500);
+    }
+  } catch(e) {}
+}
+
+setInterval(saveGame, 30000); // Auto-save every 30s
+
+// ============ START GAME ============
+loadGame();
+G.lastOrderTime = Date.now();
+G.lastDayChange = Date.now();
+if (!G.gameDay) G.gameDay = 1;
+if (!G.staffBuffs) G.staffBuffs = { all_speed:0, tips:0, highroll:0, reputation:0, coop:0 };
+
+// Initialize audio on first user interaction
+document.addEventListener('click', function initAudio() {
+  AudioEngine.init();
+  document.removeEventListener('click', initAudio);
+}, {once: true});
+
+console.log('✅ Trendy Cafe V6 started!');
+console.log('✅ Unlocked menu:', G.unlockedMenu);
+console.log('✅ Staff:', G.staff.length);
+console.log('✅ Equipment:', G.equipment);
+console.log('✅ Trends:', G.trendItems.length);
+updateUI();
+
+</script>
+</body>
+</html>
