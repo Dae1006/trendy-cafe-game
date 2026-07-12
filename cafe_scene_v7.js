@@ -94,7 +94,21 @@
 
   // === INIT ===
   function init() {
-    // Create canvas
+    // Use existing canvas element from HTML
+    const existingCanvas = document.getElementById('cafe-canvas');
+    if (existingCanvas) {
+      canvas = existingCanvas;
+      // Position outside viewport so it doesn't show twice
+      canvas.style.position = 'fixed';
+      canvas.style.top = '-9999px';
+      ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      // Start render loop
+      lastTick = performance.now();
+      renderLoop(lastTick);
+      return;
+    }
+    // Fallback: create new canvas (old behavior)
     canvas = document.createElement('canvas');
     canvas.width = CANVAS_W;
     canvas.height = CANVAS_H;
@@ -540,6 +554,48 @@
   }
 
   // === BOOT ===
+  function init() {
+    // Try to find existing canvas first
+    const existingCanvas = document.getElementById('cafe-canvas');
+    if (existingCanvas) {
+      canvas = existingCanvas;
+      ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      // Position inside wrapper naturally via parent div
+      lastTick = performance.now();
+      renderLoop(lastTick);
+      return;
+    }
+    // Fallback: create new canvas and insert into DOM
+    canvas = document.createElement('canvas');
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    canvas.style.width = (CANVAS_W * SCALE) + 'px';
+    canvas.style.height = (CANVAS_H * SCALE) + 'px';
+    canvas.style.imageRendering = 'pixelated';
+    canvas.style.display = 'block';
+    canvas.style.margin = '10px auto';
+    canvas.style.borderRadius = '8px';
+    canvas.style.border = '2px solid #FFD700';
+    canvas.style.background = '#0f3460';
+
+    // Insert into wrapper element if exists
+    const wrapper = document.getElementById('cafe-scene-wrapper');
+    if (wrapper) {
+      wrapper.innerHTML = '';
+      wrapper.appendChild(canvas);
+    } else {
+      document.body.insertBefore(canvas, document.body.firstChild);
+    }
+
+    ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    // Start render loop
+    lastTick = performance.now();
+    renderLoop(lastTick);
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
