@@ -63,18 +63,23 @@
   // ── Bootstrap ─────────────────────────────────────────────
   function init() {
     if (canvas) return;
-    canvas = document.createElement("canvas");
-    canvas.width = W * P;
-    canvas.height = H * P;
-    canvas.style.width  = (W * P) + "px";
-    canvas.style.height = (H * P) + "px";
-    canvas.style.imageRendering = "pixelated";
-    canvas.style.display = "block";
 
-    // Find insert point: look for existing scene div, otherwise use body
-    let target = document.querySelector(".cafe-scene-container") || document.body;
-    canvas.classList.add("cafe-scene");
-    target.appendChild(canvas);
+    // Try to find existing canvas element first
+    let existingCanvas = document.getElementById('cafe-canvas');
+    if (existingCanvas) {
+      canvas = existingCanvas;
+      canvas.width = W * P;
+      canvas.height = H * P;
+    } else {
+      canvas = document.createElement("canvas");
+      canvas.width = W * P;
+      canvas.height = H * P;
+      canvas.style.width  = (W * P) + "px";
+      canvas.style.height = (H * P) + "px";
+      canvas.style.imageRendering = "pixelated";
+      canvas.style.display = "block";
+    }
+
     ctx = canvas.getContext("2d");
 
     animTime = 0;
