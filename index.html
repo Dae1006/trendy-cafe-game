@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>☕ Trendy Cafe - V7 Ultimate</title>
+<title>☕ Trendy Cafe - V9 Ultimate</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;overflow-x:hidden}
 html{overflow-x:hidden;position:relative}
@@ -96,6 +96,9 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <!-- ☕ CAFE SCENE V10 — Enhanced pixel art shop layer with particles -->
   <script src="cafe_scene_v10.js"></script>
 
+<!-- ☕ CAFE SCENE CANVAS -->
+<canvas id="cafe-canvas" width="320" height="200" style="display:block;margin:0 auto;max-width:100%"></canvas>
+
 <div id="tabs">
   <button class="tab active" data-tab="orders">📋 Orders</button>
   <button class="tab" data-tab="menu">🍽️Menu</button>
@@ -106,6 +109,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <button class="tab" data-tab="expand">🏪Expand</button>
   <button class="tab" data-tab="trends">🌟Trends</button>
   <button class="tab" data-tab="events">📅Events</button>
+  <button class="tab" data-tab="achievements">🏆Achievements</button>
 </div>
 
 <div id="content">
@@ -118,6 +122,7 @@ body{font-family:'Courier New',monospace;background:#0d0d1a;color:#e8e8e8;max-wi
   <div id="panel-expand" style="display:none"></div>
   <div id="panel-trends" style="display:none"></div>
   <div id="panel-events" style="display:none"></div>
+  <div id="panel-achievements" style="display:none"></div>
 </div>
 
 <script>
@@ -725,7 +730,129 @@ function serveOrder(idx) {
   updateUI();
 }
 
-function checkLevelUp() {
+// ============ RENDER TRENDS (V9 FIX — was MISSING!) ============
+function renderTrends() {
+  const el = document.getElementById('panel-trends');
+  if (!el) return;
+  let html = '<h3 style="color:#FFD700;margin-bottom:8px">🛒 Trend Decorations (' + G.trendItems.length + '/' + TRENDS.length + ')</h3>';
+  html += '<div style="padding:10px;background:linear-gradient(90deg,#164829,#1a1a4e);border:1px solid #FFD700;border-radius:8px;margin-bottom:10px;font-size:12px">';
+  html += getSeasonEmoji() + ' <strong>' + getSeasonName() + '</strong> season active!<br>';
+  html += '<span style="color:#a0a0b0">' + getSeasonDescription() + '</span></div>';
+  if (currentSportsEvent) {
+    html += '<div style="padding:10px;background:linear-gradient(90deg,#2c1a4a,#1a1a4e);border:1px solid #9b59b6;border-radius:8px;margin-bottom:10px;font-size:12px">';
+    html += '⚽ <strong>' + currentSportsEvent.name + '</strong><br>';
+    html += '<span style="color:#a0a0b0">' + currentSportsEvent.desc + ' — ' + currentSportsEvent.daysLeft + ' days left</span></div>';
+  }
+  let lastRarity = '';
+  TRENDS.forEach(t => {
+    const owned = G.trendItems.find(x => x.id === t.id);
+    const rarityColor = t.r==='common'?'#a0a0b0':t.r==='rare'?'#9b59b6':t.r==='epic'?'#e74c3c':t.r==='legend'?'#FFD700':'#FF6347';
+    const rarityEmoji = t.r==='common'?'⬜':t.r==='rare'?'🟪':t.r==='epic'?'🟥':t.r==='legend'?'🟨':'🟧';
+    if (t.r==='legend'&&G.lv<60&&!owned) return;
+    if (t.r==='epic'&&G.lv<40&&!owned) return;
+    if (t.r==='mythic'&&G.lv<90&&!owned) return;
+    if (t.r!==lastRarity){const catNames={common:'Common',rare:'Rare',epic:'Epic',legend:'Legendary',mythic:'Mythic'};html+='<div class="section-title">'+rarityEmoji+' '+catNames[t.r]+'</div>';lastRarity=t.r;}
+    html+='<div class="card '+(owned?'epic':'')+'"><div><strong style="color:'+rarityColor+'">'+t.icon+' '+t.name+'</strong>';
+    html+='<div style="color:#a0a0b0;font-size:10px">'+t.desc+'</div></div><div>';
+    if(owned){html+='<span style="color:#28a745">✅ OWNED</span>';}else{html+='<span class="gold">'+t.cost.toLocaleString()+'₫</span><br>';html+='<button class="btn" onclick="buyTrend(\''+t.id+'\')">BUY</button>';}
+    html+='</div></div>';
+  });
+  html+='<div style="padding:8px;background:#16213e;border-radius:6px;font-size:11px;color:#a0a0b0;margin-top:8px">';
+  html+='💡 Total trend revenue bonus: +'+((G.trendItems.reduce((a,t)=>a+(t.revenueBonus||0),0))*100).toFixed(0)+'% revenue</div>';
+  el.innerHTML=html;
+}
+
+// ============ RENDER EVENTS (V9 FIX — was MISSING!) ============
+function renderEvents() {
+  const el=document.getElementById('panel-events');if(!el)return;
+  let html='<h3 style="color:#FFD700;margin-bottom:8px">📅 Events &amp; Seasons</h3>';
+  html+='<div class="card"><div><strong>'+getSeasonEmoji()+' Current Season: '+getSeasonName()+'</strong>';
+  html+='<div style="color:#a0a0b0;font-size:10px">'+getSeasonDescription()+'</div></div></div>';
+  const sd=SEASONAL_MENUS[currentSeason];
+  if(sd&&sd.shift){html+='<div class="section-title">📈 Seasonal Demand Bonuses</div>';let hb=false;
+    Object.entries(sd.shift).forEach(([mid,mv])=>{const m=MENU.find(x=>x.id===mid);if(m&&G.unlockedMenu.includes(mid)){
+      html+='<div class="card" style="font-size:11px"><span>'+m.icon+' '+m.name+' → <strong>+'+((mv-1)*100).toFixed(0)+'%</strong></span></div>';hb=true;}});
+    if(!hb)html+='<div class="empty">No bonuses for your current menu</div>';};
+  html+='<div class="section-title">⚽ Active Events</div>';
+  if(currentSportsEvent){
+    html+='<div class="card" style="border-color:#9b59b6"><div><strong>⚽ '+currentSportsEvent.icon+' '+currentSportsEvent.name+'</strong>';
+    html+='<div style="color:#a0a0b0;font-size:10px">'+currentSportsEvent.desc+'</div></div><div style="text-align:right">';
+    html+='<span class="gold">'+currentSportsEvent.daysLeft+' days</span><br><span style="color:#9b59b6;font-size:10px">Fan rate: +'+(currentSportsEvent.fanRate*100).toFixed(0)+'%</span></div></div>';
+  }else{html+='<div class="empty">No active events. Check back later!</div>';}
+  html+='<div class="section-title">⚽ Possible Events (random trigger)</div>';
+  SPORTS_EVENTS.forEach(e=>{html+='<div class="card" style="font-size:10px;opacity:'+(e.team==='all'?'0.7':'0.5')+'">'+e.icon+' '+e.desc+'</div>';});
+  el.innerHTML=html;
+}
+
+// ============ ACHIEVEMENTS (V9 new!) ============
+const ACHIEVEMENTS=[
+  {id:'first_order',name:'First Blood',desc:'Serve your first order',icon:'☕',check:()=>G.totalServed>=1,reward:{coins:50}},
+  {id:'serve_10',name:'Coffee Starter',desc:'Serve 10 orders',icon:'☕',check:()=>G.totalServed>=10,reward:{coins:100}},
+  {id:'serve_100',name:'Barista Apprentice',desc:'Serve 100 orders',icon:'🏅',check:()=>G.totalServed>=100,reward:{coins:500}},
+  {id:'serve_500',name:'Master Barista',desc:'Serve 500 orders',icon:'🥇',check:()=>G.totalServed>=500,reward:{coins:2000}},
+  {id:'serve_1000',name:'Coffee Legend',desc:'Serve 1000 orders',icon:'👑',check:()=>G.totalServed>=1000,reward:{coins:5000}},
+  {id:'level_5',name:'Level Up!',desc:'Reach Lv5',icon:'⭐',check:()=>G.lv>=5,reward:{coins:300}},
+  {id:'level_10',name:'Cafe Owner',desc:'Reach Lv10',icon:'🏪',check:()=>G.lv>=10,reward:{coins:1000}},
+  {id:'level_20',name:'Shop Manager',desc:'Reach Lv20',icon:'🏬',check:()=>G.lv>=20,reward:{coins:3000}},
+  {id:'level_50',name:'Tycoon',desc:'Reach Lv50',icon:'💎',check:()=>G.lv>=50,reward:{coins:20000}},
+  {id:'first_staff',name:'First Hire',desc:'Hire your first staff',icon:'👥',check:()=>G.staff.length>=1,reward:{coins:100}},
+  {id:'staff_5',name:'Small Team',desc:'Have 5 staff members',icon:'👔',check:()=>G.staff.length>=5,reward:{coins:500}},
+  {id:'first_equipment',name:'Equipment Dealer',desc:'Buy first equipment',icon:'🔧',check:()=>Object.values(G.equipment).reduce((a,b)=>a+b,0)>=1,reward:{coins:200}},
+  {id:'first_trend',name:'Trendsetter',desc:'Buy first trend decoration',icon:'🎨',check:()=>G.trendItems.length>=1,reward:{coins:500}},
+  {id:'trends_10',name:'Interior Designer',desc:'Own 10 trend items',icon:'🌟',check:()=>G.trendItems.length>=10,reward:{coins:2000}},
+  {id:'venue_mall',name:'Mall Owner',desc:'Upgrade to Mall venue',icon:'🏬',check:()=>G.venueLevel>=1,reward:{coins:3000}},
+  {id:'venue_garden',name:'Garden Lover',desc:'Upgrade to Garden venue',icon:'🌳',check:()=>G.venueLevel>=2,reward:{coins:8000}},
+  {id:'venue_park',name:'Park King',desc:'Upgrade to Park venue',icon:'🏞️',check:()=>G.venueLevel>=3,reward:{coins:20000}},
+  {id:'reputation_full',name:'Most Popular',desc:'Reach max rep (300)',icon:'⭐',check:()=>G.rep>=300,reward:{coins:10000}},
+  {id:'coins_10k',name:'First Rich',desc:'Accumulate 10,000 coins',icon:'💰',check:()=>G.coins>=10000,reward:{coins:2000}},
+  {id:'coins_100k',name:'Wealthy',desc:'Accumulate 100,000 coins',icon:'💎',check:()=>G.coins>=100000,reward:{coins:10000}},
+];
+
+function checkAchievements(){
+  let unlocked=false;
+  ACHIEVEMENTS.forEach(a=>{
+    if(!a.done&&a.check()){a.done=true;G.coins+=a.reward.coins;notify('🏆 Achievement: '+a.icon+' '+a.name+'! +'+a.reward.coins.toLocaleString()+'₫',4000);AudioEngine.levelUp();unlocked=true;}
+  });
+  if(unlocked)saveGame();
+}
+
+function renderAchievements(){
+  const el=document.getElementById('panel-achievements');if(!el)return;
+  let html='<h3 style="color:#FFD700;margin-bottom:8px">🏆 Achievements ('+ACHIEVEMENTS.filter(a=>a.done).length+'/'+ACHIEVEMENTS.length+')</h3>';
+  const cats=[
+    {label:'☕ Orders',items:ACHIEVEMENTS.filter(a=>['first_order','serve_10','serve_100','serve_500','serve_1000'].includes(a.id))},
+    {label:'⭐ Level',items:ACHIEVEMENTS.filter(a=>a.id.startsWith('level'))},
+    {label:'👥 Staff',items:ACHIEVEMENTS.filter(a=>['first_staff','staff_5'].includes(a.id))},
+    {label:'🔧 Gear',items:ACHIEVEMENTS.filter(a=>['first_equipment','first_trend','trends_10'].includes(a.id))},
+    {label:'🏪 Venue',items:ACHIEVEMENTS.filter(a=>a.id.startsWith('venue'))},
+    {label:'💰 Wealth',items:ACHIEVEMENTS.filter(a=>['reputation_full','coins_10k','coins_100k'].includes(a.id))},
+  ];
+  cats.forEach(cat=>{
+    html+='<div class="section-title">'+cat.label+'</div>';
+    cat.items.forEach(a=>{
+      const d=a.done;
+      html+='<div class="card" style="'+(d?'border-color:#28a745;background:linear-gradient(90deg,#164829,#1a1a4e):'">"
+      html+='<div><strong>'+a.icon+' '+a.name+'</strong>';
+      html+='<div style="color:#a0a0b0;font-size:10px">'+a.desc+'</div>';
+      if(!d)html+='<div style="color:#FFD700;font-size:10px">Reward: +'+a.reward.coins.toLocaleString()+'₫</div>';
+      html+='</div><div>'+(d?'<span style="color:#28a745;font-size:16px">✅</span>':'<span style="color:#555;font-size:16px">🔒</span>')+'</div></div>';
+    });
+  });
+  el.innerHTML=html;
+}
+
+// ============ DAILY BONUS (V9 new!) ============
+function checkDailyBonus(){
+  const today=new Date().toDateString();
+  const savedDate=localStorage.getItem('trendyCafeDailyBonus');
+  if(savedDate===today)return false;
+  let bonusCoins=500+Math.floor(G.lv*100);
+  G.coins+=bonusCoins;
+  localStorage.setItem('trendyCafeDailyBonus',today);
+  notify('🎁 Daily Bonus: +'+bonusCoins.toLocaleString()+'₫!',3000);
+  AudioEngine.levelUp();
+  return true;
+}
   // DÙNG do...while để up nhiều level nếu XP dư
   while (G.lv < 100) {
     const nextXp = CONFIG.xpPerLevel[G.lv];
@@ -1442,6 +1569,7 @@ function updateUI() {
     case 'expand': renderExpand(); break;
     case 'trends': renderTrends(); break;
     case 'events': renderEvents(); break;
+    case 'achievements': renderAchievements(); break;
   }
 }
 
@@ -1771,7 +1899,8 @@ function loadGame() {
       // V8: Season tracking
       if (G.gameDay) currentSeason = getCurrentSeason(G.gameDay);
       
-      notify('💾 Game loaded! V8 Ultimate', 1500);
+      notify('💾 Game loaded! V9 Ultimate', 1500);
+      checkDailyBonus();
     }
   } catch(e) {}
 }
@@ -1791,7 +1920,7 @@ document.addEventListener('click', function initAudio() {
   document.removeEventListener('click', initAudio);
 }, {once: true});
 
-console.log('✅ Trendy Cafe V6 started!');
+console.log('✅ Trendy Cafe V9 Ultimate started!');
 console.log('✅ Unlocked menu:', G.unlockedMenu);
 console.log('✅ Staff:', G.staff.length);
 console.log('✅ Equipment:', G.equipment);
@@ -1799,8 +1928,5 @@ console.log('✅ Trends:', G.trendItems.length);
 updateUI();
 
 </script>
-
-<!-- ☕ CAFE SCENE V8 — animated pixel art shop layer -->
-<script src="cafe_scene_v8.js"></script>
 </body>
 </html>
