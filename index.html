@@ -831,7 +831,7 @@ function renderAchievements(){
     html+='<div class="section-title">'+cat.label+'</div>';
     cat.items.forEach(a=>{
       const d=a.done;
-      html+='<div class="card" style="'+(d?'border-color:#28a745;background:linear-gradient(90deg,#164829,#1a1a4e):'">"
+      html+='<div class="card" style="'+(d?'border-color:#28a745;background:linear-gradient(90deg,#164829,#1a1a4e)':'')+'">';
       html+='<div><strong>'+a.icon+' '+a.name+'</strong>';
       html+='<div style="color:#a0a0b0;font-size:10px">'+a.desc+'</div>';
       if(!d)html+='<div style="color:#FFD700;font-size:10px">Reward: +'+a.reward.coins.toLocaleString()+'₫</div>';
@@ -853,6 +853,7 @@ function checkDailyBonus(){
   AudioEngine.levelUp();
   return true;
 }
+function checkLevelUp(){
   // DÙNG do...while để up nhiều level nếu XP dư
   while (G.lv < 100) {
     const nextXp = CONFIG.xpPerLevel[G.lv];
