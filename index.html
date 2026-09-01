@@ -430,6 +430,64 @@ function getAvailableFanTypes() {
   return types;
 }
 
+// ============ COMBO SYSTEM ============
+let comboCount = 0;
+let comboLastServeTime = 0;
+const COMBO_WINDOW = 30000; // 30 seconds
+const COMBO_THRESHOLD = 3;  // 3+ orders in window
+const COMBO_BONUS = 0.15;   // +15% revenue bonus
+
+function trackCombo(serveTime) {
+  const now = serveTime || Date.now();
+  
+  if (comboLastServeTime > 0 && (now - comboLastServeTime) <= COMBO_WINDOW) {
+    comboCount++;
+  } else {
+    comboCount = 1;
+  }
+  comboLastServeTime = now;
+  
+  if (comboCount >= COMBO_THRESHOLD) {
+    const bonus = Math.floor((G.totalRevenue / Math.max(1, G.totalServed)) * COMBO_BONUS * comboCount);
+    G.coins += bonus;
+    notify(`🔥 COMBO x${comboCount}! +${bonus}₫ bonus!`, 3000);
+    AudioEngine.levelUp();
+    comboCount = 0;
+  }
+}
+
+// ============ RUSH HOUR SYSTEM ============
+let rushHourActive = false;
+let rushHourEndTime = 0;
+const RUSH_HOUR_DURATION = 60000; // 60 seconds
+const RUSH_HOUR_COIN_MULT = 1.5; // 1.5x coins during rush
+
+function startRushHour() {
+  if (rushHourActive) return;
+  rushHourActive = true;
+  rushHourEndTime = Date.now() + RUSH_HOUR_DURATION;
+  notify(`🌊 RUSH HOUR! 2x orders, 1.5x coins for 60s!`, 4000);
+  AudioEngine.levelUp();
+}
+
+function isRushHour() {
+  return rushHourActive && Date.now() < rushHourEndTime;
+}
+
+function triggerRandomRushHour() {
+  if (rushHourActive && Date.now() < rushHourEndTime) return;
+  if (rushHourActive && Date.now() >= rushHourEndTime) {
+    rushHourActive = false;
+  }
+  if (Math.random() < 0.005) { // 0.5% chance per auto-serve tick
+    startRushHour();
+  }
+}
+
+function getRushMultiplier() {
+  return isRushHour() ? RUSH_HOUR_COIN_MULT : 1.0;
+}
+
 // ============ GAME STATE ============
 var G = {
   coins: 2000,
@@ -632,7 +690,12 @@ function autoGenerateOrder() {
   }
   
   const effectiveRepMod = repMod * balanceMod * fanMod;
-  const interval = Math.floor(baseInterval * phase.orderMult / effectiveRepMod);
+  let interval = Math.floor(baseInterval * phase.orderMult / effectiveRepMod);
+  
+  // RUSH HOUR: 2x order spawn rate
+  if (isRushHour()) {
+    interval = Math.floor(interval / 2);
+  }
   
   const now = Date.now();
   
@@ -649,6 +712,7 @@ function autoGenerateOrder() {
 function serveOrder(idx) {
   if (idx < 0 || idx >= G.orders.length) return;
   const o = G.orders[idx];
+  const serveTime = Date.now();
   
   // DYNAMIC DIFFICULTY
   const phase = getDifficultyPhase(G.gameDay || 1);
@@ -701,12 +765,19 @@ function serveOrder(idx) {
   // NET PROFIT
   const netProfit = revenue + finalTip - finalCost;
   
-  G.coins += netProfit;
+  // RUSH HOUR COIN MULTIPLIER
+  const rushMult = getRushMultiplier();
+  const rushBonus = Math.floor(netProfit * (rushMult - 1));
+  
+  G.coins += netProfit + rushBonus;
   G.totalRevenue += revenue;
   G.totalExpenses += finalCost;
   G.totalServed++;
   G.ordersToday++;
   G.totalTips += finalTip;
+  
+  // TRACK COMBO
+  trackCombo(serveTime);
   
   // XP gain
   const xpGain = Math.floor(o.price * 1.5) + (finalTip > 0 ? 5 : 0);
@@ -1588,6 +1659,9 @@ let lastOrderCount = 0;
 let lastGameDay = G.gameDay || 1;
 setInterval(function() {
   processFinancialCycles(); // Process salaries + charges
+  
+  // RUSH HOUR: random trigger check every tick
+  triggerRandomRushHour();
   
   // === GAME DAY TRACKING (1 day = 60 seconds real time) ===
   if (!G.gameDay) G.gameDay = 1;
